@@ -1,0 +1,1952 @@
+
+
+
+
+
+
+
+
+
+
+
+<html lang="ar" dir="rtl"><head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>لوحة نتائج المباراة</title>
+    <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700;900&amp;display=swap" rel="stylesheet">
+
+<style>
+/* ====================================================================
+=== 1. متغيرات الألوان للوضع النهاري (LIGHT MODE)
+====================================================================*/
+:root {
+    --primary: #CFA963;
+    --success: #2E7D32;
+    --warning: #ffc107;
+    --danger: #dc3545;
+    --dark: #1B1B1B;
+    --border: #E6E6E6;
+    --transition: 0.3s ease;
+
+    --bg-page: #F8F8F8;
+    --bg-card: #FFFFFF;
+    --bg-secondary: #F4F4F4;
+    --bg-header: var(--bg-card);
+    --text-main: #1B1B1B;
+    --text-header: #1B1B1B;
+    --text-secondary: #9AA0A6;
+    --input-color: #1B1B1B;
+
+    --table-head-bg: #F8F8F8;
+    --table-even-bg: #FBFBFA;
+    --table-odd-bg: #FFFFFF;
+    --input-border-color: #E6E6E6;
+    --score-input-disabled-bg: #F4F4F4;
+    --btn-score-color: #1B1B1B;
+    --btn-action-color: #1B1B1B;
+
+    --winner-bg: #FBF3E5;
+    --finished-round-bg: #F4F4F4;
+    --warning-light-bg: #fff3cd;
+}
+
+/* ====================================================================
+=== 2. متغيرات الألوان للوضع الليلي (DARK MODE)
+====================================================================*/
+body.dark-mode {
+    --primary: #D8B26A;
+    --success: #5FAE67;
+    --warning: #E6B84C;
+    --danger: #E07A7A;
+
+    /* Background System */
+    --bg-page: #1C1B18;
+    --bg-card: #2A2824;
+    --bg-secondary: #24221F;
+    --bg-header: #24221F;
+
+    /* Typography */
+    --text-main: #F4F1EA;
+    --text-header: #FAF7F0;
+    --text-secondary: #B8B2A8;
+
+    /* Borders */
+    --border: #45413A;
+
+    /* Tables */
+    --table-head-bg: #2F2C28;
+    --table-even-bg: #2A2824;
+    --table-odd-bg: #24221F;
+
+    /* Inputs */
+    --input-border-color: #555047;
+    --score-input-disabled-bg: #312F2B;
+    --input-color: #F4F1EA;
+
+    /* Buttons */
+    --btn-score-color: #1C1B18;
+    --btn-action-color: #F4F1EA;
+
+    /* Status */
+    --winner-bg: #3F3827;
+    --finished-round-bg: #312F2B;
+    --warning-light-bg: #4D432C;
+}
+
+
+/* ==================================
+=== 3. الستايل العام ===
+==================================*/
+* {
+    box-sizing: border-box;
+    font-family: 'Tajawal', sans-serif;
+    margin: 0; padding: 0;
+    transition: background-color var(--transition), color var(--transition), border-color var(--transition), box-shadow var(--transition);
+}
+
+body {
+    background: var(--bg-page);
+    color: var(--text-main);
+    display: flex;
+    justify-content: center;
+    padding: 12px;
+    min-height: 100vh;
+    overflow-x: hidden;
+    overflow-y: auto;
+}
+.scoreboard-container {
+    width: 100%;
+    max-width: 1800px;
+
+    min-height: calc(100vh - 24px);
+
+    display: flex;
+    flex-direction: column;
+
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    box-shadow: 0 8px 24px rgba(18,24,32,.06);
+
+    overflow: hidden;
+    position: relative;
+
+    transition: transform var(--transition), box-shadow var(--transition);
+}
+
+.scoreboard-container:hover { transform: translateY(-2px); box-shadow: 0 12px 32px rgba(207,169,99,.15); }
+
+.header {
+    position: relative;
+    overflow: hidden;
+
+    background: var(--bg-card);
+
+    color: var(--text-main);
+    text-align: center;
+
+    height: 100px;
+    padding: 0 20px;
+
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+
+    border-bottom: 1px solid var(--border);
+
+    box-shadow: 0 4px 12px rgba(18,24,32,.04);
+}
+
+.header h2 {
+    font-size: 30px;
+    font-weight: 600;
+    letter-spacing: .3px;
+    margin-bottom: 2px;
+    color: var(--text-main);
+    cursor: text;
+    opacity: .95;
+}
+
+.header h2:focus {
+    color: var(--primary);
+    outline: none;
+}
+
+#match-title {
+    font-size: 20px;
+    font-weight: 900;
+    cursor: text;
+    line-height: 1.1;
+    color: var(--primary);
+}
+
+#match-title:focus {
+    outline: none;
+}
+
+/* شريط معلومات المباراة: المؤقت (التركيز البصري) + بدء المباراة + حالة التقدم */
+.match-meta {
+    display: flex;
+    justify-content: center;
+    gap: 10px;
+    flex-wrap: wrap;
+
+    padding: 8px 14px;
+
+    background: var(--bg-secondary);
+    border-bottom: 1px solid var(--border);
+}
+
+.meta-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+
+    min-width: 180px;
+    height: 48px;
+
+    padding: 0 14px;
+
+    border-radius: 12px;
+
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+
+    box-shadow: 0 2px 8px rgba(18,24,32,.05);
+
+    transition: .25s;
+}
+
+.meta-item:hover{
+    transform: translateY(-2px);
+    box-shadow: 0 6px 16px rgba(207,169,99,.12);
+}
+
+.meta-label{
+    display:flex;
+    flex-direction:column;
+
+    font-size:16px;
+    font-weight:700;
+
+    color:var(--text-secondary);
+
+    line-height:1.1;
+}
+
+.meta-value{
+    margin-right:auto;
+
+    font-size:20px;
+    font-weight:900;
+
+    color:var(--primary);
+
+    font-variant-numeric:tabular-nums;
+    letter-spacing:.2px;
+}
+
+.meta-item-timer .meta-value{
+    font-size:24px;
+}
+
+.controls {
+    display: flex;
+    justify-content: space-between;
+    padding: 12px 20px;
+    background: var(--bg-secondary);
+    border-bottom: 1px solid var(--border);
+    gap: 14px;
+    flex-wrap: wrap;
+}
+.team-input-group { display: flex; flex-direction: column; flex: 1; min-width: 220px; }
+.team-input-group label { font-weight: 700; margin-bottom: 6px; font-size: 15px; color: var(--text-secondary); }
+.team-input-group input {
+    padding: 11px 14px; border: 1px solid var(--border); border-radius: 10px;
+    font-weight: 700; font-size: 19px; width: 100%; text-align: right;
+    background-color: var(--bg-card);
+    color: var(--input-color);
+}
+.team-input-group input:focus { border-color: var(--primary); outline: none; box-shadow: 0 0 0 3px rgba(207,169,99,.15); }
+
+.settings-group {
+    padding: 10px 25px;
+    background: var(--bg-secondary);
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    gap: 20px;
+    flex-wrap: wrap;
+}
+.setting-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-weight: 700;
+    font-size: 15px;
+}
+.setting-item input[type="number"] {
+    width: 70px;
+    padding: 6px 8px;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    font-weight: 700;
+    font-size: 18px;
+    text-align: center;
+    background-color: var(--bg-card);
+    color: var(--input-color);
+}
+.setting-item input[type="number"]:focus { border-color: var(--primary); outline: none; box-shadow: 0 0 0 3px rgba(207,169,99,.15); }
+
+
+.table-responsive {
+    flex: 0 0 215px;
+    height: 215px;
+    min-height: 215px;
+    max-height: 215px;
+
+    overflow-y: auto;
+    overflow-x: auto;
+
+    margin: 10px 12px 0;
+}
+.score-table {
+    min-width: 900px;
+    width: 100%;
+    border-collapse: separate;
+    border-spacing: 0;
+    font-size: 15px;
+}
+
+.score-table th,
+.score-table td {
+    border-bottom: 1px solid var(--border);
+    padding: 7px 12px;
+    text-align: center;
+    vertical-align: middle;
+}
+
+/* فواصل رأسية خفيفة بين الأعمدة لتسهيل القراءة السريعة أثناء المباراة */
+.score-table th:not(:last-child),
+.score-table td:not(:last-child) {
+    border-left: 1px solid var(--border);
+}
+
+.score-table thead th {
+    position: sticky;
+    top: 0;
+    z-index: 2;
+
+    padding: 11px 12px;
+
+    font-size: 16px;
+    font-weight: 800;
+    letter-spacing: .2px;
+
+    color: var(--text-main);
+
+    background: var(--table-head-bg);
+
+    border-bottom: 1px solid var(--border);
+
+    box-shadow: 0 2px 6px rgba(18,24,32,.04);
+
+}
+.score-table tbody tr:nth-child(even) { background: var(--table-even-bg); }
+.score-table tbody tr:nth-child(odd) { background: var(--table-odd-bg); }
+
+/* الجولات المنتهية: خلفية أهدأ (توحي بأنها "منجزة") مع الحفاظ على وضوح النص بالكامل */
+.finished-round {
+    background-color: var(--finished-round-bg) !important;
+}
+.finished-round .score-input {
+    background-color: var(--score-input-disabled-bg);
+    border-color: var(--border);
+    color: var(--text-main);
+}
+
+.score-input.warning-highlight {
+    background-color: var(--warning-light-bg) !important;
+    transition: background-color 0.1s;
+}
+
+.score-table tbody tr td:first-child { font-size: 22px; font-weight: 900; color: var(--text-main); }
+.winner-row { background-color: var(--winner-bg) !important; }
+
+/* تمييز الجولة الحالية (النشطة) بوضوح عن باقي الجولات */
+td.current-round-cell {
+    background: rgba(207,169,99,.06) !important;
+    border-top: 1px solid rgba(207,169,99,.12) !important;
+    border-bottom: 1px solid rgba(207,169,99,.12) !important;
+}
+
+.current-round td:first-child {
+    position: relative;
+}
+
+.current-round td:first-child::before {
+    content: "";
+    position: absolute;
+    top: 8px;
+    bottom: 8px;
+    right: 6px;
+
+    width: 4px;
+    border-radius: 20px;
+
+    background: var(--primary);
+}
+.current-round-badge {
+    display: inline-block;
+    margin-top: 5px;
+    font-size: 15px;
+    font-weight: 900;
+    color: #1B1B1B;
+    background: var(--primary);
+    padding: 2px 9px;
+    border-radius: 20px;
+    letter-spacing: 0.2px;
+    white-space: nowrap;
+}
+
+.score-input-container { display: flex; align-items: center; justify-content: center; gap: 6px; }
+.score-input {
+    width: 70px;
+    padding: 6px;
+
+    text-align: center;
+    font-weight: 900;
+    font-size: 34px;
+
+    color: var(--text-main);
+
+    border: 1px solid var(--border);
+    border-radius: 10px;
+
+    background: var(--bg-card);
+
+    box-shadow: 0 2px 6px rgba(18,24,32,.05);
+
+    transition: all .2s ease;
+}
+
+.score-input:focus {
+    outline: none;
+    border-color: var(--primary);
+
+    box-shadow: 0 0 0 3px rgba(207,169,99,.15);
+}
+
+.score-input:disabled {
+    background: var(--score-input-disabled-bg);
+
+    box-shadow: none;
+}
+
+.btn-score {
+    padding: 5px 14px;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    font-size: 24px;
+    font-weight: 900;
+    line-height: 1;
+
+    cursor: pointer;
+
+    border: 1px solid var(--border);
+    border-radius: 10px;
+
+    background: var(--bg-card);
+
+    color: var(--text-main);
+
+    box-shadow: 0 2px 6px rgba(18,24,32,.05);
+
+    transition: all .2s ease;
+}
+
+.btn-score:hover:not(:disabled) {
+    transform: translateY(-1px);
+    background: rgba(207,169,99,.10);
+    border-color: var(--primary);
+
+    box-shadow: 0 8px 18px rgba(207,169,99,.15);
+}
+
+.btn-score:active:not(:disabled) {
+    transform: translateY(1px);
+
+    box-shadow: inset 0 2px 6px rgba(18,24,32,.08);
+}
+
+.btn-score:disabled {
+    opacity: .45;
+    cursor: not-allowed;
+    box-shadow: none;
+}
+
+.winner-cell { font-weight: 900; font-size: 22px; min-width: 80px; }
+.is-winner { color: var(--success); }
+.is-draw { color: var(--text-main); font-style: italic; opacity: 0.7; }
+
+/* ==================================
+=== النتيجة النهائية (أكبر وأوضح) ===
+==================================*/
+.final-results {
+    padding: 12px 16px 10px;
+    background: var(--bg-secondary);
+    border-top: 1px solid var(--border);
+    text-align: center;
+}
+
+/* لوحة نتيجة أنيقة هادئة بأسلوب البطاقات الفاخرة */
+.final-scores {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 18px;
+    flex-wrap: wrap;
+    margin-bottom: 10px;
+
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    box-shadow: 0 8px 24px rgba(18,24,32,.06);
+    padding: 12px 16px;
+}
+
+.final-score-team {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+
+    min-width: 210px;
+    min-height: 140px;
+    padding: 14px 22px;
+
+    border-radius: 14px;
+    border: 1px solid var(--border);
+
+    background: var(--bg-secondary);
+
+    box-shadow: 0 2px 8px rgba(18,24,32,.04);
+
+    transition: all .25s ease;
+}
+.final-team-name { font-size: 20px; font-weight: 700; color: var(--text-secondary); }
+.final-team-points { font-size: 58px; font-weight: 900; color: var(--primary); line-height: 1; font-variant-numeric: tabular-nums; }
+.final-vs { font-size: 20px; font-weight: 900; color: var(--text-secondary); }
+
+/* الفريق الفائز يبرز بهدوء داخل لوحة النتيجة نفسها */
+.final-score-team.is-winner-team {
+    border-color: var(--success);
+    background: rgba(46,125,50,.06);
+    box-shadow: 0 8px 20px rgba(46,125,50,.10), 0 0 0 1px rgba(46,125,50,.15) inset;
+}
+.final-score-team.is-winner-team .final-team-points { color: var(--success); }
+.final-score-team.is-winner-team .final-team-name { color: var(--success); }
+
+/* تأثير خفوت لطيف عند تغيّر الفائز */
+@keyframes winnerFade {
+    from { opacity: 0.35; }
+    to { opacity: 1; }
+}
+.winner-fade { animation: winnerFade 200ms ease; }
+
+.final-winner-box {
+    display: inline-block; padding: 14px 40px; border-radius: 12px; font-size: 28px;
+    font-weight: 900; box-shadow: 0 4px 10px rgba(18,24,32,.08);
+}
+.winner-success { background: var(--success); color: #fff; }
+.winner-warning { background: var(--warning); color: var(--dark); }
+
+/* شريط أدوات مدمج وصف واحد على شاشات الديسكتوب */
+.action-buttons {
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    align-items: center;
+    gap: 6px;
+    margin-top: 12px;
+    flex-wrap: wrap;
+}
+
+/* Unified Professional Button Style */
+.btn {
+    display: flex; 
+    align-items: center; 
+    gap: 6px;
+    padding: 6px 12px; /* Reduced padding for a compact toolbar feel */
+    border: 1px solid var(--border); /* Unified border color */
+    border-radius: 8px; /* Unified radius */
+    font-weight: 600; /* Professional font weight */
+    cursor: pointer;
+    font-size: 13px; /* Slightly reduced text size */
+    background-color: var(--bg-card); /* Unified clean background */
+    color: var(--text-main); /* Unified text color */
+    box-shadow: 0 1px 3px rgba(18,24,32,.04);
+    transition: all var(--transition);
+}
+
+.btn:hover { 
+    background-color: rgba(207,169,99,.08); 
+    border-color: var(--primary); /* Subtle gold highlight on hover */
+    transform: translateY(-1px); 
+    box-shadow: 0 6px 16px rgba(207,169,99,.12); 
+}
+
+.btn .btn-icon { 
+    font-size: 15px; /* Scaled down emoji */
+    line-height: 1; 
+}
+
+.theme-toggle {
+    position: fixed; top: 20px; left: 20px; z-index: 1000; cursor: pointer;
+    font-size: 26px; width: 44px; height: 44px;
+    display: flex; align-items: center; justify-content: center;
+    border-radius: 50%; background-color: var(--bg-card);
+    box-shadow: 0 4px 12px rgba(18,24,32,.08);
+    border: 1px solid var(--border); color: var(--text-main);
+}
+.theme-toggle:hover { transform: scale(1.1); box-shadow: 0 6px 16px rgba(207,169,99,.15); }
+
+#save-indicator {
+    position: absolute; bottom: 8px; right: 12px;
+    font-size: 13px; font-weight: 700; color: var(--success);
+    opacity: 0; transition: opacity 0.3s ease-in-out;
+}
+
+.table-responsive::-webkit-scrollbar { width: 10px; height: 10px; }
+.table-responsive::-webkit-scrollbar-track { background: var(--bg-secondary); border-radius: 10px; }
+.table-responsive::-webkit-scrollbar-thumb { background-color: var(--primary); border-radius: 10px; border: 2px solid var(--bg-secondary); }
+.table-responsive::-webkit-scrollbar-thumb:hover { background-color: var(--primary); filter: brightness(0.9); }
+
+@keyframes slideInFromTop {
+    from { opacity: 0; transform: translateY(-10px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+.new-round-animation { animation: slideInFromTop 0.4s ease-out forwards; }
+
+@media (max-width:768px){
+
+    body{
+        padding:6px;
+    }
+
+    .scoreboard-container{
+        border-radius:10px;
+        min-height:auto;
+    }
+
+    /* ===========================
+       Header
+    =========================== */
+
+    .header{
+        height:72px;
+        padding:8px 12px;
+    }
+
+    .header h2{
+        font-size:17px;
+        margin-bottom:2px;
+    }
+
+    #match-title{
+        font-size:23px;
+    }
+
+    /* ===========================
+       Match Meta
+    =========================== */
+
+    .match-meta{
+        gap:6px;
+        padding:8px;
+    }
+
+    .meta-item{
+        flex:1;
+        min-width:90px;
+        height:56px;
+        padding:6px;
+        border-radius:10px;
+        flex-direction:column;
+        justify-content:center;
+        gap:2px;
+    }
+
+    .meta-label{
+        font-size:11px;
+        text-align:center;
+    }
+
+    .meta-value{
+        margin:0;
+        font-size:17px;
+    }
+
+    .meta-item-timer .meta-value{
+        font-size:19px;
+    }
+
+    /* ===========================
+       Inputs
+    =========================== */
+
+    .controls{
+        flex-direction:column;
+        gap:8px;
+        padding:10px;
+    }
+
+    .team-input-group{
+        min-width:100%;
+    }
+
+    .team-input-group label{
+        font-size:13px;
+    }
+
+    .team-input-group input{
+        height:42px;
+        font-size:17px;
+    }
+
+    .settings-group{
+        padding:10px;
+    }
+
+    /* ===========================
+       Table
+    =========================== */
+
+    .table-responsive{
+        margin:8px;
+        height:105px;
+        min-height:105px;
+        max-height:105px;
+        overflow-y:auto;
+        overflow-x:hidden;
+    }
+
+    .score-table{
+        width:100%;
+        min-width:100%;
+        table-layout:fixed;
+    }
+
+    /* إلغاء عمود الفائز */
+
+  
+
+    .score-table thead th{
+        font-size:11px;
+        padding:6px 4px;
+    }
+
+    .score-table td{
+        padding:6px 4px;
+    }
+
+    .score-table th:nth-child(1){
+        width:24%;
+    }
+
+    .score-table th:nth-child(2),
+    .score-table th:nth-child(3){
+        width:38%;
+    }
+
+    .score-table tbody tr td:first-child{
+        font-size:16px;
+    }
+
+    .score-input{
+        width:42px;
+        height:38px;
+        font-size:22px;
+    }
+
+    .btn-score{
+        width:28px;
+        height:28px;
+        padding:0;
+        font-size:18px;
+    }
+
+    .score-input-container{
+        gap:3px;
+    }
+
+    /* إلغاء الشريط الذهبي وعبارة الجولة الحالية */
+
+    .current-round td:first-child::before{
+        display:none;
+    }
+
+    .current-round-badge{
+        display:none;
+    }
+
+    /* ===========================
+       Final Score
+    =========================== */
+
+    .final-results{
+        padding:8px;
+    }
+
+    .final-scores{
+        gap:8px;
+        padding:10px;
+    }
+
+    .final-score-team{
+        min-width:120px;
+        min-height:90px;
+        padding:8px;
+    }
+
+    .final-team-name{
+        font-size:15px;
+    }
+
+    .final-team-points{
+        font-size:38px;
+    }
+
+    .final-vs{
+        font-size:15px;
+    }
+
+    .final-winner-box{
+        width:100%;
+        font-size:17px;
+        padding:10px;
+    }
+
+    /* ===========================
+       Mobile Action Buttons
+    =========================== */
+
+    .action-buttons{
+        display:grid;
+        grid-template-columns:repeat(3,1fr);
+        gap:6px;
+        margin-top:8px;
+    }
+
+    .btn{
+        display:flex;
+        flex-direction:row;
+        align-items:center;
+        justify-content:center;
+        gap:5px;
+
+        min-height:34px;
+        padding:0 8px;
+
+        border-radius:8px;
+
+        font-size:11px;
+        font-weight:700;
+
+        white-space:nowrap;
+
+        box-shadow:0 1px 3px rgba(0,0,0,.06);
+    }
+
+    .btn .btn-icon{
+        font-size:15px;
+        line-height:1;
+    }
+
+    #btn-new{
+        grid-column:auto;
+    }
+
+    /* ===========================
+       Theme
+    =========================== */
+
+    .theme-toggle{
+        width:38px;
+        height:38px;
+        font-size:20px;
+        top:8px;
+        left:8px;
+    }
+
+}
+
+</style>
+
+</head>
+<body>
+
+
+    <div id="theme-toggle" class="theme-toggle" title="تبديل الوضع">
+        ☀️
+    </div>
+
+    <div class="scoreboard-container">
+        <div class="header">
+            <h2 id="tournament-name" contenteditable="true" title="يمكنك تعديل اسم البطولة">ادارة لوحة نتائج المباراة </h2>
+            <h1 id="match-title" contenteditable="true">مباراة تمهيدية</h1>
+        </div>
+
+        <div class="match-meta">
+            <div class="meta-item meta-item-timer">
+                <span class="meta-label">⏱️ مدة المباراة</span>
+                <span class="meta-value" id="match-duration">00:00:00</span>
+            </div>
+            <div class="meta-item">
+                <span class="meta-label">🕒 بدأت الساعة</span>
+                <span class="meta-value" id="match-started-at">--:--</span>
+            </div>
+            <div class="meta-item">
+                <span class="meta-label">📍 حالة المباراة</span>
+                <span class="meta-value" id="match-progress">🟢 1 / 5</span>
+            </div>
+        </div>
+
+        <div class="controls">
+            <div class="team-input-group">
+                <label for="team1-name">الفريق الأول</label>
+                <input type="text" id="team1-name" value="الفريق الأول" oninput="saveState(); renderScoreboard();">
+            </div>
+            <div class="team-input-group">
+                <label for="team2-name">الفريق الثاني</label>
+                <input type="text" id="team2-name" value="الفريق الثاني" oninput="saveState(); renderScoreboard();">
+            </div>
+        </div>
+        <div class="settings-group">
+            <div class="setting-item">
+                <label for="min-rounds-to-win">أدنى جولات للفوز:</label>
+                <input type="number" id="min-rounds-to-win" value="5" min="1" max="20" oninput="updateSettings();">
+            </div>
+        </div>
+        <div class="table-responsive">
+            <table class="score-table">
+                <thead>
+                <tr>
+                    <th style="width:12%">الجولة</th>
+<th id="th-team1">الفريق الأول</th>
+<th id="th-team2">الفريق الثاني</th>
+<th id="winner-header">الفائز بالجولة</th>
+                </tr>
+                </thead>
+                <tbody id="rounds-body"></tbody>
+            </table>
+        </div>
+        <div class="final-results">
+            <div class="final-scores">
+                <div class="final-score-team" id="team1-final-panel">
+                    <span class="final-team-name" id="team1-name-display">الفريق الأول</span>
+                    <span class="final-team-points" id="team1-total-display">0</span>
+                </div>
+                <span class="final-vs">–</span>
+                <div class="final-score-team" id="team2-final-panel">
+                    <span class="final-team-name" id="team2-name-display">الفريق الثاني</span>
+                    <span class="final-team-points" id="team2-total-display">0</span>
+                </div>
+            </div>
+            <div id="final-winner-display" class="final-winner-box winner-warning">النتيجة النهائية: بدء المباراة</div>
+            <div class="action-buttons">
+                <button class="btn" id="btn-add" onclick="addNewRound();" title="إضافة جولة جديدة">
+                    <span class="btn-icon">➕</span><span>إضافة جولة</span>
+                </button>
+                <button class="btn" id="btn-undo" onclick="undoLastAction();" title="تراجع عن آخر إجراء">
+                    <span class="btn-icon">↩️</span><span>تراجع</span>
+                </button>
+                <button class="btn" id="btn-remove-last" onclick="removeLastRound();" title="إزالة آخر جولة">
+                    <span class="btn-icon">🗑️</span><span>إزالة الأخيرة</span>
+                </button>
+                <button class="btn" id="btn-export" onclick="exportResults();" title="تصدير نتيجة المباراة">
+                    <span class="btn-icon">📤</span><span>تصدير النتيجة</span>
+                </button>
+                <button class="btn" id="btn-export-image" onclick="exportAsImage();" title="تصدير النتيجة كصورة">
+                    <span class="btn-icon">📸</span><span>تصدير كصورة</span>
+                </button>
+                <button class="btn" id="btn-new" onclick="startNewMatch();" title="بدء مباراة جديدة">
+                    <span class="btn-icon">🔄</span><span>مباراة جديدة</span>
+                </button>
+            </div>
+        </div>
+        <span id="save-indicator">✅ تم الحفظ</span>
+    </div>
+
+
+<script>
+    // === تبديل الوضع الليلي/النهاري ===
+    const themeToggleButton = document.getElementById('theme-toggle');
+    const bodyElement = document.body;
+    const SUN_ICON = '☀️';
+    const MOON_ICON = '🌙';
+    const DARK_MODE_CLASS = 'dark-mode';
+    const THEME_STORAGE_KEY = 'scoreboardThemeMode';
+
+    function applyTheme(mode) {
+        if (mode === 'dark') {
+            bodyElement.classList.add(DARK_MODE_CLASS);
+            themeToggleButton.innerHTML = MOON_ICON;
+            themeToggleButton.title = 'تبديل للوضع النهاري';
+            localStorage.setItem(THEME_STORAGE_KEY, 'dark');
+        } else {
+            bodyElement.classList.remove(DARK_MODE_CLASS);
+            themeToggleButton.innerHTML = SUN_ICON;
+            themeToggleButton.title = 'تبديل للوضع الليلي';
+            localStorage.setItem(THEME_STORAGE_KEY, 'light');
+        }
+    }
+
+    const savedThemeMode = localStorage.getItem(THEME_STORAGE_KEY);
+    if (savedThemeMode) {
+        applyTheme(savedThemeMode);
+    } else if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+        applyTheme('dark');
+    } else {
+        applyTheme('light');
+    }
+
+    themeToggleButton.addEventListener('click', () => {
+        const isCurrentlyDark = bodyElement.classList.contains(DARK_MODE_CLASS);
+        applyTheme(isCurrentlyDark ? 'light' : 'dark');
+    });
+
+    // ===============================================
+    // === منطق لوحة النتائج ===
+    // ===============================================
+
+    const STORAGE_KEY = 'carromScoreboardState_V4';
+    const HISTORY_KEY = 'carromScoreboardHistory_V4';
+    const TIMER_KEY = 'carromMatchTimer_V1';
+const isMobile = window.matchMedia("(max-width:768px)").matches;
+
+    // حد التنبيه البصري: أعلى نتيجة معتادة لجولة واحدة (شامل نقاط التغطية التي يتم تضمينها يدوياً)
+    const ROUND_SCORE_WARNING_THRESHOLD = 29;
+
+    const roundsBody = document.getElementById('rounds-body');
+    const team1NameInput = document.getElementById('team1-name');
+    const team2NameInput = document.getElementById('team2-name');
+    const finalWinnerDisplay = document.getElementById('final-winner-display');
+    const team1TotalDisplay = document.getElementById('team1-total-display');
+    const team2TotalDisplay = document.getElementById('team2-total-display');
+    const btnAdd = document.getElementById('btn-add');
+    const btnRemoveLast = document.getElementById('btn-remove-last');
+    const btnUndo = document.getElementById('btn-undo');
+    const saveIndicator = document.getElementById('save-indicator');
+    const minRoundsToWinInput = document.getElementById('min-rounds-to-win');
+    const matchDurationDisplay = document.getElementById('match-duration');
+    const matchStartedAtDisplay = document.getElementById('match-started-at');
+    const matchProgressDisplay = document.getElementById('match-progress');
+    const team1FinalPanel = document.getElementById('team1-final-panel');
+    const team2FinalPanel = document.getElementById('team2-final-panel');
+
+    let history = [];
+    const MAX_HISTORY = 5;
+
+    let state = {
+        tournamentName: 'بطولة المجلس للكيرم - رمضان 26',
+        matchTitle: 'مباراة تمهيدية',
+        team1Name: 'الفريق الأول',
+        team2Name: 'الفريق الثاني',
+        total1: 0,
+        total2: 0,
+        rounds: [],
+        settings: {
+            minRoundsToWin: 5
+        }
+    };
+
+    // ============ مؤقت المباراة ============
+    let matchTimer = { startTime: null, stoppedAt: null };
+    let timerIntervalId = null;
+
+    function formatDuration(ms) {
+        const totalSeconds = Math.floor(Math.max(0, ms) / 1000);
+        const h = Math.floor(totalSeconds / 3600);
+        const m = Math.floor((totalSeconds % 3600) / 60);
+        const s = totalSeconds % 60;
+        const pad = (n) => String(n).padStart(2, '0');
+        return `${pad(h)}:${pad(m)}:${pad(s)}`;
+    }
+
+    function formatStartedAt(timestamp) {
+        return new Date(timestamp).toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit', hour12: true });
+    }
+
+    function saveTimer() {
+        localStorage.setItem(TIMER_KEY, JSON.stringify(matchTimer));
+    }
+
+    function updateTimerDisplay() {
+        const end = matchTimer.stoppedAt || Date.now();
+        matchDurationDisplay.textContent = formatDuration(end - matchTimer.startTime);
+    }
+
+    function restartTicking() {
+        clearInterval(timerIntervalId);
+        updateTimerDisplay();
+        if (!matchTimer.stoppedAt) {
+            timerIntervalId = setInterval(updateTimerDisplay, 1000);
+        }
+    }
+
+    // إعداد المؤقت: إذا كان هناك مؤقت محفوظ يستكمل منه، وإلا يبدأ مؤقت جديد
+    function initTimer(forceReset = false) {
+        if (!forceReset) {
+            const saved = localStorage.getItem(TIMER_KEY);
+            if (saved) {
+                matchTimer = JSON.parse(saved);
+            } else {
+                matchTimer = { startTime: Date.now(), stoppedAt: null };
+            }
+        } else {
+            matchTimer = { startTime: Date.now(), stoppedAt: null };
+        }
+        saveTimer();
+        matchStartedAtDisplay.textContent = formatStartedAt(matchTimer.startTime);
+        restartTicking();
+    }
+
+    // يوقف المؤقت تلقائياً عند حسم المباراة، ويستأنفه إذا تراجع الحكم عن الحسم (تراجع/حذف جولة)
+    function syncTimerWithMatchState(isMatchDecided) {
+        if (isMatchDecided && !matchTimer.stoppedAt) {
+            matchTimer.stoppedAt = Date.now();
+            saveTimer();
+            clearInterval(timerIntervalId);
+            updateTimerDisplay();
+        } else if (!isMatchDecided && matchTimer.stoppedAt) {
+            matchTimer.stoppedAt = null;
+            saveTimer();
+            restartTicking();
+        }
+    }
+
+    function getCurrentDurationMs() {
+        const end = matchTimer.stoppedAt || Date.now();
+        return Math.max(0, end - matchTimer.startTime);
+    }
+
+    // ============ الحفظ التلقائي والتراجع ============
+
+    function showSaveIndicator() {
+        saveIndicator.style.opacity = '1';
+        clearTimeout(saveIndicator.timer);
+        saveIndicator.timer = setTimeout(() => {
+            saveIndicator.style.opacity = '0';
+        }, 1500);
+    }
+
+    function pushStateToHistory(currentState) {
+        const stateCopy = JSON.parse(JSON.stringify(currentState));
+        history.push(stateCopy);
+        if (history.length > MAX_HISTORY) {
+            history.shift();
+        }
+        localStorage.setItem(HISTORY_KEY, JSON.stringify(history));
+    }
+
+    function undoLastAction() {
+        if (history.length > 1) {
+            history.pop();
+            const previousState = history[history.length - 1];
+
+            Object.assign(state, JSON.parse(JSON.stringify(previousState)));
+
+            document.getElementById('tournament-name').textContent = state.tournamentName;
+            document.getElementById('match-title').textContent = state.matchTitle;
+            team1NameInput.value = state.team1Name;
+            team2NameInput.value = state.team2Name;
+            minRoundsToWinInput.value = state.settings.minRoundsToWin;
+
+            renderScoreboard(false);
+            showSaveIndicator();
+        }
+    }
+
+    function saveState() {
+        state.tournamentName = document.getElementById('tournament-name').textContent;
+        state.matchTitle = document.getElementById('match-title').textContent;
+        state.team1Name = team1NameInput.value;
+        state.team2Name = team2NameInput.value;
+
+        pushStateToHistory(state);
+
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+        showSaveIndicator();
+    }
+
+    function loadState() {
+        const savedState = localStorage.getItem(STORAGE_KEY);
+        const savedHistory = localStorage.getItem(HISTORY_KEY);
+
+        if (savedState) {
+            const loaded = JSON.parse(savedState);
+            state = { ...state, ...loaded, settings: { ...state.settings, ...(loaded.settings || {}) } };
+            document.getElementById('tournament-name').textContent = state.tournamentName;
+            document.getElementById('match-title').textContent = state.matchTitle;
+            team1NameInput.value = state.team1Name;
+            team2NameInput.value = state.team2Name;
+            minRoundsToWinInput.value = state.settings.minRoundsToWin;
+        } else {
+            state.rounds.push({ score1: 0, score2: 0 });
+        }
+
+        if (savedHistory) {
+            history = JSON.parse(savedHistory);
+        } else {
+            pushStateToHistory(state);
+        }
+
+        initTimer(false);
+        renderScoreboard(false);
+    }
+
+    function updateSettings() {
+        state.settings.minRoundsToWin = parseInt(minRoundsToWinInput.value) || 1;
+        renderScoreboard();
+    }
+
+    function updateRoundState(roundNum, data) {
+        if (roundNum >= 0 && roundNum < state.rounds.length) {
+            state.rounds[roundNum] = { ...state.rounds[roundNum], ...data };
+            renderScoreboard();
+        }
+    }
+
+    function calculateRoundPoints(roundIndex) {
+        const round = state.rounds[roundIndex];
+        if (!round) return { total1: 0, total2: 0, winner: '—' };
+
+        const total1 = round.score1;
+        const total2 = round.score2;
+
+        let winnerText = '—';
+        if (total1 > total2) {
+            winnerText = state.team1Name;
+        } else if (total2 > total1) {
+            winnerText = state.team2Name;
+        } else if (total1 > 0 || total2 > 0) {
+            winnerText = 'تعادل';
+        }
+
+        return { total1, total2, winner: winnerText };
+    }
+
+    // هل تحتوي الجولة على نتيجة فعلية تم إدخالها؟ (الفريق الخاسر دائماً صفر، لذا أي نقاط تعني أن الجولة لُعبت)
+    function roundHasResult(round) {
+        return !!round && (round.score1 > 0 || round.score2 > 0);
+    }
+
+    // تحسب النتيجة الإجمالية وحالة المباراة (لا تزال جارية / محسومة / تعادل عند اكتمال الحد الأدنى)
+    // المباراة تُعتبر محسومة فقط بعد أن تحتوي آخر جولة مُهيّأة على نتيجة فعلية مُدخلة، وليس فقط عند إنشائها
+    function calculateFinalResults() {
+        let finalTotal1 = 0;
+        let finalTotal2 = 0;
+        const roundsPlayed = state.rounds.length;
+        const minRounds = state.settings.minRoundsToWin;
+
+        state.rounds.forEach((round, index) => {
+            const result = calculateRoundPoints(index);
+            finalTotal1 += result.total1;
+            finalTotal2 += result.total2;
+        });
+
+        state.total1 = finalTotal1;
+        state.total2 = finalTotal2;
+
+        const team1Name = state.team1Name || 'الفريق الأول';
+        const team2Name = state.team2Name || 'الفريق الثاني';
+
+        const finalRoundReached = roundsPlayed >= minRounds;
+        const lastRound = state.rounds[roundsPlayed - 1];
+        const lastRoundCompleted = roundHasResult(lastRound);
+        // "مكتملة" تعني: تم الوصول لعدد الجولات المطلوب، والجولة الأخيرة لُعبت فعلياً
+        const matchComplete = finalRoundReached && lastRoundCompleted;
+
+        // شارة التقدم (تُستخدم أيضاً بشكل مستقل عن نص النتيجة النهائية)
+        let progress;
+        if (matchComplete && finalTotal1 !== finalTotal2) {
+            progress = { emoji: '🏁', text: 'انتهت المباراة' };
+        } else if (finalRoundReached) {
+            progress = { emoji: '🟡', text: `الجولة الأخيرة ${roundsPlayed} / ${minRounds}` };
+        } else {
+            progress = { emoji: '🟢', text: `${roundsPlayed} / ${minRounds}` };
+        }
+
+        if (matchComplete && finalTotal1 !== finalTotal2) {
+            const team1Wins = finalTotal1 > finalTotal2;
+            const winnerName = team1Wins ? team1Name : team2Name;
+            return {
+                isDecided: true,
+                winnerTeam: team1Wins ? 1 : 2,
+                progress,
+                text: ` الفائز: <strong>${winnerName}</strong>`,
+                class: 'winner-success'
+            };
+        }
+
+        if (matchComplete) {
+            return {
+                isDecided: false,
+                winnerTeam: 0,
+                progress,
+                text: `تعادل في النقاط (${finalTotal1}) — يجب لعب جولة إضافية`,
+                class: 'winner-warning'
+            };
+        }
+
+        if (finalRoundReached) {
+            // الجولة الأخيرة بدأت ولكن لم تُدخل نتيجتها بعد — المباراة لا تزال جارية والمؤقت مستمر
+            if (finalTotal1 === finalTotal2) {
+                return { isDecided: false, winnerTeam: 0, progress, text: `الجولة الأخيرة جارية — تعادل مؤقت (${finalTotal1})`, class: 'winner-warning' };
+            }
+            const leadingName = finalTotal1 > finalTotal2 ? team1Name : team2Name;
+            const leadingPoints = Math.max(finalTotal1, finalTotal2);
+            return { isDecided: false, winnerTeam: 0, progress, text: `الجولة الأخيرة جارية — متقدم: <strong>${leadingName}</strong> (${leadingPoints})`, class: 'winner-warning' };
+        }
+
+        if (finalTotal1 === 0 && finalTotal2 === 0) {
+            return { isDecided: false, winnerTeam: 0, progress, text: 'النتيجة النهائية: بدء المباراة', class: 'winner-warning' };
+        }
+
+        if (finalTotal1 === finalTotal2) {
+            return { isDecided: false, winnerTeam: 0, progress, text: `تعادل مؤقت في النقاط (${finalTotal1})`, class: 'winner-warning' };
+        }
+
+        const team1Leading = finalTotal1 > finalTotal2;
+        const winnerName = team1Leading ? team1Name : team2Name;
+        const winnerPoints = Math.max(finalTotal1, finalTotal2);
+        const remaining = Math.max(0, minRounds - roundsPlayed);
+        return {
+            isDecided: false,
+            winnerTeam: 0,
+            progress,
+            text: `متقدم حالياً: <strong>${winnerName}</strong> (${winnerPoints}) — يتبقى ${remaining} جولة`,
+            class: 'winner-warning'
+        };
+    }
+
+    function changeScore(roundIndex, teamIndex, change) {
+        const key = `score${teamIndex}`;
+        const round = state.rounds[roundIndex];
+        const newScore = Math.max(0, round[key] + change);
+        updateRoundState(roundIndex, { [key]: newScore });
+    }
+
+    function handleScoreInput(inputElement, roundIndex, teamIndex) {
+        const value = parseInt(inputElement.value) || 0;
+        const key = `score${teamIndex}`;
+
+        if (value > ROUND_SCORE_WARNING_THRESHOLD) {
+            inputElement.classList.add('warning-highlight');
+        } else {
+            inputElement.classList.remove('warning-highlight');
+        }
+
+        updateRoundState(roundIndex, { [key]: value });
+    }
+
+    function createRoundRow(roundData, roundNum) {
+        const roundIndex = roundNum - 1;
+        const row = document.createElement('tr');
+        row.id = `round-${roundNum}`;
+
+        const isFinished = roundIndex < state.rounds.length - 1;
+        if (isFinished) {
+            row.classList.add('finished-round');
+        }
+
+        const tdRound = document.createElement('td');
+        tdRound.textContent = `الجولة ${roundNum}`;
+        if (!isFinished) {
+            const badge = document.createElement('span');
+            badge.className = 'current-round-badge';
+            badge.textContent = 'الجولة الحالية';
+            tdRound.appendChild(document.createElement('br'));
+            tdRound.appendChild(badge);
+        }
+        row.appendChild(tdRound);
+
+        for (let teamIndex = 1; teamIndex <= 2; teamIndex++) {
+            const scoreKey = `score${teamIndex}`;
+            const scoreValue = roundData[scoreKey];
+            const isDisabled = isFinished;
+
+            const td = document.createElement('td');
+            const scoreContainer = document.createElement('div');
+            scoreContainer.className = 'score-input-container';
+
+            const input = document.createElement('input');
+            input.type = 'number';
+            input.min = 0;
+            input.value = scoreValue;
+            input.className = `score-input team${teamIndex}-score`;
+            input.disabled = isDisabled;
+            input.oninput = (e) => handleScoreInput(e.target, roundIndex, teamIndex);
+            if (scoreValue > ROUND_SCORE_WARNING_THRESHOLD) {
+                input.classList.add('warning-highlight');
+            }
+
+            const btnMinus = document.createElement('button');
+            btnMinus.type = 'button';
+            btnMinus.textContent = '−';
+            btnMinus.className = 'btn-score';
+            btnMinus.disabled = isDisabled;
+            btnMinus.onclick = () => { if (!isDisabled) changeScore(roundIndex, teamIndex, -1); };
+
+            const btnPlus = document.createElement('button');
+            btnPlus.type = 'button';
+            btnPlus.textContent = '+';
+            btnPlus.className = 'btn-score';
+            btnPlus.disabled = isDisabled;
+            btnPlus.onclick = () => { if (!isDisabled) changeScore(roundIndex, teamIndex, 1); };
+
+            scoreContainer.appendChild(btnPlus);
+            scoreContainer.appendChild(input);
+            scoreContainer.appendChild(btnMinus);
+            td.appendChild(scoreContainer);
+            row.appendChild(td);
+        }
+
+        const result = calculateRoundPoints(roundIndex);
+       if (!isMobile) {
+
+    const tdWinner = document.createElement('td');
+    tdWinner.className = 'winner-cell';
+    tdWinner.textContent = result.winner;
+
+    if (result.winner === state.team1Name || result.winner === state.team2Name) {
+        tdWinner.classList.add('is-winner');
+    } else if (result.winner === 'تعادل') {
+        tdWinner.classList.add('is-draw');
+    }
+
+    row.appendChild(tdWinner);
+
+}
+
+        if (!isFinished) {
+            row.classList.add('current-round');
+            Array.from(row.children).forEach((cell) => cell.classList.add('current-round-cell'));
+        }
+
+        return row;
+    }
+
+    let previousWinnerTeam = 0;
+
+    function renderScoreboard(shouldSave = true) {
+        minRoundsToWinInput.value = state.settings.minRoundsToWin;
+
+        document.getElementById('th-team1').textContent = state.team1Name || 'الفريق الأول';
+        document.getElementById('th-team2').textContent = state.team2Name || 'الفريق الثاني';
+        document.getElementById('team1-name-display').textContent = state.team1Name || 'الفريق الأول';
+        document.getElementById('team2-name-display').textContent = state.team2Name || 'الفريق الثاني';
+const winnerHeader = document.getElementById("winner-header");
+winnerHeader.hidden = isMobile;
+        roundsBody.innerHTML = '';
+        state.rounds.forEach((round, index) => {
+            roundsBody.appendChild(createRoundRow(round, index + 1));
+        });
+
+        const finalResults = calculateFinalResults();
+        team1TotalDisplay.textContent = state.total1;
+        team2TotalDisplay.textContent = state.total2;
+        finalWinnerDisplay.innerHTML = finalResults.text;
+        finalWinnerDisplay.className = `final-winner-box ${finalResults.class}`;
+
+        matchProgressDisplay.textContent = `${finalResults.progress.emoji} ${finalResults.progress.text}`;
+        team1FinalPanel.classList.toggle('is-winner-team', finalResults.winnerTeam === 1);
+        team2FinalPanel.classList.toggle('is-winner-team', finalResults.winnerTeam === 2);
+
+        if (finalResults.winnerTeam !== previousWinnerTeam) {
+            const finalScoresEl = document.querySelector('.final-scores');
+            if (finalScoresEl) {
+                finalScoresEl.classList.remove('winner-fade');
+                void finalScoresEl.offsetWidth; // إعادة تشغيل الأنيميشن
+                finalScoresEl.classList.add('winner-fade');
+            }
+            previousWinnerTeam = finalResults.winnerTeam;
+        }
+
+        syncTimerWithMatchState(finalResults.isDecided);
+
+        if (shouldSave) {
+            saveState();
+        }
+    }
+
+    function addNewRound() {
+        state.rounds.push({ score1: 0, score2: 0 });
+
+        renderScoreboard();
+
+        const newRoundRow = document.getElementById(`round-${state.rounds.length}`);
+        if (newRoundRow) {
+            newRoundRow.classList.add('new-round-animation');
+        }
+
+        const tableContainer = document.querySelector('.table-responsive');
+        if (tableContainer) {
+            tableContainer.scrollTop = tableContainer.scrollHeight;
+        }
+    }
+
+    function removeLastRound() {
+        if (state.rounds.length > 0 && confirm('هل أنت متأكد من إزالة الجولة الأخيرة؟')) {
+            state.rounds.pop();
+            renderScoreboard();
+        }
+    }
+
+    function startNewMatch() {
+        if (confirm('هل أنت متأكد من بدء مباراة جديدة؟ ستفقد جميع البيانات الحالية.')) {
+            state.rounds = [];
+            state.total1 = 0;
+            state.total2 = 0;
+            state.rounds.push({ score1: 0, score2: 0 });
+            history = [];
+            initTimer(true);
+            renderScoreboard();
+        }
+    }
+
+function exportResults() {
+    const team1Name = state.team1Name || 'الفريق الأول';
+    const team2Name = state.team2Name || 'الفريق الثاني';
+
+    const team1Rounds = state.rounds.map(r => r.score1).join(' | ');
+    const team2Rounds = state.rounds.map(r => r.score2).join(' | ');
+
+    let exportText = `${document.getElementById('tournament-name').textContent}\n`;
+    exportText += `${document.getElementById('match-title').textContent}\n\n`;
+
+    exportText += `الفريق الأول\n`;
+    exportText += `${team1Name}\n`;
+    exportText += `${team1Rounds}\n\n`;
+
+    exportText += `الفريق الثاني\n`;
+    exportText += `${team2Name}\n`;
+    exportText += `${team2Rounds}\n`;
+
+    exportText += `\n━━━━━━━━━━━━━━\n\n`;
+
+    exportText += `النتيجة النهائية\n\n`;
+    exportText += `${team1Name} (${state.total1})\n`;
+    exportText += `${team2Name} (${state.total2})\n`;
+
+    const finalWinner = calculateFinalResults();
+    const winnerName = finalWinner.text
+        .replace(/<[^>]*>?/gm, '')
+        .replace('الفائز: ', '');
+
+    exportText += `\nالفائز\n`;
+    exportText += `${winnerName}\n`;
+
+    exportText += `\n⏱️ مدة المباراة: ${formatDuration(getCurrentDurationMs())}\n`;
+
+    const blob = new Blob([exportText], {
+        type: 'text/plain;charset=utf-8'
+    });
+
+    const url = URL.createObjectURL(blob);
+
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `Scoreboard_Result_${new Date().toISOString().slice(0, 10)}.txt`;
+
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+
+    URL.revokeObjectURL(url);
+}
+
+ // ============ تصدير النتيجة كصورة (PNG) ============
+// يتم الرسم بالكامل على canvas مخصص (وليس التقاط لقطة من الصفحة الظاهرة)
+// بحيث تكون الأبعاد ثابتة دائماً وتبدو النتيجة متطابقة على الجوال والحاسوب.
+
+function roundRectPath(ctx, x, y, w, h, r) {
+  ctx.beginPath();
+  ctx.moveTo(x + r, y);
+  ctx.arcTo(x + w, y, x + w, y + h, r);
+  ctx.arcTo(x + w, y + h, x, y + h, r);
+  ctx.arcTo(x, y + h, x, y, r);
+  ctx.arcTo(x, y, x + w, y, r);
+  ctx.closePath();
+}
+
+function wrapCanvasText(ctx, text, centerX, y, maxWidth, lineHeight) {
+  const words = String(text).split(' ');
+  let line = '';
+  const lines = [];
+  for (let i = 0; i < words.length; i++) {
+    const testLine = line + words[i] + ' ';
+    if (ctx.measureText(testLine).width > maxWidth && i > 0) {
+      lines.push(line.trim());
+      line = words[i] + ' ';
+    } else {
+      line = testLine;
+    }
+  }
+  lines.push(line.trim());
+  const startY = y - ((lines.length - 1) * lineHeight) / 2;
+  lines.forEach((l, i) => ctx.fillText(l, centerX, startY + i * lineHeight));
+}
+
+async function exportAsImage() {
+  try {
+    await Promise.all([
+      document.fonts.load('900 46px Tajawal'),
+      document.fonts.load('900 110px Tajawal'),
+      document.fonts.load('700 32px Tajawal'),
+      document.fonts.load('500 30px Tajawal'),
+      document.fonts.load('700 26px Tajawal'),
+    ]);
+    if (document.fonts.ready) await document.fonts.ready;
+  } catch (e) { /* تجاهل أي خطأ في تحميل الخط والاستمرار بالخط الافتراضي */ }
+
+  const team1Name = state.team1Name || 'الفريق الأول';
+  const team2Name = state.team2Name || 'الفريق الثاني';
+  const finalResults = calculateFinalResults();
+  const tournamentName = (document.getElementById('tournament-name').textContent || '').trim();
+  const matchTitle = (document.getElementById('match-title').textContent || '').trim();
+  const roundsPlayed = state.rounds.length;
+  const duration = formatDuration(getCurrentDurationMs());
+
+  const startedDate = new Intl.DateTimeFormat('ar-EG', {
+    weekday: 'long',
+    day: 'numeric',
+    month: 'long',
+    year: 'numeric'
+  })
+  .format(new Date(matchTimer.startTime))
+  .replace('،', '');
+
+  const startedAt = formatStartedAt(matchTimer.startTime);
+
+  const finishedAt = matchTimer.stoppedAt
+    ? formatStartedAt(matchTimer.stoppedAt)
+    : '—';
+
+  // جلب جولات النقاط الحقيقية والديناميكية لكل فريق من حالة المباراة
+  const team1Scores = state.rounds.map(r => r.score1);
+  const team2Scores = state.rounds.map(r => r.score2);
+
+  const W = 1080, H = 1260;
+  const canvas = document.createElement('canvas');
+  canvas.width = W; canvas.height = H;
+  const ctx = canvas.getContext('2d');
+  ctx.direction = 'rtl';
+  ctx.textAlign = 'center';
+
+  // الخلفية الدافئة والفاخرة
+  const bgGrad = ctx.createLinearGradient(0, 0, 0, H);
+  bgGrad.addColorStop(0, '#FAF8F5');
+  bgGrad.addColorStop(1, '#F2EDE4');
+  ctx.fillStyle = bgGrad;
+  roundRectPath(ctx, 0, 0, W, H, 32);
+  ctx.fill();
+
+  ctx.strokeStyle = '#D7C29A';
+  ctx.lineWidth = 2;
+  roundRectPath(ctx, 1, 1, W - 2, H - 2, 32);
+  ctx.stroke();
+
+  let y = 90;
+  // اسم البطولة - داكن وأنيق
+  ctx.fillStyle = '#222222';
+  ctx.font = '700 44px Tajawal';
+  wrapCanvasText(ctx, tournamentName || 'بطولة', W / 2, y, W - 160, 48);
+  y += 60;
+
+  // عنوان المباراة - ذهبي
+  ctx.fillStyle = '#CFA963';
+  ctx.font = '800 30px Tajawal';
+  wrapCanvasText(ctx, matchTitle || 'مباراة', W / 2, y, W - 160, 40);
+  y += 80;
+
+  // فاصل ذهبي أنيق مع معين زخرفي في المنتصف
+  ctx.strokeStyle = '#D7C29A';
+  ctx.lineWidth = 1.5;
+  ctx.beginPath();
+  ctx.moveTo(120, y);
+  ctx.lineTo(W / 2 - 20, y);
+  ctx.moveTo(W / 2 + 20, y);
+  ctx.lineTo(W - 120, y);
+  ctx.stroke();
+
+  ctx.fillStyle = '#CFA963';
+  ctx.beginPath();
+  ctx.moveTo(W / 2, y - 7);
+  ctx.lineTo(W / 2 + 7, y);
+  ctx.lineTo(W / 2, y + 7);
+  ctx.lineTo(W / 2 - 7, y);
+  ctx.closePath();
+  ctx.fill();
+
+  y += 90;
+
+  const panelW = 400, panelH = 340, gap = 40;
+  const startX = (W - (panelW * 2 + gap)) / 2;
+  const panelY = y;
+
+  // رسم كروت الفرق بتصميم كروت فاخرة وألوان البطولات
+  function drawTeamPanel(x, name, score, isWinner, roundScores) {
+    // ظل خفيف وناعم للكارت
+    ctx.save();
+    ctx.shadowColor = 'rgba(0, 0, 0, 0.05)';
+    ctx.shadowBlur = 16;
+    ctx.shadowOffsetY = 6;
+    ctx.fillStyle = isWinner ? '#DFF4E6' : '#FFFFFF';
+    roundRectPath(ctx, x, panelY, panelW, panelH, 24);
+    ctx.fill();
+    ctx.restore();
+
+    // إطار الكارت
+    ctx.strokeStyle = isWinner ? '#216B46' : '#D7C29A';
+    ctx.lineWidth = 2;
+    roundRectPath(ctx, x, panelY, panelW, panelH, 24);
+    ctx.stroke();
+
+    let nameY = panelY + 75;
+
+    // اسم الفريق
+    ctx.fillStyle = isWinner ? '#216B46' : '#222222';
+    ctx.font = '700 30px Tajawal';
+    wrapCanvasText(ctx, name, x + panelW / 2, nameY, panelW - 40, 36);
+
+    // --- إضافة تسلسل الجولات ديناميكياً وبشكل متجاوب ---
+    ctx.fillStyle = isWinner ? '#216B46' : '#666666';
+    ctx.font = '500 24px Tajawal';
+
+    const maxTextWidth = panelW - 60;
+    let currentLine = '';
+    const scoreLines = [];
+
+    // تقسيم الجولات ذكياً بحيث لا تبدأ الأسطر الجديدة بفاصلة عمودية " | " مطلقاً
+    for (let i = 0; i < roundScores.length; i++) {
+      const item = String(roundScores[i]);
+      const addition = (i === 0) ? item : ' | ' + item;
+      const testLine = currentLine + addition;
+
+      if (ctx.measureText(testLine).width > maxTextWidth && i > 0) {
+        scoreLines.push(currentLine);
+        currentLine = item; 
+      } else {
+        currentLine = testLine;
+      }
+    }
+    if (currentLine) scoreLines.push(currentLine);
+
+    // حساب التمركز العمودي المثالي للنصوص بناءً على عدد الأسطر الناتجة (سطر أو سطرين)
+    const seqLineHeight = 32;
+    const seqStartY = (panelY + 155) - ((scoreLines.length - 1) * seqLineHeight) / 2;
+
+    ctx.save();
+    ctx.direction = 'ltr';
+    ctx.textAlign = 'center';
+
+    scoreLines.forEach((lineText, index) => {
+      ctx.fillText(
+        lineText,
+        x + panelW / 2,
+        seqStartY + (index * seqLineHeight)
+      );
+    });
+
+    ctx.restore();
+    // --------------------------------------------------
+
+    // النتيجة الإجمالية الكبيرة والمسيطرة بصرياً
+    ctx.fillStyle = isWinner ? '#216B46' : '#222222';
+    ctx.font = '900 108px Tajawal';
+    ctx.fillText(String(score), x + panelW / 2, panelY + panelH - 55);
+  }
+
+  // إرسال المصفوفات الديناميكية للجولات أثناء رسم الكروت
+  drawTeamPanel(startX, team2Name, state.total2, finalResults.winnerTeam === 2, team2Scores);
+
+  ctx.fillStyle = '#A97C2D';
+  ctx.font = '900 38px Tajawal';
+  ctx.fillText('–', startX + panelW + gap / 2, panelY + panelH / 2 + 14);
+
+  drawTeamPanel(startX + panelW + gap, team1Name, state.total1, finalResults.winnerTeam === 1, team1Scores);
+
+  y = panelY + panelH + 70;
+
+  // شريط الفائز الأنيق المصمم بنفس فلسفة قسم البطل
+  if (finalResults.winnerTeam) {
+    const winnerName = finalResults.winnerTeam === 1 ? team1Name : team2Name;
+    
+    // الحاوية الذهبية الملكية الخارجية
+    ctx.save();
+    ctx.shadowColor = 'rgba(169, 124, 45, 0.2)';
+    ctx.shadowBlur = 14;
+    ctx.shadowOffsetY = 4;
+    const goldGrad = ctx.createLinearGradient(W / 2 - 320, y - 52, W / 2 + 320, y + 36);
+    goldGrad.addColorStop(0, '#CFA963');
+    goldGrad.addColorStop(1, '#A97C2D');
+    ctx.fillStyle = goldGrad;
+    roundRectPath(ctx, W / 2 - 320, y - 52, 640, 88, 20);
+    ctx.fill();
+    ctx.restore();
+
+    // الكارت الأبيض الداخلي
+    ctx.fillStyle = '#FFFFFF';
+    roundRectPath(ctx, W / 2 - 312, y - 44, 624, 72, 16);
+    ctx.fill();
+
+    ctx.fillStyle = '#222222';
+    ctx.font = '900 36px Tajawal';
+    wrapCanvasText(ctx, `الفائز: ${winnerName}`, W / 2, y + 6, 580, 40);
+  } else {
+    // الحاوية الذهبية الخارجية
+    ctx.save();
+    ctx.shadowColor = 'rgba(169, 124, 45, 0.15)';
+    ctx.shadowBlur = 12;
+    ctx.shadowOffsetY = 4;
+    ctx.fillStyle = '#CFA963';
+    roundRectPath(ctx, W / 2 - 320, y - 52, 640, 88, 20);
+    ctx.fill();
+    ctx.restore();
+
+    // الكارت الأبيض الداخلي
+    ctx.fillStyle = '#FFFFFF';
+    roundRectPath(ctx, W / 2 - 312, y - 44, 624, 72, 16);
+    ctx.fill();
+
+    ctx.fillStyle = '#A97C2D';
+    ctx.font = '900 34px Tajawal';
+    ctx.fillText('لم تُحسم المباراة بعد', W / 2, y + 6);
+  }
+  y += 110;
+
+  const stats = [
+    {
+      label: 'بداية المباراة:',
+      value: {
+        line1: startedDate,
+        line2: startedAt
+      }
+    },
+    {
+      label: 'عدد الجولات:',
+      value: String(roundsPlayed)
+    },
+    {
+      label: 'انتهت الساعة:',
+      value: finishedAt
+    },
+    {
+      label: 'مدة المباراة:',
+      value: duration
+    }
+  ];
+  const cellW = (W - 160 - 20) / 2, cellH = 130, cGap = 20;
+  const gridStartX = 80, gridStartY = y;
+  stats.forEach((s, i) => {
+    const col = i % 2, row = Math.floor(i / 2);
+    const cx = gridStartX + col * (cellW + cGap);
+    const cy = gridStartY + row * (cellH + cGap);
+
+    // كارت إحصائية أبيض مع ظل خفيف
+    ctx.save();
+    ctx.shadowColor = 'rgba(0, 0, 0, 0.04)';
+    ctx.shadowBlur = 12;
+    ctx.shadowOffsetY = 4;
+    ctx.fillStyle = '#FFFFFF';
+    roundRectPath(ctx, cx, cy, cellW, cellH, 18);
+    ctx.fill();
+    ctx.restore();
+
+    // إطار ذهبي رقيق
+    ctx.strokeStyle = '#D7C29A';
+    ctx.lineWidth = 1.5;
+    roundRectPath(ctx, cx, cy, cellW, cellH, 18);
+    ctx.stroke();
+
+    // عنوان الإحصائية - ذهبي
+    ctx.fillStyle = '#A97C2D';
+    ctx.font = '700 25px Tajawal';
+    ctx.fillText(s.label, cx + cellW / 2, cy + 48);
+
+    // القيمة - داكنة وواضحة
+    ctx.fillStyle = '#222222';
+
+    if (typeof s.value === 'object') {
+
+      // التاريخ
+      ctx.font = '700 25px Tajawal';
+      ctx.fillText(
+        s.value.line1,
+        cx + cellW / 2,
+        cy + 78
+      );
+
+      // الوقت
+      ctx.font = '900 36px Tajawal';
+      ctx.fillText(
+        s.value.line2,
+        cx + cellW / 2,
+        cy + 112
+      );
+
+    } else {
+
+      ctx.font = '900 36px Tajawal';
+      ctx.fillText(
+        s.value,
+        cx + cellW / 2,
+        cy + 95
+      );
+
+    }
+  });
+
+  canvas.toBlob((blob) => {
+    if (!blob) return;
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `Match_Result_${new Date().toISOString().slice(0, 10)}.png`;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+  }, 'image/png');
+}
+
+
+    loadState();
+
+    document.getElementById('tournament-name').addEventListener('input', renderScoreboard);
+    document.getElementById('match-title').addEventListener('input', renderScoreboard);
+
+    if (btnAdd) btnAdd.onclick = addNewRound;
+    if (btnRemoveLast) btnRemoveLast.onclick = removeLastRound;
+    const btnNewMatch = document.getElementById('btn-new');
+    if (btnNewMatch) btnNewMatch.onclick = startNewMatch;
+
+    team1NameInput.addEventListener('input', renderScoreboard);
+    team2NameInput.addEventListener('input', renderScoreboard);
+
+    if (btnUndo) btnUndo.onclick = undoLastAction;
+    const btnExport = document.getElementById('btn-export');
+    if (btnExport) btnExport.onclick = exportResults;
+    const btnExportImage = document.getElementById('btn-export-image');
+    if (btnExportImage) btnExportImage.onclick = exportAsImage;
+</script>
+
+
+
+
+</body></html>
