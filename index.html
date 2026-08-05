@@ -1251,6 +1251,13 @@ body.dark-mode .score-card{
     let teams = [];
     let usedPairsCurrentCycle = new Set();
     let cycleNumber = 1;
+    // ======== حالة عدالة الـ Bye (Priority #2 و #3 في الوضع الفردي) ========
+    // usedByesCurrentCycle: من حصل على Bye ضمن "دورة الـ Bye" الحالية (مستقلة عن دورة الأزواج)،
+    // تُستخدم لتفادي تكرار إعطاء Bye لنفس اللاعب قبل أن يحصل عليه الجميع (Priority #2).
+    // byeCountAllTime: إجمالي عدد مرات حصول كل لاعب على Bye عبر كل الدورات تاريخياً،
+    // تُستخدم فقط للترجيح النهائي بين الحلول المتعادلة (Priority #3: العدالة طويلة المدى).
+    let usedByesCurrentCycle = new Set();
+    let byeCountAllTime = {};
 
     function getFixedMaxTeams() {
       return Math.floor(fixedPlayers.filter(p => p.active).length / 2);
@@ -1825,6 +1832,8 @@ body.dark-mode .score-card{
       localStorage.setItem('manualPlayersPool', JSON.stringify(allManualPlayers));
       localStorage.setItem('usedPairsCurrentCycle', JSON.stringify([...usedPairsCurrentCycle]));
       localStorage.setItem('cycleNumber', String(cycleNumber));
+      localStorage.setItem('usedByesCurrentCycle', JSON.stringify([...usedByesCurrentCycle]));
+      localStorage.setItem('byeCountAllTime', JSON.stringify(byeCountAllTime));
       saveDisplayReplacements();
     }
 
@@ -1977,6 +1986,117 @@ body.dark-mode .score-card{
             leftover: bestLeftover,
             conflicts: bestConflicts === Infinity ? 0 : bestConflicts
         };
+    }
+
+    // ======== توليد كل التوليفات الممكنة بحجم k من مصفوفة (Combinations) ========
+    // خوارزمية قياسية بترتيب معجمي (lexicographic combinatorial number system)، تُستخدم فقط
+    // لتوليد كل احتمالات اختيار لاعبي الـ Bye. لا علاقة لها بمحرك المطابقة ولا تُعدّله.
+    function* generateByeCombinations(items, k) {
+        const n = items.length;
+        if (k < 0 || k > n) return;
+        if (k === 0) { yield []; return; }
+        const indices = Array.from({ length: k }, (_, i) => i);
+        while (true) {
+            yield indices.map(i => items[i]);
+            let i = k - 1;
+            while (i >= 0 && indices[i] === n - k + i) i--;
+            if (i < 0) return;
+            indices[i]++;
+            for (let j = i + 1; j < k; j++) indices[j] = indices[j - 1] + 1;
+        }
+    }
+
+    // ======== تسجيل تعيين Bye للاعب (يُستدعى بعد اعتماد الحل النهائي فقط) ========
+    function registerByeAssignment(playerName) {
+        usedByesCurrentCycle.add(playerName);
+        byeCountAllTime[playerName] = (byeCountAllTime[playerName] || 0) + 1;
+    }
+
+    /**
+     * @brief يجعل اختيار لاعبي الـ Bye في الوضع الفردي جزءاً من عملية التحسين الشاملة نفسها،
+     *        بدلاً من اختيارهم عشوائياً قبل تشغيل محرك المطابقة (وهو أصل الخلل الحالي).
+     *        تُجرَّب كل توليفة Bye ممكنة رياضياً (C(n, byesNeeded))، ولكل توليفة يُستدعى
+     *        generateOptimalGrouping() كما هو تماماً دون أي تعديل عليه لتقييم أفضل مطابقة
+     *        ممكنة لبقية اللاعبين (Play-In)، ثم تُختار التوليفة الأفضل حسب الأولوية المعجمية:
+     *          Priority #1: أقل عدد تكرارات مواجهات مباشرة (conflicts) — لا تُضحّى أبداً.
+     *          Priority #2: أقل عدد تكرار في تعيين الـ Bye لنفس اللاعب ضمن دورة الـ Bye الحالية.
+     *          Priority #3: أفضل عدالة تراكمية طويلة المدى (مجموع عدد مرات حصول لاعبي هذه
+     *                       التوليفة على Bye عبر كل الدورات السابقة — الأقل هو الأفضل).
+     *        منطق "متى تُفرَّغ الدورة" لأزواج المواجهات مطابق تماماً لمنطق getCompleteMatching()
+     *        الحالي (لم يتغيّر)، وأُضيف بجانبه منطق مماثل ومستقل لدورة الـ Bye.
+     *        لا عشوائية بعد بدء التقييم: ترتيب التوليفات معجمي على poolItems الذي يصل مخلوطاً
+     *        مسبقاً (shuffle) من المتصل، وهو ما يوفر تنوعاً بين الحلول المتعادلة كما في السابق.
+     * @param pool مصفوفة أسماء كل اللاعبين المشاركين في هذه الجولة (مخلوطة مسبقاً)
+     * @param byesNeeded عدد لاعبي الـ Bye المطلوبين (> 0)
+     * @returns {byeNames, pairs, leftover, conflicts, byeRepeatCount, fairnessScore}
+     */
+    function findOptimalByeAndPlayIn(pool, byesNeeded) {
+        if (byesNeeded <= 0) {
+            const { pairs, conflicts, leftover } = generateOptimalGrouping([...pool]);
+            return { byeNames: [], pairs, leftover, conflicts, byeRepeatCount: 0, fairnessScore: 0 };
+        }
+
+        // 🛡️ سقف زمني احترازي إجمالي لعملية البحث عن أفضل توليفة Bye، بنفس فلسفة TIME_BUDGET_MS
+        // الموجودة أصلاً داخل generateOptimalGrouping (لا يُعدَّل ذلك السقف ولا تلك الدالة إطلاقاً).
+        // يمنع فقط تجمّد المتصفح في حال وجود عدد ضخم جداً جداً من التوليفات الممكنة؛ لا يؤثر عملياً
+        // على النتيجة لأعداد اللاعبين المعتادة في هذا التطبيق.
+        const SEARCH_TIME_BUDGET_MS = 4000;
+        const searchStart = Date.now();
+
+        function evaluateAll(usedByesSet) {
+            let best = null;
+            for (const byeCombo of generateByeCombinations(pool, byesNeeded)) {
+                if (Date.now() - searchStart > SEARCH_TIME_BUDGET_MS) break;
+
+                const byeSet = new Set(byeCombo);
+                const playInPool = pool.filter(p => !byeSet.has(p));
+                // استدعاء محرك المطابقة الأصلي كما هو تماماً، بدون أي تعديل عليه
+                const matching = generateOptimalGrouping([...playInPool]);
+
+                const byeRepeatCount = byeCombo.filter(p => usedByesSet.has(p)).length;
+                const fairnessScore = byeCombo.reduce((sum, p) => sum + (byeCountAllTime[p] || 0), 0);
+
+                const candidate = {
+                    byeNames: byeCombo,
+                    pairs: matching.pairs,
+                    leftover: matching.leftover,
+                    conflicts: matching.conflicts,
+                    byeRepeatCount,
+                    fairnessScore
+                };
+
+                if (!best ||
+                    candidate.conflicts < best.conflicts ||
+                    (candidate.conflicts === best.conflicts && candidate.byeRepeatCount < best.byeRepeatCount) ||
+                    (candidate.conflicts === best.conflicts && candidate.byeRepeatCount === best.byeRepeatCount &&
+                        candidate.fairnessScore < best.fairnessScore)) {
+                    best = candidate;
+                }
+
+                // تعادل مثالي على كل الأولويات الثلاث: لا فائدة من متابعة البحث
+                if (best.conflicts === 0 && best.byeRepeatCount === 0 && best.fairnessScore === 0) break;
+            }
+            return best;
+        }
+
+        let best = evaluateAll(usedByesCurrentCycle);
+
+        if (best.conflicts > 0) {
+            // مطابق تماماً لمنطق getCompleteMatching(): لا يوجد توزيع كامل بدون تكرار مواجهات
+            // ضمن الدورة الحالية مهما كانت توليفة الـ Bye => دورة الأزواج انتهت فعلياً، نبدأ دورة جديدة
+            usedPairsCurrentCycle.clear();
+            cycleNumber++;
+            best = evaluateAll(usedByesCurrentCycle);
+        }
+
+        if (best.byeRepeatCount > 0) {
+            // لا توجد توليفة Bye واحدة تتفادى إعادة استخدام لاعب سبق له Bye ضمن هذه الدورة
+            // => دورة الـ Bye انتهت فعلياً (الجميع تقريباً حصل على Bye)، نبدأ دورة Bye جديدة فارغة
+            usedByesCurrentCycle.clear();
+            best = evaluateAll(usedByesCurrentCycle);
+        }
+
+        return best;
     }
 
     // ======== تكوين جميع الفرق دفعة واحدة (Global Optimization) ========
@@ -2135,6 +2255,10 @@ body.dark-mode .score-card{
       const savedPairsCurrentCycle = JSON.parse(localStorage.getItem('usedPairsCurrentCycle')) || [];
       usedPairsCurrentCycle = new Set(savedPairsCurrentCycle);
       cycleNumber = parseInt(localStorage.getItem('cycleNumber'), 10) || 1;
+
+      const savedByesCurrentCycle = JSON.parse(localStorage.getItem('usedByesCurrentCycle')) || [];
+      usedByesCurrentCycle = new Set(savedByesCurrentCycle);
+      byeCountAllTime = JSON.parse(localStorage.getItem('byeCountAllTime')) || {};
 
       if (currentMode === 'fixed') {
         fixedPool = fixedPlayers.filter(p => p.active).map(p => p.id);
@@ -2490,12 +2614,13 @@ document.getElementById("loserScoreLabel").textContent = match.team2 + " :";
         while (singleTotalSlots < singleN) { singleTotalSlots *= 2; }
         const singleByesNeeded = singleTotalSlots - singleN;
 
-        const singleByeNames = shuffledPool.slice(0, singleByesNeeded);
-        const singlePlayInPool = shuffledPool.slice(singleByesNeeded);
-
+        let singleByeNames = [];
         let singleOrderedPlayIn = [];
-        if (singlePlayInPool.length >= 2) {
-          const { pairs, conflicts } = getCompleteMatching([...singlePlayInPool]);
+
+        if (singleByesNeeded <= 0) {
+          // لا حاجة لأي Bye في هذه الجولة: يمر التوزيع عبر محرك المطابقة تماماً كما كان من قبل
+          // (هذا المسار يعمل بشكل صحيح أصلاً ولم يُمَسّ إطلاقاً)
+          const { pairs, conflicts } = getCompleteMatching([...shuffledPool]);
           if (conflicts > 0) {
             console.warn(`تحذير غير متوقع: تم اعتماد توزيع خصوم يحتوي على ${conflicts} زوج/أزواج مكررة حتى بعد بدء دورة جديدة.`);
           }
@@ -2503,13 +2628,27 @@ document.getElementById("loserScoreLabel").textContent = match.team2 + " :";
             usedPairsCurrentCycle.add(key);
             singleOrderedPlayIn.push(player1Name, player2Name);
           });
-          if (pairs.length * 2 < singlePlayInPool.length) {
-            const pairedNames = new Set(singleOrderedPlayIn);
-            const leftoverName = singlePlayInPool.find(n => !pairedNames.has(n));
-            if (leftoverName) singleByeNames.push(leftoverName);
+        } else {
+          // ===== إصلاح الخلل: اختيار لاعبي الـ Bye أصبح جزءاً من التحسين الشامل نفسه =====
+          // بدلاً من اختيار لاعبي الـ Bye عشوائياً ثم تشغيل المطابقة على الباقين فقط (وهو ما كان
+          // يمنع محرك المطابقة من رؤية كامل فضاء الاحتمالات)، تُجرَّب هنا كل توليفة Bye ممكنة
+          // ويُختار الحل الأفضل حسب الأولويات الثلاث المطلوبة تماماً (انظر findOptimalByeAndPlayIn)
+          const best = findOptimalByeAndPlayIn(shuffledPool, singleByesNeeded);
+
+          if (best.conflicts > 0) {
+            console.warn(`تحذير غير متوقع: تم اعتماد توزيع خصوم يحتوي على ${best.conflicts} زوج/أزواج مكررة حتى بعد بدء دورة جديدة.`);
           }
-        } else if (singlePlayInPool.length === 1) {
-          singleByeNames.push(singlePlayInPool[0]);
+
+          singleByeNames = best.byeNames.slice();
+          best.pairs.forEach(({ x: player1Name, y: player2Name, key }) => {
+            usedPairsCurrentCycle.add(key);
+            singleOrderedPlayIn.push(player1Name, player2Name);
+          });
+          if (best.leftover) {
+            singleByeNames.push(best.leftover);
+          }
+
+          singleByeNames.forEach(name => registerByeAssignment(name));
         }
 
         participants = [...singleByeNames, ...singleOrderedPlayIn];
