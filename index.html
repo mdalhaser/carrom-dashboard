@@ -1,3 +1,4 @@
+
 <html lang="ar" dir="rtl"><head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width,initial-scale=1">
@@ -807,11 +808,7 @@
     .edit-icon:hover {
       transform: scale(1.2);
     }
-    .replacement-icon {
-      font-size: 18px;
-      margin-left: 6px;
-      color: var(--accent);
-    }
+   
     /* النافذة المنبثقة لاختيار اللاعب */
     #playerSelectionModal {
       display: none;
@@ -1311,7 +1308,7 @@ body.dark-mode .score-card{
       if (!team) return teamName;
       const replacement = displayReplacements[team.id];
       if (!replacement) return teamName;
-      return teamName.replace('غير محدد', `${replacement} 🔁`);
+return teamName.replace('غير محدد', replacement);
     }
 
     function getDisplayTeamHTML(teamName, includeEditIcon, teamId) {
@@ -1329,10 +1326,7 @@ body.dark-mode .score-card{
         displayName = teamName.replace('غير محدد', replacement);
       }
       let html = `
-<span>
-    ${displayName}
-    ${replacement ? '<span class="replacement-icon">🔁</span>' : ''}
-</span>
+<span>${displayName}</span>
 `;
       if (includeEditIcon && teamId) {
         html += `<span class="edit-icon" onclick="event.stopPropagation(); showPlayerSelection(${teamId})">✏️</span>`;
