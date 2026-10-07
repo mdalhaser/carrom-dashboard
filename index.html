@@ -3029,23 +3029,16 @@ function drawStatsRankingRow(
 ) {
 
   // =======================================================
-  // أبعاد الأعمدة
+  // أبعاد الأعمدة — 7 أعمدة
+  // الترتيب | اللاعب | بطولات | وصافة | مشاركات | فوز | خسارة
   // =======================================================
 
-  const rankW =
-    120;
-
-  const nameW =
-    570;
-
-  const statW =
-    w -
-    rankW -
-    nameW;
-
+  const rankW = 92;
+  const nameW = 330;
+  const statsW = w - rankW - nameW;
+  const statW = statsW / 5;
 
   ctx.save();
-
 
   // =======================================================
   // خلفية الصف
@@ -3063,28 +3056,32 @@ function drawStatsRankingRow(
     1.1
   );
 
-
   // =======================================================
   // مراكز الأعمدة
   // =======================================================
 
-  const championshipsCenter =
-    x +
-    statW / 2;
-
-
-  const playerCenter =
-    x +
-    statW +
-    nameW / 2;
-
-
+  // RTL الحقيقي:
+  // من اليمين: الترتيب → اللاعب → البطولات → الوصافة → المشاركات → الفوز → الخسارة
   const rankCenter =
-    x +
-    statW +
-    nameW +
-    rankW / 2;
+    x + w - rankW / 2;
 
+  const nameCenter =
+    x + w - rankW - nameW / 2;
+
+  const championshipsCenter =
+    x + w - rankW - nameW - statW / 2;
+
+  const runnerUpsCenter =
+    x + w - rankW - nameW - statW * 1.5;
+
+  const tournamentsCenter =
+    x + w - rankW - nameW - statW * 2.5;
+
+  const winsCenter =
+    x + w - rankW - nameW - statW * 3.5;
+
+  const lossesCenter =
+    x + w - rankW - nameW - statW * 4.5;
 
   // =======================================================
   // الترتيب
@@ -3105,13 +3102,11 @@ function drawStatsRankingRow(
   ctx.direction =
     'rtl';
 
-
   ctx.fillText(
     String(rank),
     rankCenter,
     y + h / 2
   );
-
 
   // =======================================================
   // اسم اللاعب
@@ -3121,12 +3116,11 @@ function drawStatsRankingRow(
     fitFont(
       ctx,
       player.name,
-      nameW - 36,
+      nameW - 24,
       31,
       800,
-      21
+      20
     );
-
 
   ctx.font =
     `800 ${nameSize}px Tajawal, sans-serif`;
@@ -3137,40 +3131,88 @@ function drawStatsRankingRow(
   ctx.textAlign =
     'center';
 
-
   ctx.fillText(
     player.name,
-    playerCenter,
+    nameCenter,
     y + h / 2,
-    nameW - 36
+    nameW - 24
   );
 
-
   // =======================================================
-  // عدد البطولات
+  // البطولات 🥇
   // =======================================================
 
   ctx.font =
-    '900 31px Tajawal, sans-serif';
+    '900 28px Tajawal, sans-serif';
 
   ctx.fillStyle =
     player.championships > 0
       ? theme.goldDark
       : theme.text;
 
+ ctx.fillText(
+  `🏆 ${player.championships ?? 0}`,
+  championshipsCenter,
+  y + h / 2
+);
 
-  ctx.textAlign =
-    'center';
+  // =======================================================
+  // الوصافة 🥈
+  // =======================================================
 
+  ctx.fillStyle =
+    player.runnerUps > 0
+      ? '#8A8F96'
+      : theme.text;
 
   ctx.fillText(
-    String(
-      player.championships ?? 0
-    ),
-    championshipsCenter,
+  `🥈 ${player.runnerUps ?? 0}`,
+  runnerUpsCenter,
+  y + h / 2
+);
+
+  // =======================================================
+  // المشاركات
+  // =======================================================
+
+  ctx.fillStyle =
+    theme.text;
+
+  ctx.fillText(
+    String(player.tournaments ?? 0),
+    tournamentsCenter,
     y + h / 2
   );
 
+  // =======================================================
+  // الفوز
+  // =======================================================
+
+  ctx.fillStyle =
+    player.wins > 0
+      ? '#2E7D32'
+      : theme.text;
+
+  ctx.fillText(
+    String(player.wins ?? 0),
+    winsCenter,
+    y + h / 2
+  );
+
+  // =======================================================
+  // الخسارة
+  // =======================================================
+
+  ctx.fillStyle =
+    player.losses > 0
+      ? '#9A5A5A'
+      : theme.text;
+
+  ctx.fillText(
+    String(player.losses ?? 0),
+    lossesCenter,
+    y + h / 2
+  );
 
   ctx.restore();
 }
@@ -3864,37 +3906,71 @@ async function exportStatsImage() {
     // =====================================================
 
     const rankW =
-      120;
+      92;
 
     const nameW =
-      570;
+      330;
 
-    const statW =
+    const statsW =
       contentW -
       rankW -
       nameW;
+
+    const statW =
+      statsW / 5;
 
 
     // =====================================================
     // مراكز الأعمدة
     // =====================================================
 
-    const championshipsCenter =
+    // RTL الحقيقي:
+    // من اليمين: الترتيب → اللاعب → البطولات → الوصافة → المشاركات → الفوز → الخسارة
+    const rankCenter =
       margin +
-      statW / 2;
-
+      contentW -
+      rankW / 2;
 
     const playerCenter =
       margin +
-      statW +
+      contentW -
+      rankW -
       nameW / 2;
 
-
-    const rankCenter =
+    const championshipsCenter =
       margin +
-      statW +
-      nameW +
-      rankW / 2;
+      contentW -
+      rankW -
+      nameW -
+      statW / 2;
+
+    const runnerUpsCenter =
+      margin +
+      contentW -
+      rankW -
+      nameW -
+      statW * 1.5;
+
+    const tournamentsCenter =
+      margin +
+      contentW -
+      rankW -
+      nameW -
+      statW * 2.5;
+
+    const winsCenter =
+      margin +
+      contentW -
+      rankW -
+      nameW -
+      statW * 3.5;
+
+    const lossesCenter =
+      margin +
+      contentW -
+      rankW -
+      nameW -
+      statW * 4.5;
 
 
     // =====================================================
@@ -3948,10 +4024,42 @@ async function exportStatsImage() {
     );
 
 
-    // البطولات
+    // البطولات 🥇
     ctx.fillText(
-      'البطولات',
+      'بطولات',
       championshipsCenter,
+      y + 25
+    );
+
+
+    // الوصافة 🥈
+    ctx.fillText(
+      'وصافة',
+      runnerUpsCenter,
+      y + 25
+    );
+
+
+    // المشاركات
+    ctx.fillText(
+      'مشاركات',
+      tournamentsCenter,
+      y + 25
+    );
+
+
+    // الفوز
+    ctx.fillText(
+      'فوز',
+      winsCenter,
+      y + 25
+    );
+
+
+    // الخسارة
+    ctx.fillText(
+      'خسارة',
+      lossesCenter,
       y + 25
     );
 
