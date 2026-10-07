@@ -1,5 +1,3 @@
-
-
 <html lang="ar" dir="rtl"><head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width,initial-scale=1">
@@ -2566,23 +2564,27 @@ return teamName.replace('غير محدد', replacement);
       `;
     }
 
-   // =========================================================
+// =========================================================
 // 📸 تصدير إحصائيات اللاعبين — Instagram Story
 // 1080 × 1920
 //
 // التصميم:
-// - هوية ذهبية / كريمية متناسقة مع تصدير البطولة
-// - جميع الأعمدة محاذاة للمنتصف
+// - هوية ذهبية / كريمية
 // - RTL
-// - التركيز على اسم اللاعب + عدد البطولات
-// - تصميم مستقل عن جدول الإحصائيات داخل النافذة
+// - الأعمدة:
+//   الترتيب → اسم اللاعب → البطولات
+// - Top 1 = ذهبي غامق
+// - Top 2 = فضي متوسط
+// - Top 3 = برونزي فاتح
+// - بقية الصفوف = أبيض / كريمي
+// - نصوص كبيرة وواضحة
+// - بدون خط سفلي في نهاية الصورة
 // =========================================================
 
 
 // =========================================================
 // 🧩 أدوات الرسم
 // =========================================================
-
 function drawStatsText(
   ctx,
   text,
@@ -2602,7 +2604,9 @@ function drawStatsText(
   ctx.textBaseline = 'middle';
   ctx.direction = 'rtl';
 
-  let value = String(text ?? '');
+  let value =
+    String(text ?? '');
+
 
   if (
     !maxWidth ||
@@ -2620,16 +2624,13 @@ function drawStatsText(
   }
 
 
-  // تقصير النص مع الحفاظ على أكبر قدر ممكن من الاسم
   while (
     value.length > 1 &&
     ctx.measureText('…' + value).width > maxWidth
   ) {
 
-    value = value.slice(
-      0,
-      -1
-    );
+    value =
+      value.slice(0, -1);
   }
 
 
@@ -2644,9 +2645,8 @@ function drawStatsText(
 
 
 // =========================================================
-// مستطيل بزوايا دائرية
+// 🧩 مستطيل بزوايا دائرية
 // =========================================================
-
 function drawStatsRoundRect(
   ctx,
   x,
@@ -2693,9 +2693,8 @@ function drawStatsRoundRect(
 
 
 // =========================================================
-// خط فاصل زخرفي
+// ─── خط فاصل زخرفي
 // =========================================================
-
 function drawStatsDivider(
   ctx,
   x,
@@ -2735,6 +2734,7 @@ function drawStatsDivider(
     y
   );
 
+
   ctx.moveTo(
     center + gap,
     y
@@ -2755,6 +2755,7 @@ function drawStatsDivider(
   ctx.fillStyle =
     '#CFA963';
 
+
   ctx.translate(
     center,
     y
@@ -2763,6 +2764,7 @@ function drawStatsDivider(
   ctx.rotate(
     Math.PI / 4
   );
+
 
   ctx.fillRect(
     -4,
@@ -2777,13 +2779,74 @@ function drawStatsDivider(
 
 
 // =========================================================
-// 🥇 بطاقة أفضل 3 لاعبين
+// 📐 مراكز أعمدة الإحصائيات
+//
+// RTL:
+//
+// من اليمين:
+//
+// الترتيب
+// → اللاعب
+// → البطولات
+//
+// تم توسيع عمود اسم اللاعب
+// وتوزيع الجدول من جديد بعد حذف بقية الأعمدة.
 // =========================================================
+function getStatsColumnCenters(
+  x,
+  w
+) {
 
-function drawTopPlayerCard(
+  // -----------------------------------------------
+  // عرض الأعمدة
+  // -----------------------------------------------
+
+  const rankW =
+    150;
+
+  const championshipsW =
+    180;
+
+  const nameW =
+    w -
+    rankW -
+    championshipsW;
+
+
+  return {
+
+    rankCenter:
+      x +
+      w -
+      rankW / 2,
+
+
+    nameCenter:
+      x +
+      w -
+      rankW -
+      nameW / 2,
+
+
+    championshipsCenter:
+      x +
+      championshipsW / 2,
+
+
+    rankW,
+
+    nameW,
+
+    championshipsW
+  };
+}
+
+
+// =========================================================
+// 📊 رأس أعمدة الإحصائيات
+// =========================================================
+function drawStatsTableHeader(
   ctx,
-  player,
-  rank,
   x,
   y,
   w,
@@ -2791,52 +2854,16 @@ function drawTopPlayerCard(
   theme
 ) {
 
-  const isFirst =
-    rank === 1;
+  const centers =
+    getStatsColumnCenters(
+      x,
+      w
+    );
 
 
-  const rankColor =
-    rank === 1
-      ? theme.gold
-      : rank === 2
-        ? '#A9ADB3'
-        : '#B9824A';
-
-
-  const cardFill =
-    isFirst
-      ? theme.goldSoft
-      : '#FFFFFF';
-
-
-  const cardBorder =
-    isFirst
-      ? theme.gold
-      : theme.border;
-
-
-  ctx.save();
-
-
-  // =======================================================
-  // ظل البطاقة
-  // =======================================================
-
-  ctx.shadowColor =
-    'rgba(36,36,36,0.08)';
-
-  ctx.shadowBlur =
-    isFirst
-      ? 16
-      : 9;
-
-  ctx.shadowOffsetY =
-    4;
-
-
-  // =======================================================
-  // البطاقة
-  // =======================================================
+  // -------------------------------------------------------
+  // خلفية الرأس
+  // -------------------------------------------------------
 
   drawStatsRoundRect(
     ctx,
@@ -2844,49 +2871,22 @@ function drawTopPlayerCard(
     y,
     w,
     h,
-    20,
-    cardFill,
-    cardBorder,
-    isFirst ? 2.5 : 1.2
+    14,
+    '#E8E4DD',
+    '#D2CDC4',
+    1
   );
 
 
-  ctx.shadowColor =
-    'transparent';
-
-
-  // =======================================================
-  // دائرة المركز
-  // =======================================================
-
-  const circleSize =
-    isFirst
-      ? 28
-      : 25;
-
-
-  ctx.fillStyle =
-    rankColor;
-
-
-  ctx.beginPath();
-
-  ctx.arc(
-    x + w / 2,
-    y + 38,
-    circleSize,
-    0,
-    Math.PI * 2
-  );
-
-  ctx.fill();
-
-
-  ctx.fillStyle =
-    '#FFFFFF';
+  // -------------------------------------------------------
+  // إعداد النص
+  // -------------------------------------------------------
 
   ctx.font =
-    `900 ${isFirst ? 27 : 24}px Tajawal, sans-serif`;
+    '900 27px Tajawal, sans-serif';
+
+  ctx.fillStyle =
+    '#625F59';
 
   ctx.textAlign =
     'center';
@@ -2898,125 +2898,50 @@ function drawTopPlayerCard(
     'rtl';
 
 
+  // -------------------------------------------------------
+  // الترتيب
+  // -------------------------------------------------------
+
   ctx.fillText(
-    String(rank),
-    x + w / 2,
-    y + 39
+    'الترتيب',
+    centers.rankCenter,
+    y + h / 2
   );
 
 
-  // =======================================================
+  // -------------------------------------------------------
   // اسم اللاعب
-  // =======================================================
-
-  const nameSize =
-    fitFont(
-      ctx,
-      player.name,
-      w - 26,
-      isFirst ? 32 : 30,
-      800,
-      21
-    );
-
-
-  ctx.font =
-    `800 ${nameSize}px Tajawal, sans-serif`;
-
-  ctx.fillStyle =
-    theme.text;
-
-  ctx.textAlign =
-    'center';
-
-  ctx.textBaseline =
-    'middle';
-
+  // -------------------------------------------------------
 
   ctx.fillText(
-    player.name,
-    x + w / 2,
-    y + 91,
-    w - 26
+    'اسم اللاعب',
+    centers.nameCenter,
+    y + h / 2
   );
 
 
-  // =======================================================
-  // منطقة البطولات
-  // =======================================================
-
-  const statH =
-    64;
-
-  const statX =
-    x + 13;
-
-  const statY =
-    y + h - statH - 13;
-
-  const statW =
-    w - 26;
-
-
-  drawStatsRoundRect(
-    ctx,
-    statX,
-    statY,
-    statW,
-    statH,
-    13,
-    theme.statBg
-  );
-
-
-  // الرقم
-  ctx.font =
-    `900 ${isFirst ? 31 : 29}px Tajawal, sans-serif`;
-
-  ctx.fillStyle =
-    player.championships > 0
-      ? theme.goldDark
-      : theme.text;
-
-  ctx.textAlign =
-    'center';
-
-  ctx.textBaseline =
-    'middle';
-
+  // -------------------------------------------------------
+  // البطولات
+  // -------------------------------------------------------
 
   ctx.fillText(
-    String(
-      player.championships ?? 0
-    ),
-    statX + statW / 2,
-    statY + 24
+    'البطولات',
+    centers.championshipsCenter,
+    y + h / 2
   );
-
-
-  // كلمة بطولات
-  ctx.font =
-    '700 15px Tajawal, sans-serif';
-
-  ctx.fillStyle =
-    theme.muted;
-
-
-  ctx.fillText(
-    'بطولات',
-    statX + statW / 2,
-    statY + 48
-  );
-
-
-  ctx.restore();
 }
 
 
 // =========================================================
 // 📊 صف الترتيب العام
+//
+// Top 1 = ذهبي غامق
+// Top 2 = فضي متوسط
+// Top 3 = برونزي فاتح
+//
+// الأعمدة:
+// الترتيب | اللاعب | البطولات
 // =========================================================
-
 function drawStatsRankingRow(
   ctx,
   player,
@@ -3028,20 +2953,110 @@ function drawStatsRankingRow(
   theme
 ) {
 
-  // =======================================================
-  // أبعاد الأعمدة — 7 أعمدة
-  // الترتيب | اللاعب | بطولات | وصافة | مشاركات | فوز | خسارة
-  // =======================================================
+  const centers =
+    getStatsColumnCenters(
+      x,
+      w
+    );
 
-  const rankW = 92;
-  const nameW = 330;
-  const statsW = w - rankW - nameW;
-  const statW = statsW / 5;
 
   ctx.save();
 
+
+// =======================================================
+// 🎨 نظام ألوان المراكز — Premium Ranking System
+//
+// الفلسفة التصميمية:
+// - الصفوف العادية: محايدة ونظيفة
+// - المركز الأول: Gold / Luxury
+// - المركز الثاني: Silver / Elegant
+// - المركز الثالث: Bronze / Warm
+// - الخلفية هادئة حتى لا يبدو الجدول مزدحمًا
+// - اللون القوي يتركز في الترتيب والـ accent
+// - كل مركز له شخصية بصرية مختلفة بوضوح
+// =======================================================
+
+
+// =======================================================
+// ⚪ المراكز العادية — Neutral
+// =======================================================
+
+let rowFill =
+  '#FFFFFF';
+
+let rowBorder =
+  '#E2DED7';
+
+let rankColor =
+  '#625E57';
+
+let accentColor =
+  '#C9C3BA';
+
+
+// -------------------------------------------------------
+// 🥇 المركز الأول — CHAMPION GOLD
+// -------------------------------------------------------
+
+if (rank === 1) {
+
+  rowFill =
+    '#FBF7EA';
+
+  rowBorder =
+    '#D6B866';
+
+  rankColor =
+    '#795A18';
+
+  accentColor =
+    '#C9A64E';
+}
+
+
+// -------------------------------------------------------
+// 🥈 المركز الثاني — PREMIUM SILVER
+// -------------------------------------------------------
+
+else if (rank === 2) {
+
+  rowFill =
+    '#F5F6F7';
+
+  rowBorder =
+    '#BEC2C7';
+
+  rankColor =
+    '#555B63';
+
+  accentColor =
+    '#92979D';
+}
+
+
+// -------------------------------------------------------
+// 🥉 المركز الثالث — REFINED BRONZE
+// -------------------------------------------------------
+
+else if (rank === 3) {
+
+  rowFill =
+    '#FAF5F1';
+
+  rowBorder =
+    '#D1A98E';
+
+  rankColor =
+    '#754B35';
+
+  accentColor =
+    '#B47755';
+}
+
+
+
   // =======================================================
-  // خلفية الصف
+  // 🧱 خلفية الصف
   // =======================================================
 
   drawStatsRoundRect(
@@ -3051,47 +3066,22 @@ function drawStatsRankingRow(
     w,
     h,
     15,
-    '#FFFFFF',
-    theme.border,
-    1.1
+    rowFill,
+    rowBorder,
+    1.2
   );
 
   // =======================================================
-  // مراكز الأعمدة
-  // =======================================================
-
-  // RTL الحقيقي:
-  // من اليمين: الترتيب → اللاعب → البطولات → الوصافة → المشاركات → الفوز → الخسارة
-  const rankCenter =
-    x + w - rankW / 2;
-
-  const nameCenter =
-    x + w - rankW - nameW / 2;
-
-  const championshipsCenter =
-    x + w - rankW - nameW - statW / 2;
-
-  const runnerUpsCenter =
-    x + w - rankW - nameW - statW * 1.5;
-
-  const tournamentsCenter =
-    x + w - rankW - nameW - statW * 2.5;
-
-  const winsCenter =
-    x + w - rankW - nameW - statW * 3.5;
-
-  const lossesCenter =
-    x + w - rankW - nameW - statW * 4.5;
-
-  // =======================================================
-  // الترتيب
+  // 🔢 الترتيب
   // =======================================================
 
   ctx.font =
-    '900 27px Tajawal, sans-serif';
+    '900 36px Tajawal, sans-serif';
 
   ctx.fillStyle =
-    theme.muted;
+    rank <= 3
+      ? rankColor
+      : '#55534F';
 
   ctx.textAlign =
     'center';
@@ -3102,25 +3092,38 @@ function drawStatsRankingRow(
   ctx.direction =
     'rtl';
 
+
   ctx.fillText(
     String(rank),
-    rankCenter,
+    centers.rankCenter,
     y + h / 2
   );
 
+
   // =======================================================
-  // اسم اللاعب
+  // 👤 اسم اللاعب
   // =======================================================
+
+  const playerName =
+    player.name ||
+    'غير محدد';
+
+
+  const nameMaxWidth =
+    centers.nameW -
+    30;
+
 
   const nameSize =
     fitFont(
       ctx,
-      player.name,
-      nameW - 24,
-      31,
-      800,
-      20
+      playerName,
+      nameMaxWidth,
+      37,
+      900,
+      25
     );
+
 
   ctx.font =
     `800 ${nameSize}px Tajawal, sans-serif`;
@@ -3131,88 +3134,41 @@ function drawStatsRankingRow(
   ctx.textAlign =
     'center';
 
+  ctx.textBaseline =
+    'middle';
+
+  ctx.direction =
+    'rtl';
+
+
   ctx.fillText(
-    player.name,
-    nameCenter,
+    playerName,
+    centers.nameCenter,
     y + h / 2,
-    nameW - 24
+    nameMaxWidth
   );
 
+
   // =======================================================
-  // البطولات 🥇
+  // 🏆 البطولات
   // =======================================================
 
   ctx.font =
-    '900 28px Tajawal, sans-serif';
+    '900 36px Tajawal, sans-serif';
+
 
   ctx.fillStyle =
     player.championships > 0
       ? theme.goldDark
       : theme.text;
 
- ctx.fillText(
-  `🏆 ${player.championships ?? 0}`,
-  championshipsCenter,
-  y + h / 2
-);
-
-  // =======================================================
-  // الوصافة 🥈
-  // =======================================================
-
-  ctx.fillStyle =
-    player.runnerUps > 0
-      ? '#8A8F96'
-      : theme.text;
 
   ctx.fillText(
-  `🥈 ${player.runnerUps ?? 0}`,
-  runnerUpsCenter,
-  y + h / 2
-);
-
-  // =======================================================
-  // المشاركات
-  // =======================================================
-
-  ctx.fillStyle =
-    theme.text;
-
-  ctx.fillText(
-    String(player.tournaments ?? 0),
-    tournamentsCenter,
+    `🏆 ${player.championships ?? 0}`,
+    centers.championshipsCenter,
     y + h / 2
   );
 
-  // =======================================================
-  // الفوز
-  // =======================================================
-
-  ctx.fillStyle =
-    player.wins > 0
-      ? '#2E7D32'
-      : theme.text;
-
-  ctx.fillText(
-    String(player.wins ?? 0),
-    winsCenter,
-    y + h / 2
-  );
-
-  // =======================================================
-  // الخسارة
-  // =======================================================
-
-  ctx.fillStyle =
-    player.losses > 0
-      ? '#9A5A5A'
-      : theme.text;
-
-  ctx.fillText(
-    String(player.losses ?? 0),
-    lossesCenter,
-    y + h / 2
-  );
 
   ctx.restore();
 }
@@ -3221,7 +3177,6 @@ function drawStatsRankingRow(
 // =========================================================
 // 📸 تصدير صورة الإحصائيات
 // =========================================================
-
 async function exportStatsImage() {
 
   const d =
@@ -3232,9 +3187,7 @@ async function exportStatsImage() {
   // التحقق من وجود بطولات
   // =======================================================
 
-  if (
-    !d.completedTournaments
-  ) {
+  if (!d.completedTournaments) {
 
     alert(
       'لا توجد بطولات مكتملة لتصدير إحصائياتها.'
@@ -3250,6 +3203,7 @@ async function exportStatsImage() {
 
   exportStatsBtn.disabled =
     true;
+
 
   exportStatsBtn.textContent =
     '⏳ جارٍ التصدير...';
@@ -3273,7 +3227,7 @@ async function exportStatsImage() {
         );
 
         await document.fonts.load(
-          '800 34px Tajawal'
+          '800 40px Tajawal'
         );
 
         await document.fonts.load(
@@ -3326,13 +3280,13 @@ async function exportStatsImage() {
         '#242424',
 
       muted:
-        '#7D7A73',
+        '#706D67',
 
       gold:
         '#CFA963',
 
       goldDark:
-        '#A08040',
+        '#8C6A2C',
 
       goldSoft:
         '#FBF3DE',
@@ -3353,37 +3307,30 @@ async function exportStatsImage() {
       Object.values(
         d.players
       )
-
         .filter(
           p =>
             p &&
             p.name &&
             p.name !== 'غير محدد'
         )
-
         .sort(
           (a, b) =>
-
             (
               b.championships -
               a.championships
             ) ||
-
             (
               b.runnerUps -
               a.runnerUps
             ) ||
-
             (
               b.wins -
               a.wins
             ) ||
-
             (
               b.winRate -
               a.winRate
             ) ||
-
             (
               b.tournaments -
               a.tournaments
@@ -3392,12 +3339,10 @@ async function exportStatsImage() {
 
 
     // =====================================================
-    // التحقق
+    // التحقق من اللاعبين
     // =====================================================
 
-    if (
-      !players.length
-    ) {
+    if (!players.length) {
 
       alert(
         'لا توجد بيانات لاعبين قابلة للتصدير.'
@@ -3408,49 +3353,27 @@ async function exportStatsImage() {
 
 
     // =====================================================
-    // أفضل 3
-    // =====================================================
-
-    const topThree =
-      players.slice(
-        0,
-        3
-      );
-
-
-    // بقية اللاعبين
-    const rankingPlayers =
-      players.slice(
-        3
-      );
-
-
-    // =====================================================
-    // أبعاد Top 3
-    // =====================================================
-
-    const topGap =
-      14;
-
-    const topCardW =
-      (
-        contentW -
-        topGap * 2
-      ) / 3;
-
-    const topCardH =
-      210;
-
-
-    // =====================================================
-    // أبعاد الجدول
+    // أبعاد الصفوف
+    //
+    // أكبر قليلًا لأن الجدول أصبح أبسط.
     // =====================================================
 
     const rowH =
-      72;
+      82;
 
     const rowGap =
-      9;
+      10;
+
+
+    // =====================================================
+    // أبعاد رأس الجدول
+    // =====================================================
+
+    const headerH =
+      60;
+
+    const headerGap =
+      16;
 
 
     // =====================================================
@@ -3461,7 +3384,7 @@ async function exportStatsImage() {
       62;
 
 
-    // عنوان البطولة
+    // اسم البطولة
     contentHeight +=
       48;
 
@@ -3471,63 +3394,48 @@ async function exportStatsImage() {
       34;
 
 
-    // الفاصل
+    // الفاصل الأول
     contentHeight +=
       30;
 
 
-    // عنوان أفضل 3
+    // عنوان الترتيب العام
     contentHeight +=
-      42;
+      46;
 
 
-    // مسافة صغيرة
+    // المسافة قبل رأس الجدول
     contentHeight +=
-      22;
-
-
-    // Top 3
-    contentHeight +=
-      topCardH;
-
-
-    // الفاصل
-    contentHeight +=
-      34;
-
-
-    // عنوان الترتيب
-    contentHeight +=
-      42;
+      29;
 
 
     // رأس الجدول
     contentHeight +=
-      50 +
-      12;
+      headerH;
 
 
-    // الصفوف
-    if (
-      rankingPlayers.length
-    ) {
+    // المسافة بعد رأس الجدول
+    contentHeight +=
+      headerGap;
 
-      contentHeight +=
 
-        rankingPlayers.length *
-          rowH +
+    // جميع اللاعبين
+    contentHeight +=
+      players.length *
+      rowH;
 
-        Math.max(
-          0,
-          rankingPlayers.length - 1
-        ) *
-          rowGap;
-    }
+
+    contentHeight +=
+      Math.max(
+        0,
+        players.length - 1
+      ) *
+      rowGap;
 
 
     // هامش سفلي
     contentHeight +=
-      54;
+      42;
 
 
     // =====================================================
@@ -3560,6 +3468,7 @@ async function exportStatsImage() {
       width *
       scale;
 
+
     canvas.height =
       height *
       scale;
@@ -3579,7 +3488,6 @@ async function exportStatsImage() {
 
     ctx.direction =
       'rtl';
-
 
     ctx.imageSmoothingEnabled =
       true;
@@ -3603,6 +3511,7 @@ async function exportStatsImage() {
       theme.pageTop
     );
 
+
     grad.addColorStop(
       1,
       theme.pageBottom
@@ -3622,11 +3531,12 @@ async function exportStatsImage() {
 
 
     // =====================================================
-    // خط علوي بسيط
+    // الخط العلوي
     // =====================================================
 
     ctx.fillStyle =
       theme.gold;
+
 
     ctx.globalAlpha =
       0.8;
@@ -3666,7 +3576,7 @@ async function exportStatsImage() {
         ctx,
         tournamentLabel,
         contentW,
-        46,
+        48,
         900,
         30
       );
@@ -3675,14 +3585,18 @@ async function exportStatsImage() {
     ctx.font =
       `900 ${titleSize}px Tajawal, sans-serif`;
 
+
     ctx.fillStyle =
       theme.text;
+
 
     ctx.textAlign =
       'center';
 
+
     ctx.textBaseline =
       'middle';
+
 
     ctx.direction =
       'rtl';
@@ -3725,10 +3639,12 @@ async function exportStatsImage() {
 
 
     ctx.font =
-      '700 19px Tajawal, sans-serif';
+      '700 21px Tajawal, sans-serif';
+
 
     ctx.fillStyle =
       theme.muted;
+
 
     ctx.textAlign =
       'center';
@@ -3759,124 +3675,6 @@ async function exportStatsImage() {
 
 
     // =====================================================
-    // عنوان أفضل 3
-    // =====================================================
-
-    y +=
-      39;
-
-
-    ctx.font =
-      '900 32px Tajawal, sans-serif';
-
-    ctx.fillStyle =
-      theme.text;
-
-    ctx.textAlign =
-      'center';
-
-
-    ctx.fillText(
-      'أفضل 3 لاعبين',
-      width / 2,
-      y
-    );
-
-
-    // =====================================================
-    // Top 3 Cards
-    // =====================================================
-
-    y +=
-      27;
-
-
-    const topX1 =
-      margin;
-
-    const topX2 =
-      margin +
-      topCardW +
-      topGap;
-
-    const topX3 =
-      margin +
-      (topCardW + topGap) * 2;
-
-
-    // المركز الثالث
-    if (
-      topThree[2]
-    ) {
-
-      drawTopPlayerCard(
-        ctx,
-        topThree[2],
-        3,
-        topX1,
-        y,
-        topCardW,
-        topCardH,
-        theme
-      );
-    }
-
-
-    // المركز الأول
-    if (
-      topThree[0]
-    ) {
-
-      drawTopPlayerCard(
-        ctx,
-        topThree[0],
-        1,
-        topX2,
-        y,
-        topCardW,
-        topCardH,
-        theme
-      );
-    }
-
-
-    // المركز الثاني
-    if (
-      topThree[1]
-    ) {
-
-      drawTopPlayerCard(
-        ctx,
-        topThree[1],
-        2,
-        topX3,
-        y,
-        topCardW,
-        topCardH,
-        theme
-      );
-    }
-
-
-    // =====================================================
-    // الفاصل الثاني
-    // =====================================================
-
-    y +=
-      topCardH +
-      34;
-
-
-    drawStatsDivider(
-      ctx,
-      margin,
-      y,
-      contentW,
-      'rgba(160,128,64,0.28)'
-    );
-
-
-    // =====================================================
     // عنوان الترتيب العام
     // =====================================================
 
@@ -3885,182 +3683,39 @@ async function exportStatsImage() {
 
 
     ctx.font =
-      '900 32px Tajawal, sans-serif';
+      '900 38px Tajawal, sans-serif';
+
 
     ctx.fillStyle =
       theme.text;
 
+
     ctx.textAlign =
       'center';
 
 
-    ctx.fillText(
-      'الترتيب العام',
-      width / 2,
-      y
-    );
+   ctx.fillText(
+  'سجل الأبطال',
+  width / 2,
+  y
+);
 
 
     // =====================================================
-    // أبعاد أعمدة الجدول
-    // =====================================================
-
-    const rankW =
-      92;
-
-    const nameW =
-      330;
-
-    const statsW =
-      contentW -
-      rankW -
-      nameW;
-
-    const statW =
-      statsW / 5;
-
-
-    // =====================================================
-    // مراكز الأعمدة
-    // =====================================================
-
-    // RTL الحقيقي:
-    // من اليمين: الترتيب → اللاعب → البطولات → الوصافة → المشاركات → الفوز → الخسارة
-    const rankCenter =
-      margin +
-      contentW -
-      rankW / 2;
-
-    const playerCenter =
-      margin +
-      contentW -
-      rankW -
-      nameW / 2;
-
-    const championshipsCenter =
-      margin +
-      contentW -
-      rankW -
-      nameW -
-      statW / 2;
-
-    const runnerUpsCenter =
-      margin +
-      contentW -
-      rankW -
-      nameW -
-      statW * 1.5;
-
-    const tournamentsCenter =
-      margin +
-      contentW -
-      rankW -
-      nameW -
-      statW * 2.5;
-
-    const winsCenter =
-      margin +
-      contentW -
-      rankW -
-      nameW -
-      statW * 3.5;
-
-    const lossesCenter =
-      margin +
-      contentW -
-      rankW -
-      nameW -
-      statW * 4.5;
-
-
-    // =====================================================
-    // رأس الجدول
+    // رأس جدول الترتيب العام
     // =====================================================
 
     y +=
-      27;
+      29;
 
 
-    drawStatsRoundRect(
+    drawStatsTableHeader(
       ctx,
       margin,
       y,
       contentW,
-      50,
-      14,
-      'rgba(207,169,99,0.13)'
-    );
-
-
-    ctx.font =
-      '900 21px Tajawal, sans-serif';
-
-    ctx.fillStyle =
-      theme.muted;
-
-    ctx.textAlign =
-      'center';
-
-    ctx.textBaseline =
-      'middle';
-
-    ctx.direction =
-      'rtl';
-
-
-    // الترتيب
-    ctx.fillText(
-      'الترتيب',
-      rankCenter,
-      y + 25
-    );
-
-
-    // اسم اللاعب
-    ctx.fillText(
-      'اسم اللاعب',
-      playerCenter,
-      y + 25
-    );
-
-
-    // البطولات 🥇
-    ctx.fillText(
-      'بطولات',
-      championshipsCenter,
-      y + 25
-    );
-
-
-    // الوصافة 🥈
-    ctx.fillText(
-      'وصافة',
-      runnerUpsCenter,
-      y + 25
-    );
-
-
-    // المشاركات
-    ctx.fillText(
-      'مشاركات',
-      tournamentsCenter,
-      y + 25
-    );
-
-
-    // الفوز
-    ctx.fillText(
-      'فوز',
-      winsCenter,
-      y + 25
-    );
-
-
-    // الخسارة
-    ctx.fillText(
-      'خسارة',
-      lossesCenter,
-      y + 25
+      headerH,
+      theme
     );
 
 
@@ -4069,14 +3724,15 @@ async function exportStatsImage() {
     // =====================================================
 
     y +=
-      62;
+      headerH +
+      headerGap;
 
 
     // =====================================================
-    // صفوف اللاعبين
+    // جميع اللاعبين
     // =====================================================
 
-    rankingPlayers.forEach(
+    players.forEach(
       (
         player,
         index
@@ -4085,7 +3741,7 @@ async function exportStatsImage() {
         drawStatsRankingRow(
           ctx,
           player,
-          index + 4,
+          index + 1,
           margin,
           y,
           contentW,
@@ -4095,40 +3751,28 @@ async function exportStatsImage() {
 
 
         y +=
-          rowH +
-          rowGap;
+          rowH;
+
+
+        if (
+          index <
+          players.length - 1
+        ) {
+
+          y +=
+            rowGap;
+        }
       }
     );
 
 
     // =====================================================
-    // لمسة نهائية سفلية
+    // ❌ تم حذف الخط السفلي بالكامل
+    //
+    // لا يوجد:
+    // ctx.fillRect(...)
+    // في أسفل الصورة.
     // =====================================================
-
-    y =
-      Math.min(
-        y,
-        height - 40
-      );
-
-
-    ctx.fillStyle =
-      theme.gold;
-
-    ctx.globalAlpha =
-      0.75;
-
-
-    ctx.fillRect(
-      width / 2 - 24,
-      height - 26,
-      48,
-      2
-    );
-
-
-    ctx.globalAlpha =
-      1;
 
 
     // =====================================================
@@ -4140,6 +3784,7 @@ async function exportStatsImage() {
       'Tournament-Statistics-Story.png'
     );
 
+  
 
       } catch (err) {
         console.error(err);
