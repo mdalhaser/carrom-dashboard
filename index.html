@@ -2635,105 +2635,93 @@ return teamName.replace('غير محدد', replacement);
       const cardBorder = isFirst ? theme.gold : theme.border;
 
       ctx.save();
-
-      // ظل خفيف
       ctx.shadowColor = 'rgba(31, 41, 55, 0.10)';
-      ctx.shadowBlur = isFirst ? 22 : 14;
-      ctx.shadowOffsetY = 7;
-      drawStatsRoundRect(ctx, x, y, w, h, 24, cardFill, cardBorder, isFirst ? 3 : 1.5);
+      ctx.shadowBlur = isFirst ? 20 : 12;
+      ctx.shadowOffsetY = 6;
+      drawStatsRoundRect(ctx, x, y, w, h, 22, cardFill, cardBorder, isFirst ? 3 : 1.5);
       ctx.shadowColor = 'transparent';
 
-      // دائرة المركز: ذهبي 1 — فضي 2 — برونزي 3
+      // المركز
       ctx.fillStyle = rankColor;
       ctx.beginPath();
-      ctx.arc(x + w / 2, y + 42, isFirst ? 31 : 28, 0, Math.PI * 2);
+      ctx.arc(x + w / 2, y + 38, isFirst ? 29 : 26, 0, Math.PI * 2);
       ctx.fill();
 
       ctx.fillStyle = '#ffffff';
-      ctx.font = `900 ${isFirst ? 30 : 27}px Tajawal, sans-serif`;
+      ctx.font = `900 ${isFirst ? 29 : 26}px Tajawal, sans-serif`;
       ctx.textAlign = 'center';
       ctx.textBaseline = 'middle';
-      ctx.fillText(String(rank), x + w / 2, y + 43);
+      ctx.fillText(String(rank), x + w / 2, y + 39);
 
-      // اسم اللاعب — أكبر للعرض على الهاتف
-      const nameSize = fitFont(ctx, player.name, w - 30, isFirst ? 36 : 33, 800, 23);
+      // الاسم
+      const nameSize = fitFont(ctx, player.name, w - 28, isFirst ? 34 : 31, 800, 21);
       ctx.font = `800 ${nameSize}px Tajawal, sans-serif`;
       ctx.fillStyle = theme.text;
-      ctx.fillText(player.name, x + w / 2, y + 98, w - 30);
+      ctx.fillText(player.name, x + w / 2, y + 91, w - 28);
 
-      // أربع إحصائيات: بطولات، مشاركات، فوز، خسارة
-      const statGap = 8;
-      const statW = (w - 28 - statGap) / 2;
-      const statH = 58;
+      // إحصائيتان فقط: بطولات + وصيف
+      const statGap = 10;
+      const statW = (w - 30 - statGap) / 2;
+      const statH = 66;
+      const statY = y + h - statH - 18;
       const statX1 = x + 10;
-      const statX2 = x + 18 + statW;
-      const statY1 = y + h - 122;
-      const statY2 = y + h - 60;
+      const statX2 = statX1 + statW + statGap;
 
       const statBoxes = [
-        { x: statX1, y: statY1, value: player.championships, label: 'بطولات', accent: true },
-        { x: statX2, y: statY1, value: player.tournaments, label: 'مشاركات' },
-        { x: statX1, y: statY2, value: player.wins, label: 'فوز' },
-        { x: statX2, y: statY2, value: player.losses, label: 'خسارة' }
+        { x: statX1, value: player.championships, label: 'بطولات', accent: true },
+        { x: statX2, value: player.runnerUps, label: 'وصيف', accent: false }
       ];
 
       statBoxes.forEach(stat => {
-        drawStatsRoundRect(ctx, stat.x, stat.y, statW, statH, 13, theme.statBg);
-
+        drawStatsRoundRect(ctx, stat.x, statY, statW, statH, 13, theme.statBg);
         ctx.textAlign = 'center';
-        ctx.font = '900 25px Tajawal, sans-serif';
+        ctx.font = '900 28px Tajawal, sans-serif';
         ctx.fillStyle = stat.accent && player.championships > 0 ? theme.goldDark : theme.text;
-        ctx.fillText(String(stat.value ?? 0), stat.x + statW / 2, stat.y + 24);
-
-        ctx.font = '800 14px Tajawal, sans-serif';
+        ctx.fillText(String(stat.value ?? 0), stat.x + statW / 2, statY + 27);
+        ctx.font = '800 16px Tajawal, sans-serif';
         ctx.fillStyle = theme.muted;
-        ctx.fillText(stat.label, stat.x + statW / 2, stat.y + 45);
+        ctx.fillText(stat.label, stat.x + statW / 2, statY + 51);
       });
 
       ctx.restore();
     }
 
     function drawStatsRankingRow(ctx, player, rank, x, y, w, h, theme) {
-      const rankW = 68;
-      const nameW = 300;
-      const statW = (w - rankW - nameW) / 4;
-
-      // جميع صفوف الترتيب العام بنفس الهوية؛ بدون تلوين مختلف لكل لاعب.
+      const rankW = 82;
+      const nameW = 420;
+      const statW = (w - rankW - nameW) / 2;
       const bg = '#ffffff';
       const border = theme.border;
 
       ctx.save();
       drawStatsRoundRect(ctx, x, y, w, h, 16, bg, border, 1.2);
 
-      // رقم الترتيب
+      // الترتيب
       const rankX = x + w - rankW / 2;
       ctx.textAlign = 'center';
       ctx.textBaseline = 'middle';
-      ctx.font = '900 24px Tajawal, sans-serif';
+      ctx.font = '900 27px Tajawal, sans-serif';
       ctx.fillStyle = theme.muted;
       ctx.fillText(String(rank), rankX, y + h / 2);
 
-      // اسم اللاعب
-      const nameX = x + w - rankW - 20;
-      ctx.textAlign = 'right';
-      const nameSize = fitFont(ctx, player.name, nameW - 20, 29, 800, 20);
+      // اللاعب
+      const nameX = x + w - rankW - 24;
+      const nameSize = fitFont(ctx, player.name, nameW - 20, 31, 800, 22);
       ctx.font = `800 ${nameSize}px Tajawal, sans-serif`;
       ctx.fillStyle = theme.text;
+      ctx.textAlign = 'right';
       ctx.fillText(player.name, nameX, y + h / 2, nameW - 20);
 
-      // أربع إحصائيات
+      // بطولات + وصيف
       const stats = [
-        { value: player.championships, label: 'بطولات', accent: true },
-        { value: player.tournaments, label: 'مشاركات' },
-        { value: player.wins, label: 'فوز' },
-        { value: player.losses, label: 'خسارة' }
+        { value: player.championships, accent: true },
+        { value: player.runnerUps, accent: false }
       ];
 
       stats.forEach((stat, i) => {
         const cx = x + w - rankW - nameW - statW * (i + 0.5);
-
         ctx.textAlign = 'center';
-        ctx.font = `900 30px Tajawal, sans-serif`;
+        ctx.font = '900 32px Tajawal, sans-serif';
         ctx.fillStyle = stat.accent && player.championships > 0 ? theme.goldDark : theme.text;
         ctx.fillText(String(stat.value ?? 0), cx, y + h / 2);
       });
@@ -2760,21 +2748,18 @@ return teamName.replace('غير محدد', replacement);
             await document.fonts.load('800 34px Tajawal');
             await document.fonts.load('700 28px Tajawal');
             await document.fonts.ready;
-          } catch (fontErr) {
-            // المتابعة حتى لو لم يكتمل تحميل الخط.
-          }
+          } catch (fontErr) {}
         }
 
         // =====================================================
-        // Instagram Story — المقاس القياسي 1080 × 1920
+        // تصدير إحصائيات مخصص للجوال والتواصل الاجتماعي.
+        // العرض ثابت 1080px، والارتفاع يحسب من كمية المحتوى.
         // =====================================================
         const width = 1080;
-        const height = 1920;
         const scale = 2;
         const margin = 64;
         const contentW = width - margin * 2;
 
-        // نفس الهوية البصرية الأساسية لتصدير البطولة.
         const theme = {
           pageTop: '#FAF8F5',
           pageBottom: '#F2EDE4',
@@ -2784,9 +2769,7 @@ return teamName.replace('غير محدد', replacement);
           goldDark: '#a08040',
           goldSoft: '#FBF3DE',
           border: '#D7C29A',
-          statBg: '#F6F1E8',
-          green: '#67c587',
-          greenSoft: '#E7F5EB'
+          statBg: '#F6F1E8'
         };
 
         const players = Object.values(d.players)
@@ -2807,6 +2790,16 @@ return teamName.replace('غير محدد', replacement);
         const topThree = players.slice(0, 3);
         const rankingPlayers = players.slice(3);
 
+        // حساب ارتفاع مناسب للمحتوى بدلاً من حجز 1920px دائماً.
+        const topCardH = 238;
+        const rowH = 78;
+        const estimatedHeight =
+          72 + 58 + 42 + 34 + 40 + 42 +
+          34 + topCardH + 42 +
+          40 + 46 + 58 +
+          (rankingPlayers.length * (rowH + 10)) + 54;
+        const height = Math.max(1120, Math.min(1920, estimatedHeight));
+
         const canvas = document.createElement('canvas');
         canvas.width = width * scale;
         canvas.height = height * scale;
@@ -2816,170 +2809,100 @@ return teamName.replace('غير محدد', replacement);
         ctx.textRendering = 'optimizeLegibility';
         ctx.direction = 'rtl';
 
-        // الخلفية — مطابقة تقريباً لخلفية تصدير البطولة.
+        // الخلفية
         const bg = ctx.createLinearGradient(0, 0, 0, height);
         bg.addColorStop(0, theme.pageTop);
         bg.addColorStop(1, theme.pageBottom);
         ctx.fillStyle = bg;
         ctx.fillRect(0, 0, width, height);
 
-        // لمسة ذهبية خفيفة أعلى الصورة.
-        const glow = ctx.createRadialGradient(
-          width * 0.5, 0, 30,
-          width * 0.5, 0, 520
-        );
+        // وهج ذهبي خفيف أعلى الصورة
+        const glow = ctx.createRadialGradient(width * 0.5, 0, 30, width * 0.5, 0, 520);
         glow.addColorStop(0, 'rgba(207,169,99,0.18)');
         glow.addColorStop(1, 'rgba(207,169,99,0)');
         ctx.fillStyle = glow;
-        ctx.fillRect(0, 0, width, 650);
+        ctx.fillRect(0, 0, width, Math.min(600, height));
 
-        // -----------------------------------------------------
+        let y = 70;
+
         // العنوان
-        // -----------------------------------------------------
-        let y = 72;
-
         ctx.textAlign = 'right';
         ctx.textBaseline = 'middle';
         ctx.fillStyle = theme.goldDark;
-        ctx.font = '900 25px Tajawal, sans-serif';
+        ctx.font = '900 26px Tajawal, sans-serif';
         ctx.fillText('إحصائيات اللاعبين', width - margin, y);
 
-        y += 58;
+        y += 56;
 
-        const tournamentLabel =
-          tournamentName.textContent.trim() || 'بطولة المجلس للكيرم';
-
-        const titleSize = fitFont(
-          ctx,
-          tournamentLabel,
-          contentW,
-          52,
-          900,
-          34
-        );
-
+        const tournamentLabel = tournamentName.textContent.trim() || 'بطولة المجلس للكيرم';
+        const titleSize = fitFont(ctx, tournamentLabel, contentW, 52, 900, 34);
         ctx.font = `900 ${titleSize}px Tajawal, sans-serif`;
         ctx.fillStyle = theme.text;
         ctx.fillText(tournamentLabel, width - margin, y);
 
-        y += 48;
-
-        ctx.font = '700 22px Tajawal, sans-serif';
+        y += 44;
+        ctx.font = '700 21px Tajawal, sans-serif';
         ctx.fillStyle = theme.muted;
         const exportDate = new Intl.DateTimeFormat('ar-OM', {
-          weekday: 'long',
-          day: 'numeric',
-          month: 'long',
-          year: 'numeric'
+          weekday: 'long', day: 'numeric', month: 'long', year: 'numeric'
         }).format(new Date());
-        ctx.fillText(
-          `تاريخ التصدير: ${exportDate}`,
-          width - margin,
-          y
-        );
+        ctx.fillText(`تاريخ التصدير: ${exportDate}`, width - margin, y);
 
-        y += 34;
+        y += 30;
         drawStatsDivider(ctx, margin, y, contentW, 'rgba(160,128,64,0.28)');
 
-        // -----------------------------------------------------
-        // أفضل 3 لاعبين
-        // -----------------------------------------------------
-        y += 38;
-
+        // Top 3
+        y += 36;
         ctx.textAlign = 'right';
-        ctx.font = '900 36px Tajawal, sans-serif';
+        ctx.font = '900 34px Tajawal, sans-serif';
         ctx.fillStyle = theme.text;
         ctx.fillText('أفضل 3 لاعبين', width - margin, y);
 
-        y += 26;
-
-        // ترتيب البطاقات بصرياً: الثاني — الأول — الثالث
+        y += 24;
         const topGap = 14;
         const topCardW = (contentW - topGap * 2) / 3;
-        const topCardH = 270;
         const topX1 = margin;
         const topX2 = margin + topCardW + topGap;
         const topX3 = margin + (topCardW + topGap) * 2;
 
-        // التوزيع البصري: الثالث يسار — الأول وسط — الثاني يمين
-        if (topThree[2]) {
-          drawTopPlayerCard(ctx, topThree[2], 3, topX1, y, topCardW, topCardH, theme);
-        }
-        if (topThree[0]) {
-          drawTopPlayerCard(ctx, topThree[0], 1, topX2, y, topCardW, topCardH, theme);
-        }
-        if (topThree[1]) {
-          drawTopPlayerCard(ctx, topThree[1], 2, topX3, y, topCardW, topCardH, theme);
-        }
+        if (topThree[2]) drawTopPlayerCard(ctx, topThree[2], 3, topX1, y, topCardW, topCardH, theme);
+        if (topThree[0]) drawTopPlayerCard(ctx, topThree[0], 1, topX2, y, topCardW, topCardH, theme);
+        if (topThree[1]) drawTopPlayerCard(ctx, topThree[1], 2, topX3, y, topCardW, topCardH, theme);
 
-        y += topCardH + 48;
+        y += topCardH + 38;
 
-        // -----------------------------------------------------
         // الترتيب العام
-        // -----------------------------------------------------
         drawStatsDivider(ctx, margin, y, contentW, 'rgba(160,128,64,0.28)');
-        y += 40;
+        y += 36;
 
         ctx.textAlign = 'right';
-        ctx.font = '900 36px Tajawal, sans-serif';
+        ctx.font = '900 34px Tajawal, sans-serif';
         ctx.fillStyle = theme.text;
         ctx.fillText('الترتيب العام', width - margin, y);
 
-        y += 34;
+        y += 30;
 
-        // عناوين الأعمدة
-        const rankW = 68;
-        const nameW = 300;
-        const statW = (contentW - rankW - nameW) / 4;
+        // 4 أعمدة أصبحت 4 عناصر إجمالية: الترتيب، اللاعب، البطولات، الوصيف.
+        const rankW = 82;
+        const nameW = 420;
+        const statW = (contentW - rankW - nameW) / 2;
 
-        drawStatsRoundRect(
-          ctx,
-          margin,
-          y,
-          contentW,
-          48,
-          14,
-          'rgba(207,169,99,0.13)'
-        );
-
-        ctx.font = '900 21px Tajawal, sans-serif';
+        drawStatsRoundRect(ctx, margin, y, contentW, 52, 14, 'rgba(207,169,99,0.13)');
+        ctx.font = '900 22px Tajawal, sans-serif';
         ctx.fillStyle = theme.muted;
         ctx.textAlign = 'center';
-        ctx.fillText('الترتيب', margin + contentW - rankW / 2, y + 25);
-        ctx.fillText('اللاعب', margin + contentW - rankW - nameW / 2, y + 25);
+        ctx.fillText('الترتيب', margin + contentW - rankW / 2, y + 27);
+        ctx.fillText('اللاعب', margin + contentW - rankW - nameW / 2, y + 27);
+        ctx.fillText('بطولات', margin + contentW - rankW - nameW - statW / 2, y + 27);
+        ctx.fillText('وصيف', margin + contentW - rankW - nameW - statW - statW / 2, y + 27);
 
-        ['بطولات', 'مشاركات', 'فوز', 'خسارة'].forEach((label, i) => {
-          const cx = margin + contentW - rankW - nameW - statW * (i + 0.5);
-          ctx.fillText(label, cx, y + 25);
-        });
+        y += 64;
 
-        y += 58;
-
-        const rowH = rankingPlayers.length <= 7 ? 82 : 76;
-
-        // نعرض جميع اللاعبين بعد Top 3.
         rankingPlayers.forEach((player, index) => {
           const rank = index + 4;
-
-          // منع تجاوز مساحة الـStory.
-          if (y + rowH > height - 100) return;
-
-          drawStatsRankingRow(
-            ctx,
-            player,
-            rank,
-            margin,
-            y,
-            contentW,
-            rowH,
-            theme
-          );
-
+          drawStatsRankingRow(ctx, player, rank, margin, y, contentW, rowH, theme);
           y += rowH + 10;
         });
-
-        // إذا كان عدد اللاعبين قليلاً، نضيف Top 3 إلى الترتيب العام
-        // بصرياً عبر الخط الفاصل فقط؛ البطاقات بالأعلى هي الترتيب الأساسي.
 
         await downloadCanvasAsPng(canvas, 'Tournament-Statistics-Story.png');
 
