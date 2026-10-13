@@ -1736,27 +1736,33 @@ body.dark-mode .lm-status.done {
     .lg-history-table tr.res-bye td { color: var(--muted); }
     body.dark-mode .lg-history-table tr.res-win td.res { color: #81c784; }
     body.dark-mode .lg-history-table tr.res-loss td.res { color: #ef9a9a; }
-  
-    /* أداة مؤقتة لتصدير بيانات التطبيق قبل التحديث */
-    #legacyBackupButton {
-      position: fixed;
-      left: 12px;
-      bottom: 14px;
-      z-index: 20000;
-      border: 1px solid rgba(207,169,99,.65);
-      border-radius: 14px;
-      padding: 12px 16px;
-      background: linear-gradient(135deg,#cfa963,#b88d45);
-      color: #fff;
-      box-shadow: 0 8px 24px rgba(18,24,32,.22);
-      font: 800 15px "Tajawal",system-ui,sans-serif;
-      cursor: pointer;
-      -webkit-tap-highlight-color: transparent;
-    }
-    #legacyBackupButton:active { transform: scale(.98); }
-    @media(max-width:520px) {
-      #legacyBackupButton { left: 10px; bottom: 10px; padding: 11px 13px; font-size: 14px; }
-    }
+
+    /* ===== لوحة التحكم: النسخ الاحتياطي والاستعادة ===== */
+    .control-open-btn{position:absolute;left:18px;top:50%;transform:translateY(-50%);display:inline-flex;align-items:center;gap:8px;padding:11px 15px;border:1px solid rgba(207,169,99,.45);border-radius:12px;background:linear-gradient(135deg,rgba(207,169,99,.22),rgba(207,169,99,.08));color:var(--text);font:700 15px Tajawal, sans-serif;cursor:pointer;box-shadow:0 5px 16px rgba(18,24,32,.07);transition:.2s;z-index:12}
+    .control-open-btn:hover{transform:translateY(-50%) translateY(-2px);box-shadow:var(--hover-shadow)}
+    #controlDashboard{display:none;position:fixed;inset:0;z-index:20000;background:rgba(15,18,24,.62);backdrop-filter:blur(7px);align-items:center;justify-content:center;padding:14px}
+    #controlDashboard.open{display:flex}
+    .cd-shell{width:min(920px,100%);max-height:min(92vh,900px);overflow:auto;border:1px solid var(--border);border-radius:22px;background:var(--card);color:var(--text);box-shadow:0 28px 90px rgba(0,0,0,.3)}
+    .cd-hero{padding:24px 26px 20px;background:radial-gradient(circle at 8% 0%,rgba(207,169,99,.22),transparent 38%),linear-gradient(135deg,var(--card),var(--bg));border-bottom:1px solid var(--border)}
+    .cd-topline{display:flex;align-items:center;justify-content:space-between;gap:12px}
+    .cd-brand{display:flex;align-items:center;gap:13px}.cd-mark{width:48px;height:48px;display:grid;place-items:center;border-radius:15px;background:linear-gradient(135deg,#d8bb7d,#b88b3c);color:#fff;font-size:23px;box-shadow:0 8px 18px rgba(184,139,60,.25)}
+    .cd-hero h2{font-size:25px;margin:0 0 3px;font-weight:900}.cd-hero p{margin:0;color:var(--muted);font-size:14px;line-height:1.7}
+    .cd-close{width:40px;height:40px;border:1px solid var(--border);border-radius:12px;background:var(--card);color:var(--text);font-size:25px;cursor:pointer}
+    .cd-body{padding:22px;display:grid;gap:17px}.cd-status{display:flex;align-items:center;gap:10px;padding:13px 15px;border:1px solid rgba(46,125,50,.22);border-radius:14px;background:rgba(46,125,50,.07);font-size:14px;line-height:1.65}.cd-status-dot{width:9px;height:9px;border-radius:50%;background:#2e7d32;flex-shrink:0;box-shadow:0 0 0 4px rgba(46,125,50,.12)}
+    .cd-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px}.cd-card{min-width:0;border:1px solid var(--border);border-radius:17px;padding:19px;background:var(--card);box-shadow:0 6px 22px rgba(18,24,32,.035)}
+    .cd-card-head{display:flex;align-items:center;gap:11px;margin-bottom:12px}.cd-icon{width:42px;height:42px;border-radius:13px;display:grid;place-items:center;font-size:20px;flex-shrink:0}.cd-icon.gold{background:rgba(207,169,99,.17)}.cd-icon.blue{background:rgba(57,119,201,.12)}
+    .cd-card h3{font-size:19px;margin:0 0 2px;font-weight:900}.cd-card .sub{font-size:13px;color:var(--muted);line-height:1.6}.cd-card p{font-size:14px;color:var(--muted);line-height:1.75;margin:10px 0 15px}
+    .cd-primary,.cd-secondary,.cd-danger{width:100%;display:flex;align-items:center;justify-content:center;gap:8px;min-height:46px;padding:11px 14px;border-radius:12px;font:800 15px Tajawal,sans-serif;cursor:pointer;transition:.2s}.cd-primary{border:1px solid #b99048;background:linear-gradient(135deg,#d8bb7d,#c49b50);color:#24201a;box-shadow:0 5px 14px rgba(196,155,80,.18)}.cd-secondary{border:1px solid var(--border);background:var(--bg);color:var(--text)}.cd-danger{border:1px solid rgba(190,55,55,.3);background:rgba(190,55,55,.07);color:#b83232}.cd-primary:hover,.cd-secondary:hover,.cd-danger:hover{transform:translateY(-1px);filter:brightness(.98)}
+    .cd-metrics{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}.cd-metric{border:1px solid var(--border);border-radius:13px;padding:12px;background:var(--bg);min-width:0}.cd-metric .label{font-size:12px;color:var(--muted);margin-bottom:5px}.cd-metric .value{font-size:16px;font-weight:900;overflow-wrap:anywhere}
+    .cd-note{font-size:13px;line-height:1.8;color:var(--muted);padding:13px 15px;border-radius:13px;background:var(--bg);border:1px dashed var(--border)}.cd-note strong{color:var(--text)}
+    .cd-file-input{display:none}.cd-feedback{display:none;padding:12px 14px;border-radius:12px;font-size:14px;line-height:1.7}.cd-feedback.show{display:block}.cd-feedback.ok{background:rgba(46,125,50,.09);border:1px solid rgba(46,125,50,.25);color:var(--success)}.cd-feedback.err{background:rgba(190,55,55,.08);border:1px solid rgba(190,55,55,.25);color:#b83232}
+    .cd-footer{padding:14px 22px 20px;border-top:1px solid var(--border);font-size:12px;color:var(--muted);text-align:center}
+    body.dark-mode .cd-shell{background:var(--card)}body.dark-mode .cd-primary{color:#292216}
+    /* ===== سجل التعديلات: تراجع وإعادة ===== */
+    .cd-history-card{border:1px solid var(--border);border-radius:17px;padding:19px;background:linear-gradient(135deg,rgba(57,119,201,.055),rgba(207,169,99,.07));}
+    .cd-history-head{display:flex;align-items:center;gap:11px;margin-bottom:10px}.cd-history-head h3{font-size:19px;margin:0 0 2px;font-weight:900}.cd-history-actions{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:14px}.cd-history-actions button:disabled{opacity:.42;cursor:not-allowed;filter:grayscale(.25);transform:none;box-shadow:none}.cd-history-meta{display:flex;justify-content:space-between;gap:8px;flex-wrap:wrap;font-size:12px;color:var(--muted);margin-top:10px}.cd-history-state{font-size:13px;color:var(--muted);line-height:1.7}
+    @media(max-width:650px){.cd-history-card{padding:15px}.cd-history-actions{grid-template-columns:1fr}.cd-history-actions button{min-height:48px}}
+    @media(max-width:650px){.control-open-btn{left:9px;padding:9px 10px;font-size:13px;gap:5px}.control-open-btn span{display:none}header{padding-left:52px}.cd-hero{padding:18px}.cd-hero h2{font-size:22px}.cd-body{padding:13px}.cd-grid{grid-template-columns:1fr}.cd-card{padding:15px}.cd-metrics{gap:7px}.cd-metric{padding:10px 8px}.cd-metric .value{font-size:14px}.cd-footer{padding:12px}}
 
   </style>
 </head>
@@ -1766,6 +1772,7 @@ body.dark-mode .lm-status.done {
       <div id="themeSwitch" class="theme-switch" role="button" aria-label="Toggle Dark/Light Mode">
         <span id="themeIcon">🌙</span>
       </div>
+      <button type="button" id="openControlDashboard" class="control-open-btn" aria-label="فتح لوحة التحكم">⚙️ <span>لوحة التحكم</span></button>
       <div class="header-title">
         <h2 id="tournamentName" contenteditable="true" spellcheck="false">بطولة المجلس للكيرم</h2>
         <h1 id="tournamentTitle" contenteditable="true">إدارة القرعة</h1>
@@ -1944,7 +1951,51 @@ body.dark-mode .lm-status.done {
   </div>
 
 
-  <button id="legacyBackupButton" type="button" aria-label="تصدير نسخة احتياطية من بيانات البطولة">⬇️ تصدير نسخة احتياطية</button>
+  <!-- لوحة التحكم: حماية البيانات -->
+  <section id="controlDashboard" aria-hidden="true" role="dialog" aria-modal="true" aria-labelledby="cdTitle">
+    <div class="cd-shell">
+      <div class="cd-hero">
+        <div class="cd-topline">
+          <div class="cd-brand"><div class="cd-mark">⌘</div><div><h2 id="cdTitle">مركز حماية البيانات</h2><p>إدارة النسخ الاحتياطية واستعادة بيانات البطولة بأمان</p></div></div>
+          <button type="button" class="cd-close" id="closeControlDashboard" aria-label="إغلاق لوحة التحكم">×</button>
+        </div>
+      </div>
+      <div class="cd-body">
+        <div class="cd-status"><span class="cd-status-dot"></span><div><strong>بياناتك محفوظة محلياً على هذا المتصفح</strong><br><span>للحماية من فقدان بيانات الموقع أو تغيير الجهاز، احتفظ بنسخة JSON خارج التطبيق.</span></div></div>
+        <div class="cd-metrics">
+          <div class="cd-metric"><div class="label">عدد عناصر التخزين</div><div class="value" id="cdKeyCount">—</div></div>
+          <div class="cd-metric"><div class="label">الحجم التقريبي للبيانات</div><div class="value" id="cdDataSize">—</div></div>
+          <div class="cd-metric"><div class="label">آخر تصدير من هذا المتصفح</div><div class="value" id="cdLastBackup">لم يُسجّل</div></div>
+        </div>
+        <div class="cd-grid">
+          <article class="cd-card">
+            <div class="cd-card-head"><div class="cd-icon gold">⬇</div><div><h3>إنشاء نسخة احتياطية</h3><div class="sub">تصدير بيانات المشروع إلى ملف مستقل</div></div></div>
+            <p>يشمل بيانات التخزين المحلي التي يستخدمها التطبيق، مثل إعدادات البطولة والفرق والقرعة والدوري وسجل البطولات. يُنشأ ملف JSON يمكنك حفظه في «الملفات» أو iCloud.</p>
+            <button type="button" id="cdExportBtn" class="cd-primary">⬇ إنشاء وتنزيل نسخة احتياطية</button>
+          </article>
+          <article class="cd-card">
+            <div class="cd-card-head"><div class="cd-icon blue">↻</div><div><h3>استعادة نسخة احتياطية</h3><div class="sub">استرجاع البيانات من ملف JSON سابق</div></div></div>
+            <p>افحص ملف النسخة أولاً ثم اعرض ملخصه قبل الاستعادة. سيتم حفظ نسخة من البيانات الحالية في الذاكرة المؤقتة أثناء العملية، وستحتاج إلى تأكيد لأن الاستعادة تستبدل البيانات الحالية.</p>
+            <input class="cd-file-input" id="cdImportFile" type="file" accept=".json,application/json">
+            <button type="button" id="cdImportBtn" class="cd-secondary">↻ اختيار ملف للاستعادة</button>
+          </article>
+        </div>
+        <article class="cd-history-card">
+          <div class="cd-history-head"><div class="cd-icon blue">↶</div><div><h3>سجل التعديلات والتراجع</h3><div class="sub">ارجع عن خطأ أو أعد خطوة تراجعت عنها</div></div></div>
+          <div class="cd-history-state" id="cdUndoDescription">تُسجّل التغييرات المحفوظة تلقائياً. يمكن الرجوع عن آخر 10 عمليات مدعومة.</div>
+          <div class="cd-history-actions">
+            <button type="button" id="cdUndoBtn" class="cd-secondary" disabled>↶ التراجع عن آخر خطوة</button>
+            <button type="button" id="cdRedoBtn" class="cd-secondary" disabled>↷ إعادة الخطوة</button>
+          </div>
+          <div class="cd-history-meta"><span id="cdUndoCount">خطوات التراجع: 0</span><span id="cdRedoCount">خطوات الإعادة: 0</span></div>
+        </article>
+        <div id="cdFeedback" class="cd-feedback" role="status" aria-live="polite"></div>
+        <div class="cd-note"><strong>مهم:</strong> تاريخ التصدير يعني أن التطبيق بدأ تنزيل الملف، وليس تأكيداً بأنك حفظته خارجياً. بعد التصدير، تأكد من وجود الملف في تطبيق «الملفات» أو في مكان آمن. لا تحذف بيانات الموقع أو التطبيق قبل تجربة النسخة.</div>
+      </div>
+      <div class="cd-footer">مركز حماية البيانات · النسخة الاحتياطية ملف مستقل عن التخزين المحلي</div>
+    </div>
+  </section>
+
   <script>
     // ===================================
     // ⚙️ وظيفة التبديل بين الوضع النهاري/الليلي
@@ -3248,6 +3299,16 @@ return teamName.replace('غير محدد', replacement);
 // =========================================================
 // 🧩 أدوات الرسم
 // =========================================================
+// =========================================================
+// 📸 تصدير إحصائيات اللاعبين — جدول كامل RTL
+// ترتيب الأعمدة من اليمين إلى اليسار:
+// الترتيب | اللاعب | بطولات | وصافة | مشاركات | فوز | خسارة | نسبة الفوز
+// العنوان مأخوذ مباشرةً من حقل عنوان المشروع (tournamentName).
+// الارتفاع ديناميكي كي لا تُقصّ الصفوف عند زيادة عدد اللاعبين.
+// يعتمد هذا الكود على المتغيرات/الدوال الموجودة في المشروع:
+// getStatsData, tournamentName, exportStatsBtn, fitFont, downloadCanvasAsPng
+// =========================================================
+
 function drawStatsText(
   ctx,
   text,
@@ -3455,143 +3516,57 @@ function drawStatsDivider(
 // تم توسيع عمود اسم اللاعب
 // وتوزيع الجدول من جديد بعد حذف بقية الأعمدة.
 // =========================================================
-function getStatsColumnCenters(
-  x,
-  w
-) {
-
-  // -----------------------------------------------
-  // عرض الأعمدة
-  // -----------------------------------------------
-
-  const rankW =
-    150;
-
-  const championshipsW =
-    180;
-
-  const nameW =
-    w -
-    rankW -
-    championshipsW;
-
-
-  return {
-
-    rankCenter:
-      x +
-      w -
-      rankW / 2,
-
-
-    nameCenter:
-      x +
-      w -
-      rankW -
-      nameW / 2,
-
-
-    championshipsCenter:
-      x +
-      championshipsW / 2,
-
-
-    rankW,
-
-    nameW,
-
-    championshipsW
+function getStatsColumnCenters(x, w) {
+  // ترتيب الأعمدة من اليمين إلى اليسار:
+  // الترتيب، اللاعب، بطولات، وصافة، مشاركات، فوز، خسارة، نسبة الفوز
+  const widths = {
+    rank: 78,
+    name: 208,
+    championships: 111,
+    runnerUps: 111,
+    tournaments: 111,
+    wins: 111,
+    losses: 111,
+    winRate: 111
   };
+  // تصحيح تلقائي بسيط إذا تغير عرض الجدول مستقبلاً
+  const base = Object.values(widths).reduce((sum, n) => sum + n, 0);
+  const factor = w / base;
+  Object.keys(widths).forEach(key => widths[key] *= factor);
+  const right = x + w;
+  const centers = {};
+  let cursor = right;
+  for (const key of ['rank','name','championships','runnerUps','tournaments','wins','losses','winRate']) {
+    centers[key + 'Center'] = cursor - widths[key] / 2;
+    centers[key + 'W'] = widths[key];
+    cursor -= widths[key];
+  }
+  return centers;
 }
 
 
 // =========================================================
 // 📊 رأس أعمدة الإحصائيات
 // =========================================================
-function drawStatsTableHeader(
-  ctx,
-  x,
-  y,
-  w,
-  h,
-  theme
-) {
-
-  const centers =
-    getStatsColumnCenters(
-      x,
-      w
-    );
-
-
-  // -------------------------------------------------------
-  // خلفية الرأس
-  // -------------------------------------------------------
-
-  drawStatsRoundRect(
-    ctx,
-    x,
-    y,
-    w,
-    h,
-    14,
-    '#E8E4DD',
-    '#D2CDC4',
-    1
-  );
-
-
-  // -------------------------------------------------------
-  // إعداد النص
-  // -------------------------------------------------------
-
-  ctx.font =
-    '900 27px Tajawal, sans-serif';
-
-  ctx.fillStyle =
-    '#625F59';
-
-  ctx.textAlign =
-    'center';
-
-  ctx.textBaseline =
-    'middle';
-
-  ctx.direction =
-    'rtl';
-
-
-  // -------------------------------------------------------
-  // الترتيب
-  // -------------------------------------------------------
-
-  ctx.fillText(
-    'الترتيب',
-    centers.rankCenter,
-    y + h / 2
-  );
-
-
-  // -------------------------------------------------------
-  // اسم اللاعب
-  // -------------------------------------------------------
-
-  ctx.fillText(
-    'اسم اللاعب',
-    centers.nameCenter,
-    y + h / 2
-  );
-
-
-  // -------------------------------------------------------
-  // البطولات
-  // -------------------------------------------------------
-
-  ctx.fillText(
-    'البطولات',
-    centers.championshipsCenter,
-    y + h / 2
-  );
+function drawStatsTableHeader(ctx, x, y, w, h, theme) {
+  const c = getStatsColumnCenters(x, w);
+  drawStatsRoundRect(ctx, x, y, w, h, 14, '#E8E4DD', '#D2CDC4', 1);
+  const headers = [
+    ['الترتيب', 'rank'], ['اللاعب', 'name'], ['بطولات', 'championships'],
+    ['وصافة', 'runnerUps'], ['مشاركات', 'tournaments'], ['فوز', 'wins'],
+    ['خسارة', 'losses'], ['نسبة الفوز', 'winRate']
+  ];
+  ctx.save();
+  ctx.font = '900 21px Tajawal, sans-serif';
+  ctx.fillStyle = '#625F59';
+  ctx.textAlign = 'center';
+  ctx.textBaseline = 'middle';
+  ctx.direction = 'rtl';
+  headers.forEach(([label, key]) => {
+    drawStatsText(ctx, label, c[key + 'Center'], y + h / 2, c[key + 'W'] - 8,
+      '900 21px Tajawal, sans-serif', '#625F59', 'center');
+  });
+  ctx.restore();
 }
 
 
@@ -3605,235 +3580,44 @@ function drawStatsTableHeader(
 // الأعمدة:
 // الترتيب | اللاعب | البطولات
 // =========================================================
-function drawStatsRankingRow(
-  ctx,
-  player,
-  rank,
-  x,
-  y,
-  w,
-  h,
-  theme
-) {
-
-  const centers =
-    getStatsColumnCenters(
-      x,
-      w
-    );
-
-
-  ctx.save();
-
-
-// =======================================================
-// 🎨 نظام ألوان المراكز — Premium Ranking System
-//
-// الفلسفة التصميمية:
-// - الصفوف العادية: محايدة ونظيفة
-// - المركز الأول: Gold / Luxury
-// - المركز الثاني: Silver / Elegant
-// - المركز الثالث: Bronze / Warm
-// - الخلفية هادئة حتى لا يبدو الجدول مزدحمًا
-// - اللون القوي يتركز في الترتيب والـ accent
-// - كل مركز له شخصية بصرية مختلفة بوضوح
-// =======================================================
-
-
-// =======================================================
-// ⚪ المراكز العادية — Neutral
-// =======================================================
-
-let rowFill =
-  '#FFFFFF';
-
-let rowBorder =
-  '#E2DED7';
-
-let rankColor =
-  '#625E57';
-
-let accentColor =
-  '#C9C3BA';
-
-
-// -------------------------------------------------------
-// 🥇 المركز الأول — CHAMPION GOLD
-// -------------------------------------------------------
-
-if (rank === 1) {
-
-  rowFill =
-    '#FBF7EA';
-
-  rowBorder =
-    '#D6B866';
-
-  rankColor =
-    '#795A18';
-
-  accentColor =
-    '#C9A64E';
-}
-
-
-// -------------------------------------------------------
-// 🥈 المركز الثاني — PREMIUM SILVER
-// -------------------------------------------------------
-
-else if (rank === 2) {
-
-  rowFill =
-    '#F5F6F7';
-
-  rowBorder =
-    '#BEC2C7';
-
-  rankColor =
-    '#555B63';
-
-  accentColor =
-    '#92979D';
-}
-
-
-// -------------------------------------------------------
-// 🥉 المركز الثالث — REFINED BRONZE
-// -------------------------------------------------------
-
-else if (rank === 3) {
-
-  rowFill =
-    '#FAF5F1';
-
-  rowBorder =
-    '#D1A98E';
-
-  rankColor =
-    '#754B35';
-
-  accentColor =
-    '#B47755';
-}
-
-
-
-  // =======================================================
-  // 🧱 خلفية الصف
-  // =======================================================
-
-  drawStatsRoundRect(
-    ctx,
-    x,
-    y,
-    w,
-    h,
-    15,
-    rowFill,
-    rowBorder,
-    1.2
-  );
-
-  // =======================================================
-  // 🔢 الترتيب
-  // =======================================================
-
-  ctx.font =
-    '900 36px Tajawal, sans-serif';
-
-  ctx.fillStyle =
-    rank <= 3
-      ? rankColor
-      : '#55534F';
-
-  ctx.textAlign =
-    'center';
-
-  ctx.textBaseline =
-    'middle';
-
-  ctx.direction =
-    'rtl';
-
-
-  ctx.fillText(
-    String(rank),
-    centers.rankCenter,
-    y + h / 2
-  );
-
-
-  // =======================================================
-  // 👤 اسم اللاعب
-  // =======================================================
-
-  const playerName =
-    player.name ||
-    'غير محدد';
-
-
-  const nameMaxWidth =
-    centers.nameW -
-    30;
-
-
-  const nameSize =
-    fitFont(
-      ctx,
-      playerName,
-      nameMaxWidth,
-      37,
-      900,
-      25
-    );
-
-
-  ctx.font =
-    `800 ${nameSize}px Tajawal, sans-serif`;
-
-  ctx.fillStyle =
-    theme.text;
-
-  ctx.textAlign =
-    'center';
-
-  ctx.textBaseline =
-    'middle';
-
-  ctx.direction =
-    'rtl';
-
-
-  ctx.fillText(
-    playerName,
-    centers.nameCenter,
-    y + h / 2,
-    nameMaxWidth
-  );
-
-
-  // =======================================================
-  // 🏆 البطولات
-  // =======================================================
-
-  ctx.font =
-    '900 36px Tajawal, sans-serif';
-
-
-  ctx.fillStyle =
-    player.championships > 0
-      ? theme.goldDark
-      : theme.text;
-
-
-  ctx.fillText(
-    `🏆 ${player.championships ?? 0}`,
-    centers.championshipsCenter,
-    y + h / 2
-  );
-
-
-  ctx.restore();
+function drawStatsRankingRow(ctx, player, rank, x, y, w, h, theme) {
+  const c = getStatsColumnCenters(x, w);
+  let rowFill = '#FFFFFF', rowBorder = '#E2DED7', rankColor = '#625E57';
+  if (rank === 1) { rowFill = '#FBF7EA'; rowBorder = '#D6B866'; rankColor = '#795A18'; }
+  else if (rank === 2) { rowFill = '#F5F6F7'; rowBorder = '#BEC2C7'; rankColor = '#555B63'; }
+  else if (rank === 3) { rowFill = '#FAF5F1'; rowBorder = '#D1A98E'; rankColor = '#754B35'; }
+
+  drawStatsRoundRect(ctx, x, y, w, h, 13, rowFill, rowBorder, 1.2);
+  const cy = y + h / 2;
+  const fields = [
+    ['rank', String(rank)],
+    ['championships', String(player.championships ?? 0)],
+    ['runnerUps', String(player.runnerUps ?? 0)],
+    ['tournaments', String(player.tournaments ?? 0)],
+    ['wins', String(player.wins ?? 0)],
+    ['losses', String(player.losses ?? 0)],
+    ['winRate', `${player.winRate ?? 0}%`]
+  ];
+
+  // الترتيب
+  drawStatsText(ctx, String(rank), c.rankCenter, cy, c.rankW - 8,
+    '900 27px Tajawal, sans-serif', rank <= 3 ? rankColor : '#55534F');
+
+  // اسم اللاعب — يظل العمود الأوسع، مع تصغير الخط تلقائياً للأسماء الطويلة
+  const playerName = player.name || 'غير محدد';
+  const nameMaxWidth = c.nameW - 12;
+  const nameSize = fitFont(ctx, playerName, nameMaxWidth, 26, 800, 15);
+  drawStatsText(ctx, playerName, c.nameCenter, cy, nameMaxWidth,
+    `800 ${nameSize}px Tajawal, sans-serif`, theme.text);
+
+  // بقية الأعمدة الرقمية
+  fields.slice(1).forEach(([key, value]) => {
+    let color = theme.text;
+    if (key === 'championships' && Number(player.championships) > 0) color = theme.goldDark;
+    if (key === 'winRate' && Number(player.winRate) >= 60) color = '#287447';
+    drawStatsText(ctx, value, c[key + 'Center'], cy, c[key + 'W'] - 8,
+      '900 25px Tajawal, sans-serif', color);
+  });
 }
 
 
@@ -3976,28 +3760,13 @@ async function exportStatsImage() {
             p.name &&
             p.name !== 'غير محدد'
         )
-        .sort(
-          (a, b) =>
-            (
-              b.championships -
-              a.championships
-            ) ||
-            (
-              b.runnerUps -
-              a.runnerUps
-            ) ||
-            (
-              b.wins -
-              a.wins
-            ) ||
-            (
-              b.winRate -
-              a.winRate
-            ) ||
-            (
-              b.tournaments -
-              a.tournaments
-            )
+        .sort((a, b) =>
+          (Number(b.championships) - Number(a.championships)) ||
+          (Number(b.runnerUps) - Number(a.runnerUps)) ||
+          (Number(b.tournaments) - Number(a.tournaments)) ||
+          (Number(b.wins) - Number(a.wins)) ||
+          (Number(b.losses) - Number(a.losses)) ||
+          (Number(b.winRate) - Number(a.winRate))
         );
 
 
@@ -4022,7 +3791,7 @@ async function exportStatsImage() {
     // =====================================================
 
     const rowH =
-      82;
+      72;
 
     const rowGap =
       10;
@@ -4033,7 +3802,7 @@ async function exportStatsImage() {
     // =====================================================
 
     const headerH =
-      60;
+      64;
 
     const headerGap =
       16;
@@ -4106,15 +3875,7 @@ async function exportStatsImage() {
     // =====================================================
 
     const height =
-      Math.max(
-        900,
-        Math.min(
-          1920,
-          Math.ceil(
-            contentHeight
-          )
-        )
-      );
+      Math.max(900, Math.ceil(contentHeight));
 
 
     // =====================================================
@@ -4231,7 +3992,7 @@ async function exportStatsImage() {
 
     const tournamentLabel =
       tournamentName.textContent.trim() ||
-      'بطولة المجلس للكيرم';
+      'إحصائيات اللاعبين';
 
 
     const titleSize =
@@ -7926,64 +7687,272 @@ text(
     // قراءة حالة الدوري المحفوظة قبل تشغيل التطبيق
     loadLeagueState();
 
+
+    // ===================================
+    // 🛡️ لوحة التحكم: النسخ الاحتياطي والاستعادة
+    // ===================================
+    (function setupDataProtectionDashboard(){
+      const panel = document.getElementById('controlDashboard');
+      const openBtn = document.getElementById('openControlDashboard');
+      const closeBtn = document.getElementById('closeControlDashboard');
+      const exportBtn = document.getElementById('cdExportBtn');
+      const importBtn = document.getElementById('cdImportBtn');
+      const fileInput = document.getElementById('cdImportFile');
+      const feedback = document.getElementById('cdFeedback');
+      const META_KEY = '__carrom_backup_dashboard_meta_v1';
+      const FORMAT = 'carrom-tournament-backup';
+      const VERSION = 1;
+      function allAppEntries(){
+        const entries = {};
+        for(let i=0;i<localStorage.length;i++){
+          const key=localStorage.key(i);
+          if(!key || key.startsWith('__carrom_')) continue;
+          entries[key]=localStorage.getItem(key);
+        }
+        return entries;
+      }
+      function formatBytes(bytes){
+        if(bytes<1024) return bytes+' بايت';
+        if(bytes<1024*1024) return (bytes/1024).toFixed(1)+' كيلوبايت';
+        return (bytes/(1024*1024)).toFixed(2)+' ميجابايت';
+      }
+      function formatDate(value){
+        if(!value) return 'لم يُسجّل';
+        const d=new Date(value);
+        if(Number.isNaN(d.getTime())) return 'لم يُسجّل';
+        try{return new Intl.DateTimeFormat('ar-OM',{dateStyle:'medium',timeStyle:'short'}).format(d)}catch(e){return d.toLocaleString()}
+      }
+      function updateMetrics(){
+        const entries=allAppEntries();
+        const json=JSON.stringify(entries);
+        document.getElementById('cdKeyCount').textContent=Object.keys(entries).length.toLocaleString('ar');
+        document.getElementById('cdDataSize').textContent=formatBytes(new Blob([json]).size);
+        let meta={}; try{meta=JSON.parse(localStorage.getItem(META_KEY)||'{}')||{}}catch(e){}
+        document.getElementById('cdLastBackup').textContent=formatDate(meta.lastExportAt);
+      }
+      function showFeedback(message,type){feedback.textContent=message;feedback.className='cd-feedback show '+(type||'ok')}
+      function open(){updateMetrics();feedback.className='cd-feedback';panel.classList.add('open');panel.setAttribute('aria-hidden','false');document.body.style.overflow='hidden';closeBtn.focus()}
+      function close(){panel.classList.remove('open');panel.setAttribute('aria-hidden','true');document.body.style.overflow='';openBtn.focus()}
+      openBtn.addEventListener('click',open); closeBtn.addEventListener('click',close);
+      panel.addEventListener('click',e=>{if(e.target===panel)close()});
+      document.addEventListener('keydown',e=>{if(e.key==='Escape'&&panel.classList.contains('open'))close()});
+      function makeBackup(){
+        const entries=allAppEntries();
+        const payload={format:FORMAT,version:VERSION,createdAt:new Date().toISOString(),app:'إدارة القرعة',entryCount:Object.keys(entries).length,entries};
+        const blob=new Blob([JSON.stringify(payload,null,2)],{type:'application/json;charset=utf-8'});
+        const url=URL.createObjectURL(blob);const a=document.createElement('a');
+        const stamp=new Date().toISOString().replace(/[:.]/g,'-');a.href=url;a.download='carrom-backup-'+stamp+'.json';
+        document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(url),1500);
+        try{localStorage.setItem(META_KEY,JSON.stringify({lastExportAt:new Date().toISOString(),entryCount:Object.keys(entries).length,bytes:blob.size}))}catch(e){}
+        updateMetrics();showFeedback('تم تجهيز ملف النسخة الاحتياطية. تأكد من اكتمال التنزيل واحفظ الملف خارج التطبيق في مكان آمن.','ok');
+      }
+      exportBtn.addEventListener('click',()=>{try{makeBackup()}catch(err){console.error(err);showFeedback('تعذر إنشاء النسخة الاحتياطية. تحقق من مساحة التخزين وحاول مرة أخرى.','err')}});
+      importBtn.addEventListener('click',()=>{fileInput.value='';fileInput.click()});
+      fileInput.addEventListener('change',async()=>{
+        const file=fileInput.files&&fileInput.files[0];if(!file)return;
+        try{
+          if(file.size>50*1024*1024) throw new Error('حجم الملف أكبر من الحد المسموح (50 ميجابايت).');
+          const parsed=JSON.parse(await file.text());
+          let entries,createdAt,format;
+          if(parsed&&parsed.format===FORMAT&&parsed.version===VERSION&&parsed.entries&&typeof parsed.entries==='object'&&!Array.isArray(parsed.entries)){
+            entries=parsed.entries;createdAt=parsed.createdAt;format=parsed.format;
+          }else if(parsed&&typeof parsed==='object'&&!Array.isArray(parsed)){
+            // دعم صيغ نسخ أقدم شائعة: data / storage / localStorage أو كائن مباشر.
+            const candidate=parsed.data||parsed.storage||parsed.localStorage||parsed.entries||parsed;
+            if(!candidate||typeof candidate!=='object'||Array.isArray(candidate))throw new Error('صيغة الملف غير معروفة أو غير مدعومة.');
+            entries=candidate;createdAt=parsed.createdAt||parsed.timestamp||parsed.exportedAt;
+          }else throw new Error('صيغة الملف غير معروفة أو غير مدعومة.');
+          // قيم localStorage نصوص دائماً؛ نحول القيم المنظمة في النسخ القديمة إلى JSON.
+          entries=Object.fromEntries(Object.entries(entries).map(([key,value])=>[key,typeof value==='string'?value:JSON.stringify(value)]));
+          const keys=Object.keys(entries);
+          if(!keys.length) throw new Error('الملف لا يحتوي على بيانات قابلة للاستعادة.');
+          for(const key of keys){if(typeof key!=='string'||!key||typeof entries[key]!=='string')throw new Error('الملف يحتوي على بيانات غير صالحة. لم يتم تغيير شيء.');}
+          if(keys.length>5000)throw new Error('عدد عناصر الملف غير منطقي، لذلك أُوقفت الاستعادة للحماية.');
+          const approx=new Blob([JSON.stringify(entries)]).size;
+          const dateLabel=formatDate(createdAt);
+          const summary='ملخص الملف:\n• عدد عناصر البيانات: '+keys.length+'\n• الحجم التقريبي: '+formatBytes(approx)+'\n• تاريخ إنشاء النسخة: '+dateLabel+'\n\nستُستبدل بيانات التطبيق الحالية ببيانات هذا الملف. يُنصح بإلغاء العملية إذا لم تكن متأكداً.\n\nهل تريد المتابعة؟';
+          if(!confirm(summary))return;
+          // الاحتفاظ بالحالة الحالية في الذاكرة أثناء التنفيذ؛ لا نبدأ المسح قبل اجتياز كل التحققات.
+          const previous={};for(let i=0;i<localStorage.length;i++){const k=localStorage.key(i);previous[k]=localStorage.getItem(k)}
+          try{
+            localStorage.clear();
+            for(const key of keys)localStorage.setItem(key,entries[key]);
+            localStorage.setItem(META_KEY,JSON.stringify({lastExportAt:null,lastImportedAt:new Date().toISOString(),importedFile:file.name}));
+          }catch(applyError){
+            try{localStorage.clear();Object.keys(previous).forEach(k=>localStorage.setItem(k,previous[k]))}catch(rollbackError){console.error('تعذر التراجع التلقائي عن الاستعادة',rollbackError)}
+            throw new Error('لم تكتمل الاستعادة بسبب مشكلة في التخزين. تمت محاولة إعادة البيانات السابقة؛ لا تغلق الصفحة الآن، وأعد تحميلها بعد التحقق.');
+          }
+          showFeedback('تمت استعادة النسخة بنجاح. سيُعاد تحميل التطبيق لقراءة البيانات المستعادة.','ok');
+          setTimeout(()=>location.reload(),700);
+        }catch(err){console.error(err);showFeedback(err.message||'تعذر قراءة ملف النسخة الاحتياطية. لم يتم تطبيق الاستعادة.','err')}
+        finally{fileInput.value=''}
+      });
+      // ===== نظام التراجع/الإعادة على مستوى بيانات التطبيق =====
+      const HISTORY_KEY='__carrom_undo_redo_v1';
+      const INTERNAL_PREFIX='__carrom_';
+      const MAX_UNDO=10;
+      const QUIET_WINDOW_MS=650;
+      const MAX_HISTORY_BYTES=1800000;
+      let undoStack=[];
+      let redoStack=[];
+      let pendingBefore=null;
+      let pendingTimer=null;
+      let restoring=false;
+      let lastTrackedLabel='تعديل بيانات';
+      let storagePatchInstalled=false;
+
+      function appEntries(){
+        const result={};
+        for(let i=0;i<localStorage.length;i++){
+          const key=localStorage.key(i);
+          if(!key || key.startsWith(INTERNAL_PREFIX) || key==='theme' || key===META_KEY) continue;
+          result[key]=localStorage.getItem(key);
+        }
+        return result;
+      }
+      function safeClone(value){return JSON.parse(JSON.stringify(value));}
+      function readHistory(){
+        try{
+          const parsed=JSON.parse(localStorage.getItem(HISTORY_KEY)||'{}');
+          undoStack=Array.isArray(parsed.undo)?parsed.undo:[];
+          redoStack=Array.isArray(parsed.redo)?parsed.redo:[];
+          undoStack=undoStack.filter(x=>x&&x.before&&x.after&&typeof x.before==='object'&&typeof x.after==='object').slice(-MAX_UNDO);
+          redoStack=redoStack.filter(x=>x&&x.before&&x.after&&typeof x.before==='object'&&typeof x.after==='object').slice(-MAX_UNDO);
+        }catch(e){undoStack=[];redoStack=[];}
+      }
+      function writeHistory(){
+        try{
+          let payload={version:1,undo:undoStack,redo:redoStack};
+          let raw=JSON.stringify(payload);
+          while(raw.length>MAX_HISTORY_BYTES && (undoStack.length>1 || redoStack.length>0)){
+            if(undoStack.length>1) undoStack.shift(); else redoStack.shift();
+            payload={version:1,undo:undoStack,redo:redoStack};raw=JSON.stringify(payload);
+          }
+          if(raw.length<=MAX_HISTORY_BYTES) localStorage.setItem(HISTORY_KEY,raw);
+        }catch(e){console.warn('تعذر حفظ سجل التراجع؛ ستبقى بيانات البطولة كما هي.',e);}
+        updateUndoUI();
+      }
+      function updateUndoUI(message){
+        const undoBtn=document.getElementById('cdUndoBtn');
+        const redoBtn=document.getElementById('cdRedoBtn');
+        const undoCount=document.getElementById('cdUndoCount');
+        const redoCount=document.getElementById('cdRedoCount');
+        const description=document.getElementById('cdUndoDescription');
+        if(undoBtn)undoBtn.disabled=undoStack.length===0;
+        if(redoBtn)redoBtn.disabled=redoStack.length===0;
+        if(undoCount)undoCount.textContent='خطوات التراجع: '+undoStack.length;
+        if(redoCount)redoCount.textContent='خطوات الإعادة: '+redoStack.length;
+        if(description)description.textContent=message || (undoStack.length ? 'آخر إجراء قابل للتراجع: '+(undoStack[undoStack.length-1].label||'تعديل بيانات')+'. عند التراجع سيُعاد تحميل التطبيق لتحديث كل الجداول والإحصاءات.' : 'لا توجد تغييرات محفوظة قابلة للتراجع حتى الآن.');
+      }
+      function mapsEqual(a,b){
+        const ak=Object.keys(a||{}),bk=Object.keys(b||{});
+        if(ak.length!==bk.length)return false;
+        for(const k of ak)if(a[k]!==b[k])return false;
+        return true;
+      }
+      function finishPending(){
+        if(pendingTimer){clearTimeout(pendingTimer);pendingTimer=null;}
+        if(!pendingBefore || restoring)return;
+        const before=pendingBefore;pendingBefore=null;
+        const after=appEntries();
+        if(mapsEqual(before,after))return;
+        const entry={id:Date.now(),at:new Date().toISOString(),label:lastTrackedLabel,before,after};
+        undoStack.push(entry);if(undoStack.length>MAX_UNDO)undoStack.shift();
+        redoStack=[];writeHistory();
+      }
+      function labelForKey(key){
+        key=String(key||'');
+        if(/leaguePlayers|leagueMatches|leagueCurrentRound|leagueState/i.test(key))return 'تعديل بيانات الدوري';
+        if(/tournamentTeams|bracketState|manualPlayersPool|usedPairs|cycleNumber|usedByes|byeCount/i.test(key))return 'تعديل القرعة أو المباريات';
+        if(/fixedPlayersData|displayReplacements/i.test(key))return 'تعديل قائمة اللاعبين';
+        if(/tournamentHistory|currentTournamentId/i.test(key))return 'تحديث سجل البطولات';
+        if(/tournamentName|tournamentTitle|tournamentMode/i.test(key))return 'تعديل إعدادات البطولة';
+        return 'تعديل البيانات';
+      }
+      function startPending(label){
+        if(restoring)return;
+        if(!pendingBefore){pendingBefore=appEntries();lastTrackedLabel=label||'تعديل البيانات';}
+        if(pendingTimer)clearTimeout(pendingTimer);
+        pendingTimer=setTimeout(finishPending,QUIET_WINDOW_MS);
+      }
+      function restoreEntries(target,label){
+        finishPending();
+        if(!target || typeof target!=='object')return;
+        const current=appEntries();
+        restoring=true;
+        try{
+          // إزالة مفاتيح التطبيق فقط؛ لا نمسح سجل التراجع أو بياناته الداخلية.
+          for(const key of Object.keys(current))localStorage.removeItem(key);
+          for(const [key,value] of Object.entries(target)){
+            if(key.startsWith(INTERNAL_PREFIX)||key==='theme'||key===META_KEY)continue;
+            localStorage.setItem(key,typeof value==='string'?value:JSON.stringify(value));
+          }
+        }catch(err){
+          console.error('تعذر تطبيق خطوة التراجع/الإعادة',err);
+          restoring=false;
+          alert('تعذر تطبيق التغيير بسبب مشكلة في التخزين. لم يتم تأكيد التراجع. احتفظ بنسخة JSON قبل أي محاولة أخرى.');
+          return;
+        }
+        restoring=false;
+        writeHistory();
+        const feedbackEl=document.getElementById('cdFeedback');
+        if(feedbackEl){feedbackEl.textContent=label+' بنجاح. سيُعاد تحميل التطبيق لتحديث البيانات.';feedbackEl.className='cd-feedback show ok';}
+        setTimeout(()=>location.reload(),250);
+      }
+      function undo(){
+        finishPending();
+        if(!undoStack.length)return;
+        const entry=undoStack.pop();redoStack.push(entry);if(redoStack.length>MAX_UNDO)redoStack.shift();
+        writeHistory();restoreEntries(entry.before,'تم التراجع عن «'+(entry.label||'التعديل')+'»');
+      }
+      function redo(){
+        finishPending();
+        if(!redoStack.length)return;
+        const entry=redoStack.pop();undoStack.push(entry);if(undoStack.length>MAX_UNDO)undoStack.shift();
+        writeHistory();restoreEntries(entry.after,'تمت إعادة «'+(entry.label||'التعديل')+'»');
+      }
+      function installStorageMonitor(){
+        if(storagePatchInstalled || !window.Storage || !Storage.prototype)return;
+        storagePatchInstalled=true;
+        const proto=Storage.prototype;
+        const originalSet=proto.setItem;
+        const originalRemove=proto.removeItem;
+        const originalClear=proto.clear;
+        proto.setItem=function(key,value){
+          const isLocal=this===localStorage;
+          if(isLocal && !restoring && !String(key).startsWith(INTERNAL_PREFIX) && String(key)!=='theme' && String(key)!==META_KEY)startPending(labelForKey(key));
+          return originalSet.call(this,key,value);
+        };
+        proto.removeItem=function(key){
+          const isLocal=this===localStorage;
+          if(isLocal && !restoring && !String(key).startsWith(INTERNAL_PREFIX) && String(key)!=='theme' && String(key)!==META_KEY)startPending('حذف أو إعادة ضبط البيانات');
+          return originalRemove.call(this,key);
+        };
+        proto.clear=function(){
+          if(this!==localStorage)return originalClear.call(this);
+          if(!restoring){startPending('مسح البيانات');}
+          // لا نسمح لمسح بيانات التطبيق بحذف سجل التراجع أو بيانات لوحة التحكم الداخلية.
+          const internal={};
+          for(let i=0;i<localStorage.length;i++){
+            const k=localStorage.key(i);
+            if(k && k.startsWith(INTERNAL_PREFIX))internal[k]=localStorage.getItem(k);
+          }
+          originalClear.call(this);
+          for(const [k,v] of Object.entries(internal))originalSet.call(this,k,v);
+        };
+      }
+      readHistory();
+      window.addEventListener('load',installStorageMonitor,{once:true});
+      document.getElementById('cdUndoBtn').addEventListener('click',()=>{if(confirm('هل تريد التراجع عن آخر تعديل محفوظ؟ سيُعاد تحميل التطبيق بعد العملية.'))undo();});
+      document.getElementById('cdRedoBtn').addEventListener('click',()=>{if(confirm('هل تريد إعادة آخر خطوة تراجعت عنها؟ سيُعاد تحميل التطبيق بعد العملية.'))redo();});
+      updateUndoUI();
+      updateMetrics();
+    })();
+
     // ===================================
     // 🚀 بدء التطبيق
     // ===================================
     init();
-
-    // أداة مؤقتة قبل تحديث المشروع: تصدير جميع بيانات البطولة بصيغة متوافقة مع لوحة التحكم الجديدة.
-    (function installLegacyBackupExporter() {
-      const button = document.getElementById('legacyBackupButton');
-      if (!button) return;
-      const knownKeys = [
-        'theme','fixedPlayersData','tournamentName','tournamentTitle','tournamentMode',
-        'tournamentTeams','bracketState','manualPlayersPool','usedPairsCurrentCycle',
-        'cycleNumber','usedByesCurrentCycle','byeCountAllTime','displayReplacements',
-        'tournamentHistory','currentTournamentId','legacyManualBackup',
-        'leaguePlayers','leagueMatches','leagueCurrentRound','leagueState'
-      ];
-      button.addEventListener('click', () => {
-        const ok = confirm('سيتم إنشاء ملف يحتوي على بيانات البطولة والدوري المحفوظة على هذا الجهاز، بما فيها اللاعبين والنتائج والجدول والإعدادات. احفظ الملف في تطبيق «الملفات» قبل تحديث الموقع. هل تريد المتابعة؟');
-        if (!ok) return;
-        try {
-          const data = {};
-          const keys = new Set(knownKeys);
-          for (let i = 0; i < localStorage.length; i++) {
-            const key = localStorage.key(i);
-            if (key && key.startsWith('league')) keys.add(key);
-          }
-          keys.forEach(key => {
-            // لا نصدر مفاتيح أدوات داخلية؛ نأخذ فقط مفاتيح التطبيق المعروفة أو league*
-            if (key.startsWith('__control_')) return;
-            data[key] = localStorage.getItem(key);
-          });
-          const payload = {
-            format: 'carrom-tournament-backup',
-            schemaVersion: 1,
-            createdAt: new Date().toISOString(),
-            app: 'إدارة القرعة',
-            data
-          };
-          const json = JSON.stringify(payload, null, 2);
-          const blob = new Blob([json], { type: 'application/json;charset=utf-8' });
-          const url = URL.createObjectURL(blob);
-          const a = document.createElement('a');
-          const stamp = new Date().toISOString().replace(/[:.]/g, '-');
-          a.href = url;
-          a.download = 'نسخة-احتياطية-الدوري-' + stamp + '.json';
-          a.style.display = 'none';
-          document.body.appendChild(a);
-          a.click();
-          a.remove();
-          setTimeout(() => URL.revokeObjectURL(url), 5000);
-          alert('تم تجهيز ملف النسخة الاحتياطية. تأكد من حفظه في تطبيق «الملفات» على الآيفون قبل استبدال الموقع. لا تحذف التطبيق أو بيانات المتصفح.');
-        } catch (err) {
-          console.error('Backup export failed:', err);
-          alert('تعذر إنشاء النسخة الاحتياطية. لا تحدّث الموقع الآن؛ احتفظ بالنسخة الحالية واطلب المساعدة.');
-        }
-      });
-    })();
-
   </script>
 
 </body></html>
