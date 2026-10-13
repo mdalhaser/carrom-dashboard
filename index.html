@@ -1736,6 +1736,28 @@ body.dark-mode .lm-status.done {
     .lg-history-table tr.res-bye td { color: var(--muted); }
     body.dark-mode .lg-history-table tr.res-win td.res { color: #81c784; }
     body.dark-mode .lg-history-table tr.res-loss td.res { color: #ef9a9a; }
+  
+    /* أداة مؤقتة لتصدير بيانات التطبيق قبل التحديث */
+    #legacyBackupButton {
+      position: fixed;
+      left: 12px;
+      bottom: 14px;
+      z-index: 20000;
+      border: 1px solid rgba(207,169,99,.65);
+      border-radius: 14px;
+      padding: 12px 16px;
+      background: linear-gradient(135deg,#cfa963,#b88d45);
+      color: #fff;
+      box-shadow: 0 8px 24px rgba(18,24,32,.22);
+      font: 800 15px "Tajawal",system-ui,sans-serif;
+      cursor: pointer;
+      -webkit-tap-highlight-color: transparent;
+    }
+    #legacyBackupButton:active { transform: scale(.98); }
+    @media(max-width:520px) {
+      #legacyBackupButton { left: 10px; bottom: 10px; padding: 11px 13px; font-size: 14px; }
+    }
+
   </style>
 </head>
 <body>
@@ -1921,6 +1943,8 @@ body.dark-mode .lm-status.done {
     </div>
   </div>
 
+
+  <button id="legacyBackupButton" type="button" aria-label="تصدير نسخة احتياطية من بيانات البطولة">⬇️ تصدير نسخة احتياطية</button>
   <script>
     // ===================================
     // ⚙️ وظيفة التبديل بين الوضع النهاري/الليلي
@@ -7906,6 +7930,60 @@ text(
     // 🚀 بدء التطبيق
     // ===================================
     init();
+
+    // أداة مؤقتة قبل تحديث المشروع: تصدير جميع بيانات البطولة بصيغة متوافقة مع لوحة التحكم الجديدة.
+    (function installLegacyBackupExporter() {
+      const button = document.getElementById('legacyBackupButton');
+      if (!button) return;
+      const knownKeys = [
+        'theme','fixedPlayersData','tournamentName','tournamentTitle','tournamentMode',
+        'tournamentTeams','bracketState','manualPlayersPool','usedPairsCurrentCycle',
+        'cycleNumber','usedByesCurrentCycle','byeCountAllTime','displayReplacements',
+        'tournamentHistory','currentTournamentId','legacyManualBackup',
+        'leaguePlayers','leagueMatches','leagueCurrentRound','leagueState'
+      ];
+      button.addEventListener('click', () => {
+        const ok = confirm('سيتم إنشاء ملف يحتوي على بيانات البطولة والدوري المحفوظة على هذا الجهاز، بما فيها اللاعبين والنتائج والجدول والإعدادات. احفظ الملف في تطبيق «الملفات» قبل تحديث الموقع. هل تريد المتابعة؟');
+        if (!ok) return;
+        try {
+          const data = {};
+          const keys = new Set(knownKeys);
+          for (let i = 0; i < localStorage.length; i++) {
+            const key = localStorage.key(i);
+            if (key && key.startsWith('league')) keys.add(key);
+          }
+          keys.forEach(key => {
+            // لا نصدر مفاتيح أدوات داخلية؛ نأخذ فقط مفاتيح التطبيق المعروفة أو league*
+            if (key.startsWith('__control_')) return;
+            data[key] = localStorage.getItem(key);
+          });
+          const payload = {
+            format: 'carrom-tournament-backup',
+            schemaVersion: 1,
+            createdAt: new Date().toISOString(),
+            app: 'إدارة القرعة',
+            data
+          };
+          const json = JSON.stringify(payload, null, 2);
+          const blob = new Blob([json], { type: 'application/json;charset=utf-8' });
+          const url = URL.createObjectURL(blob);
+          const a = document.createElement('a');
+          const stamp = new Date().toISOString().replace(/[:.]/g, '-');
+          a.href = url;
+          a.download = 'نسخة-احتياطية-الدوري-' + stamp + '.json';
+          a.style.display = 'none';
+          document.body.appendChild(a);
+          a.click();
+          a.remove();
+          setTimeout(() => URL.revokeObjectURL(url), 5000);
+          alert('تم تجهيز ملف النسخة الاحتياطية. تأكد من حفظه في تطبيق «الملفات» على الآيفون قبل استبدال الموقع. لا تحذف التطبيق أو بيانات المتصفح.');
+        } catch (err) {
+          console.error('Backup export failed:', err);
+          alert('تعذر إنشاء النسخة الاحتياطية. لا تحدّث الموقع الآن؛ احتفظ بالنسخة الحالية واطلب المساعدة.');
+        }
+      });
+    })();
+
   </script>
 
 </body></html>
