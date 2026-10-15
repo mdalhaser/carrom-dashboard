@@ -2816,6 +2816,7 @@ return teamName.replace('غير محدد', replacement);
       let completedTournaments = tournamentHistory.length;
       let teamTournaments = 0;
       let singleTournaments = 0;
+      let leagueTournaments = 0;
 
       const ensurePlayer = name => {
         if (!players[name]) players[name] = { name, tournaments:0, wins:0, losses:0, championships:0, runnerUps:0, semifinals:0 };
@@ -2831,7 +2832,9 @@ return teamName.replace('غير محدد', replacement);
       };
 
       tournamentHistory.forEach(t => {
-        if (t.mode === 'single') singleTournaments++; else teamTournaments++;
+        if (t.mode === 'single') singleTournaments++;
+        else if (t.mode === 'league') leagueTournaments++;
+        else teamTournaments++;
         const participantNames = t.participants || [];
         participantNames.forEach(p => (t.teamMap?.[p] || (t.mode === 'single' ? [p] : String(p).split(' + '))).forEach(name => {
           const st = ensurePlayer(name); st.tournaments++;
@@ -2860,13 +2863,18 @@ return teamName.replace('غير محدد', replacement);
           totalMatches++;
           const members1 = t.teamMap?.[m.team1] || (t.mode === 'single' ? [m.team1] : String(m.team1 || '').split(' + '));
           const members2 = t.teamMap?.[m.team2] || (t.mode === 'single' ? [m.team2] : String(m.team2 || '').split(' + '));
-          const winnerMembers = m.winner === m.team1 ? members1 : members2;
-          const loserMembers = m.winner === m.team1 ? members2 : members1;
-          winnerMembers.filter(Boolean).forEach(name => ensurePlayer(name).wins++);
-          loserMembers.filter(Boolean).forEach(name => ensurePlayer(name).losses++);
-          if (t.mode !== 'single') {
-            const wp = ensurePartnership(winnerMembers); if (wp) wp.wins++;
-            const lp = ensurePartnership(loserMembers); if (lp) lp.losses++;
+          // نتائج الدوري قد تتضمن تعادلاً؛ لا نحوله خطأً إلى فوز للطرف الثاني.
+          if (t.mode === 'league' && m.winner == null && Number(m.scoreA) === Number(m.scoreB)) {
+            // تُحتسب المباراة ضمن إجمالي المباريات، لكن لا تضاف كفوز أو خسارة.
+          } else {
+            const winnerMembers = m.winner === m.team1 ? members1 : members2;
+            const loserMembers = m.winner === m.team1 ? members2 : members1;
+            winnerMembers.filter(Boolean).forEach(name => ensurePlayer(name).wins++);
+            loserMembers.filter(Boolean).forEach(name => ensurePlayer(name).losses++);
+            if (t.mode !== 'single' && t.mode !== 'league') {
+              const wp = ensurePartnership(winnerMembers); if (wp) wp.wins++;
+              const lp = ensurePartnership(loserMembers); if (lp) lp.losses++;
+            }
           }
         });
 
@@ -2881,7 +2889,7 @@ return teamName.replace('غير محدد', replacement);
 
       Object.values(players).forEach(p => p.winRate = (p.wins + p.losses) ? Math.round((p.wins / (p.wins+p.losses))*100) : 0);
       Object.values(partnerships).forEach(p => p.winRate = (p.wins + p.losses) ? Math.round((p.wins / (p.wins+p.losses))*100) : 0);
-      return { players, partnerships, totalMatches, completedTournaments, teamTournaments, singleTournaments };
+      return { players, partnerships, totalMatches, completedTournaments, teamTournaments, singleTournaments, leagueTournaments };
     }
 
     function renderStats() {
@@ -2895,21 +2903,22 @@ return teamName.replace('غير محدد', replacement);
       const partnerships = Object.values(d.partnerships).sort((a,b) => b.championships-a.championships || b.wins-a.wins);
       const fmtDate = iso => new Intl.DateTimeFormat('ar-OM',{day:'numeric',month:'short',year:'numeric'}).format(new Date(iso));
 
-      const playerRows = players.map((p,i) => `<tr><td class="rank-number" data-l="#">${i+1}</td><td data-l="اللاعب">${p.name}</td><td data-l="بطولات"><span class="ic ic-trophy" aria-hidden="true"></span>${p.championships}</td><td data-l="وصافة">${p.runnerUps}</td><td data-l="نصف النهائي">${p.semifinals}</td><td data-l="مشاركات">${p.tournaments}</td><td data-l="فوز">${p.wins}</td><td data-l="خسارة">${p.losses}</td><td data-l="نسبة الفوز">${p.winRate}%</td></tr>`).join('');
-      const pairRows = partnerships.map((p,i) => `<tr><td class="rank-number" data-l="#">${i+1}</td><td data-l="الثنائي">${p.name}</td><td data-l="بطولات"><span class="ic ic-trophy" aria-hidden="true"></span>${p.championships}</td><td data-l="وصافة">${p.runnerUps}</td><td data-l="مشاركات">${p.tournaments}</td><td data-l="فوز">${p.wins}</td><td data-l="خسارة">${p.losses}</td><td data-l="نسبة الفوز">${p.winRate}%</td></tr>`).join('');
-      const historyRows = [...tournamentHistory].reverse().map(t => `<tr><td class="hist-date" data-l="التاريخ">${fmtDate(t.date)}</td><td class="hist-name" data-l="البطولة">${t.name}</td><td data-l="النظام">${t.mode === 'single' ? 'فردي' : 'فرق'}</td><td data-l="البطل"><span class="ic ic-trophy" aria-hidden="true"></span>${t.teamMap?.[t.champion] ? t.teamMap[t.champion].join(' + ') : t.champion}</td><td data-l="الوصيف">${t.teamMap?.[t.runnerUp] ? t.teamMap[t.runnerUp].join(' + ') : t.runnerUp}</td></tr>`).join('');
+      const playerRows = players.map((p,i) => `<tr><td class="rank-number" data-l="#">${i+1}</td><td data-l="اللاعب">${p.name}</td><td data-l="ألقاب"><span class="ic ic-trophy" aria-hidden="true"></span>${p.championships}</td><td data-l="وصافة">${p.runnerUps}</td><td data-l="نصف النهائي">${p.semifinals}</td><td data-l="مشاركات">${p.tournaments}</td><td data-l="فوز">${p.wins}</td><td data-l="خسارة">${p.losses}</td><td data-l="نسبة الفوز">${p.winRate}%</td></tr>`).join('');
+      const pairRows = partnerships.map((p,i) => `<tr><td class="rank-number" data-l="#">${i+1}</td><td data-l="الثنائي">${p.name}</td><td data-l="ألقاب"><span class="ic ic-trophy" aria-hidden="true"></span>${p.championships}</td><td data-l="وصافة">${p.runnerUps}</td><td data-l="مشاركات">${p.tournaments}</td><td data-l="فوز">${p.wins}</td><td data-l="خسارة">${p.losses}</td><td data-l="نسبة الفوز">${p.winRate}%</td></tr>`).join('');
+      const historyRows = [...tournamentHistory].reverse().map(t => `<tr><td class="hist-date" data-l="التاريخ">${fmtDate(t.date)}</td><td class="hist-name" data-l="البطولة">${t.name}</td><td data-l="النظام">${t.mode === 'single' ? 'فردي' : t.mode === 'league' ? 'دوري' : 'فرق'}</td><td data-l="البطل"><span class="ic ic-trophy" aria-hidden="true"></span>${t.teamMap?.[t.champion] ? t.teamMap[t.champion].join(' + ') : t.champion}</td><td data-l="الوصيف">${t.teamMap?.[t.runnerUp] ? t.teamMap[t.runnerUp].join(' + ') : t.runnerUp}</td></tr>`).join('');
 
       statsContent.innerHTML = `
         <div class="stats-summary">
           <div class="stats-card"><div class="value">${d.completedTournaments}</div><div class="label">بطولة مكتملة</div></div>
           <div class="stats-card"><div class="value">${d.singleTournaments}</div><div class="label">بطولات فردية</div></div>
           <div class="stats-card"><div class="value">${d.teamTournaments}</div><div class="label">بطولات فرق</div></div>
+          <div class="stats-card"><div class="value">${d.leagueTournaments}</div><div class="label">بطولات دوري مكتملة</div></div>
           <div class="stats-card"><div class="value">${d.totalMatches}</div><div class="label">مباراة مسجلة</div></div>
         </div>
 
-        <div class="stats-section"><h4><span class="ic ic-trophy" aria-hidden="true"></span>ترتيب اللاعبين</h4><div class="stats-table-wrap"><table class="stats-table"><thead><tr><th>#</th><th>اللاعب</th><th>بطولات</th><th>وصافة</th><th>نصف النهائي</th><th>مشاركات</th><th>فوز</th><th>خسارة</th><th>نسبة الفوز</th></tr></thead><tbody>${playerRows}</tbody></table></div></div>
+        <div class="stats-section"><h4><span class="ic ic-trophy" aria-hidden="true"></span>ترتيب اللاعبين</h4><div class="stats-table-wrap"><table class="stats-table"><thead><tr><th>#</th><th>اللاعب</th><th>ألقاب</th><th>وصافة</th><th>نصف النهائي</th><th>مشاركات</th><th>فوز</th><th>خسارة</th><th>نسبة الفوز</th></tr></thead><tbody>${playerRows}</tbody></table></div></div>
 
-        <div class="stats-section"><h4><span class="ic ic-users" aria-hidden="true"></span>أفضل الشراكات</h4><div class="stats-table-wrap">${pairRows ? `<table class="stats-table"><thead><tr><th>#</th><th>الثنائي</th><th>بطولات</th><th>وصافة</th><th>مشاركات</th><th>فوز</th><th>خسارة</th><th>نسبة الفوز</th></tr></thead><tbody>${pairRows}</tbody></table>` : '<div class="empty-stats">لا توجد بطولات فرق مسجلة.</div>'}</div></div>
+        <div class="stats-section"><h4><span class="ic ic-users" aria-hidden="true"></span>أفضل الشراكات</h4><div class="stats-table-wrap">${pairRows ? `<table class="stats-table"><thead><tr><th>#</th><th>الثنائي</th><th>ألقاب</th><th>وصافة</th><th>مشاركات</th><th>فوز</th><th>خسارة</th><th>نسبة الفوز</th></tr></thead><tbody>${pairRows}</tbody></table>` : '<div class="empty-stats">لا توجد بطولات فرق مسجلة.</div>'}</div></div>
 
         <div class="stats-section"><h4><span class="ic ic-table" aria-hidden="true"></span>سجل البطولات</h4><div class="stats-table-wrap"><table class="stats-table"><thead><tr><th>التاريخ</th><th>البطولة</th><th>النظام</th><th>البطل</th><th>الوصيف</th></tr></thead><tbody>${historyRows}</tbody></table></div></div>
       `;
@@ -3326,7 +3335,7 @@ async function exportStatsImage() {
 
     const c = getStatsColumnCenters(M, CW);
     const keys = ['rank', 'name', 'championships', 'runnerUps', 'tournaments', 'wins', 'losses', 'winRate'];
-    const labels = { rank: 'الترتيب', name: 'اللاعب', championships: 'بطولات', runnerUps: 'وصافة', tournaments: 'مشاركات', wins: 'فوز', losses: 'خسارة', winRate: 'نسبة الفوز' };
+    const labels = { rank: 'الترتيب', name: 'اللاعب', championships: 'ألقاب', runnerUps: 'وصافة', tournaments: 'مشاركات', wins: 'فوز', losses: 'خسارة', winRate: 'نسبة الفوز' };
     ctx.save();
     drawRoundedRect(ctx, M, tableTop - 6, CW, headH, 22);
     ctx.fillStyle = B.surface3;
@@ -4042,47 +4051,10 @@ document.getElementById("loserScoreLabel").textContent = match.team2 + " :";
         }
 
         function exportTournamentHeaderHeight(meta) {
-      return (meta && meta.length) ? 210 : 164;
+      return exportBrandHeaderHeight(meta);
     }
     function exportTournamentHeader(ctx, x, y, w, title, subtitle, meta) {
-      const B = EXPORT_BRAND;
-      const h = exportTournamentHeaderHeight(meta);
-      exportWoodPanel(ctx, x, y, w, h, 26);
-      exportText(ctx, title, x + w / 2, y + 45, { size: 46, weight: 800, color: B.ivory, maxW: w - 64, min: 28 });
-      if (subtitle) exportText(ctx, subtitle, x + w / 2, y + 88, { size: 26, weight: 500, color: B.goldSoft, maxW: w - 64, min: 20 });
-      if (meta && meta.length) {
-        const PILL_H = 42, PAD = 14, ICON = 20, GAP_I = 7, GAP = 10;
-        let pf = 21, items, widths, total;
-        for (;;) {
-          ctx.save();
-          ctx.font = `700 ${pf}px ${EXPORT_FONT}`;
-          items = meta.map(m => ({ m, tw: ctx.measureText(m.label).width }));
-          ctx.restore();
-          widths = items.map(it => it.tw + PAD * 2 + ICON + GAP_I);
-          total = widths.reduce((a, b) => a + b, 0) + GAP * (items.length - 1);
-          if (total <= w - 36 || pf <= 15) break;
-          pf -= 1;
-        }
-        // المجموعة كاملة متمركزة هندسياً في رأس الصورة.
-        let cursor = x + w / 2 + total / 2;
-        const py = y + 143;
-        items.forEach((it, i) => {
-          const pw = widths[i];
-          const px = cursor - pw;
-          ctx.save();
-          drawRoundedRect(ctx, px, py, pw, PILL_H, PILL_H / 2);
-          ctx.fillStyle = 'rgba(255,255,255,0.08)';
-          ctx.fill();
-          ctx.strokeStyle = 'rgba(207,169,99,0.4)';
-          ctx.lineWidth = 1.2;
-          ctx.stroke();
-          ctx.restore();
-          exportIcon(ctx, it.m.icon, px + pw - PAD - ICON / 2, py + PILL_H / 2, ICON, B.gold, 1.7);
-          exportText(ctx, it.m.label, px + pw - PAD - ICON - GAP_I, py + PILL_H / 2, { size: pf, weight: 700, color: B.ivory, align: 'right', maxW: pw - PAD * 2 - ICON - GAP_I, min: 14 });
-          cursor -= pw + GAP;
-        });
-      }
-      return h;
+      return exportBrandHeader(ctx, x, y, w, title, subtitle, meta);
     }
 
     function exportFooterDivider(ctx, x, y, w) {
@@ -4597,6 +4569,7 @@ function changeScore(inputId, amount){
     let leagueCurrentRound = 1;
     let leagueStarted = false;
     let leagueCompleted = false;     // مشتق ويُحفظ للاطلاع
+    let leagueTournamentId = null;   // معرّف ثابت يمنع تكرار تسجيل الدوري المكتمل
     let leagueFixtureError = null;   // يُضبط إذا فشل التحقق من جدول محفوظ
     let leagueScoreMatchId = null;   // المباراة المفتوحة في نافذة النتيجة
     let leagueScoreTouched = false;
@@ -4828,6 +4801,40 @@ function changeScore(inputId, amount){
       return byName !== 0 ? byName : a.order - b.order;
     }
 
+    // تسجيل الدوري في السجل التاريخي فقط بعد اكتمال جميع مبارياته.
+    // يعتمد على معرّف ثابت للدوري، لذا إعادة الاستدعاء أو إعادة التحميل لا تكرر الألقاب.
+    function syncCompletedLeagueTournament() {
+      const progress = getLeagueProgress();
+      if (!leagueStarted || leagueFixtureError || !progress.total || progress.done !== progress.total) return;
+      if (!leagueTournamentId) leagueTournamentId = createTournamentId();
+      const standings = calculateLeagueStandings();
+      if (!standings.length) return;
+      const champion = standings[0]?.name;
+      const runnerUp = standings[1]?.name || null;
+      if (!champion) return;
+      const teamMap = Object.fromEntries(leaguePlayers.map(name => [name, [name]]));
+      const matches = leagueMatches.filter(isLeagueMatchCompleted).map(m => ({
+        id: m.id, roundName: `الجولة ${m.round}`, matchNumber: m.id,
+        team1: m.playerA, team2: m.playerB,
+        winner: m.scoreA > m.scoreB ? m.playerA : m.scoreB > m.scoreA ? m.playerB : null,
+        winnerScore: Math.max(Number(m.scoreA), Number(m.scoreB)),
+        loserScore: Math.min(Number(m.scoreA), Number(m.scoreB)),
+        scoreA: Number(m.scoreA), scoreB: Number(m.scoreB), result: m.result
+      }));
+      const record = {
+        id: leagueTournamentId,
+        name: tournamentName.textContent.trim() || 'بطولة الدوري',
+        title: tournamentTitle.textContent.trim() || 'الدوري',
+        date: new Date().toISOString(), mode: 'league',
+        participants: [...leaguePlayers], teamMap, champion, runnerUp, matches,
+        leagueStandings: standings.map(r => ({ name: r.name, rank: r.rank, points: r.points }))
+      };
+      const existingIndex = tournamentHistory.findIndex(t => t.id === leagueTournamentId);
+      if (existingIndex >= 0) tournamentHistory[existingIndex] = record;
+      else tournamentHistory.push(record);
+      saveTournamentHistory();
+    }
+
     // يُعاد بناء كل الإحصائيات من leagueMatches في كل مرة
     function calculateLeagueStandings() {
       const rows = leaguePlayers.map((name, order) => ({
@@ -4952,6 +4959,7 @@ function changeScore(inputId, amount){
           version: 1,
           started: leagueStarted,
           completed: leagueCompleted,
+          tournamentId: leagueTournamentId,
           savedAt: Date.now()
         }));
       } catch (e) {
@@ -4966,6 +4974,8 @@ function changeScore(inputId, amount){
       const savedPlayers = read(LEAGUE_STORAGE_KEYS.players);
       const savedMatches = read(LEAGUE_STORAGE_KEYS.matches);
       const savedRound = parseInt(localStorage.getItem(LEAGUE_STORAGE_KEYS.round), 10);
+      const savedState = read(LEAGUE_STORAGE_KEYS.state);
+      leagueTournamentId = savedState && typeof savedState.tournamentId === 'string' ? savedState.tournamentId : null;
 
       leaguePlayers = [];
       const seen = new Set();
@@ -5005,6 +5015,7 @@ function changeScore(inputId, amount){
 
       leagueStandings = calculateLeagueStandings();
       leagueCompleted = leagueStarted && !leagueFixtureError && getLeagueProgress().completed;
+      if (leagueCompleted) syncCompletedLeagueTournament();
     }
     // </league-logic>
 
@@ -5115,6 +5126,7 @@ function changeScore(inputId, amount){
         return;
       }
       leagueMatches = matches;
+      leagueTournamentId = createTournamentId();
       leagueStarted = true;
       leagueFixtureError = null;
       leagueCurrentRound = 1;
@@ -5136,6 +5148,7 @@ function changeScore(inputId, amount){
       leagueStandings = [];
       leagueStarted = false;
       leagueCompleted = false;
+      leagueTournamentId = null;
       leagueFixtureError = null;
       leagueCurrentRound = 1;
       if (alsoPlayers) leaguePlayers = [];
@@ -5562,6 +5575,7 @@ function changeScore(inputId, amount){
       leagueResetScoreModal();
       renderLeague();                            // 3) إعادة حساب الترتيب  4) عرضه  5) تحديث التقدّم
       saveLeagueState();                         // 6) حفظ في localStorage
+      if (leagueCompleted) syncCompletedLeagueTournament();
     }
 
     // ---------- تصدير ترتيب الدوري ----------
