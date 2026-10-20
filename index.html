@@ -790,16 +790,22 @@
       display: inline-flex; align-items: center; justify-content: center;
       width: 30px; height: 30px; border-radius: 50%; color: #fff; font-weight: 800; font-size: var(--fs-sm);
     }
-    .league-table tr.rank-1 { background: rgba(207, 169, 99, .13); }
-    .league-table tr.rank-2 { background: rgba(154, 163, 173, .12); }
-    .league-table tr.rank-3 { background: rgba(183, 121, 74, .11); }
-    .league-table tr.rank-1 td:first-child { box-shadow: inset -4px 0 0 var(--gold); }
-    .league-table tr.rank-2 td:first-child { box-shadow: inset -4px 0 0 var(--silver); }
-    .league-table tr.rank-3 td:first-child { box-shadow: inset -4px 0 0 var(--bronze); }
-    .league-table tr.rank-1 .rank-badge { background: var(--gold); color: #3a2a0c; }
-    .league-table tr.rank-2 .rank-badge { background: var(--silver); }
-    .league-table tr.rank-3 .rank-badge { background: var(--bronze); }
-    .league-table tr.rank-1 td.lt-points { color: var(--gold-deep); }
+    /* ألوان المراكز الثلاثة تأتي من متغيرات --rank-N-* المولّدة من RANK_IDENTITY في السكربت */
+    .league-table tr.rank-1 { background: var(--rank-1-tint); }
+    .league-table tr.rank-2 { background: var(--rank-2-tint); }
+    .league-table tr.rank-3 { background: var(--rank-3-tint); }
+    .league-table tr.rank-1 td:first-child { box-shadow: inset -4px 0 0 var(--rank-1-main); }
+    .league-table tr.rank-2 td:first-child { box-shadow: inset -4px 0 0 var(--rank-2-main); }
+    .league-table tr.rank-3 td:first-child { box-shadow: inset -4px 0 0 var(--rank-3-main); }
+    .league-table tr.rank-1 .rank-badge, .rank-badge.rb-1 { background: var(--rank-1-badge); color: var(--rank-1-badge-text); }
+    .league-table tr.rank-2 .rank-badge, .rank-badge.rb-2 { background: var(--rank-2-badge); color: var(--rank-2-badge-text); }
+    .league-table tr.rank-3 .rank-badge, .rank-badge.rb-3 { background: var(--rank-3-badge); color: var(--rank-3-badge-text); }
+    .league-table tr.rank-1 td.lt-points { color: var(--rank-1-text); }
+    .league-table tr.rank-2 td.lt-points { color: var(--rank-2-text); }
+    .league-table tr.rank-3 td.lt-points { color: var(--rank-3-text); }
+    body.dark-mode .league-table tr.rank-1 td.lt-points { color: var(--rank-1-main); }
+    body.dark-mode .league-table tr.rank-2 td.lt-points { color: var(--rank-2-main); }
+    body.dark-mode .league-table tr.rank-3 td.lt-points { color: var(--rank-3-main); }
     .league-legend { margin-top: var(--s3); color: var(--text-2); font-size: var(--fs-xs); line-height: 1.7; text-align: center; }
     .rank-number { color: var(--gold-deep); font-weight: 800; width: 42px; }
 
@@ -823,14 +829,17 @@
       background: rgba(255, 255, 255, .07); border: 1px solid rgba(255, 255, 255, .12);
       text-align: start;
     }
-    .podium-card.p1 { background: rgba(207, 169, 99, .2); border-color: rgba(207, 169, 99, .6); }
+    .podium-card.p1 { background: var(--rank-1-podium-bg); border-color: var(--rank-1-podium-line); }
+    .podium-card.p2 { background: var(--rank-2-podium-bg); border-color: var(--rank-2-podium-line); }
+    .podium-card.p3 { background: var(--rank-3-podium-bg); border-color: var(--rank-3-podium-line); }
     .podium-medal {
       grid-row: 1 / span 2; width: 38px; height: 38px; border-radius: 50%;
       display: flex; align-items: center; justify-content: center;
-      font-size: var(--fs-md); font-weight: 800; color: #fff; background: var(--silver);
+      font-size: var(--fs-md); font-weight: 800; color: #fff; background: var(--rank-2-badge);
     }
-    .podium-card.p1 .podium-medal { background: var(--gold); color: #3a2a0c; }
-    .podium-card.p3 .podium-medal { background: var(--bronze); }
+    .podium-card.p1 .podium-medal { background: var(--rank-1-badge); color: var(--rank-1-badge-text); }
+    .podium-card.p2 .podium-medal { background: var(--rank-2-badge); color: var(--rank-2-badge-text); }
+    .podium-card.p3 .podium-medal { background: var(--rank-3-badge); color: var(--rank-3-badge-text); }
     .podium-label { font-size: var(--fs-xs); font-weight: 700; color: var(--on-wood-2); grid-column: 2; }
     .podium-name { font-size: var(--fs-md); font-weight: 800; grid-column: 2; overflow-wrap: anywhere; line-height: 1.3; }
     .podium-pts { grid-column: 3; grid-row: 1 / span 2; font-size: var(--fs-sm); font-weight: 800; color: var(--gold-soft); white-space: nowrap; }
@@ -1191,7 +1200,7 @@
       .league-table td.lt-points::before { display: none; }
       .league-table td:nth-child(1)::before, .league-table td.lt-name::before { display: none; }
       .league-table tr.rank-1 td:first-child, .league-table tr.rank-2 td:first-child, .league-table tr.rank-3 td:first-child { box-shadow: none; }
-      .league-table tr.rank-1 { border-color: var(--gold); } .league-table tr.rank-2 { border-color: var(--silver); } .league-table tr.rank-3 { border-color: var(--bronze); }
+      .league-table tr.rank-1 { border-color: var(--rank-1-main); } .league-table tr.rank-2 { border-color: var(--rank-2-main); } .league-table tr.rank-3 { border-color: var(--rank-3-main); }
       .stats-table tr { grid-template-columns: repeat(4, minmax(0, 1fr)); }
       .stats-table td:nth-child(1) { grid-column: 1; grid-row: 1; align-self: center; }
       .stats-table td:nth-child(2) { grid-column: 2 / 5; grid-row: 1; align-self: center; font-size: var(--fs-md); font-weight: 800; overflow-wrap: anywhere; text-align: start; }
@@ -1557,6 +1566,133 @@
   </section>
 
   <script>
+    // ===================================
+    // 🏅 نظام هوية المراكز الثلاثة الأولى (مصدر وحيد للحقيقة)
+    //   المركز 1 = ذهبي | المركز 2 = فضي | المركز 3 = برونزي
+    //   كل ألوان البطاقات والصفوف والشارات والأقسام المرتبطة بهذه المراكز تُقرأ من هنا فقط.
+    //   اللون يُحدَّد بالرتبة الفعلية (rankIdentity) وليس بقالب التصدير أو بقيمة افتراضية.
+    // ===================================
+    const RANK_IDENTITY = Object.freeze({
+      1: Object.freeze({
+        id: 'gold', main: '#CFA963', deep: '#85652A',
+        card: [[0, '#F8E8B8'], [0.20, '#E6C477'], [0.48, '#D4AB55'], [0.72, '#E9CC85'], [1, '#B88A35']],
+        frame: '#9A6C1F', frameInner: 'rgba(255,250,224,0.75)', shadow: 'rgba(111,76,19,0.25)', halo: 'rgba(255,255,255,0.72)',
+        icon: '#765018', title: '#624315', name: '#33240D',
+        badge: ['#EBD08C', '#CFA963', '#A67C32'], badgeText: '#3A2A0C',
+        rowFill: '#FBF7EA', rowBorder: '#D6B866', rowText: '#795A18',
+        head: ['#8F6927', '#B58A3E', '#78531B'], headText: '#FFF0C7'
+      }),
+      2: Object.freeze({
+        id: 'silver', main: '#9AA3AD', deep: '#4C5662',
+        card: [[0, '#FBFCFD'], [0.20, '#E4E8EC'], [0.48, '#C2C9D1'], [0.72, '#E7EBEF'], [1, '#8D97A3']],
+        frame: '#6B7581', frameInner: 'rgba(255,255,255,0.80)', shadow: 'rgba(52,62,76,0.26)', halo: 'rgba(255,255,255,0.80)',
+        icon: '#4C5662', title: '#3D4650', name: '#1F262E',
+        badge: ['#D5DAE0', '#9AA3AD', '#6F7985'], badgeText: '#1F262E',
+        rowFill: '#F5F6F7', rowBorder: '#BEC2C7', rowText: '#555B63',
+        head: ['#5B6672', '#87929E', '#47515C'], headText: '#F4F7FA'
+      }),
+      3: Object.freeze({
+        id: 'bronze', main: '#B7794A', deep: '#7A4521',
+        card: [[0, '#F6D8B8'], [0.20, '#E0A878'], [0.48, '#C98B58'], [0.72, '#E2B48A'], [1, '#8F5630']],
+        frame: '#7A4521', frameInner: 'rgba(255,236,214,0.72)', shadow: 'rgba(92,52,22,0.27)', halo: 'rgba(255,240,224,0.70)',
+        icon: '#6B3B19', title: '#5A3216', name: '#2E1A0B',
+        badge: ['#E1A978', '#B7794A', '#8A5028'], badgeText: '#2B1708',
+        rowFill: '#FAF5F1', rowBorder: '#D1A98E', rowText: '#754B35',
+        head: ['#87502A', '#B0764A', '#69391C'], headText: '#FFE9D4'
+      })
+    });
+    // مراكز 4 فما فوق: هوية محايدة (ليست ذهبية/فضية/برونزية) — نفس مظهر البطاقات السابق
+    const RANK_NEUTRAL = Object.freeze({
+      id: 'neutral', main: '#A67C32', deep: '#85652A',
+      card: [[0, '#FFF8E7'], [0.48, '#F1DFB4'], [1, '#D9BC7C']],
+      frame: '#C3A15D', frameInner: 'rgba(255,255,255,0.65)', shadow: 'rgba(80,60,25,0.12)', halo: 'rgba(255,255,255,0.72)',
+      icon: '#A67C32', title: '#725522', name: '#33240D',
+      badge: ['#C9A55E', '#A67C32', '#85652A'], badgeText: '#352309',
+      head: ['#8F6927', '#B58A3E', '#78531B'], headText: '#FFF0C7'
+    });
+    // الرتبة الفعلية من أي اسم خاصية مستخدم بين المكوّنات (rank | medal | place | position)
+    function rankOf(v) {
+      if (v === null || v === undefined) return NaN;
+      if (typeof v !== 'object') { const n = Math.trunc(Number(v)); return Number.isFinite(n) && n > 0 ? n : NaN; }
+      for (const k of ['rank', 'medal', 'place', 'position']) {
+        const n = Math.trunc(Number(v[k]));
+        if (v[k] !== null && v[k] !== undefined && v[k] !== '' && Number.isFinite(n) && n > 0) return n;
+      }
+      return NaN;
+    }
+    // يعيد هوية المركز 1/2/3 أو null لأي رتبة أخرى أو غائبة (لا يوجد افتراض ذهبي)
+    function rankIdentity(v) { const r = rankOf(v); return RANK_IDENTITY[r] || null; }
+    function rankHexToRgba(hex, a) {
+      const n = parseInt(hex.slice(1), 16);
+      return `rgba(${(n >> 16) & 255},${(n >> 8) & 255},${n & 255},${a})`;
+    }
+    // متغيرات CSS مولّدة من نفس الجدول: --rank-N-main/-tint/-text/-badge/-badge-text/-podium-bg/-podium-line
+    (function applyRankIdentityCssVars() {
+      const st = document.documentElement.style;
+      Object.keys(RANK_IDENTITY).forEach(k => {
+        const r = RANK_IDENTITY[k];
+        st.setProperty(`--rank-${k}-main`, r.main);
+        st.setProperty(`--rank-${k}-tint`, rankHexToRgba(r.main, 0.13));
+        st.setProperty(`--rank-${k}-text`, r.deep);
+        st.setProperty(`--rank-${k}-badge`, `linear-gradient(145deg, ${r.badge[0]}, ${r.badge[1]} 55%, ${r.badge[2]})`);
+        st.setProperty(`--rank-${k}-badge-text`, r.badgeText);
+        st.setProperty(`--rank-${k}-podium-bg`, rankHexToRgba(r.main, 0.20));
+        st.setProperty(`--rank-${k}-podium-line`, rankHexToRgba(r.main, 0.60));
+      });
+    })();
+    // سطح بطاقة معدنية (ظل + تدرج + إطار خارجي + إطار داخلي) بنفس البنية لكل المراكز
+    function drawRankCardSurface(ctx, x, y, w, h, radius, rank) {
+      const id = rankIdentity(rank) || RANK_NEUTRAL;
+      const top3 = id !== RANK_NEUTRAL;
+      ctx.save();
+      ctx.shadowColor = id.shadow;
+      ctx.shadowBlur = top3 ? 24 : 14;
+      ctx.shadowOffsetX = 0;
+      ctx.shadowOffsetY = 8;
+      drawRoundedRect(ctx, x, y, w, h, radius);
+      const g = ctx.createLinearGradient(x, y, x + w, y + h);
+      id.card.forEach(([o, c]) => g.addColorStop(o, c));
+      ctx.fillStyle = g;
+      ctx.fill();
+      ctx.shadowColor = 'transparent'; ctx.shadowBlur = 0; ctx.shadowOffsetY = 0;
+      ctx.strokeStyle = id.frame;
+      ctx.lineWidth = top3 ? 3.5 : 2.5;
+      ctx.stroke();
+      drawRoundedRect(ctx, x + 10, y + 10, w - 20, h - 20, Math.max(8, radius - 7));
+      ctx.strokeStyle = id.frameInner;
+      ctx.lineWidth = 1.5;
+      ctx.stroke();
+      ctx.restore();
+      return id;
+    }
+    // شارة دائرية معدنية لرقم المركز (صفوف الترتيب)
+    function drawRankBadge(ctx, cx, cy, r, rank) {
+      const id = rankIdentity(rank); if (!id) return null;
+      ctx.save();
+      const g = ctx.createLinearGradient(cx - r, cy - r, cx + r, cy + r);
+      g.addColorStop(0, id.badge[0]); g.addColorStop(0.55, id.badge[1]); g.addColorStop(1, id.badge[2]);
+      ctx.beginPath(); ctx.arc(cx, cy, r, 0, Math.PI * 2);
+      ctx.fillStyle = g; ctx.fill();
+      ctx.lineWidth = 2; ctx.strokeStyle = id.frame; ctx.globalAlpha = 0.55; ctx.stroke();
+      ctx.restore();
+      return id;
+    }
+    // مقاييس عناصر بطاقة الإنجاز: أيقونة (كأس/ميدالية) + لقب + اسم + سطر نقاط اختياري (هامش علوي آمن دائمًا)
+    function rankCardMetrics(h, hasIcon, hasPts) {
+      const single = h >= 320;
+      if (hasIcon) {
+        const icon = single ? 80 : 64;
+        if (single) return hasPts
+          ? { icon, iconY: 76, labelY: 156, labelSize: 46, labelMin: 32, nameY: 240, nameSize: 58, ptsY: 308, ptsSize: 34 }
+          : { icon, iconY: 76, labelY: 156, labelSize: 46, labelMin: 32, nameY: 246, nameSize: 58 };
+        return hasPts
+          ? { icon, iconY: 65, labelY: 124, labelSize: 40, labelMin: 28, nameY: 220, nameSize: 52, ptsY: 284, ptsSize: 30 }
+          : { icon, iconY: 65, labelY: 124, labelSize: 40, labelMin: 28, nameY: 232, nameSize: 52 };
+      }
+      if (single) return { icon: 0, labelY: 120, labelSize: 40, labelMin: 24, nameY: 205, nameSize: 58 };
+      return { icon: 0, labelY: 92, labelSize: 32, labelMin: 20, nameY: 168, nameSize: 50 };
+    }
+
     // ===================================
     // ⚙️ وظيفة التبديل بين الوضع النهاري/الليلي
     // ===================================
@@ -2987,8 +3123,8 @@ return teamName.replace('غير محدد', replacement);
       const partnerships = Object.values(d.partnerships).sort((a,b) => b.championships-a.championships || b.wins-a.wins);
       const fmtDate = iso => new Intl.DateTimeFormat('ar-OM',{day:'numeric',month:'short',year:'numeric'}).format(new Date(iso));
 
-      const playerRows = players.map((p,i) => `<tr><td class="rank-number" data-l="#">${i+1}</td><td data-l="اللاعب">${p.name}</td><td data-l="ألقاب"><span class="ic ic-trophy" aria-hidden="true"></span>${p.championships}</td><td data-l="وصافة">${p.runnerUps}</td><td data-l="نصف النهائي">${p.semifinals}</td><td data-l="مشاركات">${p.tournaments}</td><td data-l="فوز">${p.wins}</td><td data-l="خسارة">${p.losses}</td><td data-l="نسبة الفوز">${p.winRate}%</td></tr>`).join('');
-      const pairRows = partnerships.map((p,i) => `<tr><td class="rank-number" data-l="#">${i+1}</td><td data-l="الثنائي">${p.name}</td><td data-l="ألقاب"><span class="ic ic-trophy" aria-hidden="true"></span>${p.championships}</td><td data-l="وصافة">${p.runnerUps}</td><td data-l="مشاركات">${p.tournaments}</td><td data-l="فوز">${p.wins}</td><td data-l="خسارة">${p.losses}</td><td data-l="نسبة الفوز">${p.winRate}%</td></tr>`).join('');
+      const playerRows = players.map((p,i) => `<tr><td class="rank-number" data-l="#">${i < 3 ? `<span class="rank-badge rb-${i+1}">${i+1}</span>` : i+1}</td><td data-l="اللاعب">${p.name}</td><td data-l="ألقاب"><span class="ic ic-trophy" aria-hidden="true"></span>${p.championships}</td><td data-l="وصافة">${p.runnerUps}</td><td data-l="نصف النهائي">${p.semifinals}</td><td data-l="مشاركات">${p.tournaments}</td><td data-l="فوز">${p.wins}</td><td data-l="خسارة">${p.losses}</td><td data-l="نسبة الفوز">${p.winRate}%</td></tr>`).join('');
+      const pairRows = partnerships.map((p,i) => `<tr><td class="rank-number" data-l="#">${i < 3 ? `<span class="rank-badge rb-${i+1}">${i+1}</span>` : i+1}</td><td data-l="الثنائي">${p.name}</td><td data-l="ألقاب"><span class="ic ic-trophy" aria-hidden="true"></span>${p.championships}</td><td data-l="وصافة">${p.runnerUps}</td><td data-l="مشاركات">${p.tournaments}</td><td data-l="فوز">${p.wins}</td><td data-l="خسارة">${p.losses}</td><td data-l="نسبة الفوز">${p.winRate}%</td></tr>`).join('');
       const historyRows = [...tournamentHistory].reverse().map(t => `<tr><td class="hist-date" data-l="التاريخ">${fmtDate(t.date)}</td><td class="hist-name" data-l="البطولة">${t.name}</td><td data-l="النظام">${t.mode === 'single' ? 'فردي' : t.mode === 'league' ? 'دوري' : 'فرق'}</td><td data-l="البطل"><span class="ic ic-trophy" aria-hidden="true"></span>${t.teamMap?.[t.champion] ? t.teamMap[t.champion].join(' + ') : t.champion}</td><td data-l="الوصيف">${t.teamMap?.[t.runnerUp] ? t.teamMap[t.runnerUp].join(' + ') : t.runnerUp}</td></tr>`).join('');
 
       statsContent.innerHTML = `
@@ -3313,9 +3449,8 @@ function drawStatsTableHeader(ctx, x, y, w, h, theme) {
 function drawStatsRankingRow(ctx, player, rank, x, y, w, h, theme) {
   const c = getStatsColumnCenters(x, w);
   let rowFill = '#FFFFFF', rowBorder = '#E2DED7', rankColor = '#625E57';
-  if (rank === 1) { rowFill = '#FBF7EA'; rowBorder = '#D6B866'; rankColor = '#795A18'; }
-  else if (rank === 2) { rowFill = '#F5F6F7'; rowBorder = '#BEC2C7'; rankColor = '#555B63'; }
-  else if (rank === 3) { rowFill = '#FAF5F1'; rowBorder = '#D1A98E'; rankColor = '#754B35'; }
+  const rid = rankIdentity(rank);
+  if (rid) { rowFill = rid.rowFill; rowBorder = rid.rowBorder; rankColor = rid.rowText; }
 
   drawStatsRoundRect(ctx, x, y, w, h, 13, rowFill, rowBorder, 1.2);
   const cy = y + h / 2;
@@ -3427,27 +3562,23 @@ async function exportStatsImage() {
     ctx.restore();
     keys.forEach(k => exportText(ctx, labels[k], c[k + 'Center'], tableTop - 6 + headH / 2, { size: 25, weight: 800, color: B.muted, maxW: c[k + 'W'] - 8, min: 16 }));
 
-    const medal = { 1: { fill: B.gold, text: '#3a2a0c', bg: 'rgba(207,169,99,0.16)', line: B.gold }, 2: { fill: B.silver, text: '#fff', bg: 'rgba(154,163,173,0.16)', line: B.silver }, 3: { fill: B.bronze, text: '#fff', bg: 'rgba(183,121,74,0.15)', line: B.bronze } };
     let y = tableTop + headH + 6; const cuts = [];
     players.forEach((p, i) => {
       if (i > 0) cuts.push(y - rowGap / 2);
       const rank = i + 1;
-      const m = medal[rank];
+      const m = rankIdentity(rank);
       ctx.save();
       drawRoundedRect(ctx, M, y, CW, rowH, 24);
-      ctx.fillStyle = m ? m.bg : B.paper;
+      ctx.fillStyle = m ? rankHexToRgba(m.main, 0.16) : B.paper;
       ctx.fill();
-      ctx.strokeStyle = m ? m.line : B.line;
+      ctx.strokeStyle = m ? m.main : B.line;
       ctx.lineWidth = m ? 3 : 2;
       ctx.stroke();
       ctx.restore();
       const cy = y + rowH / 2;
       if (m) {
-        ctx.save();
-        ctx.beginPath(); ctx.arc(c.rankCenter, cy, 28, 0, Math.PI * 2);
-        ctx.fillStyle = m.fill; ctx.fill();
-        ctx.restore();
-        exportText(ctx, String(rank), c.rankCenter, cy, { size: 32, weight: 800, color: m.text, dir: 'ltr' });
+        drawRankBadge(ctx, c.rankCenter, cy, 28, rank);
+        exportText(ctx, String(rank), c.rankCenter, cy, { size: 32, weight: 800, color: m.badgeText, dir: 'ltr' });
       } else {
         exportText(ctx, String(rank), c.rankCenter, cy, { size: 34, weight: 800, color: B.faint, dir: 'ltr' });
       }
@@ -4440,24 +4571,43 @@ document.getElementById("loserScoreLabel").textContent = match.team2 + " :";
       };
     }
 
-    // ---------- 3) بطاقة البطل ----------
+    // ---------- 3) بطاقة البطل الذهبية الفاخرة ----------
     function exportChampionBlock(name, theme) {
-      const B = EXPORT_BRAND;
-      const height = 218;
+      const height = 300;
+
       return {
         type: 'champion',
         height,
+
         draw(ctx, x, y, w) {
-          exportWoodPanel(ctx, x, y, w, height, 26);
-          exportIcon(ctx, 'trophy', x + w / 2, y + 40, 38, B.gold, 1.7);
-          exportText(ctx, 'بطل البطولة', x + w / 2, y + 82, { size: 31, weight: 800, color: B.goldSoft, maxW: w - 80, min: 24 });
-          const pw = Math.min(820, w - 72), ph = 76, py = y + 118;
+          const cx = x + w / 2;
+
+          // السطح الذهبي للبطل (الرتبة 1) من نظام الهوية المركزي
+          const id = drawRankCardSurface(ctx, x, y, w, height, 30, 1);
+
+          // هالة ضوئية خلف الكأس
+          const trophyY = y + 73;
+
           ctx.save();
-          drawRoundedRect(ctx, x + w / 2 - pw / 2, py, pw, ph, 19);
-          ctx.fillStyle = B.paper;
+          ctx.beginPath();
+          ctx.arc(cx, trophyY, 46, 0, Math.PI * 2);
+
+          const halo = ctx.createRadialGradient(cx, trophyY, 3, cx, trophyY, 46);
+          halo.addColorStop(0, id.halo);
+          halo.addColorStop(1, 'rgba(255,255,255,0)');
+
+          ctx.fillStyle = halo;
           ctx.fill();
           ctx.restore();
-          exportText(ctx, getDisplayTeamName(name), x + w / 2, py + ph / 2, { size: 38, weight: 800, color: B.ink, maxW: pw - 36, min: 23 });
+
+          // الكأس بحجم 80 (قمة الرسم تبعد ≈ 46px عن حافة البطاقة)
+          exportIcon(ctx, 'trophy', cx, trophyY, 80, id.icon, 2);
+
+          // اللقب العربي دون خط زخرفي
+          exportText(ctx, 'البطل', cx, y + 166, { size: 46, weight: 800, color: id.title, maxW: w - 90, min: 32 });
+
+          // اسم بطل البطولة
+          exportText(ctx, getDisplayTeamName(name), cx, y + 248, { size: 58, weight: 800, color: id.name, maxW: w - 90, min: 24 });
         }
       };
     }
@@ -6269,28 +6419,24 @@ function buildLeagueStandingsCanvas() {
     exportText(ctx, pos[k].label, pos[k].c, tableY + headH / 2, { size: 26, weight: 800, color: B.muted, maxW: pos[k].w - 8, min: 18 });
   });
 
-  const medal = { 1: { fill: B.gold, text: '#3a2a0c', bg: 'rgba(207,169,99,0.16)', line: B.gold }, 2: { fill: B.silver, text: '#fff', bg: 'rgba(154,163,173,0.16)', line: B.silver }, 3: { fill: B.bronze, text: '#fff', bg: 'rgba(183,121,74,0.15)', line: B.bronze } };
   let ry = tableY + headH + 12;
   const cuts = [];
   standings.forEach((r, ri) => {
     if (ri > 0) cuts.push(ry - rowGap / 2);
-    const m = isMedalRow(r) ? medal[r.rank] : null;
+    const m = isMedalRow(r) ? rankIdentity(r.rank) : null;
     ctx.save();
     drawRoundedRect(ctx, M, ry, CW, rowH, 24);
-    ctx.fillStyle = m ? m.bg : B.paper;
+    ctx.fillStyle = m ? rankHexToRgba(m.main, 0.16) : B.paper;
     ctx.fill();
-    ctx.strokeStyle = m ? m.line : B.line;
+    ctx.strokeStyle = m ? m.main : B.line;
     ctx.lineWidth = m ? 3 : 2;
     ctx.stroke();
     ctx.restore();
     const cy = ry + rowH / 2;
 
     if (m) {
-      ctx.save();
-      ctx.beginPath(); ctx.arc(pos.rank.c, cy, 28, 0, Math.PI * 2);
-      ctx.fillStyle = m.fill; ctx.fill();
-      ctx.restore();
-      exportText(ctx, String(r.rank), pos.rank.c, cy, { size: 32, weight: 800, color: m.text, dir: 'ltr' });
+      drawRankBadge(ctx, pos.rank.c, cy, 28, r.rank);
+      exportText(ctx, String(r.rank), pos.rank.c, cy, { size: 32, weight: 800, color: m.badgeText, dir: 'ltr' });
     } else {
       exportText(ctx, String(r.rank), pos.rank.c, cy, { size: 34, weight: 800, color: B.faint, dir: 'ltr' });
     }
@@ -6301,7 +6447,7 @@ function buildLeagueStandingsCanvas() {
     num('setsFor', r.setsFor); num('setsAgainst', r.setsAgainst);
     const sd = r.setDifference > 0 ? `+${r.setDifference}` : `${r.setDifference}`;
     num('diff', sd, { color: r.setDifference > 0 ? B.ok : (r.setDifference < 0 ? '#B3402F' : B.muted) });
-    num('points', r.points, { size: 42, weight: 800, color: (m && r.rank === 1) ? B.goldDeep : B.ink });
+    num('points', r.points, { size: 42, weight: 800, color: m ? m.deep : B.ink });
     ry += rowH + rowGap;
   });
 
@@ -7174,14 +7320,16 @@ function buildLeagueStandingsCanvas() {
       return list.map((p, i) => { const first = list.findIndex(q => q.championships === p.championships && q.runnerUps === p.runnerUps); return { rank: first + 1, name: p.name, titles: p.championships, ru: p.runnerUps }; });
     }
     function drawHonorRows(ctx, items, M, y, CW, cuts) {
-      const B = EXPORT_BRAND, H = 84, medal = { 1: B.gold, 2: B.silver, 3: B.bronze };
+      const B = EXPORT_BRAND, H = 84;
       items.forEach((it, i) => {
         if (i > 0) cuts.push(y - 6);
         const cy = y + H / 2;
-        drawRoundedRect(ctx, M, y, CW, H, 20); ctx.fillStyle = it.rank === 1 ? 'rgba(207,169,99,0.16)' : B.paper; ctx.fill(); ctx.strokeStyle = it.rank === 1 ? B.gold : B.line; ctx.lineWidth = it.rank === 1 ? 2 : 1.4; ctx.stroke();
+        const rid = rankIdentity(it.rank);
+        drawRoundedRect(ctx, M, y, CW, H, 20); ctx.fillStyle = rid ? rankHexToRgba(rid.main, 0.16) : B.paper; ctx.fill(); ctx.strokeStyle = rid ? rid.main : B.line; ctx.lineWidth = rid ? 2 : 1.4; ctx.stroke();
         const cx = M + CW - 24 - 28;
-        ctx.save(); ctx.beginPath(); ctx.arc(cx, cy, 28, 0, Math.PI * 2); ctx.fillStyle = medal[it.rank] || B.surface3; ctx.fill(); ctx.restore();
-        exportText(ctx, String(it.rank), cx, cy, { size: 28, weight: 800, color: medal[it.rank] ? B.paper : B.muted, dir: 'ltr' });
+        if (rid) drawRankBadge(ctx, cx, cy, 28, it.rank);
+        else { ctx.save(); ctx.beginPath(); ctx.arc(cx, cy, 28, 0, Math.PI * 2); ctx.fillStyle = B.surface3; ctx.fill(); ctx.restore(); }
+        exportText(ctx, String(it.rank), cx, cy, { size: 28, weight: 800, color: rid ? rid.badgeText : B.muted, dir: 'ltr' });
         exportText(ctx, it.name, cx - 28 - 18, cy, { size: 32, weight: 800, color: B.ink, align: 'right', maxW: 500, min: 18 });
         exportText(ctx, String(it.titles), M + 250, cy - 11, { size: 38, weight: 800, color: B.goldDeep, dir: 'ltr' });
         exportText(ctx, it.titles === 1 ? 'لقب' : 'ألقاب', M + 250, cy + 23, { size: 18, weight: 700, color: B.muted });
@@ -7208,7 +7356,7 @@ function buildLeagueStandingsCanvas() {
       if (!selected.length) { alert('لا يوجد مركز متاح للتصدير.'); return; }
       const title = tournamentName.textContent.trim() || 'بطولة المجلس للكيرم';
       const subtitle = kind === 'champion' ? 'بطل الدوري' : kind === 'runnerUp' ? 'وصيف الدوري' : (kind === 'top5' ? 'أفضل 5 مراكز' : 'أفضل 3 مراكز');
-      await renderAchievementCanvas(selected.map(r => ({ rank:r.rank, name:r.name, detail:`${r.points} نقطة`, medal:r.rank, cup: !!(isFinal && r.rank === 1 && getExportCenterSnapshot().completed) })), subtitle, `${isFinal ? 'الترتيب النهائي' : 'الترتيب الحالي'} للدوري`, title,
+      await renderAchievementCanvas(selected.map(r => ({ rank:r.rank, name:r.name, detail:`${r.points} نقطة`, points:`${r.points} نقطة`, medal:r.rank, cup: !!(isFinal && r.rank === 1 && getExportCenterSnapshot().completed) })), subtitle, `${isFinal ? 'الترتيب النهائي' : 'الترتيب الحالي'} للدوري`, title,
         `League-${kind}-${isFinal ? 'Final' : 'Live'}.png`);
     }
 
@@ -7238,8 +7386,8 @@ function buildLeagueStandingsCanvas() {
       const detail = finalData.score ? `نتيجة النهائي: ${finalData.score}` : 'النتيجة النهائية';
       const extra = [];
       if (exportShowPath) {
-        if (kind !== 'runnerUp') extra.push({ heading: 'مسار البطل إلى النهائي', rows: knockoutPathRows(finalData.champion) });
-        if (kind !== 'champion') extra.push({ heading: 'مسار الوصيف إلى النهائي', rows: knockoutPathRows(finalData.runnerUp) });
+        if (kind !== 'runnerUp') extra.push({ heading: 'مسار البطل إلى النهائي', rank: 1, rows: knockoutPathRows(finalData.champion) });
+        if (kind !== 'champion') extra.push({ heading: 'مسار الوصيف إلى النهائي', rank: 2, rows: knockoutPathRows(finalData.runnerUp) });
       }
       { const F = finalData, n = x => getDisplayTeamName(x);
         setCaption(`Tournament-${kind === 'both' ? 'ChampionAndRunnerUp' : kind === 'champion' ? 'Champion' : 'RunnerUp'}.png`,
@@ -7248,66 +7396,286 @@ function buildLeagueStandingsCanvas() {
     }
 
     async function renderAchievementCanvas(items, subtitle, contextLine, title, filename, extra) {
-      extra = (extra || []).filter(sec => sec && sec.rows && sec.rows.length);
-      if (document.fonts && document.fonts.ready) {
-        try { await document.fonts.load('800 58px Tajawal'); await document.fonts.load('800 44px Tajawal'); await document.fonts.load('700 34px Tajawal'); await document.fonts.ready; } catch (e) {}
+  extra = (extra || []).filter(sec => sec && sec.rows && sec.rows.length);
+
+  if (document.fonts && document.fonts.ready) {
+    try {
+      await document.fonts.load('800 58px Tajawal');
+      await document.fonts.load('800 44px Tajawal');
+      await document.fonts.load('700 34px Tajawal');
+      await document.fonts.ready;
+    } catch (e) {}
+  }
+
+  const B = EXPORT_BRAND;
+  const W = 1080;
+  const M = 56;
+  const CW = W - M * 2;
+
+  const dateStr = new Intl.DateTimeFormat('ar-OM', {
+    weekday: 'long',
+    day: 'numeric',
+    month: 'long',
+    year: 'numeric'
+  }).format(new Date());
+
+  const meta = [{ icon: 'calendar', label: dateStr }];
+  const headerH = exportBrandHeaderHeight(meta);
+  const top = M + headerH + 44;
+
+  const ctxRes = exportContextResolve(contextLine);
+  const gapA = ctxRes.shown ? 54 : 8;
+
+  // لكل بطاقة ارتفاعها: منفردة 330؛ ضمن مجموعة: 300 إن حملت كأسًا و260 بدونه (هامش آمن للكأس)
+  const itemMeta = items.map(it => {
+    const rank = rankOf(it);
+    const hasCup = it.cup === true || rank === 1;
+    const hasIcon = hasCup || !!rankIdentity(rank);      // كأس للبطل، وميدالية 2/3 للبقية
+    const hasPts = !!it.points && !!rankIdentity(rank);
+    const base = items.length === 1 ? 330 : (hasIcon ? 300 : 260);
+    return { rank, hasCup, hasIcon, hasPts, h: base + (hasPts ? 42 : 0) };
+  });
+  const cardsH = itemMeta.reduce((a, m) => a + m.h, 0);
+  const gap = 22;
+
+  const EH = 66;
+  const ER = 58;
+
+  const extraH = extra.reduce(
+    (a, sec) => a + EH + 12 + sec.rows.length * ER + 20,
+    0
+  );
+
+  const H = Math.ceil(
+    top +
+    32 +
+    gapA +
+    cardsH +
+    Math.max(0, items.length - 1) * gap +
+    92 +
+    extraH
+  );
+
+  let scale = exportScale();
+
+  while (W * scale * H * scale > 16000000 && scale > 1) {
+    scale -= 0.25;
+  }
+
+  const canvas = document.createElement('canvas');
+  canvas.width = Math.ceil(W * scale);
+  canvas.height = Math.ceil(H * scale);
+
+  const ctx = canvas.getContext('2d');
+  ctx.scale(scale, scale);
+  ctx.textRendering = 'optimizeLegibility';
+
+  // خلفية الصورة العامة
+  ctx.fillStyle = B.ivory;
+  ctx.fillRect(0, 0, W, H);
+
+  // الهيدر الأصلي للمشروع
+  exportBrandHeader(ctx, M, M, CW, title, subtitle, meta);
+
+  if (ctxRes.shown) {
+    exportText(
+      ctx,
+      ctxRes.text,
+      M + CW / 2,
+      top + 10,
+      {
+        size: 30,
+        weight: 700,
+        color: B.muted,
+        maxW: CW - 30
       }
-      const B = EXPORT_BRAND;
-      const W = 1080, M = 56, CW = W - M * 2;
-      const dateStr = new Intl.DateTimeFormat('ar-OM', { weekday:'long', day:'numeric', month:'long', year:'numeric' }).format(new Date());
-      const meta = [{ icon:'calendar', label:dateStr }];
-      const headerH = exportBrandHeaderHeight(meta);
-      const top = M + headerH + 44;
-      const ctxRes = exportContextResolve(contextLine), gapA = ctxRes.shown ? 54 : 8;
-      const cardH = items.length === 1 ? 330 : 260;
-      const gap = 22;
-      const EH = 66, ER = 58, extraH = extra.reduce((a, sec) => a + EH + 12 + sec.rows.length * ER + 20, 0);
-      const H = Math.ceil(top + 32 + gapA + items.length * cardH + Math.max(0,items.length-1)*gap + 92 + extraH);
-      let scale = exportScale(); while (W * scale * H * scale > 16000000 && scale > 1) scale -= 0.25;
-      const canvas = document.createElement('canvas');
-      canvas.width = Math.ceil(W * scale); canvas.height = Math.ceil(H * scale);
-      const ctx = canvas.getContext('2d'); ctx.scale(scale,scale); ctx.textRendering = 'optimizeLegibility';
-      ctx.fillStyle = B.ivory; ctx.fillRect(0,0,W,H);
-      exportBrandHeader(ctx,M,M,CW,title,subtitle,meta);
-      if (ctxRes.shown) exportText(ctx,ctxRes.text,M+CW/2,top+10,{size:30,weight:700,color:B.muted,maxW:CW-30});
-      const medals = {
-        1:{ fill:B.gold, text:'#3a2a0c', bg:'rgba(207,169,99,0.16)', line:B.gold, label:'المركز الأول' },
-        2:{ fill:B.silver, text:'#fff', bg:'rgba(154,163,173,0.16)', line:B.silver, label:'المركز الثاني' },
-        3:{ fill:B.bronze, text:'#fff', bg:'rgba(183,121,74,0.15)', line:B.bronze, label:'المركز الثالث' }
-      };
-      let y = top + gapA; const cuts = [];
-      items.forEach((item,i) => {
-        if (i > 0) cuts.push(y - gap / 2);
-        const m = medals[item.medal] || medals[item.rank] || null;
-        const neutral = { fill:B.surface3, text:B.ink, bg:B.paper, line:B.line, label:`المركز ${item.rank}` };
-        const medalStyle = m || neutral;
-        ctx.save();
-        drawRoundedRect(ctx,M,y,CW,cardH,30); ctx.fillStyle=medalStyle.bg; ctx.fill();
-        ctx.strokeStyle=medalStyle.line; ctx.lineWidth=3; ctx.stroke(); ctx.restore();
-        if (item.cup === true) exportIcon(ctx, 'trophy', W/2, y+55, 46, medalStyle.fill, 2);
-        exportText(ctx,item.detail || medalStyle.label,W/2,y+115,{size:30,weight:700,color:B.muted,maxW:CW-80});
-        exportText(ctx,item.name,W/2,y+cardH/2+38,{size:52,weight:800,color:B.ink,maxW:CW-90,min:24});
-        y += cardH + gap;
-      });
-      extra.forEach(sec => {
-        cuts.push(y - 10);
-        drawRoundedRect(ctx, M, y, CW, EH, 18); ctx.fillStyle = B.wood; ctx.fill();
-        exportText(ctx, sec.heading, M + CW - 24, y + EH / 2, { size: 28, weight: 800, color: B.goldSoft, align: 'right', maxW: CW - 60, min: 18 });
-        y += EH + 12;
-        sec.rows.forEach((r, i) => {
-          drawRoundedRect(ctx, M, y, CW, ER - 8, 14); ctx.fillStyle = i % 2 ? B.surface2 : B.paper; ctx.fill(); ctx.strokeStyle = B.line; ctx.lineWidth = 1.2; ctx.stroke();
-          exportText(ctx, r[0], M + CW - 24, y + (ER - 8) / 2, { size: 26, weight: 700, color: B.text, align: 'right', maxW: CW * 0.5, min: 16 });
-          exportText(ctx, r[1], M + 330, y + (ER - 8) / 2, { size: 28, weight: 800, color: B.ink, maxW: 190, min: 16, dir: 'ltr' });
-          exportText(ctx, r[2], M + 130, y + (ER - 8) / 2, { size: 26, weight: 800, color: B.ok, maxW: 160, min: 16 });
-          y += ER;
-        });
-        y += 20;
-      });
-      exportFooterDivider(ctx,M,H-48,CW);
-      canvas.__cuts = cuts; canvas.__ctxOrig = contextLine;
-      await downloadCanvasAsPng(canvas,filename);
+    );
+  }
+
+  let y = top + gapA;
+  const cuts = [];
+
+  items.forEach((item, i) => {
+    if (i > 0) {
+      cuts.push(y - gap / 2);
     }
 
+    const { rank, hasCup, hasIcon, hasPts, h: cardH } = itemMeta[i];
+
+    // الهوية من الرتبة الفعلية فقط: 1 ذهبي، 2 فضي، 3 برونزي، غير ذلك محايد
+    const idn = rankIdentity(rank) || RANK_NEUTRAL;
+    const isChampion = hasCup;                       // يحدد اللقب والكأس فقط، لا اللون
+    const defaultLabel = rankIdentity(rank) ? ({ 1: 'المركز الأول', 2: 'المركز الثاني', 3: 'المركز الثالث' })[rank] : `المركز ${item.rank}`;
+    const mt = rankCardMetrics(cardH, hasIcon, hasPts);
+
+    // سطح البطاقة المعدني (ظل + تدرج + إطار + إطار داخلي)
+    drawRankCardSurface(ctx, M, y, CW, cardH, 30, rank);
+
+    // الأيقونة: كأس للبطل، وميدالية بلون المركز ورقمه للوصيف والثالث
+    if (hasIcon) {
+      const iconY = y + mt.iconY;
+      const haloR = Math.round(mt.icon * 0.49);
+
+      ctx.save();
+      ctx.beginPath();
+      ctx.arc(W / 2, iconY, haloR, 0, Math.PI * 2);
+      const halo = ctx.createRadialGradient(W / 2, iconY, 3, W / 2, iconY, haloR);
+      halo.addColorStop(0, idn.halo);
+      halo.addColorStop(1, 'rgba(255,255,255,0)');
+      ctx.fillStyle = halo;
+      ctx.fill();
+      ctx.restore();
+
+      if (hasCup) {
+        exportIcon(ctx, 'trophy', W / 2, iconY, mt.icon, idn.icon, 2);
+      } else {
+        const mr = Math.round(mt.icon * 0.40);
+        drawRankBadge(ctx, W / 2, iconY, mr, rank);
+        ctx.save();
+        ctx.beginPath(); ctx.arc(W / 2, iconY, mr - 6, 0, Math.PI * 2);
+        ctx.strokeStyle = idn.frameInner; ctx.lineWidth = 2; ctx.stroke();
+        ctx.restore();
+        exportText(ctx, String(rank), W / 2, iconY, { size: Math.round(mr * 1.15), weight: 800, color: idn.badgeText, dir: 'ltr' });
+      }
+    }
+
+    // اللقب بالعربية — دون كلمة CHAMPION
+    const achievementLabel = isChampion ? 'البطل'
+      : (hasPts ? ({ 2: 'الوصيف', 3: 'المركز الثالث' })[rank] : (item.detail || defaultLabel));
+
+    exportText(ctx, achievementLabel, W / 2, y + mt.labelY, {
+      size: mt.labelSize,
+      weight: 800,
+      color: idn.title,
+      maxW: CW - 90,
+      min: mt.labelMin
+    });
+
+    // اسم البطل أو صاحب المركز
+    exportText(ctx, item.name, W / 2, y + mt.nameY, {
+      size: mt.nameSize,
+      weight: 800,
+      color: idn.name,
+      maxW: CW - 90,
+      min: 24
+    });
+
+    // سطر النقاط تحت الاسم (للبطل أيضًا)
+    if (hasPts) {
+      exportText(ctx, item.points, W / 2, y + mt.ptsY, {
+        size: mt.ptsSize, weight: 700, color: idn.title, maxW: CW - 90, min: 20
+      });
+    }
+
+    y += cardH + gap;
+  });
+
+  // الأقسام الإضافية، مثل مسار البطل والوصيف
+  extra.forEach(sec => {
+    cuts.push(y - 10);
+
+    drawRoundedRect(ctx, M, y, CW, EH, 18);
+
+    const headingGradient = ctx.createLinearGradient(
+      M,
+      y,
+      M + CW,
+      y + EH
+    );
+
+    const hid = rankIdentity(sec.rank) || RANK_IDENTITY[1];
+    headingGradient.addColorStop(0, hid.head[0]);
+    headingGradient.addColorStop(0.5, hid.head[1]);
+    headingGradient.addColorStop(1, hid.head[2]);
+
+    ctx.fillStyle = headingGradient;
+    ctx.fill();
+
+    exportText(
+      ctx,
+      sec.heading,
+      M + CW - 24,
+      y + EH / 2,
+      {
+        size: 28,
+        weight: 800,
+        color: hid.headText,
+        align: 'right',
+        maxW: CW - 60,
+        min: 18
+      }
+    );
+
+    y += EH + 12;
+
+    sec.rows.forEach((r, i) => {
+      drawRoundedRect(ctx, M, y, CW, ER - 8, 14);
+
+      ctx.fillStyle = i % 2 ? B.surface2 : B.paper;
+      ctx.fill();
+
+      ctx.strokeStyle = B.line;
+      ctx.lineWidth = 1.2;
+      ctx.stroke();
+
+      exportText(
+        ctx,
+        r[0],
+        M + CW - 24,
+        y + (ER - 8) / 2,
+        {
+          size: 26,
+          weight: 700,
+          color: B.text,
+          align: 'right',
+          maxW: CW * 0.5,
+          min: 16
+        }
+      );
+
+      exportText(
+        ctx,
+        r[1],
+        M + 330,
+        y + (ER - 8) / 2,
+        {
+          size: 28,
+          weight: 800,
+          color: B.ink,
+          maxW: 190,
+          min: 16,
+          dir: 'ltr'
+        }
+      );
+
+      exportText(
+        ctx,
+        r[2],
+        M + 130,
+        y + (ER - 8) / 2,
+        {
+          size: 26,
+          weight: 800,
+          color: B.ok,
+          maxW: 160,
+          min: 16
+        }
+      );
+
+      y += ER;
+    });
+
+    y += 20;
+  });
+
+  // التذييل الأصلي
+  exportFooterDivider(ctx, M, H - 48, CW);
+
+  canvas.__cuts = cuts;
+  canvas.__ctxOrig = contextLine;
+
+  await downloadCanvasAsPng(canvas, filename);
+}
 
     // ===================================
     // 🛡️ لوحة التحكم: النسخ الاحتياطي والاستعادة
