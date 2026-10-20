@@ -4011,7 +4011,7 @@ document.getElementById("loserScoreLabel").textContent = match.team2 + " :";
     let exportBatch = null, exportBatchCap = null; // وضع التصدير الجماعي: يجمع الصور بدل فتح المعاينة
     function exportScale() { const q = Number(exportSettings.quality); const v = q === 1.5 || q === 3 ? q : 2; return exportBatchCap ? Math.min(v, exportBatchCap) : v; }
     const EXPORT_CHIP_ORDER = ['date', 'count', 'done', 'pct', 'round', 'state', 'kind', 'time', 'custom'];
-    let exportContextOverride = null, exportCurrentRun = null, exportLastHeaderIds = [], exportSubtitleOverride = null, exportLastSubOrig = '', exportTitleOverride = null, exportLastTitleOrig = '';
+    let exportFooterOverride = null, exportContextOverride = null, exportCurrentRun = null, exportLastHeaderIds = [], exportSubtitleOverride = null, exportLastSubOrig = '', exportTitleOverride = null, exportLastTitleOrig = '';
     // بطاقات الهيدر: كلها من بيانات المنافسة الحالية (حد أقصى 4)
     function exportChipDefs() {
       const d = {}, lg = currentMode === 'league', cnt = (n, one, many) => `${n} ${n === 1 ? one : many}`;
@@ -4235,7 +4235,8 @@ document.getElementById("loserScoreLabel").textContent = match.team2 + " :";
 
     function exportFooterDivider(ctx, x, y, w) {
       const B = EXPORT_BRAND;
-      if (exportSettings.footer.trim()) exportText(ctx, exportSettings.footer.trim(), x + w / 2, y + 24, { size: 21, weight: 700, color: B.muted, maxW: w - 40, min: 14 });
+      const footerValue = exportFooterOverride && exportFooterOverride.hide ? '' : (exportFooterOverride && typeof exportFooterOverride.text === 'string' ? exportFooterOverride.text : exportSettings.footer);
+      if (String(footerValue || '').trim()) exportText(ctx, String(footerValue).trim(), x + w / 2, y + 24, { size: 21, weight: 700, color: B.muted, maxW: w - 40, min: 14 });
       ctx.save();
       ctx.strokeStyle = B.lineStrong;
       ctx.lineWidth = 2;
@@ -4596,7 +4597,9 @@ document.getElementById("loserScoreLabel").textContent = match.team2 + " :";
     const EXPORT_FORMATS = {
       auto:   { label: 'الأصلي', tag: '' },
       story:  { label: 'ستوري 9:16', tag: 'Story', W: 1080, H: 1920, pad: 36, top: 110, bottom: 130 },
-      square: { label: 'مربع 1:1', tag: 'Square', W: 1080, H: 1080, pad: 36, top: 36, bottom: 36 }
+      square: { label: 'مربع 1:1', tag: 'Square', W: 1080, H: 1080, pad: 36, top: 36, bottom: 36 },
+      portrait34: { label: 'عمودي 3:4', tag: 'Portrait-3x4', W: 1080, H: 1440, pad: 36, top: 42, bottom: 48 },
+      portrait57: { label: 'عمودي 5:7', tag: 'Portrait-5x7', W: 1080, H: 1512, pad: 36, top: 48, bottom: 54 }
     };
     function composeFormat(src, fmtKey, split) {
       const F = EXPORT_FORMATS[fmtKey]; if (!F || !F.W) return [src];
@@ -4648,53 +4651,129 @@ document.getElementById("loserScoreLabel").textContent = match.team2 + " :";
     }
 
     const exportStudio = (function () {
-      let root, scroller, info, state = null, busy = false;
+      let root, scroller, info, state = null, busy = false, msgTimer = null;
       const css = `
-      #xsRoot{position:fixed;inset:0;z-index:99990;display:none;flex-direction:column;background:#30251F;color:#F7F3EA;font-family:Tajawal,system-ui,sans-serif;direction:rtl;padding-top:env(safe-area-inset-top,0);padding-bottom:env(safe-area-inset-bottom,0)}
+      #xsRoot{position:fixed;inset:0;z-index:99990;display:none;flex-direction:column;background:#241b16;color:#F7F3EA;font-family:Tajawal,system-ui,sans-serif;direction:rtl}
       #xsRoot.open{display:flex}
-      #xsRoot .xs-bar{display:flex;flex-wrap:wrap;gap:8px;align-items:center;padding:10px 12px;background:#3A2D26;border-bottom:1px solid rgba(207,169,99,.4)}
-      #xsRoot .xs-info{flex:1 1 100%;font-size:13px;color:#E3CCA0;line-height:1.6}
-      #xsRoot .xs-fmt{flex:1 1 100%;display:flex;gap:6px}
-      #xsRoot .xs-fmt button{flex:1}
-      #xsRoot button{min-height:44px;padding:0 14px;border-radius:12px;border:1px solid rgba(207,169,99,.5);background:transparent;color:#F7F3EA;font:700 15px Tajawal,system-ui,sans-serif;cursor:pointer}
-      #xsRoot button[aria-pressed="true"]{background:#E3CCA0;color:#30251F;border-color:#E3CCA0}
-      #xsRoot button.xs-primary{background:#CFA963;color:#30251F;border-color:#CFA963}
+      #xsRoot:focus{outline:none}
+      #xsRoot button{font-family:Tajawal,system-ui,sans-serif;cursor:pointer;color:#F7F3EA}
       #xsRoot button:disabled{opacity:.5;cursor:default}
-      #xsRoot .xs-view{flex:1;overflow:auto;-webkit-overflow-scrolling:touch;padding:14px;text-align:center;background:#241b16}
+      #xsRoot [hidden]{display:none !important}
+      #xsRoot .xs-top{display:flex;align-items:center;gap:8px;padding:calc(8px + env(safe-area-inset-top,0px)) 10px 8px;background:#30251F;border-bottom:1px solid rgba(207,169,99,.3)}
+      #xsRoot .xs-icon{width:46px;height:46px;flex:0 0 auto;border-radius:12px;border:1px solid rgba(207,169,99,.45);background:transparent;font-size:20px}
+      #xsRoot .xs-title{flex:1;min-width:0;display:grid;gap:2px}
+      #xsRoot .xs-name{font-weight:800;font-size:14px;direction:ltr;text-align:right;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+      #xsRoot .xs-meta{font-size:12px;color:#E3CCA0;line-height:1.5}
+      #xsRoot .xs-tools{display:flex;gap:6px;flex:0 0 auto}
+      #xsRoot .xs-tools button{min-height:46px;padding:0 11px;border-radius:12px;border:1px solid rgba(207,169,99,.45);background:transparent;font-size:15px;font-weight:700}
+      #xsRoot .xs-body{flex:1;min-height:0;display:flex;position:relative}
+      #xsRoot .xs-stage{flex:1;min-width:0;position:relative;display:flex;flex-direction:column}
+      #xsRoot .xs-view{flex:1;min-height:0;overflow:auto;-webkit-overflow-scrolling:touch;touch-action:pan-x pan-y;padding:12px;text-align:center}
       #xsRoot canvas{display:block;margin:0 auto 14px;background:#F7F3EA;box-shadow:0 10px 30px rgba(0,0,0,.45);max-width:none}
-      #xsRoot .xs-title{margin:10px auto 8px;font-size:14px;font-weight:700;color:#E3CCA0;direction:ltr}
-      #xsRoot .xs-msg{padding:6px 12px;font-size:14px;min-height:26px;color:#F7F3EA;text-align:center}
-      #xsRoot .xs-edit{padding:10px 12px;background:#3A2D26;border-bottom:1px solid rgba(207,169,99,.4);display:grid;gap:10px;max-height:46vh;overflow:auto}
-      #xsRoot .xs-edit[hidden]{display:none}
+      #xsRoot .xs-item-title{margin:6px auto 8px;font-size:14px;font-weight:700;color:#E3CCA0}
+      #xsRoot .xs-jump{display:flex;gap:6px;overflow-x:auto;padding:8px 12px;background:#2d221c;border-bottom:1px solid rgba(207,169,99,.2)}
+      #xsRoot .xs-jump button{flex:0 0 auto;min-height:40px;padding:0 14px;border-radius:999px;border:1px solid rgba(207,169,99,.5);background:transparent;font-size:14px;font-weight:700;white-space:nowrap}
+      #xsRoot .xs-msg{position:absolute;bottom:10px;left:50%;transform:translateX(-50%);max-width:92%;padding:9px 16px;border-radius:999px;background:rgba(36,27,22,.95);border:1px solid rgba(207,169,99,.5);font-size:14px;font-weight:700;text-align:center;z-index:2}
+      #xsRoot .xs-zoom{display:none;position:absolute;bottom:14px;left:14px;gap:4px;z-index:2}
+      #xsRoot .xs-zoom button{min-width:44px;min-height:44px;border-radius:12px;border:1px solid rgba(207,169,99,.5);background:rgba(48,37,31,.92);font-size:16px;font-weight:700}
+      #xsRoot .xs-dock{display:flex;gap:10px;padding:10px 12px calc(10px + env(safe-area-inset-bottom,0px));background:#30251F;border-top:1px solid rgba(207,169,99,.3)}
+      #xsRoot .xs-dock button{min-height:54px;border-radius:14px;border:1px solid rgba(207,169,99,.5);background:transparent;font-size:16px;font-weight:700}
+      #xsRoot .xs-dock .xs-primary{flex:2;background:#CFA963;border-color:#CFA963;color:#30251F;font-size:18px;font-weight:800}
+      #xsRoot .xs-dock .xs-sec{flex:1}
+      #xsRoot .xs-dock #xsMore{flex:0 0 54px;font-size:22px;line-height:1}
+      #xsRoot .xs-menu{position:absolute;right:12px;bottom:calc(76px + env(safe-area-inset-bottom,0px));display:grid;gap:6px;padding:8px;background:#3A2D26;border:1px solid rgba(207,169,99,.5);border-radius:16px;z-index:5;min-width:190px}
+      #xsRoot .xs-menu button{min-height:48px;border-radius:12px;border:0;background:rgba(255,255,255,.06);font-size:15px;font-weight:700;text-align:right;padding:0 14px}
+      #xsRoot .xs-scrim{position:absolute;inset:0;background:rgba(0,0,0,.5);z-index:3}
+      #xsRoot .xs-side{position:fixed;left:0;right:0;bottom:0;max-height:74vh;overflow:auto;background:#3A2D26;border-radius:22px 22px 0 0;border-top:1px solid rgba(207,169,99,.5);padding:0 14px calc(18px + env(safe-area-inset-bottom,0px));transform:translateY(105%);transition:transform .22s ease;z-index:4;display:grid;gap:14px;align-content:start;visibility:hidden}
+      #xsRoot .xs-side.open{transform:translateY(0);visibility:visible}
+      #xsRoot .xs-sheet-head{position:sticky;top:0;display:flex;align-items:center;justify-content:space-between;padding:14px 0 8px;background:#3A2D26;z-index:1}
+      #xsRoot .xs-sheet-head strong{font-size:17px}
+      #xsRoot .xs-sheet-head button{min-height:44px;padding:0 20px;border-radius:12px;border:0;background:#CFA963;color:#30251F;font-weight:800;font-size:15px}
+      #xsRoot .xs-side[data-tab="format"] #xsEditBlock,#xsRoot .xs-side[data-tab="edit"] #xsFormatBlock{display:none}
+      #xsRoot .xs-side h3{display:none;margin:0 0 8px;font-size:15px;color:#E3CCA0}
+      #xsRoot .xs-fmt{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+      #xsRoot .xs-fmt button,#xsRoot .xs-btns button,#xsRoot .xs-chipbar button,#xsRoot .xs-switch{min-height:48px;padding:0 10px;border-radius:12px;border:1px solid rgba(207,169,99,.5);background:transparent;font-size:15px;font-weight:700}
+      #xsRoot button[aria-pressed="true"]{background:#E3CCA0 !important;color:#30251F !important;border-color:#E3CCA0 !important}
+      #xsRoot .xs-switch{width:100%;margin-top:10px;text-align:right}
+      #xsRoot .xs-hint{margin:8px 0 0;font-size:13px;line-height:1.7;color:#cdbb97}
+      #xsRoot .xs-edit-rows{display:grid;gap:14px}
       #xsRoot .xs-row{display:grid;gap:6px;font-size:14px;color:#E3CCA0;font-weight:700}
-      #xsRoot .xs-row input{min-height:46px;border-radius:12px;border:1px solid rgba(207,169,99,.5);background:#241b16;color:#F7F3EA;padding:0 12px;font:inherit;width:100%;box-sizing:border-box}
-      #xsRoot .xs-btns,#xsRoot .xs-chipbar{display:flex;flex-wrap:wrap;gap:6px}`;
+      #xsRoot .xs-row input{min-height:48px;border-radius:12px;border:1px solid rgba(207,169,99,.5);background:#241b16;color:#F7F3EA;padding:0 12px;font:inherit;width:100%;box-sizing:border-box}
+      #xsRoot .xs-btns,#xsRoot .xs-chipbar{display:flex;flex-wrap:wrap;gap:6px}
+      #xsRoot .xs-btns .xs-primary{background:#CFA963;border-color:#CFA963;color:#30251F}
+      @media (min-width:900px){
+        #xsRoot .xs-side{position:static;transform:none;visibility:visible;width:360px;flex:0 0 360px;max-height:none;border-radius:0;border-top:0;border-right:0;border-left:1px solid rgba(207,169,99,.3);padding:16px 16px 24px;gap:22px}
+        #xsRoot .xs-sheet-head,#xsRoot .xs-scrim{display:none}
+        #xsRoot .xs-side h3{display:block}
+        #xsRoot .xs-side[data-tab] #xsEditBlock,#xsRoot .xs-side[data-tab] #xsFormatBlock{display:block}
+        #xsRoot #xsFmtBtn,#xsRoot #xsEdit{display:none}
+        #xsRoot .xs-dock{justify-content:center}
+        #xsRoot .xs-dock button{max-width:260px}
+      }
+      @media (hover:hover) and (pointer:fine){ #xsRoot .xs-zoom{display:flex} }`;
       const $ = id => root.querySelector('#' + id);
-      const msg = t => { $('xsMsg').textContent = t || ''; };
+      const msg = t => { clearTimeout(msgTimer); const m = $('xsMsg'); m.textContent = t || ''; m.hidden = !t; if (t) msgTimer = setTimeout(() => { m.hidden = true; }, 4200); };
+      const sheetOpen = () => $('xsSide').classList.contains('open');
+      function openSheet(tab) { $('xsSide').dataset.tab = tab; $('xsSheetTitle').textContent = tab === 'edit' ? 'تخصيص النص والهيدر' : 'مقاس الصورة'; $('xsSide').classList.add('open'); $('xsScrim').hidden = false; }
+      function closeSheet() { $('xsSide').classList.remove('open'); $('xsScrim').hidden = true; }
+      const closeMenu = () => { $('xsMenu').hidden = true; $('xsMore').setAttribute('aria-expanded', 'false'); };
       function build() {
         if (root) return;
         const st = document.createElement('style'); st.textContent = css; document.head.appendChild(st);
         root = document.createElement('div'); root.id = 'xsRoot'; root.setAttribute('role', 'dialog'); root.setAttribute('aria-modal', 'true'); root.setAttribute('aria-label', 'معاينة الصورة');
-        root.innerHTML = `<div class="xs-bar"><div class="xs-info" id="xsInfo"></div>
-          <div class="xs-fmt" role="group" aria-label="مقاس الصورة">${Object.keys(EXPORT_FORMATS).map(k => `<button type="button" data-fmt="${k}" aria-pressed="false">${EXPORT_FORMATS[k].label}</button>`).join('')}</div>
-          <button id="xsSplit" type="button" aria-pressed="false">التوزيع: صفحة واحدة</button>
-          <button class="xs-primary" id="xsDl" type="button">تنزيل PNG</button>
-          <button id="xsShare" type="button" hidden>مشاركة</button><button id="xsCopy" type="button">نسخ الصورة</button><button id="xsCap" type="button" hidden>نسخ النص</button>
-          <button id="xsZin" type="button" aria-label="تكبير">＋</button><button id="xsZout" type="button" aria-label="تصغير">－</button>
-          <button id="xsEdit" type="button" hidden aria-expanded="false">تخصيص</button><button id="xsFit" type="button">ملاءمة</button><button id="xsBack" type="button">رجوع للخيارات</button><button id="xsClose" type="button">إغلاق</button></div>
-          <div class="xs-edit" id="xsEditPanel" hidden>
-            <div class="xs-row" id="xsTitleRow"><label for="xsTitleInput">اسم المنافسة (العنوان الرئيسي)</label><input id="xsTitleInput" type="text" maxlength="80" autocomplete="off">
-              <div class="xs-btns"><button type="button" id="xsTitleApply" class="xs-primary">تحديث الصورة</button><button type="button" id="xsTitleReset">استعادة الأصلي</button></div></div>
-            <div class="xs-row" id="xsSubRow"><label for="xsSubInput">العنوان الفرعي (تحت اسم المنافسة)</label><input id="xsSubInput" type="text" maxlength="80" autocomplete="off">
-              <div class="xs-btns"><button type="button" id="xsSubApply" class="xs-primary">تحديث الصورة</button><button type="button" id="xsSubReset">استعادة الأصلي</button><button type="button" id="xsSubHide" aria-pressed="false">إخفاء العنوان</button></div></div>
-            <div class="xs-row" id="xsCtxRow"><label for="xsCtxInput">العنوان تحت الهيدر</label><input id="xsCtxInput" type="text" maxlength="120" autocomplete="off">
-              <div class="xs-btns"><button type="button" id="xsCtxApply" class="xs-primary">تحديث الصورة</button><button type="button" id="xsCtxReset">استعادة الأصلي</button><button type="button" id="xsCtxHide" aria-pressed="false">إخفاء السطر</button></div></div>
-            <div class="xs-row"><span>بطاقات الهيدر (حتى 4)</span><div class="xs-chipbar" id="xsChips"></div>
-              <input id="xsCustomInput" type="text" maxlength="40" placeholder="اكتب نص البطاقة الحرة" autocomplete="off" hidden></div></div>
-          <div class="xs-msg" id="xsMsg" role="status" aria-live="polite"></div><div class="xs-view" id="xsView"></div>`;
+        root.innerHTML = `
+          <div class="xs-top">
+            <button class="xs-icon" id="xsClose" type="button" aria-label="إغلاق المعاينة">✕</button>
+            <div class="xs-title"><div class="xs-name" id="xsName"></div><div class="xs-meta" id="xsInfo"></div></div>
+            <div class="xs-tools"><button type="button" id="xsFmtBtn">المقاس</button><button type="button" id="xsEdit" hidden>تخصيص</button></div>
+          </div>
+          <div class="xs-body">
+            <div class="xs-stage">
+              <div class="xs-jump" id="xsJump" hidden role="navigation" aria-label="الصور"></div>
+              <div class="xs-view" id="xsView"></div>
+              <div class="xs-zoom" id="xsZoom"><button type="button" id="xsZout" aria-label="تصغير">－</button><button type="button" id="xsFit">ملاءمة</button><button type="button" id="xsZin" aria-label="تكبير">＋</button></div>
+              <div class="xs-msg" id="xsMsg" role="status" aria-live="polite" hidden></div>
+            </div>
+            <aside class="xs-side" id="xsSide" data-tab="format" aria-label="خيارات الصورة">
+              <div class="xs-sheet-head"><strong id="xsSheetTitle">مقاس الصورة</strong><button type="button" id="xsSheetDone">تم</button></div>
+              <section id="xsFormatBlock">
+                <h3>مقاس الصورة</h3>
+                <div class="xs-fmt" role="group" aria-label="مقاس الصورة">${Object.keys(EXPORT_FORMATS).map(k => `<button type="button" data-fmt="${k}" aria-pressed="false">${EXPORT_FORMATS[k].label}</button>`).join('')}</div>
+                <button type="button" class="xs-switch" id="xsSplit" aria-pressed="false">تقسيم المحتوى الطويل على صفحات</button>
+                <p class="xs-hint">الأصلي بعرض 1080 وارتفاع يتبع المحتوى. ستوري ومربع للنشر؛ وإذا كان المحتوى أطول من المقاس تُصغَّر الصورة، أو تُقسَّم على صفحات إن فعّلت التقسيم.</p>
+              </section>
+              <section id="xsEditBlock" hidden>
+                <h3>تخصيص النص والهيدر</h3>
+                <div class="xs-edit-rows">
+                  <div class="xs-row" id="xsTitleRow"><label for="xsTitleInput">اسم المنافسة (العنوان الرئيسي)</label><input id="xsTitleInput" type="text" maxlength="80" autocomplete="off">
+                    <div class="xs-btns"><button type="button" id="xsTitleApply" class="xs-primary">تحديث الصورة</button><button type="button" id="xsTitleReset">استعادة الأصلي</button></div></div>
+                  <div class="xs-row" id="xsSubRow"><label for="xsSubInput">العنوان الفرعي (تحت اسم المنافسة)</label><input id="xsSubInput" type="text" maxlength="80" autocomplete="off">
+                    <div class="xs-btns"><button type="button" id="xsSubApply" class="xs-primary">تحديث الصورة</button><button type="button" id="xsSubReset">استعادة الأصلي</button><button type="button" id="xsSubHide" aria-pressed="false">إخفاء العنوان</button></div></div>
+                  <div class="xs-row" id="xsCtxRow"><label for="xsCtxInput">العنوان تحت الهيدر</label><input id="xsCtxInput" type="text" maxlength="120" autocomplete="off">
+                    <div class="xs-btns"><button type="button" id="xsCtxApply" class="xs-primary">تحديث الصورة</button><button type="button" id="xsCtxReset">استعادة الأصلي</button><button type="button" id="xsCtxHide" aria-pressed="false">إخفاء السطر</button></div></div>
+                  <div class="xs-row" id="xsTemplateRow"><label for="xsTemplateSelect">القالب المحفوظ</label><select id="xsTemplateSelect" style="min-height:48px;border-radius:12px;padding:0 10px;font:inherit;background:#241b16;color:#F7F3EA;border:1px solid rgba(207,169,99,.5)"></select><small id="xsTemplateName" style="color:#cdbb97"></small><div class="xs-btns"><button type="button" id="xsTemplateSave" class="xs-primary">حفظ كقالب جديد</button><button type="button" id="xsTemplateUpdate">تحديث القالب الحالي</button><button type="button" id="xsTemplateDefault">جعله الافتراضي</button><button type="button" id="xsTemplateDelete">حذف القالب</button></div><small style="color:#cdbb97">القوالب محفوظة محليًا على هذا الجهاز والمتصفح.</small></div>
+                  <div class="xs-row" id="xsFooterRow"><label for="xsFooterInput">سطر أسفل الصورة (التذييل)</label><input id="xsFooterInput" type="text" maxlength="160" autocomplete="off"><div class="xs-btns"><button type="button" id="xsFooterApply" class="xs-primary">تحديث الصورة</button><button type="button" id="xsFooterReset">استعادة الأصلي</button><button type="button" id="xsFooterHide" aria-pressed="false">إخفاء السطر</button></div></div>
+                  <div class="xs-row"><span>بطاقات الهيدر (حتى 4)</span><div class="xs-chipbar" id="xsChips"></div>
+                    <input id="xsCustomInput" type="text" maxlength="40" placeholder="اكتب نص البطاقة الحرة" autocomplete="off" hidden></div>
+                </div>
+              </section>
+            </aside>
+          </div>
+          <div class="xs-dock">
+            <button type="button" class="xs-primary" id="xsShare" hidden>مشاركة</button>
+            <button type="button" class="xs-sec" id="xsDl">تنزيل</button>
+            <button type="button" id="xsMore" aria-label="المزيد" aria-expanded="false" aria-haspopup="menu">⋯</button>
+          </div>
+          <div class="xs-menu" id="xsMenu" role="menu" hidden><button type="button" id="xsCopy" role="menuitem">نسخ الصورة</button><button type="button" id="xsCap" role="menuitem" hidden>نسخ النص</button></div>
+          <div class="xs-scrim" id="xsScrim" hidden></div>`;
         document.body.appendChild(root); scroller = $('xsView'); info = $('xsInfo');
+        $('xsClose').onclick = close; $('xsFmtBtn').onclick = () => openSheet('format'); $('xsEdit').onclick = () => openSheet('edit');
+        $('xsSheetDone').onclick = closeSheet; $('xsScrim').onclick = () => { closeSheet(); closeMenu(); };
         $('xsSplit').onclick = () => { exportSettings.split = !exportSettings.split; saveExportSettings(); if (state && state.format !== 'auto') setFormat(state.format); else render(); };
-        $('xsEdit').onclick = () => { const pnl = $('xsEditPanel'); pnl.hidden = !pnl.hidden; $('xsEdit').setAttribute('aria-expanded', String(!pnl.hidden)); };
+        $('xsMore').onclick = () => { const open = $('xsMenu').hidden; $('xsMenu').hidden = !open; $('xsMore').setAttribute('aria-expanded', String(open)); };
+        $('xsMenu').addEventListener('click', closeMenu);
+        $('xsDl').onclick = download; $('xsShare').onclick = share; $('xsCopy').onclick = copy; $('xsCap').onclick = copyCaption;
+        $('xsZin').onclick = () => zoom(1.25); $('xsZout').onclick = () => zoom(0.8); $('xsFit').onclick = fit;
         $('xsTitleApply').onclick = () => { const v = $('xsTitleInput').value.trim(); state.items[0].titleOverride = v ? { text: v } : null; regen(); };
         $('xsTitleReset').onclick = () => { state.items[0].titleOverride = null; regen(); };
         $('xsTitleInput').addEventListener('keydown', e => { if (e.key === 'Enter') $('xsTitleApply').click(); });
@@ -4705,18 +4784,33 @@ document.getElementById("loserScoreLabel").textContent = match.team2 + " :";
         $('xsCtxApply').onclick = () => { state.items[0].ctxOverride = { text: $('xsCtxInput').value }; regen(); };
         $('xsCtxReset').onclick = () => { state.items[0].ctxOverride = null; regen(); };
         $('xsCtxHide').onclick = () => { state.items[0].ctxOverride = { hide: true }; regen(); };
+        $('xsFooterApply').onclick = () => { state.items[0].footerOverride = { text: $('xsFooterInput').value }; regen(); };
+        $('xsFooterReset').onclick = () => { state.items[0].footerOverride = null; regen(); };
+        $('xsFooterHide').onclick = () => { state.items[0].footerOverride = { hide: true }; regen(); };
+        $('xsFooterInput').addEventListener('keydown', e => { if (e.key === 'Enter') $('xsFooterApply').click(); });
+        $('xsTemplateSelect').onchange = () => { const t = getTemplates().find(x => x.id === $('xsTemplateSelect').value); if (t) applyTemplate(t); else { selectedTemplateId = ''; $('xsTemplateName').textContent = 'لا يوجد قالب محدد'; } };
+        $('xsTemplateSave').onclick = () => { const name = prompt('اسم القالب الجديد:'); if (!name || !name.trim()) return; const list = getTemplates(), type = templateType(state.items[0]), clean = name.trim(); if (list.some(t => t.type === type && t.name.toLocaleLowerCase() === clean.toLocaleLowerCase())) { alert('يوجد قالب بهذا الاسم لهذا النوع من الصور. اختر اسمًا آخر.'); return; } const t = {id:'tpl_'+Date.now().toString(36)+'_'+Math.random().toString(36).slice(2,7),name:clean,type,settings:templateSettings(state.items[0]),default:false}; if (saveTemplates([...list,t])) { selectedTemplateId=t.id; syncTemplates(); msg('تم حفظ القالب ✓'); } };
+        $('xsTemplateDefault').onclick = () => { const list=getTemplates(), idx=list.findIndex(t=>t.id===selectedTemplateId && t.type===templateType(state.items[0])); if(idx<0)return; list.forEach(t=>{if(t.type===list[idx].type)t.default=false;}); list[idx].default=true; if(saveTemplates(list)){syncTemplates();msg('تم تعيين القالب الافتراضي لهذا النوع ✓');} };
+        $('xsTemplateUpdate').onclick = () => { const list=getTemplates(), idx=list.findIndex(t=>t.id===selectedTemplateId && t.type===templateType(state.items[0])); if(idx<0)return; if(!confirm('سيتم استبدال إعدادات القالب المحدد. هل تريد المتابعة؟'))return; list[idx].settings=templateSettings(state.items[0]); saveTemplates(list); syncTemplates(); msg('تم تحديث القالب ✓'); };
+        $('xsTemplateDelete').onclick = () => { const list=getTemplates(), t=list.find(x=>x.id===selectedTemplateId && x.type===templateType(state.items[0])); if(!t)return; if(t.default){alert('لا يمكن حذف القالب الافتراضي.');return;} if(!confirm('حذف القالب «'+t.name+'»؟'))return; saveTemplates(list.filter(x=>x.id!==t.id)); selectedTemplateId=''; state.items[0].titleOverride=null; state.items[0].subOverride=null; state.items[0].footerOverride=null; syncTemplates(); regen(); };
         $('xsCtxInput').addEventListener('keydown', e => { if (e.key === 'Enter') $('xsCtxApply').click(); });
         $('xsCustomInput').addEventListener('change', () => { exportSettings.hdrCustom = $('xsCustomInput').value; saveExportSettings(); regen(); });
-        $('xsCap').onclick = copyCaption; $('xsDl').onclick = download; $('xsCopy').onclick = copy; $('xsShare').onclick = share;
-        $('xsZin').onclick = () => zoom(1.25); $('xsZout').onclick = () => zoom(0.8); $('xsFit').onclick = fit; $('xsBack').onclick = close; $('xsClose').onclick = close;
         root.querySelectorAll('[data-fmt]').forEach(b => b.onclick = () => setFormat(b.dataset.fmt));
-        document.addEventListener('keydown', e => { if (e.key === 'Escape' && root.classList.contains('open')) close(); });
+        document.addEventListener('keydown', e => { if (e.key === 'Escape' && root.classList.contains('open')) { if (!$('xsMenu').hidden) closeMenu(); else if (sheetOpen()) closeSheet(); else close(); } });
         window.addEventListener('resize', () => { if (state) apply(); });
+        // تكبير بالقرصة ونقرة مزدوجة (الهاتف)
+        let pd = 0, pz = 1, lastTap = 0; const dist = t => Math.hypot(t[0].clientX - t[1].clientX, t[0].clientY - t[1].clientY);
+        scroller.addEventListener('touchstart', e => { if (e.touches.length === 2 && state) { pd = dist(e.touches); pz = state.z; } }, { passive: true });
+        scroller.addEventListener('touchmove', e => { if (e.touches.length === 2 && pd && state) { e.preventDefault(); state.z = Math.max(0.5, Math.min(4, pz * dist(e.touches) / pd)); apply(); } }, { passive: false });
+        scroller.addEventListener('touchend', e => {
+          if (e.touches.length < 2) pd = 0;
+          if (e.touches.length === 0 && e.changedTouches.length === 1 && state) { const now = Date.now(); if (now - lastTap < 300) { state.z = state.z > 1.05 ? 1 : 2.2; apply(); lastTap = 0; } else lastTap = now; }
+        }, { passive: true });
       }
       const entries = () => state.items.flatMap(it => it.pages.map((c, i) => ({ c, it, i })));
       const fit = () => { if (state) { state.z = 1; apply(); } };
       const zoom = k => { if (state) { state.z = Math.max(0.25, Math.min(4, state.z * k)); apply(); } };
-      function apply() { const avail = Math.max(200, scroller.clientWidth - 28); entries().forEach(e => { e.c.style.width = Math.round(Math.min(avail, 1080) * state.z) + 'px'; e.c.style.height = 'auto'; }); }
+      function apply() { const avail = Math.max(200, scroller.clientWidth - 24); entries().forEach(e => { e.c.style.width = Math.round(Math.min(avail, 1080) * state.z) + 'px'; e.c.style.height = 'auto'; }); }
       const blobOf = e => e.c.__blobP || (e.c.__blobP = new Promise((res, rej) => e.c.toBlob(b => b ? res(b) : rej(new Error('فشل إنشاء الصورة')), 'image/png')));
       function nameOf(e) {
         const F = EXPORT_FORMATS[state.format], base = e.it.filename.replace(/\.png$/i, '');
@@ -4725,20 +4819,28 @@ document.getElementById("loserScoreLabel").textContent = match.team2 + " :";
       function releaseItem(it) { it.pages.forEach(c => { if (c !== it.src) { c.remove(); c.width = 1; c.height = 1; } }); it.pages = []; }
       const captions = () => state.items.filter(it => it.caption).map(it => it.caption);
       const captionText = () => captions().join('\n\n———\n\n') + (exportSettings.captionTail.trim() ? '\n\n' + exportSettings.captionTail.trim() : '');
+      const shortNameOf = n => { const q = String(n).replace(/\.png$/i, '').split('_'); return q.length >= 3 ? q.slice(1, -1).join('_') : n; };
+      const AR_TYPES = [[/^League-Standings/, 'ترتيب الدوري'], [/^League-Report/, 'إحصائيات الدوري'], [/^League-Round/, 'نتائج الجولات'], [/^League-Upcoming/, 'القادمة'], [/^Night-Summary/, 'ملخص الليلة'], [/^Tournament-History/, 'سجل البطولات'], [/^Honor-Board/, 'لوحة الشرف'], [/^Tournament-Summary/, 'ملخص البطولة'], [/^Tournament-Upcoming/, 'القادمة'], [/^Tournament-ChampionAndRunnerUp/, 'البطل والوصيف'], [/^Tournament-Champion/, 'بطل البطولة'], [/^Tournament-RunnerUp/, 'الوصيف'], [/^Tournament-Round/, 'نتائج جولة'], [/^Tournament-Match/, 'نتيجة مباراة'], [/^League-Player/, 'بطاقة لاعب'], [/^League-Match/, 'نتيجة مباراة']];
+      const arType = n => { const t = shortNameOf(n); const m = AR_TYPES.find(([re]) => re.test(t)); return m ? m[1] : t; };
       function render() {
-        scroller.innerHTML = ''; const multi = state.items.length > 1;
-        state.items.forEach(it => { if (multi) { const t = document.createElement('div'); t.className = 'xs-title'; t.textContent = it.filename; scroller.appendChild(t); } it.pages.forEach(c => scroller.appendChild(c)); });
+        scroller.innerHTML = ''; const multi = state.items.length > 1, anchors = [];
+        state.items.forEach((it, idx) => { if (multi) { const t = document.createElement('div'); t.className = 'xs-item-title'; t.textContent = `${idx + 1}. ${arType(it.filename)}`; scroller.appendChild(t); anchors.push(t); } it.pages.forEach(c => scroller.appendChild(c)); });
+        const jump = $('xsJump'); jump.hidden = !multi; jump.innerHTML = '';
+        if (multi) state.items.forEach((it, idx) => { const b = document.createElement('button'); b.type = 'button'; b.textContent = `${idx + 1}. ${arType(it.filename)}`; b.onclick = () => anchors[idx].scrollIntoView({ block: 'start', behavior: 'smooth' }); jump.appendChild(b); });
         const es = entries(), c0 = es[0].c;
+        $('xsName').textContent = multi ? 'تصدير جماعي' : shortNameOf(nameOf(es[0]));
         info.textContent = multi ? `${state.items.length} صور · ${es.length} ملفات` + (state.failed && state.failed.length ? ` · تعذر إنشاء: ${state.failed.join('، ')}` : '')
-                                 : `${nameOf(es[0])} · ${c0.width}×${c0.height} بكسل` + (es.length > 1 ? ` · ${es.length} صفحات` : '');
+                                 : `${c0.width}×${c0.height}` + (es.length > 1 ? ` · ${es.length} صفحات` : '');
         root.querySelectorAll('[data-fmt]').forEach(b => b.setAttribute('aria-pressed', String(b.dataset.fmt === state.format)));
-        $('xsSplit').setAttribute('aria-pressed', String(!!exportSettings.split)); $('xsSplit').textContent = exportSettings.split ? 'التوزيع: صفحات متعددة' : 'التوزيع: صفحة واحدة'; $('xsSplit').disabled = state.format === 'auto';
-        $('xsCopy').disabled = es.length > 1;
+        $('xsSplit').setAttribute('aria-pressed', String(!!exportSettings.split)); $('xsSplit').disabled = state.format === 'auto';
+        const canShare = !!(navigator.share && navigator.canShare);
+        $('xsShare').hidden = !canShare; $('xsShare').textContent = es.length > 1 ? 'مشاركة الصور' : 'مشاركة';
+        $('xsDl').className = canShare ? 'xs-sec' : 'xs-primary'; $('xsDl').textContent = es.length > 1 ? 'تنزيل الكل' : 'تنزيل';
+        $('xsCopy').disabled = es.length > 1; $('xsCopy').hidden = es.length > 1;
         $('xsCap').hidden = !(captions().length && exportSettings.caption); $('xsCap').textContent = captions().length > 1 ? 'نسخ كل النصوص' : 'نسخ النص';
-        $('xsShare').hidden = !(navigator.share && navigator.canShare);
-        $('xsDl').textContent = es.length > 1 ? `تنزيل ${es.length} صور` : 'تنزيل PNG';
+        $('xsMore').hidden = $('xsCopy').hidden && $('xsCap').hidden;
         syncEdit(); apply();
-        if (es.length === 1) { const mine = es[0]; blobOf(mine).then(b => { if (state && entries()[0] && entries()[0].c === mine.c) { info.textContent += ` · ${(b.size / 1024).toFixed(0)} ك.ب`; msg(''); } }).catch(() => msg('تعذر إنشاء الصورة.')); }
+        if (es.length === 1) { const mine = es[0]; blobOf(mine).then(b => { if (state && entries()[0] && entries()[0].c === mine.c) info.textContent += ` · ${(b.size / 1024).toFixed(0)} ك.ب`; }).catch(() => msg('تعذر إنشاء الصورة.')); }
       }
       function setFormat(k) {
         if (!state || busy) return; busy = true; msg('جارٍ توزيع المحتوى على المقاس…');
@@ -4789,14 +4891,22 @@ document.getElementById("loserScoreLabel").textContent = match.team2 + " :";
         catch (e) { console.error(e); msg('تعذر نسخ الصورة. استخدم «تنزيل PNG».'); }
       }
       function close() {
-        if (!root) return; root.classList.remove('open'); document.body.style.overflow = (state && state.prevOverflow) || '';
+        if (!root) return; closeSheet(); closeMenu(); root.classList.remove('open'); document.body.style.overflow = (state && state.prevOverflow) || '';
         if (state) { state.items.forEach(it => { releaseItem(it); it.src.remove(); it.src.width = 1; it.src.height = 1; }); state = null; }  // تحرير الذاكرة
         msg('');
       }
-      // ---- تخصيص داخل المعاينة: العنوان تحت الهيدر + بطاقات الهيدر (تُعاد الصورة من المصدر نفسه) ----
+      // ---- تخصيص داخل المعاينة: العنوان الرئيسي والفرعي والسطر تحت الهيدر وبطاقات الهيدر (تُعاد الصورة من المصدر نفسه) ----
+      const TEMPLATE_KEY = 'exportCenterTemplates';
+      let selectedTemplateId = '';
+      function getTemplates() { try { const v = JSON.parse(localStorage.getItem(TEMPLATE_KEY) || '[]'); return Array.isArray(v) ? v.filter(t => t && typeof t.id === 'string' && typeof t.name === 'string' && typeof t.type === 'string' && t.settings && typeof t.settings === 'object') : []; } catch (_) { return []; } }
+      function saveTemplates(list) { try { localStorage.setItem(TEMPLATE_KEY, JSON.stringify(list)); return true; } catch (_) { msg('تعذر حفظ القوالب في التخزين المحلي.'); return false; } }
+      function templateType(it) { const n = shortNameOf(it.filename || ''); if (/^League-Standings/.test(n)) return 'league-standings'; if (/^League-/.test(n)) return 'league'; if (/^Tournament-Match/.test(n)) return 'match-result'; if (/^Tournament-Round/.test(n)) return 'tournament-round'; if (/^Tournament-/.test(n)) return 'tournament'; return 'other:' + n.replace(/[_\d-]+/g, '').slice(0,36); }
+      function templateSettings(it) { return { title: it.titleOverride && typeof it.titleOverride.text === 'string' ? it.titleOverride.text : undefined, subtitle: it.subOverride ? (it.subOverride.hide ? '' : it.subOverride.text) : undefined, footer: it.footerOverride ? (it.footerOverride.hide ? '' : it.footerOverride.text) : undefined, footerHidden: !!(it.footerOverride && it.footerOverride.hide), subtitleHidden: !!(it.subOverride && it.subOverride.hide), context: it.ctxOverride ? (it.ctxOverride.hide ? '' : it.ctxOverride.text) : undefined, contextHidden: !!(it.ctxOverride && it.ctxOverride.hide), chips: (it.chips || []).slice(), format: state.format, split: !!exportSettings.split, captionTail: exportSettings.captionTail, hideDate: !!exportSettings.hideDate, hideCount: !!exportSettings.hideCount }; }
+      function applyTemplate(t) { const it = state.items[0], a = t.settings || {}; it.titleOverride = a.title === undefined ? null : {text:a.title}; it.subOverride = a.subtitleHidden ? {hide:true} : a.subtitle === undefined ? null : {text:a.subtitle}; it.footerOverride = a.footerHidden ? {hide:true} : a.footer === undefined ? null : {text:a.footer}; it.ctxOverride = a.contextHidden ? {hide:true} : a.context === undefined ? null : {text:a.context}; it.chips = Array.isArray(a.chips) ? a.chips.filter(x => EXPORT_CHIP_ORDER.includes(x)).slice(0,4) : it.chips; if (a.hideDate !== undefined) exportSettings.hideDate = !!a.hideDate; if (a.hideCount !== undefined) exportSettings.hideCount = !!a.hideCount; if (a.captionTail !== undefined) exportSettings.captionTail = String(a.captionTail); if (a.split !== undefined) exportSettings.split = !!a.split; saveExportSettings(); selectedTemplateId = t.id; if (a.format && EXPORT_FORMATS[a.format]) setFormat(a.format); else regen(); syncEdit(); }
+      function syncTemplates() { const it = state && state.items[0]; if (!it) return; const type = templateType(it), list = getTemplates().filter(t => t.type === type), sel = $('xsTemplateSelect'); if (!sel) return; sel.innerHTML = ''; const base = document.createElement('option'); base.value = ''; base.textContent = 'إعدادات الصورة الحالية'; sel.appendChild(base); list.forEach(t => { const o = document.createElement('option'); o.value = t.id; o.textContent = t.name; sel.appendChild(o); }); if (list.some(t => t.id === selectedTemplateId)) sel.value = selectedTemplateId; else { const def = list.find(t => t.default); if (def) { sel.value = def.id; selectedTemplateId = def.id; } else { sel.value = ''; selectedTemplateId = ''; } } $('xsTemplateName').textContent = sel.value ? 'القالب المحدد: ' + sel.options[sel.selectedIndex].textContent : 'لا يوجد قالب محدد'; $('xsTemplateUpdate').disabled = !sel.value; $('xsTemplateDelete').disabled = !sel.value; $('xsTemplateDefault').disabled = !sel.value; }
       function syncEdit() {
         const single = state.items.length === 1, it = state.items[0], can = single && !!it.rerun;
-        $('xsEdit').hidden = !can; if (!can) { $('xsEditPanel').hidden = true; return; }
+        $('xsEdit').hidden = !can; $('xsEditBlock').hidden = !can; if (!can) return;
         const hasTitle = it.titleOrig !== undefined; $('xsTitleRow').hidden = !hasTitle;
         if (hasTitle && document.activeElement !== $('xsTitleInput')) { const o = it.titleOverride; $('xsTitleInput').value = o && o.text ? o.text : (exportSettings.title.trim() || it.titleOrig); }
         const hasSub = it.subOrig !== undefined; $('xsSubRow').hidden = !hasSub;
@@ -4811,6 +4921,9 @@ document.getElementById("loserScoreLabel").textContent = match.team2 + " :";
           const o = it.ctxOverride; if (document.activeElement !== $('xsCtxInput')) $('xsCtxInput').value = o && typeof o.text === 'string' ? o.text : (o && o.hide ? '' : it.ctxOrig);
           $('xsCtxHide').setAttribute('aria-pressed', String(!!(o && o.hide)));
         }
+        const fo = it.footerOverride; if (document.activeElement !== $('xsFooterInput')) $('xsFooterInput').value = fo && typeof fo.text === 'string' ? fo.text : (exportSettings.footer || '');
+        $('xsFooterHide').setAttribute('aria-pressed', String(!!(fo && fo.hide)));
+        syncTemplates();
         const bar = $('xsChips'); bar.innerHTML = ''; const defs = exportChipDefs(), cur = it.chips || [];
         EXPORT_CHIP_ORDER.forEach(id => {
           if (!defs[id]) return;
@@ -4831,22 +4944,22 @@ document.getElementById("loserScoreLabel").textContent = match.team2 + " :";
       async function regen() {
         if (!state || busy || state.items.length !== 1 || !state.items[0].rerun) return;
         const it = state.items[0]; busy = true; msg('جارٍ تحديث الصورة…');
-        const prevBatch = exportBatch; exportBatch = []; exportContextOverride = it.ctxOverride; exportSubtitleOverride = it.subOverride; exportTitleOverride = it.titleOverride; exportCurrentRun = it.rerun;
+        const prevBatch = exportBatch; exportBatch = []; exportContextOverride = it.ctxOverride; exportSubtitleOverride = it.subOverride; exportTitleOverride = it.titleOverride; exportFooterOverride = it.footerOverride; exportCurrentRun = it.rerun;
         let fresh = null;
         try { await it.rerun(); fresh = exportBatch[0] || null; } catch (e) { console.error(e); }
-        exportBatch = prevBatch; exportContextOverride = null; exportSubtitleOverride = null; exportTitleOverride = null;
+        exportBatch = prevBatch; exportContextOverride = null; exportSubtitleOverride = null; exportTitleOverride = null; exportFooterOverride = null;
         if (!fresh) { msg('تعذر تحديث الصورة.'); busy = false; return; }
         const old = it.src; releaseItem(it);
-        it.src = fresh.src; it.caption = fresh.caption || ''; it.chips = fresh.chips || []; it.ctxOrig = fresh.ctxOrig; it.subOrig = fresh.subOrig; it.titleOrig = fresh.titleOrig; it.filename = fresh.filename || it.filename;
+        it.src = fresh.src; it.caption = fresh.caption || ''; it.chips = fresh.chips || []; it.footerOverride = it.footerOverride || null; it.ctxOrig = fresh.ctxOrig; it.subOrig = fresh.subOrig; it.titleOrig = fresh.titleOrig; it.filename = fresh.filename || it.filename;
         try { it.pages = state.format === 'auto' ? [it.src] : composeFormat(it.src, state.format, !!exportSettings.split); } catch (e) { console.error(e); it.pages = [it.src]; }
         if (old !== it.src) { old.remove(); old.width = 1; old.height = 1; }
         render(); busy = false; msg('تم تحديث الصورة ✓');
       }
       function openBatch(items, failed) {
         build(); if (state) close();
-        state = { items: items.map(x => ({ src: x.src, filename: x.filename || 'Carrom.png', caption: x.caption || '', rerun: x.rerun || null, ctxOrig: x.ctxOrig, chips: x.chips || [], subOrig: x.subOrig, titleOrig: x.titleOrig, ctxOverride: null, subOverride: null, titleOverride: null, pages: [] })), z: 1, format: 'auto', failed: failed || [], prevOverflow: document.body.style.overflow };
-        document.body.style.overflow = 'hidden'; root.classList.add('open'); $('xsDl').focus();
-        const k = EXPORT_FORMATS[exportSettings.format] ? exportSettings.format : 'auto';
+        state = { items: items.map(x => ({ src: x.src, filename: x.filename || 'Carrom.png', caption: x.caption || '', rerun: x.rerun || null, ctxOrig: x.ctxOrig, chips: x.chips || [], subOrig: x.subOrig, titleOrig: x.titleOrig, ctxOverride: null, subOverride: null, titleOverride: null, pages: [], footerOverride: null })), z: 1, format: 'auto', failed: failed || [], prevOverflow: document.body.style.overflow };
+        document.body.style.overflow = 'hidden'; root.classList.add('open'); root.setAttribute('tabindex', '-1'); root.focus({ preventScroll: true });
+        selectedTemplateId = ''; const first = state.items[0]; if (state.items.length === 1) { const def = getTemplates().find(t => t.type === templateType(first) && t.default); if (def) { applyTemplate(def); } } const k = EXPORT_FORMATS[exportSettings.format] ? exportSettings.format : 'auto';
         if (k === 'auto') { state.items.forEach(it => { it.pages = [it.src]; }); render(); } else setFormat(k);
         return Promise.resolve();
       }
