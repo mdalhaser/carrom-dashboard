@@ -4002,6 +4002,25 @@ document.getElementById("loserScoreLabel").textContent = match.team2 + " :";
     // إعدادات التصدير (مفتاح تخزين مستقل ومستقبلي؛ لا تمسّ بيانات البطولة أو الدوري)
     const EXPORT_SETTINGS_KEY = 'exportCenterSettings';
     const EXPORT_SETTINGS_DEFAULT = { quality: 2, hideDate: false, hideCount: false, title: '', subtitle: '', footer: '', fileName: true, fileDate: true, format: 'auto', split: false, caption: true, captionTail: '', dayStartHour: 5, hdrChips: null, hdrCustom: '' };
+    let exportFooterOverride = null, exportFooterHidden = false;
+    const EXPORT_TEMPLATES_KEY = 'exportCenterTemplates';
+    function readExportTemplates(){ try { const v=JSON.parse(localStorage.getItem(EXPORT_TEMPLATES_KEY)||'[]'); return Array.isArray(v)?v.filter(x=>x&&typeof x.id==='string'&&typeof x.name==='string'&&x.settings&&typeof x.settings==='object'):[]; } catch(e){ return []; } }
+    function writeExportTemplates(v){ try{ localStorage.setItem(EXPORT_TEMPLATES_KEY,JSON.stringify(v)); return true; }catch(e){ alert('تعذر حفظ القوالب في التخزين المحلي.'); return false; } }
+    function exportTemplateType(filename){ const n=String(filename||''); if(/^League-Standings/i.test(n))return 'standings'; if(/^Tournament-Match|^League-Match/i.test(n))return 'match'; if(/^Tournament-Round|^League-Round/i.test(n))return 'round'; if(/^Tournament-Champion|^Tournament-RunnerUp|^League-Champion|^League-RunnerUp/i.test(n))return 'achievement'; if(/^Tournament-/i.test(n))return 'tournament'; if(/^League-/i.test(n))return 'league'; return 'general'; }
+    function exportTemplateSettings(){ return {title:exportSettings.title,subtitle:exportSettings.subtitle,footer:exportSettings.footer,hdrChips:Array.isArray(exportSettings.hdrChips)?exportSettings.hdrChips.slice():null,hdrCustom:exportSettings.hdrCustom,format:exportSettings.format,split:!!exportSettings.split,captionTail:exportSettings.captionTail}; }
+    // احفظ إعدادات القالب من الصورة الحالية وعناصر المعاينة، لا من الإعدادات العامة وحدها.
+    function captureExportTemplateSettings(it, format) {
+      const val = id => { const el = document.getElementById(id); return el ? el.value : ''; };
+      const pressed = id => { const el = document.getElementById(id); return !!el && el.getAttribute('aria-pressed') === 'true'; };
+      const chips = Array.isArray(it.chips) ? it.chips.slice() : (Array.isArray(exportSettings.hdrChips) ? exportSettings.hdrChips.slice() : []);
+      return {
+        format: format || 'auto', title: val('xsTitleInput').trim(), subtitle: val('xsSubInput').trim(),
+        subtitleVisible: !pressed('xsSubHide'), context: val('xsCtxInput').trim(), contextVisible: !pressed('xsCtxHide'),
+        footer: val('xsFooterInput'), footerVisible: !pressed('xsFooterHide'), hdrChips: chips,
+        hdrCustom: val('xsCustomInput').trim() || String(exportSettings.hdrCustom || ''), split: !!exportSettings.split,
+        captionTail: typeof it.captionTailOverride === 'string' ? it.captionTailOverride : String(exportSettings.captionTail || '')
+      };
+    }
     const exportSettings = (function () {
       let saved = {};
       try { saved = JSON.parse(localStorage.getItem(EXPORT_SETTINGS_KEY) || '{}') || {}; } catch (e) {}
@@ -4011,7 +4030,7 @@ document.getElementById("loserScoreLabel").textContent = match.team2 + " :";
     let exportBatch = null, exportBatchCap = null; // وضع التصدير الجماعي: يجمع الصور بدل فتح المعاينة
     function exportScale() { const q = Number(exportSettings.quality); const v = q === 1.5 || q === 3 ? q : 2; return exportBatchCap ? Math.min(v, exportBatchCap) : v; }
     const EXPORT_CHIP_ORDER = ['date', 'count', 'done', 'pct', 'round', 'state', 'kind', 'time', 'custom'];
-    let exportFooterOverride = null, exportContextOverride = null, exportCurrentRun = null, exportLastHeaderIds = [], exportSubtitleOverride = null, exportLastSubOrig = '', exportTitleOverride = null, exportLastTitleOrig = '';
+    let exportContextOverride = null, exportCurrentRun = null, exportLastHeaderIds = [], exportSubtitleOverride = null, exportLastSubOrig = '', exportTitleOverride = null, exportLastTitleOrig = '';
     // بطاقات الهيدر: كلها من بيانات المنافسة الحالية (حد أقصى 4)
     function exportChipDefs() {
       const d = {}, lg = currentMode === 'league', cnt = (n, one, many) => `${n} ${n === 1 ? one : many}`;
@@ -4235,8 +4254,8 @@ document.getElementById("loserScoreLabel").textContent = match.team2 + " :";
 
     function exportFooterDivider(ctx, x, y, w) {
       const B = EXPORT_BRAND;
-      const footerValue = exportFooterOverride && exportFooterOverride.hide ? '' : (exportFooterOverride && typeof exportFooterOverride.text === 'string' ? exportFooterOverride.text : exportSettings.footer);
-      if (String(footerValue || '').trim()) exportText(ctx, String(footerValue).trim(), x + w / 2, y + 24, { size: 21, weight: 700, color: B.muted, maxW: w - 40, min: 14 });
+      const footerText = exportFooterHidden ? '' : (typeof exportFooterOverride === 'string' ? exportFooterOverride : exportSettings.footer);
+      if (String(footerText || '').trim()) exportText(ctx, String(footerText).trim(), x + w / 2, y + 24, { size: 21, weight: 700, color: B.muted, maxW: w - 40, min: 14 });
       ctx.save();
       ctx.strokeStyle = B.lineStrong;
       ctx.lineWidth = 2;
@@ -4596,16 +4615,16 @@ document.getElementById("loserScoreLabel").textContent = match.team2 + " :";
     // =========================================================
     const EXPORT_FORMATS = {
       auto:   { label: 'الأصلي', tag: '' },
+      portrait34: { label: 'عمودي 3:4', tag: 'Portrait-3x4', W:1080, H:1440, pad:36, top:60, bottom:76 },
+      portrait57: { label: 'عمودي 5:7', tag: 'Portrait-5x7', W:1080, H:1512, pad:36, top:70, bottom:86 },
       story:  { label: 'ستوري 9:16', tag: 'Story', W: 1080, H: 1920, pad: 36, top: 110, bottom: 130 },
-      square: { label: 'مربع 1:1', tag: 'Square', W: 1080, H: 1080, pad: 36, top: 36, bottom: 36 },
-      portrait34: { label: 'عمودي 3:4', tag: 'Portrait-3x4', W: 1080, H: 1440, pad: 36, top: 42, bottom: 48 },
-      portrait57: { label: 'عمودي 5:7', tag: 'Portrait-5x7', W: 1080, H: 1512, pad: 36, top: 48, bottom: 54 }
+      square: { label: 'مربع 1:1', tag: 'Square', W: 1080, H: 1080, pad: 36, top: 36, bottom: 36 }
     };
     function composeFormat(src, fmtKey, split) {
       const F = EXPORT_FORMATS[fmtKey]; if (!F || !F.W) return [src];
       const B = EXPORT_BRAND, ks = src.width / 1080, srcH = src.height / ks;           // وحدات منطقية (عرض = 1080)
       const f = (F.W - F.pad * 2) / 1080;                                                // مقياس ملاءمة العرض
-      let kk = Math.min(ks, Math.sqrt(16000000 / (F.W * F.H)));                          // سقف الذاكرة للصفحة
+      let kk = (fmtKey === 'portrait34' || fmtKey === 'portrait57') ? 1 : Math.min(ks, Math.sqrt(16000000 / (F.W * F.H))); // المقاسان الجديدان يصدران بأبعاد بكسلية دقيقة                          // سقف الذاكرة للصفحة
       const labelRoom = 46;
       // أول حساب: هل تكفي صفحة واحدة؟
       let pageH = (F.H - F.top - F.bottom) / f;
@@ -4700,6 +4719,9 @@ document.getElementById("loserScoreLabel").textContent = match.team2 + " :";
       #xsRoot .xs-row{display:grid;gap:6px;font-size:14px;color:#E3CCA0;font-weight:700}
       #xsRoot .xs-row input{min-height:48px;border-radius:12px;border:1px solid rgba(207,169,99,.5);background:#241b16;color:#F7F3EA;padding:0 12px;font:inherit;width:100%;box-sizing:border-box}
       #xsRoot .xs-btns,#xsRoot .xs-chipbar{display:flex;flex-wrap:wrap;gap:6px}
+      #xsRoot .xs-btns button{flex:1 1 110px;min-width:0;white-space:normal;line-height:1.25;padding:8px 10px}
+      #xsRoot #xsTemplateRow .xs-btns button{font-size:13px}
+      #xsRoot .xs-row input{font-size:16px}
       #xsRoot .xs-btns .xs-primary{background:#CFA963;border-color:#CFA963;color:#30251F}
       @media (min-width:900px){
         #xsRoot .xs-side{position:static;transform:none;visibility:visible;width:360px;flex:0 0 360px;max-height:none;border-radius:0;border-top:0;border-right:0;border-left:1px solid rgba(207,169,99,.3);padding:16px 16px 24px;gap:22px}
@@ -4745,14 +4767,14 @@ document.getElementById("loserScoreLabel").textContent = match.team2 + " :";
               <section id="xsEditBlock" hidden>
                 <h3>تخصيص النص والهيدر</h3>
                 <div class="xs-edit-rows">
-                  <div class="xs-row" id="xsTitleRow"><label for="xsTitleInput">اسم المنافسة (العنوان الرئيسي)</label><input id="xsTitleInput" type="text" maxlength="80" autocomplete="off">
-                    <div class="xs-btns"><button type="button" id="xsTitleApply" class="xs-primary">تحديث الصورة</button><button type="button" id="xsTitleReset">استعادة الأصلي</button></div></div>
+                  <div class="xs-row" id="xsTemplateRow"><label for="xsTemplateSelect">القالب المحفوظ</label><select id="xsTemplateSelect" style="min-height:48px;border-radius:12px;padding:0 10px;background:#241b16;color:#F7F3EA;border:1px solid rgba(207,169,99,.5);font:inherit;width:100%"></select><div id="xsTemplateName" class="xs-hint">إعدادات قابلة لإعادة الاستخدام لهذا النوع من الصور</div><div class="xs-btns"><button type="button" id="xsTemplateSave" class="xs-primary">حفظ كقالب جديد</button><button type="button" id="xsTemplateUpdate">تحديث القالب الحالي</button><button type="button" id="xsTemplateDelete">حذف القالب</button></div></div>
+                  <div class="xs-row" id="xsTitleRow"><label for="xsTitleInput">اسم المنافسة (العنوان الرئيسي)</label><input id="xsTitleInput" type="text" maxlength="80" autocomplete="off"><div class="xs-btns"><button type="button" id="xsTitleApply" class="xs-primary">تحديث الصورة</button><button type="button" id="xsTitleReset">استعادة الأصلي</button></div></div>
+
                   <div class="xs-row" id="xsSubRow"><label for="xsSubInput">العنوان الفرعي (تحت اسم المنافسة)</label><input id="xsSubInput" type="text" maxlength="80" autocomplete="off">
                     <div class="xs-btns"><button type="button" id="xsSubApply" class="xs-primary">تحديث الصورة</button><button type="button" id="xsSubReset">استعادة الأصلي</button><button type="button" id="xsSubHide" aria-pressed="false">إخفاء العنوان</button></div></div>
                   <div class="xs-row" id="xsCtxRow"><label for="xsCtxInput">العنوان تحت الهيدر</label><input id="xsCtxInput" type="text" maxlength="120" autocomplete="off">
                     <div class="xs-btns"><button type="button" id="xsCtxApply" class="xs-primary">تحديث الصورة</button><button type="button" id="xsCtxReset">استعادة الأصلي</button><button type="button" id="xsCtxHide" aria-pressed="false">إخفاء السطر</button></div></div>
-                  <div class="xs-row" id="xsTemplateRow"><label for="xsTemplateSelect">القالب المحفوظ</label><select id="xsTemplateSelect" style="min-height:48px;border-radius:12px;padding:0 10px;font:inherit;background:#241b16;color:#F7F3EA;border:1px solid rgba(207,169,99,.5)"></select><small id="xsTemplateName" style="color:#cdbb97"></small><div class="xs-btns"><button type="button" id="xsTemplateSave" class="xs-primary">حفظ كقالب جديد</button><button type="button" id="xsTemplateUpdate">تحديث القالب الحالي</button><button type="button" id="xsTemplateDefault">جعله الافتراضي</button><button type="button" id="xsTemplateDelete">حذف القالب</button></div><small style="color:#cdbb97">القوالب محفوظة محليًا على هذا الجهاز والمتصفح.</small></div>
-                  <div class="xs-row" id="xsFooterRow"><label for="xsFooterInput">سطر أسفل الصورة (التذييل)</label><input id="xsFooterInput" type="text" maxlength="160" autocomplete="off"><div class="xs-btns"><button type="button" id="xsFooterApply" class="xs-primary">تحديث الصورة</button><button type="button" id="xsFooterReset">استعادة الأصلي</button><button type="button" id="xsFooterHide" aria-pressed="false">إخفاء السطر</button></div></div>
+                  <div class="xs-row" id="xsFooterRow"><label for="xsFooterInput">سطر أسفل الصورة (التذييل)</label><input id="xsFooterInput" type="text" maxlength="180" autocomplete="off" placeholder="النص الافتراضي من إعدادات التصدير"><div class="xs-btns"><button type="button" id="xsFooterApply" class="xs-primary">تحديث الصورة</button><button type="button" id="xsFooterReset">استعادة الأصلي</button><button type="button" id="xsFooterHide" aria-pressed="false">إخفاء السطر</button></div></div>
                   <div class="xs-row"><span>بطاقات الهيدر (حتى 4)</span><div class="xs-chipbar" id="xsChips"></div>
                     <input id="xsCustomInput" type="text" maxlength="40" placeholder="اكتب نص البطاقة الحرة" autocomplete="off" hidden></div>
                 </div>
@@ -4774,6 +4796,27 @@ document.getElementById("loserScoreLabel").textContent = match.team2 + " :";
         $('xsMenu').addEventListener('click', closeMenu);
         $('xsDl').onclick = download; $('xsShare').onclick = share; $('xsCopy').onclick = copy; $('xsCap').onclick = copyCaption;
         $('xsZin').onclick = () => zoom(1.25); $('xsZout').onclick = () => zoom(0.8); $('xsFit').onclick = fit;
+        $('xsTemplateSelect').onchange = () => { const id=$('xsTemplateSelect').value; state.items[0].templateId=id||null; if(id){ const t=readExportTemplates().find(x=>x.id===id); if(t) applyTemplate(t); } else { state.items[0].templateId=null; msg('تم اختيار إعدادات النظام للصورة الحالية.'); } };
+        $('xsTemplateSave').onclick = () => {
+          const name=prompt('اسم القالب الجديد:'); if(!name||!name.trim())return;
+          const list=readExportTemplates(), it=state.items[0], type=exportTemplateType(it.filename);
+          if(list.some(t=>t.type===type&&t.name.trim().toLowerCase()===name.trim().toLowerCase())){alert('يوجد قالب بهذا الاسم لهذا النوع من الصور.');return;}
+          const settings=captureExportTemplateSettings(it,state.format);
+          const t={id:'tpl-'+Date.now().toString(36)+'-'+Math.random().toString(36).slice(2,7),name:name.trim(),type,settings};
+          list.push(t);
+          if(writeExportTemplates(list)){it.templateId=t.id;syncTemplates();msg('تم حفظ القالب بجميع إعدادات الهيدر ✓');}
+        };
+        $('xsTemplateUpdate').onclick = () => {
+          const id=$('xsTemplateSelect').value; if(!id){msg('اختر قالبًا محفوظًا أولًا.');return;}
+          if(!confirm('سيتم استبدال إعدادات القالب المحدد. هل تريد المتابعة؟'))return;
+          const list=readExportTemplates(),t=list.find(x=>x.id===id); if(!t)return;
+          t.settings=captureExportTemplateSettings(state.items[0],state.format);
+          if(writeExportTemplates(list)){syncTemplates();msg('تم تحديث القالب بجميع إعدادات الهيدر ✓');}
+        };
+        $('xsTemplateDelete').onclick = () => { const id=$('xsTemplateSelect').value; if(!id)return; const t=readExportTemplates().find(x=>x.id===id); if(!t||!confirm('حذف القالب «'+t.name+'»؟ لن تتأثر بيانات البطولة.'))return; if(writeExportTemplates(readExportTemplates().filter(x=>x.id!==id))){state.items[0].templateId=null;syncTemplates();msg('تم حذف القالب.');} };
+        $('xsFooterApply').onclick=()=>{state.items[0].footerOverride=$('xsFooterInput').value;state.items[0].footerHidden=false;regen();};
+        $('xsFooterReset').onclick=()=>{state.items[0].footerOverride=null;state.items[0].footerHidden=false;regen();};
+        $('xsFooterHide').onclick=()=>{state.items[0].footerHidden=true;regen();};
         $('xsTitleApply').onclick = () => { const v = $('xsTitleInput').value.trim(); state.items[0].titleOverride = v ? { text: v } : null; regen(); };
         $('xsTitleReset').onclick = () => { state.items[0].titleOverride = null; regen(); };
         $('xsTitleInput').addEventListener('keydown', e => { if (e.key === 'Enter') $('xsTitleApply').click(); });
@@ -4784,15 +4827,6 @@ document.getElementById("loserScoreLabel").textContent = match.team2 + " :";
         $('xsCtxApply').onclick = () => { state.items[0].ctxOverride = { text: $('xsCtxInput').value }; regen(); };
         $('xsCtxReset').onclick = () => { state.items[0].ctxOverride = null; regen(); };
         $('xsCtxHide').onclick = () => { state.items[0].ctxOverride = { hide: true }; regen(); };
-        $('xsFooterApply').onclick = () => { state.items[0].footerOverride = { text: $('xsFooterInput').value }; regen(); };
-        $('xsFooterReset').onclick = () => { state.items[0].footerOverride = null; regen(); };
-        $('xsFooterHide').onclick = () => { state.items[0].footerOverride = { hide: true }; regen(); };
-        $('xsFooterInput').addEventListener('keydown', e => { if (e.key === 'Enter') $('xsFooterApply').click(); });
-        $('xsTemplateSelect').onchange = () => { const t = getTemplates().find(x => x.id === $('xsTemplateSelect').value); if (t) applyTemplate(t); else { selectedTemplateId = ''; $('xsTemplateName').textContent = 'لا يوجد قالب محدد'; } };
-        $('xsTemplateSave').onclick = () => { const name = prompt('اسم القالب الجديد:'); if (!name || !name.trim()) return; const list = getTemplates(), type = templateType(state.items[0]), clean = name.trim(); if (list.some(t => t.type === type && t.name.toLocaleLowerCase() === clean.toLocaleLowerCase())) { alert('يوجد قالب بهذا الاسم لهذا النوع من الصور. اختر اسمًا آخر.'); return; } const t = {id:'tpl_'+Date.now().toString(36)+'_'+Math.random().toString(36).slice(2,7),name:clean,type,settings:templateSettings(state.items[0]),default:false}; if (saveTemplates([...list,t])) { selectedTemplateId=t.id; syncTemplates(); msg('تم حفظ القالب ✓'); } };
-        $('xsTemplateDefault').onclick = () => { const list=getTemplates(), idx=list.findIndex(t=>t.id===selectedTemplateId && t.type===templateType(state.items[0])); if(idx<0)return; list.forEach(t=>{if(t.type===list[idx].type)t.default=false;}); list[idx].default=true; if(saveTemplates(list)){syncTemplates();msg('تم تعيين القالب الافتراضي لهذا النوع ✓');} };
-        $('xsTemplateUpdate').onclick = () => { const list=getTemplates(), idx=list.findIndex(t=>t.id===selectedTemplateId && t.type===templateType(state.items[0])); if(idx<0)return; if(!confirm('سيتم استبدال إعدادات القالب المحدد. هل تريد المتابعة؟'))return; list[idx].settings=templateSettings(state.items[0]); saveTemplates(list); syncTemplates(); msg('تم تحديث القالب ✓'); };
-        $('xsTemplateDelete').onclick = () => { const list=getTemplates(), t=list.find(x=>x.id===selectedTemplateId && x.type===templateType(state.items[0])); if(!t)return; if(t.default){alert('لا يمكن حذف القالب الافتراضي.');return;} if(!confirm('حذف القالب «'+t.name+'»؟'))return; saveTemplates(list.filter(x=>x.id!==t.id)); selectedTemplateId=''; state.items[0].titleOverride=null; state.items[0].subOverride=null; state.items[0].footerOverride=null; syncTemplates(); regen(); };
         $('xsCtxInput').addEventListener('keydown', e => { if (e.key === 'Enter') $('xsCtxApply').click(); });
         $('xsCustomInput').addEventListener('change', () => { exportSettings.hdrCustom = $('xsCustomInput').value; saveExportSettings(); regen(); });
         root.querySelectorAll('[data-fmt]').forEach(b => b.onclick = () => setFormat(b.dataset.fmt));
@@ -4818,7 +4852,7 @@ document.getElementById("loserScoreLabel").textContent = match.team2 + " :";
       }
       function releaseItem(it) { it.pages.forEach(c => { if (c !== it.src) { c.remove(); c.width = 1; c.height = 1; } }); it.pages = []; }
       const captions = () => state.items.filter(it => it.caption).map(it => it.caption);
-      const captionText = () => captions().join('\n\n———\n\n') + (exportSettings.captionTail.trim() ? '\n\n' + exportSettings.captionTail.trim() : '');
+      const captionText = () => { const tail = state && state.items.length === 1 && typeof state.items[0].captionTailOverride === 'string' ? state.items[0].captionTailOverride : exportSettings.captionTail; return captions().join('\n\n———\n\n') + (String(tail || '').trim() ? '\n\n' + String(tail).trim() : ''); };
       const shortNameOf = n => { const q = String(n).replace(/\.png$/i, '').split('_'); return q.length >= 3 ? q.slice(1, -1).join('_') : n; };
       const AR_TYPES = [[/^League-Standings/, 'ترتيب الدوري'], [/^League-Report/, 'إحصائيات الدوري'], [/^League-Round/, 'نتائج الجولات'], [/^League-Upcoming/, 'القادمة'], [/^Night-Summary/, 'ملخص الليلة'], [/^Tournament-History/, 'سجل البطولات'], [/^Honor-Board/, 'لوحة الشرف'], [/^Tournament-Summary/, 'ملخص البطولة'], [/^Tournament-Upcoming/, 'القادمة'], [/^Tournament-ChampionAndRunnerUp/, 'البطل والوصيف'], [/^Tournament-Champion/, 'بطل البطولة'], [/^Tournament-RunnerUp/, 'الوصيف'], [/^Tournament-Round/, 'نتائج جولة'], [/^Tournament-Match/, 'نتيجة مباراة'], [/^League-Player/, 'بطاقة لاعب'], [/^League-Match/, 'نتيجة مباراة']];
       const arType = n => { const t = shortNameOf(n); const m = AR_TYPES.find(([re]) => re.test(t)); return m ? m[1] : t; };
@@ -4896,18 +4930,29 @@ document.getElementById("loserScoreLabel").textContent = match.team2 + " :";
         msg('');
       }
       // ---- تخصيص داخل المعاينة: العنوان الرئيسي والفرعي والسطر تحت الهيدر وبطاقات الهيدر (تُعاد الصورة من المصدر نفسه) ----
-      const TEMPLATE_KEY = 'exportCenterTemplates';
-      let selectedTemplateId = '';
-      function getTemplates() { try { const v = JSON.parse(localStorage.getItem(TEMPLATE_KEY) || '[]'); return Array.isArray(v) ? v.filter(t => t && typeof t.id === 'string' && typeof t.name === 'string' && typeof t.type === 'string' && t.settings && typeof t.settings === 'object') : []; } catch (_) { return []; } }
-      function saveTemplates(list) { try { localStorage.setItem(TEMPLATE_KEY, JSON.stringify(list)); return true; } catch (_) { msg('تعذر حفظ القوالب في التخزين المحلي.'); return false; } }
-      function templateType(it) { const n = shortNameOf(it.filename || ''); if (/^League-Standings/.test(n)) return 'league-standings'; if (/^League-/.test(n)) return 'league'; if (/^Tournament-Match/.test(n)) return 'match-result'; if (/^Tournament-Round/.test(n)) return 'tournament-round'; if (/^Tournament-/.test(n)) return 'tournament'; return 'other:' + n.replace(/[_\d-]+/g, '').slice(0,36); }
-      function templateSettings(it) { return { title: it.titleOverride && typeof it.titleOverride.text === 'string' ? it.titleOverride.text : undefined, subtitle: it.subOverride ? (it.subOverride.hide ? '' : it.subOverride.text) : undefined, footer: it.footerOverride ? (it.footerOverride.hide ? '' : it.footerOverride.text) : undefined, footerHidden: !!(it.footerOverride && it.footerOverride.hide), subtitleHidden: !!(it.subOverride && it.subOverride.hide), context: it.ctxOverride ? (it.ctxOverride.hide ? '' : it.ctxOverride.text) : undefined, contextHidden: !!(it.ctxOverride && it.ctxOverride.hide), chips: (it.chips || []).slice(), format: state.format, split: !!exportSettings.split, captionTail: exportSettings.captionTail, hideDate: !!exportSettings.hideDate, hideCount: !!exportSettings.hideCount }; }
-      function applyTemplate(t) { const it = state.items[0], a = t.settings || {}; it.titleOverride = a.title === undefined ? null : {text:a.title}; it.subOverride = a.subtitleHidden ? {hide:true} : a.subtitle === undefined ? null : {text:a.subtitle}; it.footerOverride = a.footerHidden ? {hide:true} : a.footer === undefined ? null : {text:a.footer}; it.ctxOverride = a.contextHidden ? {hide:true} : a.context === undefined ? null : {text:a.context}; it.chips = Array.isArray(a.chips) ? a.chips.filter(x => EXPORT_CHIP_ORDER.includes(x)).slice(0,4) : it.chips; if (a.hideDate !== undefined) exportSettings.hideDate = !!a.hideDate; if (a.hideCount !== undefined) exportSettings.hideCount = !!a.hideCount; if (a.captionTail !== undefined) exportSettings.captionTail = String(a.captionTail); if (a.split !== undefined) exportSettings.split = !!a.split; saveExportSettings(); selectedTemplateId = t.id; if (a.format && EXPORT_FORMATS[a.format]) setFormat(a.format); else regen(); syncEdit(); }
-      function syncTemplates() { const it = state && state.items[0]; if (!it) return; const type = templateType(it), list = getTemplates().filter(t => t.type === type), sel = $('xsTemplateSelect'); if (!sel) return; sel.innerHTML = ''; const base = document.createElement('option'); base.value = ''; base.textContent = 'إعدادات الصورة الحالية'; sel.appendChild(base); list.forEach(t => { const o = document.createElement('option'); o.value = t.id; o.textContent = t.name; sel.appendChild(o); }); if (list.some(t => t.id === selectedTemplateId)) sel.value = selectedTemplateId; else { const def = list.find(t => t.default); if (def) { sel.value = def.id; selectedTemplateId = def.id; } else { sel.value = ''; selectedTemplateId = ''; } } $('xsTemplateName').textContent = sel.value ? 'القالب المحدد: ' + sel.options[sel.selectedIndex].textContent : 'لا يوجد قالب محدد'; $('xsTemplateUpdate').disabled = !sel.value; $('xsTemplateDelete').disabled = !sel.value; $('xsTemplateDefault').disabled = !sel.value; }
+      function syncTemplates(){ if(!state||state.items.length!==1)return; const sel=$('xsTemplateSelect'); if(!sel)return; const type=exportTemplateType(state.items[0].filename),list=readExportTemplates().filter(t=>t.type===type); sel.innerHTML=''; const none=document.createElement('option');none.value='';none.textContent='إعدادات النظام الحالية';sel.appendChild(none);list.forEach(t=>{const o=document.createElement('option');o.value=t.id;o.textContent=t.name;sel.appendChild(o)}); sel.value=state.items[0].templateId||''; $('xsTemplateName').textContent=sel.value?(list.find(t=>t.id===sel.value)||{}).name||'قالب محدد':'القوالب محفوظة محليًا على هذا الجهاز والمتصفح'; $('xsTemplateUpdate').disabled=!sel.value; $('xsTemplateDelete').disabled=!sel.value; }
+      function applyTemplate(t){
+        const it=state.items[0],v=t.settings||{};
+        it.titleOverride=typeof v.title==='string'&&v.title.trim()?{text:v.title.trim()}:null;
+        it.subOverride=(v.subtitleVisible===false)?{hide:true}:(typeof v.subtitle==='string'?{text:v.subtitle}:null);
+        it.ctxOverride=(v.contextVisible===false)?{hide:true}:(typeof v.context==='string'?{text:v.context}:null);
+        it.footerOverride=Object.prototype.hasOwnProperty.call(v,'footer')?String(v.footer):null;
+        it.footerHidden=v.footerVisible===false;
+        if(Array.isArray(v.hdrChips)){
+          it.chips=v.hdrChips.slice();
+          // بطاقات الهيدر تُقرأ أثناء إعادة رسم الصورة من إعدادات التصدير.
+          exportSettings.hdrChips=v.hdrChips.slice();
+        }
+        if(typeof v.hdrCustom==='string')exportSettings.hdrCustom=v.hdrCustom;
+        if(typeof v.captionTail==='string')it.captionTailOverride=v.captionTail;
+        if(typeof v.split==='boolean')exportSettings.split=v.split;
+        if(v.format&&EXPORT_FORMATS[v.format]){state.format=v.format;exportSettings.format=v.format;}
+        saveExportSettings(); syncTemplates(); regen();
+      }
       function syncEdit() {
         const single = state.items.length === 1, it = state.items[0], can = single && !!it.rerun;
         $('xsEdit').hidden = !can; $('xsEditBlock').hidden = !can; if (!can) return;
-        const hasTitle = it.titleOrig !== undefined; $('xsTitleRow').hidden = !hasTitle;
+        syncTemplates(); const hasTitle = it.titleOrig !== undefined; $('xsTitleRow').hidden = !hasTitle;
         if (hasTitle && document.activeElement !== $('xsTitleInput')) { const o = it.titleOverride; $('xsTitleInput').value = o && o.text ? o.text : (exportSettings.title.trim() || it.titleOrig); }
         const hasSub = it.subOrig !== undefined; $('xsSubRow').hidden = !hasSub;
         if (hasSub) {
@@ -4921,9 +4966,7 @@ document.getElementById("loserScoreLabel").textContent = match.team2 + " :";
           const o = it.ctxOverride; if (document.activeElement !== $('xsCtxInput')) $('xsCtxInput').value = o && typeof o.text === 'string' ? o.text : (o && o.hide ? '' : it.ctxOrig);
           $('xsCtxHide').setAttribute('aria-pressed', String(!!(o && o.hide)));
         }
-        const fo = it.footerOverride; if (document.activeElement !== $('xsFooterInput')) $('xsFooterInput').value = fo && typeof fo.text === 'string' ? fo.text : (exportSettings.footer || '');
-        $('xsFooterHide').setAttribute('aria-pressed', String(!!(fo && fo.hide)));
-        syncTemplates();
+        if(document.activeElement!==$('xsFooterInput')) $('xsFooterInput').value = it.footerOverride!==null&&it.footerOverride!==undefined ? it.footerOverride : (it.footerHidden?'':exportSettings.footer); $('xsFooterHide').setAttribute('aria-pressed',String(!!it.footerHidden));
         const bar = $('xsChips'); bar.innerHTML = ''; const defs = exportChipDefs(), cur = it.chips || [];
         EXPORT_CHIP_ORDER.forEach(id => {
           if (!defs[id]) return;
@@ -4944,22 +4987,22 @@ document.getElementById("loserScoreLabel").textContent = match.team2 + " :";
       async function regen() {
         if (!state || busy || state.items.length !== 1 || !state.items[0].rerun) return;
         const it = state.items[0]; busy = true; msg('جارٍ تحديث الصورة…');
-        const prevBatch = exportBatch; exportBatch = []; exportContextOverride = it.ctxOverride; exportSubtitleOverride = it.subOverride; exportTitleOverride = it.titleOverride; exportFooterOverride = it.footerOverride; exportCurrentRun = it.rerun;
+        const prevBatch = exportBatch; exportBatch = []; exportContextOverride = it.ctxOverride; exportSubtitleOverride = it.subOverride; exportTitleOverride = it.titleOverride; exportCurrentRun = it.rerun; exportFooterOverride=it.footerOverride; exportFooterHidden=!!it.footerHidden;
         let fresh = null;
         try { await it.rerun(); fresh = exportBatch[0] || null; } catch (e) { console.error(e); }
-        exportBatch = prevBatch; exportContextOverride = null; exportSubtitleOverride = null; exportTitleOverride = null; exportFooterOverride = null;
+        exportBatch = prevBatch; exportContextOverride = null; exportSubtitleOverride = null; exportTitleOverride = null; exportFooterOverride=null; exportFooterHidden=false;
         if (!fresh) { msg('تعذر تحديث الصورة.'); busy = false; return; }
         const old = it.src; releaseItem(it);
-        it.src = fresh.src; it.caption = fresh.caption || ''; it.chips = fresh.chips || []; it.footerOverride = it.footerOverride || null; it.ctxOrig = fresh.ctxOrig; it.subOrig = fresh.subOrig; it.titleOrig = fresh.titleOrig; it.filename = fresh.filename || it.filename;
+        it.src = fresh.src; it.caption = fresh.caption || ''; it.chips = fresh.chips || []; it.ctxOrig = fresh.ctxOrig; it.subOrig = fresh.subOrig; it.titleOrig = fresh.titleOrig; it.filename = fresh.filename || it.filename;
         try { it.pages = state.format === 'auto' ? [it.src] : composeFormat(it.src, state.format, !!exportSettings.split); } catch (e) { console.error(e); it.pages = [it.src]; }
         if (old !== it.src) { old.remove(); old.width = 1; old.height = 1; }
         render(); busy = false; msg('تم تحديث الصورة ✓');
       }
       function openBatch(items, failed) {
         build(); if (state) close();
-        state = { items: items.map(x => ({ src: x.src, filename: x.filename || 'Carrom.png', caption: x.caption || '', rerun: x.rerun || null, ctxOrig: x.ctxOrig, chips: x.chips || [], subOrig: x.subOrig, titleOrig: x.titleOrig, ctxOverride: null, subOverride: null, titleOverride: null, pages: [], footerOverride: null })), z: 1, format: 'auto', failed: failed || [], prevOverflow: document.body.style.overflow };
+        state = { items: items.map(x => ({ src: x.src, filename: x.filename || 'Carrom.png', caption: x.caption || '', rerun: x.rerun || null, ctxOrig: x.ctxOrig, chips: x.chips || [], subOrig: x.subOrig, titleOrig: x.titleOrig, ctxOverride: null, subOverride: null, titleOverride: null, footerOverride: null, footerHidden: false, templateId: null, pages: [] })), z: 1, format: 'auto', failed: failed || [], prevOverflow: document.body.style.overflow };
         document.body.style.overflow = 'hidden'; root.classList.add('open'); root.setAttribute('tabindex', '-1'); root.focus({ preventScroll: true });
-        selectedTemplateId = ''; const first = state.items[0]; if (state.items.length === 1) { const def = getTemplates().find(t => t.type === templateType(first) && t.default); if (def) { applyTemplate(def); } } const k = EXPORT_FORMATS[exportSettings.format] ? exportSettings.format : 'auto';
+        const k = EXPORT_FORMATS[exportSettings.format] ? exportSettings.format : 'auto';
         if (k === 'auto') { state.items.forEach(it => { it.pages = [it.src]; }); render(); } else setFormat(k);
         return Promise.resolve();
       }
