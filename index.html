@@ -54,7 +54,7 @@
       --paper: #FFFEFB;
       --gold: #CFA963;
       --gold-soft: #E3CCA0;
-      --gold-deep: #85652A;
+      --gold-deep: #7C5D24;
       --silver: #9AA3AD;
       --bronze: #B7794A;
 
@@ -62,12 +62,12 @@
       --bg: var(--ivory);
       --surface: var(--paper);
       --surface-2: #F2ECE0;
-      --surface-3: #EAE2D3;
-      --line: #E8E0D4;
-      --line-strong: #D9CDB9;
+      --surface-3: #ECE5D8;
+      --line: #E6DDCF;
+      --line-strong: #D6C9B3;
       --text: #292621;
-      --text-2: #6E685E;
-      --text-3: #968F82;
+      --text-2: #5E584E;   /* ثانوي: مريح للقراءة الطويلة على كل الخلفيات */
+      --text-3: #736B5F;   /* باهت: أخف من الثانوي لكنه مقروء (≥ 4.5 على الصفحة والبطاقات) */
       --on-wood: #F7F3EA;
       --on-wood-2: #CDBFA9;
 
@@ -1567,6 +1567,11 @@
     .container { transition: padding-bottom .25s ease; }
     body:has(#actionCapsule) .container { padding-bottom: calc(82px + var(--safe-bottom)); }
 
+    /* المعطّل (النهاري): محايد وواضح أنه غير متاح، بنص مقروء — بدل التعتيم المغسول. الليلي له قاعدته الخاصة */
+    .btn:disabled, .btn.primary:disabled, #saveScoreBtn:disabled, #saveScoreBtn:disabled:hover, .cd-history-actions button:disabled {
+      opacity: 1; background: var(--surface-3); border-color: transparent; color: var(--text-3); box-shadow: none;
+    }
+    .btn:disabled[data-ic]::before { color: var(--text-3); }
     /* ===== كبسولة الإجراءات: زجاجية بأسلوب iOS ===== */
     .capsule {
       position: fixed; left: 0; right: 0; margin: 0 auto; bottom: calc(14px + var(--safe-bottom)); z-index: 99001;
@@ -1954,7 +1959,7 @@
       id: 'neutral', main: '#9C9488', deep: '#6E685E',
       card: [[0, '#FFFEFB'], [0.5, '#F7F3EA'], [1, '#ECE6DA']],
       frame: '#C9C1B3', frameInner: 'rgba(255,255,255,0.80)', shadow: 'rgba(48,37,31,0.10)', halo: 'rgba(255,255,255,0.72)',
-      icon: '#6E685E', title: '#6E685E', name: '#191919',
+      icon: '#5E584E', title: '#5E584E', name: '#191919',
       badge: ['#C9A55E', '#A67C32', '#85652A'], badgeText: '#352309',
       head: ['#8F6927', '#B58A3E', '#78531B'], headText: '#FFF0C7'
     });
@@ -5023,9 +5028,10 @@ currentScoreWinnerName = null;
       wood: '#30251F', wood2: '#3A2D26', ink: '#191919',
       ivory: '#F7F3EA', paper: '#FFFEFB',
       gold: '#CFA963', goldSoft: '#E3CCA0', goldDeep: '#85652A',
-      text: '#292621', muted: '#6E685E', faint: '#968F82',
+      text: '#292621', muted: '#5E584E', faint: '#736B5F',
       line: '#E8E0D4', lineStrong: '#D9CDB9', surface2: '#F2ECE0', surface3: '#EAE2D3',
       ok: '#2F7A4E', okBg: '#E6F2EA', okLine: '#B9D9C5',
+      readyLine: '#D2AE68', doneLine: '#A9D0B8',   // نفس ألوان حالات البطاقات في التطبيق: لم تُلعب (ذهبي) · مكتملة (أخضر)
       silver: '#9AA3AD', bronze: '#B7794A'
     };
     // نفس الهوية للوضعين: صور التصدير تُشارَك خارج التطبيق فلا تتبع الوضع الليلي
@@ -5406,14 +5412,16 @@ currentScoreWinnerName = null;
       ctx.fillStyle = B.paper;
       ctx.fill();
       ctx.restore();
+      const done = !!match.winner;
+      const realTeam = n => !!n && !String(n).includes('الفائز من م') && !String(n).includes('Bye');
+      const ready = !done && realTeam(match.team1) && realTeam(match.team2);
       ctx.save();
       drawRoundedRect(ctx, x, y, w, h, 19);
-      ctx.strokeStyle = isFinal ? B.gold : B.line;
-      ctx.lineWidth = isFinal ? 2.5 : 1.5;
+      ctx.strokeStyle = isFinal ? B.gold : (done ? B.doneLine : (ready ? B.readyLine : B.line));
+      ctx.lineWidth = isFinal ? 2.5 : (done || ready ? 2 : 1.5);
       ctx.stroke();
       ctx.restore();
 
-      const done = !!match.winner;
       const title = isFinal ? 'المباراة النهائية' : `مباراة ${match.matchNumber}`;
       exportText(ctx, title, x + w - 16, y + 25, { size: 22, weight: 800, color: B.muted, align: 'right', maxW: w * 0.57, min: 17 });
       const chip = done ? 'مكتملة' : 'لم تُلعب';
@@ -7951,7 +7959,7 @@ function buildLeagueStandingsCanvas() {
           y += 72; return;
         }
         const H = 88, cy = y + H / 2;
-        drawRoundedRect(ctx, M, y, CW, H, 20); ctx.fillStyle = B.paper; ctx.fill(); ctx.strokeStyle = B.line; ctx.lineWidth = 1.4; ctx.stroke();
+        drawRoundedRect(ctx, M, y, CW, H, 20); ctx.fillStyle = B.paper; ctx.fill(); ctx.strokeStyle = it.done ? B.doneLine : B.readyLine; ctx.lineWidth = 2; ctx.stroke();
         drawMatchName(ctx, it.a, M + CW - 24, cy, nameW, 'right', false, B.ink);
         drawMatchName(ctx, it.b, M + 24, cy, nameW, 'left', false, B.ink);
         if (it.done) {
@@ -9371,7 +9379,7 @@ function buildLeagueStandingsCanvas() {
     // ===================================
     // 🧭 سلوك التطبيق: إعادة الوضع للأعلى، تعديل العنوان بالضغط المطوّل، تنبيه التحديث، رقم الإصدار
     // ===================================
-    const APP_VERSION = '10';   // يُرفع مع رقم الإصدار في sw.js عند كل تحديث
+    const APP_VERSION = '11';   // يُرفع مع رقم الإصدار في sw.js عند كل تحديث
     (function setupAppBehaviors() {
       const root = document.documentElement;
 
