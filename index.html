@@ -148,15 +148,18 @@
     }
 
     body.dark-mode {
-      --bg: #171412;
-      --surface: #221D19;
-      --surface-2: #2C251F;
-      --surface-3: #372E27;
-      --line: #3A3028;
-      --line-strong: #4D4136;
-      --text: #F3EDE1;
-      --text-2: #B6AD9D;
-      --text-3: #8D8577;
+      /* طبقات بأسلوب آبل الليلي (دافئة): كل طبقة أعلى أفتح بدرجة واضحة — الخلفية ← البطاقة ← العنصر داخلها */
+      --bg: #0B0A09;
+      --surface: #201C19;
+      --surface-2: #2D2824;
+      --surface-3: #3B3531;
+      --line: #3F3832;
+      --line-strong: #554B42;
+      --text: #F2ECE2;
+      --text-2: #B9B1A4;
+      --text-3: #A1998C;
+      --gold-fill: #C49D58;          /* ذهبي الأزرار الممتلئة: أعمق قليلًا حتى لا يبهر في الظلام */
+      --gold-fill-hover: #CFA963;
       --gold-deep: #E3CCA0;
       --ok: #7CCB9A;
       --ok-bg: #1F3328;
@@ -164,12 +167,12 @@
       --warn: #E8C27A;
       --warn-bg: #3A2F1A;
       --card-ready-line: rgba(207, 169, 99, .66); --card-ready-ring: rgba(207, 169, 99, .16);
-      --card-done-line: #36634A; --card-done-bg: #1E231F;
+      --card-done-line: #36634A; --card-done-bg: #1D221E;
       --warn-line: #5B4824;
       --danger: #F0907F;
       --danger-bg: #3B2220;
       --danger-line: #6A3A34;
-      --info-bg: #2C251F;
+      --info-bg: #2D2824;
       --sh-1: 0 1px 2px rgba(0, 0, 0, .4);
       --sh-2: 0 8px 24px -10px rgba(0, 0, 0, .6), 0 2px 5px rgba(0, 0, 0, .3);
     }
@@ -179,7 +182,7 @@
     html { -webkit-text-size-adjust: 100%; background: var(--ivory); }
     /* لا تكبير بالنقر المزدوج في أي مكان، واستجابة فورية للمس (التمرير والتكبير بإصبعين يبقيان طبيعيين) */
     html, body { touch-action: manipulation; }
-    html:has(body.dark-mode) { background: #171412; color-scheme: dark; }
+    html:has(body.dark-mode) { background: #0B0A09; color-scheme: dark; }
     body {
       margin: 0;
       min-height: 100vh;
@@ -357,7 +360,7 @@
       box-shadow: 0 2px 8px rgba(48, 37, 31, .28);
     }
     .btn.mode-switch.active::before { color: var(--gold); }
-    body.dark-mode .btn.mode-switch.active { background: var(--gold); color: #1d1610; }
+    body.dark-mode .btn.mode-switch.active { background: var(--gold-fill); color: #1A140F; box-shadow: 0 2px 10px rgba(0, 0, 0, .35); }
     body.dark-mode .btn.mode-switch.active::before { color: #1d1610; }
 
     .main {
@@ -417,8 +420,14 @@
     .btn.primary { background: var(--wood); border-color: var(--wood); color: var(--on-wood); box-shadow: 0 4px 14px -4px rgba(48, 37, 31, .5); }
     .btn.primary:hover { background: var(--wood-2); }
     .btn.primary[data-ic]::before { color: var(--gold); }
-    body.dark-mode .btn.primary { background: var(--gold); border-color: var(--gold); color: #1d1610; box-shadow: none; }
-    body.dark-mode .btn.primary:hover { background: var(--gold-soft); }
+    body.dark-mode .btn.primary { background: var(--gold-fill); border-color: var(--gold-fill); color: #1A140F; box-shadow: none; }
+    body.dark-mode .btn.primary:hover { background: var(--gold-fill-hover); border-color: var(--gold-fill-hover); }
+    /* الأزرار المعطّلة في الليلي: محايدة وواضح أنها غير متاحة (بدل ذهبي باهت «طيني») */
+    body.dark-mode .btn:disabled, body.dark-mode .btn.primary:disabled, body.dark-mode #saveScoreBtn:disabled, body.dark-mode #saveScoreBtn:disabled:hover,
+    body.dark-mode .cd-history-actions button:disabled {
+      opacity: 1; background: var(--surface-3); border-color: transparent; color: var(--text-3); box-shadow: none;
+    }
+    body.dark-mode .btn:disabled[data-ic]::before { color: var(--text-3); }
     body.dark-mode .btn.primary[data-ic]::before { color: #1d1610; }
     .btn.neutral { background: var(--surface-2); border-color: transparent; box-shadow: none; }
     .btn.neutral:hover { background: var(--surface-3); }
@@ -535,7 +544,7 @@
       content: ""; width: 12px; height: 12px; background: currentColor;
       -webkit-mask: var(--ic-check) center / contain no-repeat; mask: var(--ic-check) center / contain no-repeat;
     }
-    body.dark-mode .player-status-badge.on { background: var(--gold); border-color: var(--gold); color: #1d1610; }
+    body.dark-mode .player-status-badge.on { background: var(--gold-fill); border-color: var(--gold-fill); color: #1A140F; }
     .player-card.inactive-player { opacity: .55; border-style: dashed; background: transparent; }
     .player-card.used { opacity: .6; background: var(--surface-2); pointer-events: none; }
     .player-card.used .player-status-badge { display: none; }
@@ -771,7 +780,7 @@
     }
     .league-dot.done { background: var(--ok-bg); border-color: var(--ok-line); color: var(--ok); }
     .league-dot.active { background: var(--wood); border-color: var(--wood); color: var(--gold); }
-    body.dark-mode .league-dot.active { background: var(--gold); border-color: var(--gold); color: #1d1610; }
+    body.dark-mode .league-dot.active { background: var(--gold-fill); border-color: var(--gold-fill); color: #1A140F; }
     .league-bye {
       text-align: center; color: var(--text-2); font-size: var(--fs-sm); font-weight: 600;
       margin-top: var(--s3); padding: 10px; border: 1px dashed var(--line-strong); border-radius: var(--r-sm);
@@ -1119,7 +1128,7 @@
     }
     .cd-primary { border: 1px solid var(--wood); background: var(--wood); color: var(--on-wood); }
     .cd-primary:hover { background: var(--wood-2); }
-    body.dark-mode .cd-primary { background: var(--gold); border-color: var(--gold); color: #1d1610; }
+    body.dark-mode .cd-primary { background: var(--gold-fill); border-color: var(--gold-fill); color: #1A140F; }
     .cd-secondary { border: 1px solid var(--line-strong); background: var(--surface); color: var(--text); }
     .cd-secondary:hover { background: var(--surface-2); }
     .cd-danger { border: 1px solid var(--danger-line); background: var(--danger-bg); color: var(--danger); }
@@ -1571,6 +1580,8 @@
       transition: transform .55s cubic-bezier(.32, .72, 0, 1), opacity .3s ease;
       touch-action: none; -webkit-user-select: none; user-select: none; will-change: transform;
     }
+    body.dark-mode .card, body.dark-mode .teams, body.dark-mode #leagueSetupPanel,
+    body.dark-mode .cd-card, body.dark-mode .cd-metric, body.dark-mode .export-center-card, body.dark-mode .cd-history-card { box-shadow: inset 0 1px 0 rgba(255, 245, 230, .04), var(--sh-1); }
     body.dark-mode .capsule { background: rgba(46, 39, 33, .9); border-color: rgba(255, 255, 255, .08); box-shadow: 0 14px 34px -12px rgba(0, 0, 0, .7); }
     .capsule.in { transform: none; opacity: 1; }
     .capsule.out { opacity: 0; transform: translateY(14px) scale(.96); transition: transform .32s cubic-bezier(.4, 0, 1, 1), opacity .26s ease; pointer-events: none; }
@@ -1586,7 +1597,7 @@
     .cap-btn:disabled { opacity: .35; cursor: default; }
     .cap-btn.primary { background: var(--wood); color: var(--on-wood); }
     .cap-btn.primary .ic { color: var(--gold); }
-    body.dark-mode .cap-btn.primary { background: var(--gold); color: #1d1610; }
+    body.dark-mode .cap-btn.primary { background: var(--gold-fill); color: #1A140F; }
     body.dark-mode .cap-btn.primary .ic { color: #1d1610; }
 
     /* العنوان: تعديل بالضغط المطوّل فقط (لا كيبورد بلمسة عابرة) */
@@ -2814,9 +2825,11 @@ return teamName.replace('غير محدد', replacement);
     // بعد تسجيل نتيجة: «سُجّلت النتيجة» + تراجع + مشاركة. بعد إجراء كبير: اسم الإجراء + تراجع.
     // تختفي وحدها بعد ثوانٍ، أو بسحبها لأسفل؛ وتتوقف مؤقتًا أثناء لمسها.
     const CAPSULE_MS = 5500;
-    let capsuleEl = null, capsuleTimer = null, capsuleState = null;
+    let capsuleEl = null, capsuleTimer = null, capsuleState = null, capsuleDismissed = null;
     function capsuleArm() { clearTimeout(capsuleTimer); capsuleTimer = setTimeout(() => capsuleHide(), CAPSULE_MS); }
     function capsuleHide(down) {
+      // كبسولة نتيجة أُغلقت قبل وصول خطوة التراجع: لا تعود للظهور عند وصولها
+      capsuleDismissed = (capsuleState && capsuleState.awaitUndo && !capsuleState.undoId) ? Date.now() : null;
       clearTimeout(capsuleTimer); capsuleTimer = null; capsuleState = null;
       const el = capsuleEl; capsuleEl = null;
       if (!el) return;
@@ -2896,6 +2909,7 @@ return teamName.replace('غير محدد', replacement);
     }
     function showQuickUndo(detail) {
       if (!detail || !detail.id) return;
+      if (capsuleDismissed && Date.now() - capsuleDismissed < 2500) { capsuleDismissed = null; return; }
       if (capsuleState && capsuleState.share && capsuleState.awaitUndo && !capsuleState.undoId && Date.now() - capsuleState.at < 2500) {
         capsuleState.undoId = detail.id; capsuleRender(); return;
       }
@@ -9357,7 +9371,7 @@ function buildLeagueStandingsCanvas() {
     // ===================================
     // 🧭 سلوك التطبيق: إعادة الوضع للأعلى، تعديل العنوان بالضغط المطوّل، تنبيه التحديث، رقم الإصدار
     // ===================================
-    const APP_VERSION = '9';   // يُرفع مع رقم الإصدار في sw.js عند كل تحديث
+    const APP_VERSION = '10';   // يُرفع مع رقم الإصدار في sw.js عند كل تحديث
     (function setupAppBehaviors() {
       const root = document.documentElement;
 
