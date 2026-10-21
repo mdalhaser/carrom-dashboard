@@ -77,6 +77,9 @@
       --ok-line: #B9D9C5;
       --warn: #8F5E12;
       --warn-bg: #FBF1DC;
+      /* حالات بطاقة المباراة: جاهزة (ذهبي) · مكتملة (أخضر هادئ) */
+      --card-ready-line: #D2AE68; --card-ready-ring: rgba(207, 169, 99, .30);
+      --card-done-line: #A9D0B8; --card-done-bg: #FBFDFB;
       --warn-line: #EBD39B;
       --danger: #B3402F;
       --danger-bg: #FBEAE6;
@@ -159,6 +162,8 @@
       --ok-line: #2F5640;
       --warn: #E8C27A;
       --warn-bg: #3A2F1A;
+      --card-ready-line: rgba(207, 169, 99, .66); --card-ready-ring: rgba(207, 169, 99, .16);
+      --card-done-line: #36634A; --card-done-bg: #1E231F;
       --warn-line: #5B4824;
       --danger: #F0907F;
       --danger-bg: #3B2220;
@@ -171,6 +176,8 @@
     /* ---------- 2) الأساس ---------- */
     *, *::before, *::after { box-sizing: border-box; }
     html { -webkit-text-size-adjust: 100%; background: var(--ivory); }
+    /* لا تكبير بالنقر المزدوج في أي مكان، واستجابة فورية للمس (التمرير والتكبير بإصبعين يبقيان طبيعيين) */
+    html, body { touch-action: manipulation; }
     html:has(body.dark-mode) { background: #171412; color-scheme: dark; }
     body {
       margin: 0;
@@ -628,7 +635,10 @@
       text-align: start;
       transition: border-color var(--t-base) ease, box-shadow var(--t-base) ease, background var(--t-base) ease;
     }
-    .match-card:has(.match-team:not(.placeholder):not(.disabled):not(.winner)) { border-color: var(--gold-soft); box-shadow: var(--sh-2); }
+    /* حالة البطاقة تُقرأ من شارة حالتها نفسها، فتتطابق الألوان مع النص دائمًا (الجدول والدوري) */
+    .match-card:has(.match-status.ready) { border-color: var(--card-ready-line); box-shadow: 0 0 0 1px var(--card-ready-ring), var(--sh-2); }
+    .match-card:has(.match-status.done) { border-color: var(--card-done-line); background: var(--card-done-bg); box-shadow: var(--sh-1); }
+    .match-card:has(.match-status.done) .match-title { color: var(--text-3, var(--text-2)); }
     .match-head { display: flex; align-items: center; justify-content: space-between; gap: var(--s2); }
     .match-title { font-size: var(--fs-sm); font-weight: 800; color: var(--text-2); }
     .match-status {
@@ -1535,6 +1545,8 @@
     .fx-scored .score-badge { animation: fxBadge .45s cubic-bezier(.2, .8, .3, 1.2) both; }
     .fx-scored .score-badge.loser-badge { animation-delay: .06s; }
     .match-team.fx-advanced { animation: fxAdvance .85s cubic-bezier(.2, .7, .2, 1) .12s both; }
+    @keyframes fxDoneBorder { from { border-color: var(--card-ready-line); box-shadow: 0 0 0 1px var(--card-ready-ring), var(--sh-2); } }
+    .fx-scored.match-card:has(.match-status.done) { animation: fxDoneBorder .9s ease both; }
     .fx-enter .match-card { animation: fxCardIn .4s cubic-bezier(.2, .7, .2, 1) both; animation-delay: calc(var(--i, 0) * 30ms); }
 
     /* ===== احتفال التتويج ===== */
@@ -8922,6 +8934,17 @@ function buildLeagueStandingsCanvas() {
         } catch (e) { wakeLock = null; } finally { wakeBusy = false; }
       }
       document.addEventListener('visibilitychange', syncWakeLock);
+
+      // عند الفتح من الشاشة الرئيسية: يتصرف كتطبيق، فلا تكبير للصفحة بإصبعين ولا بالنقر المزدوج.
+      // (في Safari العادي يبقى التكبير بإصبعين متاحًا لمن يحتاجه.) معاينة الصور لها تكبير خاص بها ولا تتأثر.
+      const isStandalone = (window.matchMedia && matchMedia('(display-mode: standalone)').matches) || navigator.standalone === true;
+      if (isStandalone) {
+        const vp = document.querySelector('meta[name=viewport]');
+        if (vp) vp.setAttribute('content', 'width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover');
+        const inStudio = t => !!(t && t.closest && t.closest('#xsRoot'));
+        ['gesturestart', 'gesturechange', 'gestureend'].forEach(ev => document.addEventListener(ev, e => { if (!inStudio(e.target)) e.preventDefault(); }, { passive: false }));
+        document.addEventListener('touchmove', e => { if (e.touches && e.touches.length > 1 && !inStudio(e.target)) e.preventDefault(); }, { passive: false });
+      }
       // بعد أي ضغطة (تسجيل نتيجة، بدء دوري، إعادة ضبط…) يُعاد التقييم بعد أن تستقر الحالة
       document.addEventListener('click', () => setTimeout(syncWakeLock, 400), true);
       window.addEventListener('load', syncWakeLock);
