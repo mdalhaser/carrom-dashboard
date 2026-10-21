@@ -4536,7 +4536,8 @@ async function exportStatsImage() {
     ctx.beginPath(); ctx.moveTo(M, secY); ctx.lineTo(M + CW - t.width - 76, secY); ctx.stroke();
     ctx.restore();
 
-    const keys = ['rank', 'name', 'rating', 'championships', 'runnerUps', 'tournaments', 'wins', 'losses', 'winRate'];
+    const show = exportParts('stats');
+    const keys = ['rank', 'name', 'rating', 'championships', 'runnerUps', 'tournaments', 'wins', 'losses', 'winRate'].filter(k => show[k] !== false);
     const c = getStatsColumnCenters(M, CW, keys);
     const labels = { rank: 'الترتيب', name: 'اللاعب', rating: 'التقييم', championships: 'ألقاب', runnerUps: 'وصافة', tournaments: 'مشاركات', wins: 'فوز', losses: 'خسارة', winRate: 'نسبة الفوز' };
     ctx.save();
@@ -4544,7 +4545,9 @@ async function exportStatsImage() {
     ctx.fillStyle = B.surface3;
     ctx.fill();
     ctx.restore();
-    keys.forEach(k => exportText(ctx, labels[k], c[k + 'Center'], tableTop - 6 + headH / 2, { size: 25, weight: 800, color: B.muted, maxW: c[k + 'W'] - 8, min: 16 }));
+    keys.forEach(k => k === 'name'
+      ? exportText(ctx, labels[k], c.nameCenter + c.nameW / 2 - 10, tableTop - 6 + headH / 2, { size: 25, weight: 800, color: B.muted, align: 'right', maxW: c.nameW - 20, min: 16 })   // بمحاذاة الأسماء
+      : exportText(ctx, labels[k], c[k + 'Center'], tableTop - 6 + headH / 2, { size: 25, weight: 800, color: B.muted, maxW: c[k + 'W'] - 8, min: 16 }));
 
     let y = tableTop + headH + 6; const cuts = [];
     players.forEach((p, i) => {
@@ -4567,7 +4570,7 @@ async function exportStatsImage() {
         exportText(ctx, String(rank), c.rankCenter, cy, { size: 34, weight: 800, color: B.faint, dir: 'ltr' });
       }
       exportText(ctx, p.name || 'غير محدد', c.nameCenter + c.nameW / 2 - 10, cy, { size: 36, weight: 800, color: B.ink, align: 'right', maxW: c.nameW - 20, min: 18 });
-      const val = (k, v, o) => exportText(ctx, String(v), c[k + 'Center'], cy, Object.assign({ size: 34, weight: 700, color: B.text, dir: 'ltr', maxW: c[k + 'W'] - 8 }, o || {}));
+      const val = (k, v, o) => { if (!keys.includes(k)) return; exportText(ctx, String(v), c[k + 'Center'], cy, Object.assign({ size: 34, weight: 700, color: B.text, dir: 'ltr', maxW: c[k + 'W'] - 8 }, o || {})); };
       const rt = ratingOf(p.name);
       val('rating', rt == null ? '—' : rt.toLocaleString('en-US'), { weight: 800, color: rt == null ? B.faint : B.ink });
       val('championships', p.championships ?? 0, { weight: 800, color: Number(p.championships) > 0 ? B.goldDeep : B.text });
@@ -5152,8 +5155,35 @@ currentScoreWinnerName = null;
 
     // إعدادات التصدير (مفتاح تخزين مستقل ومستقبلي؛ لا تمسّ بيانات البطولة أو الدوري)
     const EXPORT_SETTINGS_KEY = 'exportCenterSettings';
-    const EXPORT_SETTINGS_DEFAULT = { quality: 2, hideDate: false, hideCount: false, title: '', subtitle: '', footer: '', fileName: true, fileDate: true, format: 'auto', split: false, caption: true, captionTail: '', dayStartHour: 5, hdrChips: null, hdrCustom: '', vsShow: null };
+    const EXPORT_SETTINGS_DEFAULT = { quality: 2, hideDate: false, hideCount: false, title: '', subtitle: '', footer: '', fileName: true, fileDate: true, format: 'auto', split: false, caption: true, captionTail: '', dayStartHour: 5, hdrChips: null, hdrCustom: '', vsShow: null, parts: null };
     let exportFooterOverride = null, exportFooterHidden = false;
+    // ===== عناصر الصورة: إظهار/إخفاء أجزاء كل نوع صورة من «تخصيص» في المعاينة =====
+    // [المفتاح، الاسم، الافتراضي (ظاهر ما لم يُذكر false)]. الاختيار يُحفظ لكل نوع صورة على حدة، والأساسيات (الاسم/الترتيب/النقاط) لا تُخفى.
+    const EXPORT_PARTS = {
+      versus: [['story', 'عنوان المواجهة'], ['rating', 'المستوى والتقييم'], ['prob', 'فرص الفوز'], ['tape', 'وجهًا لوجه'], ['h2h', 'المواجهات السابقة']],
+      lgStandings: [['played', 'عدد المباريات'], ['wdl', 'فوز / تعادل / خسارة'], ['sets', 'الأشواط له / عليه'], ['diff', 'فارق الأشواط'], ['legend', 'سطر الشرح']],
+      stats: [['rating', 'التقييم'], ['runnerUps', 'الوصافة'], ['tournaments', 'المشاركات'], ['wins', 'الفوز'], ['losses', 'الخسارة'], ['winRate', 'نسبة الفوز']],
+      rating: [['tier', 'المستوى'], ['delta', 'تغيّر آخر بطولة'], ['games', 'المباريات'], ['rate', 'نسبة الفوز'], ['legend', 'دليل المستويات']],
+      profile: [['chart', 'منحنى التقييم'], ['tiles', 'البطاقات الرقمية'], ['form', 'آخر النتائج'], ['h2h', 'المواجهات المباشرة'], ['partners', 'الشراكات']],
+      lgCard: [['sets', 'صفوف الأشواط'], ['last', 'آخر النتائج'], ['ach', 'الإنجازات']],
+      lgCompare: [['wdl', 'فوز / تعادل / خسارة'], ['sets', 'صفوف الأشواط'], ['h2h', 'المواجهات المباشرة']],
+      lgReport: [['summary', 'ملخص الدوري'], ['leaders', 'الأوائل']],
+      history: [['name', 'اسم البطولة'], ['ru', 'الوصيف']],
+      honor: [['ru', 'الوصافة'], ['top5', 'أفضل 5 فقط', false]],
+      koFinal: [['path', 'مسار الوصول إلى النهائي']]
+    };
+    let exportLastParts = null;   // نوع عناصر آخر صورة رُسمت؛ يُربط بالصورة في downloadCanvasAsPng
+    function exportPartsRead(key) {
+      const all = exportSettings.parts && typeof exportSettings.parts === 'object' ? exportSettings.parts : {};
+      let saved = all[key] && typeof all[key] === 'object' ? all[key] : {};
+      if (key === 'versus' && !all.versus && exportSettings.vsShow && typeof exportSettings.vsShow === 'object') saved = exportSettings.vsShow;   // ترحيل اختيار الإصدار 16
+      const o = {}; (EXPORT_PARTS[key] || []).forEach(([k, , d]) => { o[k] = typeof saved[k] === 'boolean' ? saved[k] : d !== false; }); return o;
+    }
+    function exportParts(key) { exportLastParts = key; return exportPartsRead(key); }
+    function exportSetPart(key, part, val) {
+      const all = Object.assign({}, exportSettings.parts && typeof exportSettings.parts === 'object' ? exportSettings.parts : {});
+      all[key] = Object.assign(exportPartsRead(key), { [part]: !!val }); exportSettings.parts = all; saveExportSettings();
+    }
     const EXPORT_TEMPLATES_KEY = 'exportCenterTemplates';
     function readExportTemplates(){ try { const v=JSON.parse(localStorage.getItem(EXPORT_TEMPLATES_KEY)||'[]'); return Array.isArray(v)?v.filter(x=>x&&typeof x.id==='string'&&typeof x.name==='string'&&x.settings&&typeof x.settings==='object'):[]; } catch(e){ return []; } }
     function writeExportTemplates(v){ try{ localStorage.setItem(EXPORT_TEMPLATES_KEY,JSON.stringify(v)); return true; }catch(e){ alert('تعذر حفظ القوالب في التخزين المحلي.'); return false; } }
@@ -5764,7 +5794,8 @@ currentScoreWinnerName = null;
       if (exportPendingCaption && exportPendingCaption.file === filename) canvas.__caption = exportPendingCaption.text;
       exportPendingCaption = null;
       canvas.__rerun = exportCurrentRun; canvas.__chips = exportLastHeaderIds.slice(); canvas.__subOrig = exportLastSubOrig; canvas.__titleOrig = exportLastTitleOrig;
-      if (exportCapture) { exportCapture.push({ src: canvas, filename: exportFileName(filename), caption: canvas.__caption || '', rerun: canvas.__rerun, ctxOrig: canvas.__ctxOrig, chips: canvas.__chips, subOrig: canvas.__subOrig, titleOrig: canvas.__titleOrig }); return Promise.resolve(); }
+      canvas.__parts = exportLastParts; exportLastParts = null;
+      if (exportCapture) { exportCapture.push({ src: canvas, filename: exportFileName(filename), caption: canvas.__caption || '', rerun: canvas.__rerun, ctxOrig: canvas.__ctxOrig, chips: canvas.__chips, subOrig: canvas.__subOrig, titleOrig: canvas.__titleOrig, partsKey: canvas.__parts }); return Promise.resolve(); }
       return openExportStudio(canvas, exportFileName(filename));
     }
 
@@ -5784,7 +5815,7 @@ currentScoreWinnerName = null;
     let exportRunActive = false;
     async function exportGuardedRun(run, btn, busyText) {
       if (exportRunActive) { uiToast('يجري إنشاء صورة الآن، انتظر حتى تكتمل.', 'info', 2600); return false; }
-      exportRunActive = true; exportCurrentRun = run;
+      exportRunActive = true; exportCurrentRun = run; exportLastParts = null;
       const old = btn ? btn.textContent : '';
       if (btn) { btn.disabled = true; btn.textContent = busyText || 'جارٍ إنشاء الصورة…'; }
       try { await run(); return true; }
@@ -6210,11 +6241,11 @@ currentScoreWinnerName = null;
           $('xsCtxHide').setAttribute('aria-pressed', String(!!(o && o.hide)));
         }
         if(document.activeElement!==$('xsFooterInput')) $('xsFooterInput').value = it.footerOverride!==null&&it.footerOverride!==undefined ? it.footerOverride : (it.footerHidden?'':exportSettings.footer); $('xsFooterHide').setAttribute('aria-pressed',String(!!it.footerHidden));
-        // عناصر ملصق المواجهة: إظهار/إخفاء، ويُحفظ الاختيار كافتراضي
-        const isVs = exportTemplateType(it.filename) === 'versus'; $('xsPartsRow').hidden = !isVs;
-        if (isVs) { const pb = $('xsParts'); pb.innerHTML = ''; const sh = versusShow();
-          VS_PARTS.forEach(([k, label]) => { const b = document.createElement('button'); b.type = 'button'; b.textContent = label; b.setAttribute('aria-pressed', String(sh[k]));
-            b.onclick = () => { const cur = versusShow(); cur[k] = !cur[k]; exportSettings.vsShow = cur; saveExportSettings(); regen(); }; pb.appendChild(b); }); }
+        // عناصر الصورة: إظهار/إخفاء أجزاء هذا النوع من الصور، ويُحفظ الاختيار كافتراضي لنفس النوع
+        const pk = it.partsKey && EXPORT_PARTS[it.partsKey] ? it.partsKey : null; $('xsPartsRow').hidden = !pk;
+        if (pk) { const pb = $('xsParts'); pb.innerHTML = ''; const sh = exportPartsRead(pk);
+          EXPORT_PARTS[pk].forEach(([k, label]) => { const b = document.createElement('button'); b.type = 'button'; b.textContent = label; b.setAttribute('aria-pressed', String(sh[k]));
+            b.onclick = () => { if (busy) return; exportSetPart(pk, k, !exportPartsRead(pk)[k]); b.setAttribute('aria-pressed', String(exportPartsRead(pk)[k])); regen(); }; pb.appendChild(b); }); }
         const bar = $('xsChips'); bar.innerHTML = ''; const defs = exportChipDefs(), cur = it.chips || [];
         EXPORT_CHIP_ORDER.forEach(id => {
           if (!defs[id]) return;
@@ -6252,20 +6283,20 @@ currentScoreWinnerName = null;
         }
         if (!fresh) { msg(err ? exportErrorMessage(err) : 'تعذر تحديث الصورة. حاول مرة أخرى.'); busy = false; return; }
         const old = it.src; releaseItem(it);
-        it.src = fresh.src; it.caption = fresh.caption || ''; it.chips = fresh.chips || []; it.ctxOrig = fresh.ctxOrig; it.subOrig = fresh.subOrig; it.titleOrig = fresh.titleOrig; it.filename = fresh.filename || it.filename;
+        it.src = fresh.src; it.caption = fresh.caption || ''; it.chips = fresh.chips || []; it.ctxOrig = fresh.ctxOrig; it.subOrig = fresh.subOrig; it.titleOrig = fresh.titleOrig; it.filename = fresh.filename || it.filename; it.partsKey = fresh.partsKey;
         try { it.pages = state.format === 'auto' ? [it.src] : composeFormat(it.src, state.format, !!exportSettings.split); } catch (e) { console.error(e); it.pages = [it.src]; }
         if (old !== it.src) { old.remove(); old.width = 1; old.height = 1; }
         render(); busy = false; msg('تم تحديث الصورة ✓');
       }
       function openItem(items) {
         build(); if (state) close();
-        state = { items: items.map(x => ({ src: x.src, filename: x.filename || 'Carrom.png', caption: x.caption || '', rerun: x.rerun || null, ctxOrig: x.ctxOrig, chips: x.chips || [], subOrig: x.subOrig, titleOrig: x.titleOrig, ctxOverride: null, subOverride: null, titleOverride: null, footerOverride: null, footerHidden: false, templateId: null, pages: [] })), z: 1, format: 'auto', prevOverflow: document.body.style.overflow };
+        state = { items: items.map(x => ({ src: x.src, filename: x.filename || 'Carrom.png', caption: x.caption || '', rerun: x.rerun || null, ctxOrig: x.ctxOrig, chips: x.chips || [], subOrig: x.subOrig, titleOrig: x.titleOrig, partsKey: x.partsKey || null, ctxOverride: null, subOverride: null, titleOverride: null, footerOverride: null, footerHidden: false, templateId: null, pages: [] })), z: 1, format: 'auto', prevOverflow: document.body.style.overflow };
         document.body.style.overflow = 'hidden'; root.classList.add('open'); root.setAttribute('tabindex', '-1'); root.focus({ preventScroll: true });
         const k = EXPORT_FORMATS[exportSettings.format] ? exportSettings.format : 'auto';
         if (k === 'auto') { state.items.forEach(it => { it.pages = [it.src]; }); render(); } else setFormat(k);
         return Promise.resolve();
       }
-      const open = (canvas, filename) => openItem([{ src: canvas, filename, caption: canvas.__caption || '', rerun: canvas.__rerun, ctxOrig: canvas.__ctxOrig, chips: canvas.__chips, subOrig: canvas.__subOrig, titleOrig: canvas.__titleOrig }]);
+      const open = (canvas, filename) => openItem([{ src: canvas, filename, caption: canvas.__caption || '', rerun: canvas.__rerun, ctxOrig: canvas.__ctxOrig, chips: canvas.__chips, subOrig: canvas.__subOrig, titleOrig: canvas.__titleOrig, partsKey: canvas.__parts }]);
       return { open, close };
     })();
     function openExportStudio(canvas, filename) { return exportStudio.open(canvas, filename); }
@@ -7530,7 +7561,7 @@ function buildLeagueStandingsCanvas() {
   if (leagueCompleted) y += bannerH + 30;
   const tableY = y;
   const tableH = headH + 12 + standings.length * rowH + Math.max(0, standings.length - 1) * rowGap;
-  const legendH = 84;
+  const sh0 = exportPartsRead('lgStandings'), legendH = sh0.legend && (sh0.wdl || sh0.sets || sh0.diff) ? 84 : 20;
   const H = Math.ceil(tableY + tableH + 30 + legendH + 40);
 
   let scale = exportScale();
@@ -7560,11 +7591,13 @@ function buildLeagueStandingsCanvas() {
     exportIcon(ctx, 'check', M + CW / 2 - 30 + t.width / 2 + 38, bannerY + bannerH / 2, 46, B.goldDeep, 2.4);
   }
 
-  // أعمدة الجدول من اليمين إلى اليسار (نفس الأعمدة السابقة)
+  // أعمدة الجدول من اليمين إلى اليسار؛ الأعمدة المخفية من «تخصيص» يتوزع عرضها على الباقي
+  const show = exportParts('lgStandings');
+  const group = { played: 'played', wins: 'wdl', draws: 'wdl', losses: 'wdl', setsFor: 'sets', setsAgainst: 'sets', diff: 'diff' };
   const cols = [
     ['rank', 'المركز', 96], ['name', 'اللاعب', 262], ['played', 'لعب', 78], ['wins', 'ف', 66], ['draws', 'ت', 66],
     ['losses', 'خ', 66], ['setsFor', 'له', 78], ['setsAgainst', 'عليه', 84], ['diff', 'الفارق', 92], ['points', 'النقاط', 96]
-  ];
+  ].filter(([k]) => !group[k] || show[group[k]]);
   const sumW = cols.reduce((s, c) => s + c[2], 0);
   const f = CW / sumW;
   let cursor = M + CW;
@@ -7577,7 +7610,8 @@ function buildLeagueStandingsCanvas() {
   ctx.fill();
   ctx.restore();
   cols.forEach(([k]) => {
-    exportText(ctx, pos[k].label, pos[k].c, tableY + headH / 2, { size: 26, weight: 800, color: B.muted, maxW: pos[k].w - 8, min: 18 });
+    if (k === 'name') exportText(ctx, pos[k].label, pos[k].c + pos[k].w / 2 - 8, tableY + headH / 2, { size: 26, weight: 800, color: B.muted, align: 'right', maxW: pos[k].w - 16, min: 18 });   // بمحاذاة الأسماء
+    else exportText(ctx, pos[k].label, pos[k].c, tableY + headH / 2, { size: 26, weight: 800, color: B.muted, maxW: pos[k].w - 8, min: 18 });
   });
 
   let ry = tableY + headH + 12;
@@ -7603,7 +7637,7 @@ function buildLeagueStandingsCanvas() {
     }
     exportText(ctx, r.name, pos.name.c + pos.name.w / 2 - 8, cy, { size: 36, weight: 800, color: B.ink, align: 'right', maxW: pos.name.w - 16, min: 20 });
 
-    const num = (key, val, o) => exportText(ctx, String(val), pos[key].c, cy, Object.assign({ size: 34, weight: 700, color: B.text, dir: 'ltr', maxW: pos[key].w - 6 }, o || {}));
+    const num = (key, val, o) => { if (!pos[key]) return; exportText(ctx, String(val), pos[key].c, cy, Object.assign({ size: 34, weight: 700, color: B.text, dir: 'ltr', maxW: pos[key].w - 6 }, o || {})); };
     num('played', r.played); num('wins', r.wins); num('draws', r.draws); num('losses', r.losses);
     num('setsFor', r.setsFor); num('setsAgainst', r.setsAgainst);
     const sd = r.setDifference > 0 ? `+${r.setDifference}` : `${r.setDifference}`;
@@ -7612,7 +7646,8 @@ function buildLeagueStandingsCanvas() {
     ry += rowH + rowGap;
   });
 
-  exportText(ctx, 'ف = فوز  |  ت = تعادل  |  خ = خسارة  |  له/عليه = الأشواط  |  الفارق = فارق الأشواط', W / 2, tableY + tableH + 38, { size: 25, weight: 600, color: B.muted, maxW: CW, min: 16 });
+  const legend = [show.wdl && 'ف = فوز  |  ت = تعادل  |  خ = خسارة', show.sets && 'له/عليه = الأشواط', show.diff && 'الفارق = فارق الأشواط'].filter(Boolean).join('  |  ');
+  if (show.legend && legend) exportText(ctx, legend, W / 2, tableY + tableH + 38, { size: 25, weight: 600, color: B.muted, maxW: CW, min: 16 });
   exportFooterDivider(ctx, M, H - 46, CW);
   canvas.__cuts = cuts;
   return canvas;
@@ -7810,7 +7845,7 @@ function buildLeagueStandingsCanvas() {
       if (c.t === 'koround') return hubField('الجولة', gatherExportData().roundsData.map(r => [r.roundName, cleanRound(r.roundName)]), () => exportKoSel.round, v => { exportKoSel.round = v; });
       if (c.t === 'komatch') return hubField('المباراة', gatherExportData().roundsData.flatMap(r => r.matches.filter(m => m.winner)).map(m => [m.id, `${cleanRound(m.roundName)} — م${m.matchNumber}: ${getDisplayTeamName(m.team1)} ضد ${getDisplayTeamName(m.team2)}`]), () => exportKoSel.match, v => { exportKoSel.match = v; });
       if (c.t === 'kopart') return hubField(currentMode === 'single' ? 'اللاعب' : 'الفريق', knockoutParticipants().map(n => [n, getDisplayTeamName(n)]), () => exportKnockoutSel.n, v => { exportKnockoutSel.n = v; });
-      if (c.t === 'path') { const l = hubEl('label', 'xh-switch'); const cb = document.createElement('input'); cb.type = 'checkbox'; cb.checked = exportShowPath; cb.addEventListener('change', () => { exportShowPath = cb.checked; hubSync(); }); hubRepaint.push(() => { cb.checked = exportShowPath; }); l.append(cb, 'إظهار مسار الوصول إلى النهائي في البطاقة'); return l; }
+      if (c.t === 'path') { const l = hubEl('label', 'xh-switch'); const cb = document.createElement('input'); cb.type = 'checkbox'; cb.checked = exportPartsRead('koFinal').path; cb.addEventListener('change', () => { exportSetPart('koFinal', 'path', cb.checked); hubSync(); }); hubRepaint.push(() => { cb.checked = exportPartsRead('koFinal').path; }); l.append(cb, 'إظهار مسار الوصول إلى النهائي في البطاقة'); return l; }
       if (c.t === 'rounds') {
         const total = leagueExpectedTotals(leaguePlayers.length).rounds, active = getLeagueActiveRound();
         const w = hubEl('div', 'xh-field'); w.append('الجولات (اختر جولة أو أكثر)');
@@ -7912,7 +7947,7 @@ function buildLeagueStandingsCanvas() {
       );
       body.appendChild(grid);
       const reset = hubEl('button', 'export-center-option', 'إعادة الإعدادات الافتراضية'); reset.type = 'button';
-      reset.addEventListener('click', () => { Object.assign(exportSettings, EXPORT_SETTINGS_DEFAULT); exportShowPath = true; saveExportSettings(); renderExportCenter(); });
+      reset.addEventListener('click', () => { Object.assign(exportSettings, EXPORT_SETTINGS_DEFAULT); saveExportSettings(); renderExportCenter(); });
       body.appendChild(reset);
     }
 
@@ -8000,7 +8035,9 @@ function buildLeagueStandingsCanvas() {
         cuts.push(y - 7);
         drawRoundedRect(ctx, M, y, CW, HEAD, 18); ctx.fillStyle = B.wood; ctx.fill();
         exportText(ctx, sec.heading, M + CW - 24, y + HEAD / 2, { size: 30, weight: 800, color: B.goldSoft, align: 'right', maxW: CW * 0.5, min: 20 });
-        if (sec.cols) sec.cols.forEach((c, i) => exportTextWrap2(ctx, c, M + 170 + (sec.cols.length - 1 - i) * 200, y + HEAD / 2, { size: 26, weight: 800, color: B.ivory, maxW: 190, min: 16 }));
+        // wide: قسم بعمود قيم واحد يأخذ مساحة عمودين (مثل سجل البطولات بلا عمود الوصيف)
+        const vx = (n, k) => sec.wide ? M + 260 : M + 170 + (n - 1 - k) * 200, vw = sec.wide ? 390 : 190;
+        if (sec.cols) sec.cols.forEach((c, i) => exportTextWrap2(ctx, c, vx(sec.cols.length, i), y + HEAD / 2, { size: 26, weight: 800, color: B.ivory, maxW: vw, min: 16 }));
         y += HEAD + 14;
         if (sec.matches) { y = drawMatchCards(ctx, sec.matches, M, y, CW, cuts); return; }
         if (sec.honor) { y = drawHonorRows(ctx, sec.honor, M, y, CW, cuts); return; }
@@ -8008,7 +8045,7 @@ function buildLeagueStandingsCanvas() {
           if (i > 0) cuts.push(y - 4);
           drawRoundedRect(ctx, M, y, CW, ROW - 8, 14); ctx.fillStyle = i % 2 ? B.surface2 : B.paper; ctx.fill(); ctx.strokeStyle = B.line; ctx.lineWidth = 1.2; ctx.stroke();
           exportText(ctx, r[0], M + CW - 24, y + (ROW - 8) / 2, { size: 28, weight: 700, color: B.text, align: 'right', maxW: CW * 0.42, min: 16 });
-          r.slice(1).forEach((v, k, arr) => exportText(ctx, v, M + 170 + (arr.length - 1 - k) * 200, y + (ROW - 8) / 2, { size: 30, weight: 800, color: B.ink, maxW: 190, min: 16, dir: /[\u0600-\u06FF]/.test(String(v)) ? 'rtl' : 'ltr' }));
+          r.slice(1).forEach((v, k, arr) => exportText(ctx, v, vx(arr.length, k), y + (ROW - 8) / 2, { size: 30, weight: 800, color: B.ink, maxW: vw, min: 16, dir: /[\u0600-\u06FF]/.test(String(v)) ? 'rtl' : 'ltr' }));
           y += ROW;
         });
       });
@@ -8023,11 +8060,12 @@ function buildLeagueStandingsCanvas() {
       const r = leagueRow(name); if (!r) { alert('اللاعب غير موجود في الدوري الحالي.'); return; }
       const done = getLeaguePlayerHistory(name).filter(h => h.completed);
       const last = done.slice(-5).reverse().map(h => [`ج${h.round}: ${h.opponent}`, `${h.own} – ${h.opp}`, h.outcome === 'win' ? 'فوز' : h.outcome === 'draw' ? 'تعادل' : 'خسارة']);
+      const show = exportParts('lgCard');
       const secs = [{ heading: `${name} — ${getLeagueProgress().completed ? 'المركز النهائي' : 'المركز الحالي'} ${r.rank}`, rows: [
         ['المباريات', String(r.played)], ['فوز / تعادل / خسارة', `${r.wins} / ${r.draws} / ${r.losses}`], ['النقاط', String(r.points)],
-        ['الأشواط له / عليه', `${r.setsFor} / ${r.setsAgainst}`], ['فارق الأشواط', String(r.setDifference)], ['نسبة الفوز', pct(r.wins, r.played)] ] }];
-      if (last.length) secs.push({ heading: 'آخر النتائج', cols: ['النتيجة', 'الحالة'], rows: last });
-      const ach = playerAchievementsSection(name); if (ach) secs.push(ach);
+        ...(show.sets ? [['الأشواط له / عليه', `${r.setsFor} / ${r.setsAgainst}`], ['فارق الأشواط', String(r.setDifference)]] : []), ['نسبة الفوز', pct(r.wins, r.played)] ] }];
+      if (show.last && last.length) secs.push({ heading: 'آخر النتائج', cols: ['النتيجة', 'الحالة'], rows: last });
+      const ach = show.ach ? playerAchievementsSection(name) : null; if (ach) secs.push(ach);
       setCaption(`League-Player-${safeName(name)}.png`, `بطاقة ${name}: ${getLeagueProgress().completed ? 'المركز النهائي' : 'المركز الحالي'} ${r.rank}، ${r.played} مباراة، ${r.wins} فوز، ${r.points} نقطة.`);
       await renderLeagueSheet('بطاقة لاعب', leagueCtx(), 2, secs, `League-Player-${safeName(name)}.png`);
     }
@@ -8037,11 +8075,13 @@ function buildLeagueStandingsCanvas() {
       if (!A || !B || a === b) { alert('اختر لاعبين مختلفين موجودين في الدوري.'); return; }
       const h2h = leagueMatches.filter(m => isLeagueMatchCompleted(m) && ((m.playerA === a && m.playerB === b) || (m.playerA === b && m.playerB === a)));
       let wa = 0, wb = 0, dr = 0; h2h.forEach(m => { const d = deriveLeagueResult(m.scoreA, m.scoreB); if (d.result === 'draw') dr++; else if ((d.result === 'A') === (m.playerA === a)) wa++; else wb++; });
-      const rows = [['المركز', A.rank, B.rank], ['المباريات', A.played, B.played], ['النقاط', A.points, B.points], ['فوز', A.wins, B.wins], ['تعادل', A.draws, B.draws], ['خسارة', A.losses, B.losses],
-        ['الأشواط له', A.setsFor, B.setsFor], ['الأشواط عليه', A.setsAgainst, B.setsAgainst], ['فارق الأشواط', A.setDifference, B.setDifference]].map(r => [r[0], String(r[1]), String(r[2])]);
+      const show = exportParts('lgCompare');
+      const rows = [['المركز', A.rank, B.rank], ['المباريات', A.played, B.played], ['النقاط', A.points, B.points],
+        ...(show.wdl ? [['فوز', A.wins, B.wins], ['تعادل', A.draws, B.draws], ['خسارة', A.losses, B.losses]] : []),
+        ...(show.sets ? [['الأشواط له', A.setsFor, B.setsFor], ['الأشواط عليه', A.setsAgainst, B.setsAgainst], ['فارق الأشواط', A.setDifference, B.setDifference]] : [])].map(r => [r[0], String(r[1]), String(r[2])]);
       rows.push(['نسبة الفوز', pct(A.wins, A.played), pct(B.wins, B.played)]);
       const secs = [{ heading: 'مقارنة الإحصائيات', cols: [a, b], rows }];
-      secs.push({ heading: 'المواجهات المباشرة', rows: h2h.length ? [[`فوز ${a}`, String(wa)], [`فوز ${b}`, String(wb)], ['تعادل', String(dr)]] : [['لم تُلعب مواجهة مكتملة بينهما بعد', '—']] });
+      if (show.h2h) secs.push({ heading: 'المواجهات المباشرة', rows: h2h.length ? [[`فوز ${a}`, String(wa)], [`فوز ${b}`, String(wb)], ['تعادل', String(dr)]] : [['لم تُلعب مواجهة مكتملة بينهما بعد', '—']] });
       await renderLeagueSheet('مقارنة لاعبين', leagueCtx(), 3, secs, `League-Compare-${safeName(a)}-vs-${safeName(b)}.png`);
     }
 
@@ -8051,7 +8091,9 @@ function buildLeagueStandingsCanvas() {
       const totalSets = st.reduce((x, r) => x + r.setsFor, 0);
       const secs = [{ heading: 'ملخص الدوري', rows: [['اللاعبون', String(st.length)], ['المباريات المكتملة', `${p.done} من ${p.total}`], ['المتبقية', String(p.remaining)], ['نسبة الإنجاز', Math.round(p.done / p.total * 100) + '%'], ['إجمالي الأشواط', String(totalSets)]] },
         { heading: 'الأوائل', rows: [best('wins', 'الأكثر فوزًا'), best('points', 'الأعلى نقاطًا'), best('setDifference', 'أفضل فارق أشواط')] }];
-      await renderLeagueSheet('إحصائيات الدوري', leagueCtx(), 1, secs, 'League-Report.png');
+      const show = exportParts('lgReport');
+      const picked = secs.filter((sec, i) => i === 0 ? show.summary : show.leaders);
+      await renderLeagueSheet('إحصائيات الدوري', leagueCtx(), 1, picked.length ? picked : secs.slice(0, 1), 'League-Report.png');
     }
 
 
@@ -8259,7 +8301,7 @@ function buildLeagueStandingsCanvas() {
       [[1.5, 'خفيفة (أسرع وأصغر حجمًا)'], [2, 'عادية'], [3, 'عالية (قد تُخفَّض تلقائيًا للصور الطويلة)']].forEach(([v, t]) => { const o = document.createElement('option'); o.value = v; o.textContent = t; if (Number(exportSettings.quality) === v) o.selected = true; q.appendChild(o); });
       q.addEventListener('change', () => { exportSettings.quality = Number(q.value); saveExportSettings(); }); row('جودة التصدير: ', q);
       const reset = document.createElement('button'); reset.type = 'button'; reset.className = 'export-center-option'; reset.textContent = 'إعادة الإعدادات الافتراضية';
-      reset.addEventListener('click', () => { Object.assign(exportSettings, EXPORT_SETTINGS_DEFAULT); exportShowPath = true; saveExportSettings(); renderExportCenter(); });
+      reset.addEventListener('click', () => { Object.assign(exportSettings, EXPORT_SETTINGS_DEFAULT); saveExportSettings(); renderExportCenter(); });
       d.appendChild(reset); host.appendChild(d);
     }
 
@@ -8385,9 +8427,10 @@ function buildLeagueStandingsCanvas() {
     async function exportHistoryImage() {
       const recs = historyRecords(); if (!recs.length) { alert('لا توجد بطولات مكتملة في السجل.'); return; }
       const fmt = d => { try { return new Intl.DateTimeFormat(EXPORT_LOCALE, { day: 'numeric', month: 'short', year: 'numeric' }).format(new Date(d)); } catch (e) { return ''; } };
-      const rows = recs.map(t => [`${t.name || 'بطولة'} · ${fmt(t.date)}`, String(t.champion), String(t.runnerUp)]);
+      const show = exportParts('history');
+      const rows = recs.map(t => [show.name ? `${t.name || 'بطولة'} · ${fmt(t.date)}` : fmt(t.date), String(t.champion), ...(show.ru ? [String(t.runnerUp)] : [])]);
       setCaption('Tournament-History.png', `سجل البطولات السابقة:\n` + recs.map(t => `• ${t.name || 'بطولة'} (${fmt(t.date)}): البطل ${t.champion}، الوصيف ${t.runnerUp}`).join('\n'));
-      await renderLeagueSheet('سجل البطولات السابقة', `${recs.length} بطولة مكتملة`, 2, [{ heading: 'البطولات المكتملة', cols: ['البطل', 'الوصيف'], rows }], 'Tournament-History.png');
+      await renderLeagueSheet('سجل البطولات السابقة', `${recs.length} بطولة مكتملة`, 2, [{ heading: 'البطولات المكتملة', cols: show.ru ? ['البطل', 'الوصيف'] : ['البطل'], wide: !show.ru, rows }], 'Tournament-History.png');
     }
 
 
@@ -8445,9 +8488,7 @@ function buildLeagueStandingsCanvas() {
       return { A, B, h, pA, head, sub, date };
     }
 
-    // عناصر الملصق القابلة للإظهار والإخفاء من «تخصيص» في المعاينة؛ الاختيار يُحفظ ليكون الافتراضي في المرة القادمة. الأسماء تظهر دائمًا.
-    const VS_PARTS = [['story', 'عنوان المواجهة'], ['rating', 'المستوى والتقييم'], ['prob', 'فرص الفوز'], ['tape', 'وجهًا لوجه'], ['h2h', 'المواجهات السابقة']];
-    function versusShow() { const v = exportSettings.vsShow && typeof exportSettings.vsShow === 'object' ? exportSettings.vsShow : {}; const o = {}; VS_PARTS.forEach(([k]) => { o[k] = v[k] !== false; }); return o; }
+    // عناصره قابلة للإظهار والإخفاء من «تخصيص» (EXPORT_PARTS.versus). الأسماء تظهر دائمًا.
     // ملصق المواجهة بهوية المشروع: هيدر خشبي، أسماء جنبًا إلى جنب (الفرق: كل لاعب في سطر)، وأقسام هادئة بنفس أسلوب الجداول
     function drawVersusCard(v, show, when) {
       const st = versusStory(v), B = EXPORT_BRAND, W = 1080, M = 56, CW = W - M * 2;
@@ -8549,7 +8590,7 @@ function buildLeagueStandingsCanvas() {
       const v = versusCandidates().find(x => x.id === id);
       if (!v) { alert('اختر مباراة لم تُلعب بعد ومعروف طرفاها.'); return; }
       await exportEnsureFonts();
-      const when = String(time || '').trim(), show = versusShow();
+      const when = String(time || '').trim(), show = exportParts('versus');
       const { canvas, st } = drawVersusCard(v, show, when);
       const pa = Math.round(st.pA * 100);
       setCaption(v.file + '.png', `${show.story ? st.head + ': ' : 'مواجهة قادمة: '}${v.a} × ${v.b}\n${v.label}${when ? '، ' + when : ''}` +
@@ -8640,15 +8681,16 @@ function buildLeagueStandingsCanvas() {
         exportText(ctx, it.name, cx - 28 - 18, cy, { size: 32, weight: 800, color: B.ink, align: 'right', maxW: 500, min: 18 });
         exportText(ctx, String(it.titles), M + 250, cy - 11, { size: 38, weight: 800, color: B.goldDeep, dir: 'ltr' });
         exportText(ctx, it.titles === 1 ? 'لقب' : 'ألقاب', M + 250, cy + 23, { size: 18, weight: 700, color: B.muted });
-        exportText(ctx, String(it.ru), M + 110, cy - 11, { size: 32, weight: 700, color: B.muted, dir: 'ltr' });
-        exportText(ctx, 'وصافة', M + 110, cy + 23, { size: 18, weight: 700, color: B.muted });
+        if (!it.hideRu) { exportText(ctx, String(it.ru), M + 110, cy - 11, { size: 32, weight: 700, color: B.muted, dir: 'ltr' });
+          exportText(ctx, 'وصافة', M + 110, cy + 23, { size: 18, weight: 700, color: B.muted }); }
         y += 96;
       });
       return y;
     }
     async function exportHonorBoard() {
       const all = honorPlayers(); if (!all.length) { alert('لا توجد ألقاب مسجلة في البطولات المكتملة بعد.'); return; }
-      const list = all.slice(0, 15);
+      const show = exportParts('honor');
+      const list = all.slice(0, show.top5 ? 5 : 15).map(i => Object.assign({}, i, { hideRu: !show.ru }));
       setCaption('Honor-Board.png', 'لوحة الشرف — الأكثر ألقابًا:\n' + list.map(i => `${i.rank}- ${i.name}: ${i.titles} ${i.titles === 1 ? 'لقب' : 'ألقاب'}${i.ru ? ` (وصافة ${i.ru})` : ''}`).join('\n'));
       await renderLeagueSheet('لوحة الشرف', `ألقاب البطولات المكتملة المسجلة${all.length > list.length ? ` · أعلى ${list.length} من ${all.length} لاعبًا` : ` · ${list.length} ${list.length === 1 ? 'لاعب' : 'لاعبين'}`}`, 1, [{ heading: 'الأكثر ألقابًا', honor: list }], 'Honor-Board.png');
     }
@@ -8740,13 +8782,14 @@ function buildLeagueStandingsCanvas() {
       const top = M + exportBrandHeaderHeight(meta) + 34;
       const ctxOrig = `محسوب من ${arCount(nT, 'بطولة مكتملة', 'بطولتين مكتملتين', 'بطولات مكتملة')} · البداية 1000 والتغيير حسب قوة المنافس`;
       const ctxRes = exportContextResolve(ctxOrig);
-      const gapC = ctxRes.shown ? 52 : 6, HEAD = 66, ROW = 88, GAP = 12, LEG = 150;
-      const H = Math.ceil(top + gapC + HEAD + 12 + list.length * (ROW + GAP) + 24 + LEG + 80);
+      const show = exportParts('rating');
+      const gapC = ctxRes.shown ? 52 : 6, HEAD = 66, ROW = 88, GAP = 12, LEG = show.legend ? 150 : 0;
+      const H = Math.ceil(top + gapC + HEAD + 12 + list.length * (ROW + GAP) + (LEG ? 24 + LEG : 0) + 80);
       const { canvas, ctx } = exportNewCanvas(W, H);
       exportBrandHeader(ctx, M, M, CW, tournamentName.textContent.trim() || 'بطولة المجلس للكيرم', 'تقييم المجلس', meta);
       if (ctxRes.shown) exportText(ctx, ctxRes.text, M + CW / 2, top + 4, { size: 26, weight: 700, color: B.muted, maxW: CW - 30, min: 17 });
       // الأعمدة من اليمين
-      const cols = [['rank', 'المركز', 84], ['name', 'اللاعب', 250], ['rating', 'التقييم', 136], ['tier', 'المستوى', 176], ['delta', 'آخر بطولة', 116], ['games', 'مباريات', 94], ['rate', 'نسبة الفوز', 112]];
+      const cols = [['rank', 'المركز', 84], ['name', 'اللاعب', 250], ['rating', 'التقييم', 136], ['tier', 'المستوى', 176], ['delta', 'آخر بطولة', 116], ['games', 'مباريات', 94], ['rate', 'نسبة الفوز', 112]].filter(([k]) => show[k] !== false);
       const sum = cols.reduce((s, c) => s + c[2], 0), C = {}; let cur = M + CW;
       cols.forEach(([k, , w]) => { const ww = w * CW / sum; C[k] = { c: cur - ww / 2, w: ww, r: cur }; cur -= ww; });
       let y = top + gapC;
@@ -8762,14 +8805,15 @@ function buildLeagueStandingsCanvas() {
         else exportText(ctx, String(p.rank), C.rank.c, cy, { size: 30, weight: 800, color: B.faint, dir: 'ltr' });
         exportText(ctx, p.name, C.name.r - 14, cy, { size: 32, weight: 800, color: B.ink, align: 'right', maxW: C.name.w - 22, min: 17 });
         exportText(ctx, p.rating.toLocaleString('en-US'), C.rating.c, cy, { size: 38, weight: 800, color: B.ink, dir: 'ltr', maxW: C.rating.w - 10 });
-        exportTierPill(ctx, p.tier.level, p.tier.name, C.tier.c, cy, 22, 'center');
-        exportDelta(ctx, p.lastDelta, C.delta.c, cy, 26);
-        exportText(ctx, String(p.games), C.games.c, cy, { size: 30, weight: 700, color: B.text, dir: 'ltr' });
+        if (C.tier) exportTierPill(ctx, p.tier.level, p.tier.name, C.tier.c, cy, 22, 'center');
+        if (C.delta) exportDelta(ctx, p.lastDelta, C.delta.c, cy, 26);
+        if (C.games) exportText(ctx, String(p.games), C.games.c, cy, { size: 30, weight: 700, color: B.text, dir: 'ltr' });
         const wr = winPct(p);
-        exportText(ctx, wr + '%', C.rate.c, cy, { size: 30, weight: 700, color: wr >= 60 ? B.ok : B.text, dir: 'ltr' });
+        if (C.rate) exportText(ctx, wr + '%', C.rate.c, cy, { size: 30, weight: 700, color: wr >= 60 ? B.ok : B.text, dir: 'ltr' });
         y += ROW + GAP;
       });
       // دليل المستويات
+      if (show.legend) {
       y += 24; cuts.push(y - 12);
       drawRoundedRect(ctx, M, y, CW, LEG, 24); ctx.fillStyle = B.paper; ctx.fill(); ctx.strokeStyle = B.line; ctx.lineWidth = 1.6; ctx.stroke();
       exportText(ctx, 'المستويات', M + CW - 28, y + 36, { size: 24, weight: 800, color: B.muted, align: 'right' });
@@ -8779,6 +8823,7 @@ function buildLeagueStandingsCanvas() {
         exportTierPill(ctx, lvl, nm, cx, y + 86, 21, 'center');
         exportText(ctx, min === -Infinity ? 'أقل من 960' : `${min} فأكثر`, cx, y + 124, { size: 19, weight: 700, color: B.faint, maxW: slot - 10, min: 13 });
       });
+      }
       exportFooterDivider(ctx, M, H - 40, CW);
       canvas.__cuts = cuts; canvas.__ctxOrig = ctxOrig;
       setCaption('Honor-Rating.png', 'تقييم المجلس:\n' + list.map(p => `${p.rank}- ${p.name}: ${p.rating} (${p.tier.name})${p.lastDelta ? ` ${p.lastDelta > 0 ? '▲' : '▼'}${Math.abs(p.lastDelta)}` : ''}`).join('\n'));
@@ -8794,10 +8839,11 @@ function buildLeagueStandingsCanvas() {
       const meta = [{ icon: 'calendar', label: exportTodayLabel() }];
       const top = M + exportBrandHeaderHeight(meta) + 34;
       const pts = [{ r: ELO_START, date: null }].concat(p.points);
-      const hasChart = pts.length >= 3;
-      const H2H = d.h2h.slice(0, 8), PARTS = d.parts.slice(0, 5), RH = 84;
+      const show = exportParts('profile');
+      const hasChart = show.chart && pts.length >= 3;
+      const H2H = show.h2h ? d.h2h.slice(0, 8) : [], PARTS = show.partners ? d.parts.slice(0, 5) : [], RH = 84;
       const HERO = 318, CHART = 380, TILE = 152, FORM = 150, SEC = 70 + 14;
-      const H = Math.ceil(top + HERO + GAPS + (hasChart ? CHART + GAPS : 0) + TILE * 2 + 16 + GAPS + FORM + GAPS +
+      const H = Math.ceil(top + HERO + GAPS + (hasChart ? CHART + GAPS : 0) + (show.tiles ? TILE * 2 + 16 + GAPS : 0) + (show.form ? FORM + GAPS : 0) +
         (H2H.length ? SEC + H2H.length * RH + GAPS : 0) + (PARTS.length ? SEC + PARTS.length * RH + GAPS : 0) + 70);
       const { canvas, ctx } = exportNewCanvas(W, H);
       exportBrandHeader(ctx, M, M, CW, tournamentName.textContent.trim() || 'بطولة المجلس للكيرم', 'ملف لاعب', meta);
@@ -8857,6 +8903,7 @@ function buildLeagueStandingsCanvas() {
       }
 
       // البطاقات الرقمية
+      if (show.tiles) {
       cuts.push(y - GAPS / 2);
       const tiles = [[stats.championships || 0, 'ألقاب', B.goldDeep], [stats.runnerUps || 0, 'وصافة'], [winPct(p) + '%', 'نسبة الفوز', winPct(p) >= 60 ? B.ok : null], [p.games, 'مباراة'],
         [p.w, 'فوز'], [p.l + (p.d ? ` · ${p.d}` : ''), p.d ? 'خسارة · تعادل' : 'خسارة'], [p.bestWin, 'أطول سلسلة فوز'], [Math.max(peak.r, ELO_START).toLocaleString('en-US'), 'أعلى تقييم']];
@@ -8869,8 +8916,10 @@ function buildLeagueStandingsCanvas() {
         exportText(ctx, l, tx + tw / 2, ty + 116, { size: 23, weight: 700, color: B.muted, maxW: tw - 16, min: 14 });
       });
       y += TILE * 2 + 16 + GAPS;
+      }
 
       // آخر النتائج والسلسلة
+      if (show.form) {
       cuts.push(y - GAPS / 2); card(FORM, B.paper, B.line, 26);
       exportText(ctx, 'آخر النتائج', M + CW - 30, y + 50, { size: 28, weight: 800, color: B.text, align: 'right' });
       exportText(ctx, 'الأحدث أولًا', M + CW - 30, y + 88, { size: 19, weight: 700, color: B.faint, align: 'right' });
@@ -8885,6 +8934,7 @@ function buildLeagueStandingsCanvas() {
       const sTxt = profileStreakText(p);
       exportText(ctx, `${sTxt}  ·  أطول سلسلة انتصارات: ${p.bestWin}`, M + CW / 2, y + FORM - 28, { size: 23, weight: 700, color: B.muted, maxW: CW - 60, min: 15 });
       y += FORM + GAPS;
+      }
 
       // صف بنسبة (مواجهة أو شراكة)
       const listRow = (i, label, tag, rec, ratio) => {
@@ -8938,7 +8988,7 @@ function buildLeagueStandingsCanvas() {
         `League-${kind}-${isFinal ? 'Final' : 'Live'}.png`);
     }
 
-    let exportShowPath = true; // إعداد: إظهار مسار الوصول إلى النهائي
+    // إظهار مسار الوصول إلى النهائي: عنصر «koFinal.path» في «تخصيص» وخيارات المركز (نفس الإعداد المحفوظ)
     // مسار لاعب/فريق حتى النهائي من مباريات الجدول المكتملة (دون مباريات Bye)
     function knockoutPathRows(name) {
       return Object.values(bracketState || {}).filter(m => m.winner && (m.team1 === name || m.team2 === name))
@@ -8962,7 +9012,7 @@ function buildLeagueStandingsCanvas() {
         : kind === 'runnerUp' ? 'وصيف البطولة' : 'البطل والوصيف';
       const detail = finalData.score ? `نتيجة النهائي: ${finalData.score}` : 'النتيجة النهائية';
       const extra = [];
-      if (exportShowPath) {
+      if (exportParts('koFinal').path) {
         if (kind !== 'runnerUp') extra.push({ heading: 'مسار البطل إلى النهائي', rank: 1, rows: knockoutPathRows(finalData.champion) });
         if (kind !== 'champion') extra.push({ heading: 'مسار الوصيف إلى النهائي', rank: 2, rows: knockoutPathRows(finalData.runnerUp) });
       }
@@ -10191,7 +10241,7 @@ function buildLeagueStandingsCanvas() {
     // ===================================
     // 🧭 سلوك التطبيق: إعادة الوضع للأعلى، تعديل العنوان بالضغط المطوّل، تنبيه التحديث، رقم الإصدار
     // ===================================
-    const APP_VERSION = '16';   // يُرفع مع رقم الإصدار في sw.js عند كل تحديث
+    const APP_VERSION = '17';   // يُرفع مع رقم الإصدار في sw.js عند كل تحديث
     (function setupAppBehaviors() {
       const root = document.documentElement;
 
