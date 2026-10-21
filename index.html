@@ -12,6 +12,27 @@
   <meta name="mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <meta name="apple-mobile-web-app-title" content="الكيرم">
+  <!-- شاشات افتتاح iOS لكل مقاس (تُقرأ عند إضافة التطبيق للشاشة الرئيسية) -->
+  <link rel="apple-touch-startup-image" href="splash/splash-1320x2868.png" media="(device-width: 440px) and (device-height: 956px) and (-webkit-device-pixel-ratio: 3) and (orientation: portrait)">
+  <link rel="apple-touch-startup-image" href="splash/splash-1290x2796.png" media="(device-width: 430px) and (device-height: 932px) and (-webkit-device-pixel-ratio: 3) and (orientation: portrait)">
+  <link rel="apple-touch-startup-image" href="splash/splash-1260x2736.png" media="(device-width: 420px) and (device-height: 912px) and (-webkit-device-pixel-ratio: 3) and (orientation: portrait)">
+  <link rel="apple-touch-startup-image" href="splash/splash-1206x2622.png" media="(device-width: 402px) and (device-height: 874px) and (-webkit-device-pixel-ratio: 3) and (orientation: portrait)">
+  <link rel="apple-touch-startup-image" href="splash/splash-1179x2556.png" media="(device-width: 393px) and (device-height: 852px) and (-webkit-device-pixel-ratio: 3) and (orientation: portrait)">
+  <link rel="apple-touch-startup-image" href="splash/splash-1170x2532.png" media="(device-width: 390px) and (device-height: 844px) and (-webkit-device-pixel-ratio: 3) and (orientation: portrait)">
+  <link rel="apple-touch-startup-image" href="splash/splash-1284x2778.png" media="(device-width: 428px) and (device-height: 926px) and (-webkit-device-pixel-ratio: 3) and (orientation: portrait)">
+  <link rel="apple-touch-startup-image" href="splash/splash-1242x2688.png" media="(device-width: 414px) and (device-height: 896px) and (-webkit-device-pixel-ratio: 3) and (orientation: portrait)">
+  <link rel="apple-touch-startup-image" href="splash/splash-1125x2436.png" media="(device-width: 375px) and (device-height: 812px) and (-webkit-device-pixel-ratio: 3) and (orientation: portrait)">
+  <link rel="apple-touch-startup-image" href="splash/splash-828x1792.png" media="(device-width: 414px) and (device-height: 896px) and (-webkit-device-pixel-ratio: 2) and (orientation: portrait)">
+  <link rel="apple-touch-startup-image" href="splash/splash-1242x2208.png" media="(device-width: 414px) and (device-height: 736px) and (-webkit-device-pixel-ratio: 3) and (orientation: portrait)">
+  <link rel="apple-touch-startup-image" href="splash/splash-750x1334.png" media="(device-width: 375px) and (device-height: 667px) and (-webkit-device-pixel-ratio: 2) and (orientation: portrait)">
+  <link rel="apple-touch-startup-image" href="splash/splash-2048x2732.png" media="(device-width: 1024px) and (device-height: 1366px) and (-webkit-device-pixel-ratio: 2) and (orientation: portrait)">
+  <link rel="apple-touch-startup-image" href="splash/splash-1668x2388.png" media="(device-width: 834px) and (device-height: 1194px) and (-webkit-device-pixel-ratio: 2) and (orientation: portrait)">
+  <link rel="apple-touch-startup-image" href="splash/splash-1640x2360.png" media="(device-width: 820px) and (device-height: 1180px) and (-webkit-device-pixel-ratio: 2) and (orientation: portrait)">
+  <link rel="apple-touch-startup-image" href="splash/splash-1668x2224.png" media="(device-width: 834px) and (device-height: 1112px) and (-webkit-device-pixel-ratio: 2) and (orientation: portrait)">
+  <link rel="apple-touch-startup-image" href="splash/splash-1620x2160.png" media="(device-width: 810px) and (device-height: 1080px) and (-webkit-device-pixel-ratio: 2) and (orientation: portrait)">
+  <link rel="apple-touch-startup-image" href="splash/splash-1536x2048.png" media="(device-width: 768px) and (device-height: 1024px) and (-webkit-device-pixel-ratio: 2) and (orientation: portrait)">
+  <link rel="apple-touch-startup-image" href="splash/splash-1488x2266.png" media="(device-width: 744px) and (device-height: 1133px) and (-webkit-device-pixel-ratio: 2) and (orientation: portrait)">
+  <link rel="preload" href="assets/wood.webp" as="image">
   <meta name="format-detection" content="telephone=no">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -1456,7 +1477,20 @@
        الهيدر لاصق بإزاحة سالبة: يصعد مع التمرير حتى لا يبقى منه إلا شريط رفيع (منطقة الساعة + 52px) ثم يثبت.
        --hdr-p (0 → 1) تقدّم الانكماش، تحسبه الدالة setupCollapsingHeader من موضع التمرير، وكل الحركة transform/opacity فقط. */
     .app-header-wrap { position: sticky; top: var(--hdr-top, 0px); z-index: 95; }
-    .app-header { background-image: linear-gradient(180deg, var(--wood-2), var(--wood)); background-size: auto; background-position: 0 0; background-repeat: no-repeat; overflow: hidden; isolation: isolate; }
+    .app-header {
+      background-image:
+        linear-gradient(180deg, rgba(74, 56, 44, .30), rgba(30, 22, 17, .55)),
+        url("assets/wood.webp"),
+        linear-gradient(180deg, var(--wood-2), var(--wood));
+      background-size: auto, cover, auto; background-position: 0 0, center, 0 0; background-repeat: no-repeat;
+      overflow: hidden; isolation: isolate; border-bottom: 0;
+    }
+    /* حافة ذهبية رفيعة تلمع في المنتصف وتتلاشى عند الأطراف */
+    .app-header::after {
+      content: ""; position: absolute; inset: auto 0 0 0; height: 1px; pointer-events: none;
+      background: linear-gradient(90deg, transparent, rgba(227, 204, 160, .25) 18%, rgba(240, 214, 150, .85) 50%, rgba(227, 204, 160, .25) 82%, transparent);
+    }
+    .header-title h2 { text-shadow: 0 1px 2px rgba(0, 0, 0, .35); }
     .app-header::before {
       content: ""; position: absolute; inset: 0; z-index: -1; pointer-events: none;
       background: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='260' height='260' viewBox='0 0 260 260' fill='none' stroke='%23CFA963' stroke-opacity='.22'><circle cx='130' cy='130' r='46' stroke-width='1.2'/><circle cx='130' cy='130' r='74' stroke-width='1'/><circle cx='130' cy='130' r='6' fill='%23CFA963' fill-opacity='.35' stroke='none'/></svg>") no-repeat center 40% / 260px 260px;
@@ -1473,9 +1507,66 @@
     .btn.mode-switch { min-height: 38px; border-radius: 10px; }
     #modeSelection { padding: 3px; gap: 3px; border-radius: 13px; }
     html { scroll-padding-top: var(--top-stack, 0px); }
+    /* بطاقة بطل الجدول بنفس ملمس الخشب */
+    .bracket .match-card.final-winner { background-image: linear-gradient(180deg, rgba(74, 56, 44, .25), rgba(30, 22, 17, .55)), url("assets/wood.webp"); background-size: cover; background-position: center; }
+
+    /* ===== شاشة الافتتاح (عند الفتح من الشاشة الرئيسية فقط) ===== */
+    #launchScreen { display: none; }
+    @media (display-mode: standalone) {
+      #launchScreen {
+        display: flex; position: fixed; inset: 0; z-index: 200000; align-items: center; justify-content: center;
+        background: radial-gradient(120% 80% at 50% 45%, #3E2F26 0%, #2B201A 55%, #1E1612 100%);
+        transition: opacity .42s cubic-bezier(.2, .7, .2, 1), visibility 0s linear .42s;
+      }
+    }
+    #launchScreen img { width: 132px; height: 132px; border-radius: 30px; box-shadow: 0 18px 40px -12px rgba(0, 0, 0, .7), 0 0 0 1px rgba(227, 204, 160, .18);
+      transition: transform .5s cubic-bezier(.2, .7, .2, 1), opacity .4s ease; }
+    #launchScreen.done { opacity: 0; visibility: hidden; pointer-events: none; }
+    #launchScreen.done img { transform: scale(1.12); opacity: 0; }
+
+    /* ===== حركات دقيقة: اعتماد النتيجة، تأهل الفائز، ظهور الجدول ===== */
+    @keyframes fxRowWin { 0% { background: var(--ok-bg); box-shadow: 0 0 0 0 rgba(47, 122, 78, .45); } 35% { box-shadow: 0 0 0 5px rgba(47, 122, 78, .18); } 100% { box-shadow: 0 0 0 0 rgba(47, 122, 78, 0); } }
+    @keyframes fxCheck { 0% { transform: scale(0) rotate(-25deg); opacity: 0; } 60% { transform: scale(1.25) rotate(4deg); opacity: 1; } 100% { transform: none; opacity: 1; } }
+    @keyframes fxBadge { 0% { transform: scale(.55); opacity: 0; } 55% { transform: scale(1.14); opacity: 1; } 100% { transform: none; } }
+    @keyframes fxAdvance { 0% { transform: translateY(-8px); opacity: 0; box-shadow: 0 0 0 0 rgba(207, 169, 99, .6); } 45% { transform: none; opacity: 1; box-shadow: 0 0 0 4px rgba(207, 169, 99, .35); } 100% { box-shadow: 0 0 0 0 rgba(207, 169, 99, 0); } }
+    @keyframes fxCardIn { from { transform: translateY(10px) scale(.98); opacity: 0; } to { transform: none; opacity: 1; } }
+    .fx-scored .match-team.winner { animation: fxRowWin .9s cubic-bezier(.2, .7, .2, 1) both; }
+    .fx-scored .match-team.winner > span:first-child::before { animation: fxCheck .5s cubic-bezier(.2, .8, .3, 1.2) .08s both; }
+    .fx-scored .score-badge { animation: fxBadge .45s cubic-bezier(.2, .8, .3, 1.2) both; }
+    .fx-scored .score-badge.loser-badge { animation-delay: .06s; }
+    .match-team.fx-advanced { animation: fxAdvance .85s cubic-bezier(.2, .7, .2, 1) .12s both; }
+    .fx-enter .match-card { animation: fxCardIn .4s cubic-bezier(.2, .7, .2, 1) both; animation-delay: calc(var(--i, 0) * 30ms); }
+
+    /* ===== احتفال التتويج ===== */
+    #celebration { position: fixed; inset: 0; z-index: 150000; display: grid; place-items: center; padding: 24px;
+      background: radial-gradient(70% 55% at 50% 45%, rgba(20, 14, 10, .55), rgba(20, 14, 10, .78));
+      -webkit-backdrop-filter: blur(3px); backdrop-filter: blur(3px);
+      animation: fade .3s ease both; cursor: pointer; }
+    #celebration.leaving { animation: celebOut .45s ease forwards; }
+    @keyframes celebOut { to { opacity: 0; } }
+    #celebration canvas { position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none; }
+    .celeb-card { position: relative; width: min(340px, 100%); padding: 30px 22px 24px; border-radius: 26px; text-align: center; color: #F7F3EA;
+      background: linear-gradient(180deg, rgba(74, 56, 44, .35), rgba(30, 22, 17, .7)), url("assets/wood.webp") center / cover, #30251F;
+      border: 1px solid rgba(227, 204, 160, .55);
+      box-shadow: 0 30px 70px -20px rgba(0, 0, 0, .8), inset 0 1px 0 rgba(255, 240, 210, .18);
+      animation: celebIn .7s cubic-bezier(.18, .9, .25, 1.15) .08s both; overflow: hidden; }
+    @keyframes celebIn { from { transform: translateY(26px) scale(.86); opacity: 0; } to { transform: none; opacity: 1; } }
+    .celeb-card::after { content: ""; position: absolute; top: 0; bottom: 0; width: 60%; left: -80%; pointer-events: none;
+      background: linear-gradient(100deg, transparent, rgba(255, 236, 190, .16), transparent); animation: celebShine 1.6s ease .7s both; }
+    @keyframes celebShine { to { left: 120%; } }
+    .celeb-trophy { width: 76px; height: 76px; margin: 0 auto 12px; border-radius: 50%; display: grid; place-items: center;
+      background: radial-gradient(circle at 35% 30%, #F6E4B4, #CFA963 55%, #8F6927); box-shadow: 0 10px 26px -8px rgba(207, 169, 99, .7), inset 0 2px 0 rgba(255, 255, 255, .45);
+      animation: celebTrophy .9s cubic-bezier(.2, .9, .3, 1.3) .25s both; }
+    .celeb-trophy::before { content: ""; width: 40px; height: 40px; background: #3A2A0C; -webkit-mask: var(--ic-trophy) center / contain no-repeat; mask: var(--ic-trophy) center / contain no-repeat; }
+    @keyframes celebTrophy { from { transform: scale(.2) rotate(-30deg); opacity: 0; } to { transform: none; opacity: 1; } }
+    .celeb-label { font-size: 15px; font-weight: 700; color: #E3CCA0; letter-spacing: .2px; animation: rise .5s ease .45s both; }
+    .celeb-name { margin-top: 6px; font-size: 28px; font-weight: 800; line-height: 1.3; overflow-wrap: anywhere; text-shadow: 0 2px 8px rgba(0, 0, 0, .45); animation: rise .55s ease .55s both; }
+    .celeb-sub { margin-top: 8px; font-size: 14px; color: rgba(247, 243, 234, .75); animation: rise .5s ease .7s both; }
+    .celeb-hint { margin-top: 16px; font-size: 11.5px; color: rgba(247, 243, 234, .45); animation: fade .5s ease 1.4s both; }
   </style>
 </head>
 <body>
+  <div id="launchScreen" aria-hidden="true"><img src="icons/icon-512.png" alt="" width="132" height="132"></div>
   <div class="container">
     <div class="app-header-wrap">
       <header class="app-header">
@@ -8844,6 +8935,153 @@ function buildLeagueStandingsCanvas() {
           navigator.serviceWorker.ready.then(reg => { if (navigator.onLine && reg.active) reg.active.postMessage('warm-fonts'); }).catch(() => {});
         });
       }
+    })();
+
+    // ===================================
+    // ✨ لمسات التطبيق: شاشة الافتتاح، حركات النتائج، احتفال التتويج
+    // كلها عرض فقط: لا تغيّر أي بيانات، وتُلغى الحركة عند تفعيل «تقليل الحركة» في الجهاز
+    // ===================================
+    (function setupDelight() {
+      const reduceMotion = () => window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches;
+      const cssEsc = v => (window.CSS && CSS.escape) ? CSS.escape(String(v)) : String(v).replace(/["\\]/g, '\\$&');
+
+      // ---------- شاشة الافتتاح: تظهر لحظة الفتح من الشاشة الرئيسية ثم تتلاشى بعد جاهزية التطبيق ----------
+      const ls = document.getElementById('launchScreen');
+      if (ls) {
+        const standalone = (window.matchMedia && matchMedia('(display-mode: standalone)').matches) || navigator.standalone === true;
+        if (!standalone) ls.remove();
+        else {
+          const shownAt = performance.now();
+          let hidden = false;
+          const hide = () => { if (hidden) return; hidden = true; ls.classList.add('done'); setTimeout(() => ls.remove(), 650); };
+          const go = () => setTimeout(hide, Math.max(0, 420 - (performance.now() - shownAt)));
+          if (document.readyState === 'complete') go(); else window.addEventListener('load', go, { once: true });
+          setTimeout(hide, 2200);   // حد أقصى: لا تحجب التطبيق أبدًا
+        }
+      }
+
+      // ---------- حركات دقيقة ----------
+      function replay(el, cls, ms) {
+        if (!el || reduceMotion()) return;
+        el.classList.remove(cls); void el.offsetWidth; el.classList.add(cls);
+        setTimeout(() => el.classList.remove(cls), ms);
+      }
+      function enterCards(container) {
+        if (!container || reduceMotion()) return;
+        container.querySelectorAll('.match-card').forEach((c, i) => c.style.setProperty('--i', Math.min(i, 14)));
+        replay(container, 'fx-enter', 1100);
+      }
+
+      // ---------- احتفال التتويج ----------
+      function confetti(canvas) {
+        const ctx = canvas.getContext('2d'); if (!ctx) return;
+        const dpr = Math.min(2, window.devicePixelRatio || 1);
+        const W = canvas.clientWidth, H = canvas.clientHeight;
+        canvas.width = W * dpr; canvas.height = H * dpr; ctx.scale(dpr, dpr);
+        const golds = ['#CFA963', '#E3CCA0', '#F3DFAE', '#A67C32', '#FFF4D6'];
+        const coins = ['#F3EBDD', '#F3EBDD', '#1E1A17', '#1E1A17', '#B3261E'];
+        const ps = [];
+        const R = (a, b) => a + Math.random() * (b - a);
+        const n = W < 500 ? 90 : 140;
+        for (let i = 0; i < n; i++) ps.push({ x: W / 2 + R(-40, 40), y: H * 0.42, vx: R(-7.5, 7.5), vy: R(-14, -5), g: R(.22, .32), r: R(0, 6.28), vr: R(-.25, .25), w: R(6, 11), h: R(3, 6), c: golds[i % golds.length], k: 'r' });
+        for (let i = 0; i < 16; i++) ps.push({ x: R(0, W), y: R(-H * .5, -20), vx: R(-1.2, 1.2), vy: R(1, 3), g: R(.12, .2), r: 0, vr: 0, w: R(8, 11), c: coins[i % coins.length], k: 'c' });
+        const t0 = performance.now();
+        (function frame(t) {
+          if (!canvas.isConnected) return;
+          const life = (t - t0) / 1000;
+          ctx.clearRect(0, 0, W, H);
+          let alive = 0;
+          ctx.globalAlpha = life > 3 ? Math.max(0, 1 - (life - 3) / .8) : 1;
+          for (const p of ps) {
+            p.vx *= .985; p.vy = p.vy * .985 + p.g; p.x += p.vx; p.y += p.vy; p.r += p.vr;
+            if (p.y > H + 30) continue; alive++;
+            ctx.save(); ctx.translate(p.x, p.y);
+            if (p.k === 'r') { ctx.rotate(p.r); ctx.scale(1, Math.cos(p.r * 2.2)); ctx.fillStyle = p.c; ctx.fillRect(-p.w / 2, -p.h / 2, p.w, p.h); }
+            else {
+              ctx.beginPath(); ctx.arc(0, 0, p.w, 0, 6.2832); ctx.fillStyle = p.c; ctx.fill();
+              ctx.lineWidth = 1.2; ctx.strokeStyle = p.c === '#1E1A17' ? 'rgba(255,255,255,.22)' : 'rgba(0,0,0,.22)';
+              ctx.beginPath(); ctx.arc(0, 0, p.w * .62, 0, 6.2832); ctx.stroke();
+            }
+            ctx.restore();
+          }
+          if (alive && life < 4) requestAnimationFrame(frame); else ctx.clearRect(0, 0, W, H);
+        })(t0);
+      }
+      function celebrate(label, name, sub) {
+        const old = document.getElementById('celebration'); if (old) old.remove();
+        const el = document.createElement('div');
+        el.id = 'celebration'; el.setAttribute('role', 'status'); el.setAttribute('aria-live', 'polite');
+        const card = document.createElement('div'); card.className = 'celeb-card';
+        card.innerHTML = '<div class="celeb-trophy" aria-hidden="true"></div><div class="celeb-label"></div><div class="celeb-name"></div><div class="celeb-sub"></div><div class="celeb-hint">اضغط للمتابعة</div>';
+        card.querySelector('.celeb-label').textContent = label;
+        card.querySelector('.celeb-name').textContent = name;
+        const subEl = card.querySelector('.celeb-sub'); if (sub) subEl.textContent = sub; else subEl.remove();
+        if (!reduceMotion()) { const cv = document.createElement('canvas'); el.appendChild(cv); requestAnimationFrame(() => confetti(cv)); }
+        el.appendChild(card);
+        let closed = false;
+        const close = () => { if (closed) return; closed = true; el.classList.add('leaving'); setTimeout(() => el.remove(), 460); document.removeEventListener('keydown', onKey, true); };
+        const onKey = e => { if (e.key === 'Escape' || e.key === 'Enter') { e.preventDefault(); close(); } };
+        el.addEventListener('click', close);
+        document.addEventListener('keydown', onKey, true);
+        document.body.appendChild(el);
+        setTimeout(close, 4600);
+      }
+      window.carromCelebrate = celebrate;
+
+      // ---------- الربط بالأحداث (التفاف حول الدوال القائمة دون تغيير منطقها) ----------
+      const _confirmWinner = confirmWinner;
+      confirmWinner = function (matchId, winnerName) {
+        let before = null; try { before = getVerifiedTournamentChampion(); } catch (e) {}
+        const r = _confirmWinner.apply(this, arguments);
+        try {
+          const m = bracketState[matchId];
+          if (m && m.winner === winnerName) {
+            replay(bracketArea.querySelector(`[data-match-id="${cssEsc(matchId)}"]`), 'fx-scored', 1300);
+            if (m.nextMatchId) {
+              const nx = bracketArea.querySelector(`[data-match-id="${cssEsc(m.nextMatchId)}"]`);
+              const row = nx && nx.querySelectorAll('.match-team')[m.slot === 2 ? 1 : 0];
+              replay(row, 'fx-advanced', 1200);
+            }
+            const after = getVerifiedTournamentChampion();
+            if (after && (!before || before.champion !== after.champion)) {
+              const t = tournamentName.textContent.trim();
+              celebrate(currentMode === 'single' ? 'بطل المنافسة الفردية' : 'بطل البطولة', getDisplayTeamName(after.champion), (t ? t + ' · ' : '') + 'النهائي ' + after.score);
+            }
+          }
+        } catch (e) { console.error(e); }
+        return r;
+      };
+
+      const _saveLeague = saveLeagueMatchResult;
+      saveLeagueMatchResult = function () {
+        const id = leagueScoreMatchId, wasDone = leagueCompleted;
+        const r = _saveLeague.apply(this, arguments);
+        try {
+          if (id != null) replay(document.querySelector(`.lg-match[data-league-match="${cssEsc(id)}"]`), 'fx-scored', 1300);
+          if (!wasDone && leagueCompleted) {
+            const st = calculateLeagueStandings();
+            if (st[0]) { const t = tournamentName.textContent.trim(); celebrate('بطل الدوري', st[0].name, `${exportPointsLabel(st[0].points)}` + (t ? ' · ' + t : '')); }
+          }
+        } catch (e) { console.error(e); }
+        return r;
+      };
+
+      const _showBracketInner = showBracketInner;
+      showBracketInner = async function () {
+        const before = currentTournamentId;
+        const r = await _showBracketInner.apply(this, arguments);
+        if (currentTournamentId && currentTournamentId !== before) enterCards(bracketArea);
+        return r;
+      };
+
+      let leagueWasStarted = leagueStarted;
+      const _renderLeague = renderLeague;
+      renderLeague = function () {
+        const r = _renderLeague.apply(this, arguments);
+        if (!leagueWasStarted && leagueStarted) enterCards(leagueRoundsEl);
+        leagueWasStarted = leagueStarted;
+        return r;
+      };
     })();
 
     // ===================================
