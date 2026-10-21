@@ -134,6 +134,7 @@
       --ic-check: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2.6' stroke-linecap='round' stroke-linejoin='round'><path d='M5 12.5l4.5 4.5L19 7.5'/></svg>");
       --ic-x: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2.2' stroke-linecap='round' stroke-linejoin='round'><path d='M6 6l12 12M18 6L6 18'/></svg>");
       --ic-pencil: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='1.9' stroke-linecap='round' stroke-linejoin='round'><path d='M4 20l1-4L16.5 4.5a2.1 2.1 0 0 1 3 3L8 19z'/><path d='M14.5 6.5l3 3'/></svg>");
+      --ic-share: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='1.9' stroke-linecap='round' stroke-linejoin='round'><path d='M12 3v12'/><path d='M8 7l4-4 4 4'/><path d='M7 11H6a2 2 0 0 0-2 2v6a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-6a2 2 0 0 0-2-2h-1'/></svg>");
       --ic-undo: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='1.9' stroke-linecap='round' stroke-linejoin='round'><path d='M9 14L4 9l5-5'/><path d='M4 9h10a6 6 0 0 1 0 12h-3'/></svg>");
       --ic-redo: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='1.9' stroke-linecap='round' stroke-linejoin='round'><path d='M15 14l5-5-5-5'/><path d='M20 9H10a6 6 0 0 0 0 12h3'/></svg>");
       --ic-chev-r: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2.2' stroke-linecap='round' stroke-linejoin='round'><path d='M9 5l7 7-7 7'/></svg>");
@@ -214,7 +215,7 @@
     .ic-trophy { --ic: var(--ic-trophy); } .ic-table { --ic: var(--ic-table); } .ic-dice { --ic: var(--ic-dice); }
     .ic-bracket { --ic: var(--ic-bracket); } .ic-image { --ic: var(--ic-image); } .ic-chart { --ic: var(--ic-chart); }
     .ic-trash { --ic: var(--ic-trash); } .ic-plus { --ic: var(--ic-plus); } .ic-check { --ic: var(--ic-check); }
-    .ic-x { --ic: var(--ic-x); } .ic-pencil { --ic: var(--ic-pencil); } .ic-undo { --ic: var(--ic-undo); }
+    .ic-x { --ic: var(--ic-x); } .ic-pencil { --ic: var(--ic-pencil); } .ic-undo { --ic: var(--ic-undo); } .ic-share { --ic: var(--ic-share); }
     .ic-redo { --ic: var(--ic-redo); } .ic-chev-r { --ic: var(--ic-chev-r); } .ic-chev-l { --ic: var(--ic-chev-l); }
     .ic-download { --ic: var(--ic-download); } .ic-restore { --ic: var(--ic-restore); } .ic-swap { --ic: var(--ic-swap); }
     .ic-calendar { --ic: var(--ic-calendar); } .ic-info { --ic: var(--ic-info); } .ic-alert { --ic: var(--ic-alert); }
@@ -1552,12 +1553,41 @@
     /* تجميد الصفحة خلف النوافذ المفتوحة */
     html.sheet-open, html.sheet-open body { overflow: hidden; }
     /* شريطا «تراجع» و«شارك النتيجة» لا يغطيان أزرار النافذة المفتوحة؛ يعودان بعد إغلاقها إن بقي وقتهما */
-    #quickUndoBar, #quickShareBar { transition: opacity .2s ease; }
-    html.sheet-open #quickUndoBar, html.sheet-open #quickShareBar { opacity: 0; pointer-events: none; }
+    html.sheet-open #actionCapsule { opacity: 0; transform: translateY(16px) scale(.97); pointer-events: none; }
     /* مساحة مؤقتة أسفل الصفحة بقدر الشريط السفلي حتى لا يغطي آخر الأزرار */
     .container { transition: padding-bottom .25s ease; }
-    body:has(#quickUndoBar) .container, body:has(#quickShareBar) .container { padding-bottom: calc(84px + var(--safe-bottom)); }
-    body:has(#quickUndoBar.above-share) .container { padding-bottom: calc(146px + var(--safe-bottom)); }
+    body:has(#actionCapsule) .container { padding-bottom: calc(82px + var(--safe-bottom)); }
+
+    /* ===== كبسولة الإجراءات: زجاجية بأسلوب iOS ===== */
+    .capsule {
+      position: fixed; left: 0; right: 0; margin: 0 auto; bottom: calc(14px + var(--safe-bottom)); z-index: 99001;
+      width: max-content; max-width: calc(100vw - 24px); min-height: 50px; box-sizing: border-box;
+      display: flex; align-items: center; gap: 8px; padding: 6px; padding-inline-start: 12px; border-radius: 999px; direction: rtl;
+      background: rgba(255, 253, 248, .9); color: var(--text);
+      -webkit-backdrop-filter: blur(22px) saturate(1.8); backdrop-filter: blur(22px) saturate(1.8);
+      border: 1px solid rgba(48, 37, 31, .08);
+      box-shadow: 0 14px 34px -12px rgba(30, 22, 17, .32), 0 2px 6px rgba(30, 22, 17, .06);
+      transform: translateY(calc(100% + 30px)) scale(.94); opacity: 0;
+      transition: transform .55s cubic-bezier(.32, .72, 0, 1), opacity .3s ease;
+      touch-action: none; -webkit-user-select: none; user-select: none; will-change: transform;
+    }
+    body.dark-mode .capsule { background: rgba(46, 39, 33, .9); border-color: rgba(255, 255, 255, .08); box-shadow: 0 14px 34px -12px rgba(0, 0, 0, .7); }
+    .capsule.in { transform: none; opacity: 1; }
+    .capsule.out { opacity: 0; transform: translateY(14px) scale(.96); transition: transform .32s cubic-bezier(.4, 0, 1, 1), opacity .26s ease; pointer-events: none; }
+    .capsule.dragging { transition: none; }
+    .cap-ok { width: 24px; height: 24px; border-radius: 50%; display: grid; place-items: center; flex: 0 0 auto; background: var(--ok-bg); color: var(--ok); }
+    .cap-ok .ic { width: 14px; height: 14px; }
+    .cap-label { font-size: 14.5px; font-weight: 700; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 42vw; }
+    .cap-actions { display: flex; align-items: center; gap: 4px; padding-inline-start: 6px; margin-inline-start: 2px; border-inline-start: 1px solid rgba(127, 110, 92, .22); }
+    .cap-btn { min-height: 38px; padding: 0 12px; border-radius: 999px; border: 0; background: transparent; color: var(--text); font: inherit; font-size: 14px; font-weight: 800;
+      display: inline-flex; align-items: center; gap: 5px; cursor: pointer; white-space: nowrap; transition: background .15s ease, opacity .25s ease, transform .15s ease; }
+    .cap-btn .ic { width: 16px; height: 16px; color: var(--gold-deep); }
+    .cap-btn:active { transform: scale(.95); background: rgba(127, 110, 92, .14); }
+    .cap-btn:disabled { opacity: .35; cursor: default; }
+    .cap-btn.primary { background: var(--wood); color: var(--on-wood); }
+    .cap-btn.primary .ic { color: var(--gold); }
+    body.dark-mode .cap-btn.primary { background: var(--gold); color: #1d1610; }
+    body.dark-mode .cap-btn.primary .ic { color: #1d1610; }
 
     /* العنوان: تعديل بالضغط المطوّل فقط (لا كيبورد بلمسة عابرة) */
     .header-title { -webkit-user-select: none; user-select: none; -webkit-touch-callout: none; cursor: default; }
@@ -2780,37 +2810,100 @@ return teamName.replace('غير محدد', replacement);
     // ======== ⤺ التراجع السريع بعد الإجراءات المهمة ========
     // يُعلَّم الإجراء قبل حفظه؛ عندما يُسجَّل فعلًا في سجل التراجع يظهر شريط "تراجع" لثوانٍ.
     function offerUndo(label) { window.__carromUndoOffer = { label, at: Date.now() }; }
-    let quickUndoTimer = null;
-    function hideQuickUndo() { const o = document.getElementById('quickUndoBar'); if (o) o.remove(); clearTimeout(quickUndoTimer); }
-    function showQuickUndo(detail) {
-      hideQuickUndo();
-      if (!detail || !detail.id) return;
-      const bar = document.createElement('div');
-      bar.id = 'quickUndoBar'; bar.className = 'quick-undo';
-      bar.setAttribute('role', 'status');
-      if (document.getElementById('quickShareBar')) bar.classList.add('above-share');
-      const text = document.createElement('span');
-      text.className = 'quick-undo-text';
-      text.innerHTML = '<span class="ic ic-check" aria-hidden="true"></span>';
-      text.appendChild(document.createTextNode(detail.label));
-      const btn = document.createElement('button');
-      btn.type = 'button'; btn.className = 'quick-undo-btn'; btn.setAttribute('data-ic', 'undo');
-      btn.textContent = 'تراجع';
-      btn.addEventListener('click', () => {
-        btn.disabled = true; btn.textContent = 'جارٍ التراجع…';
-        try { hideQuickShare(); } catch (e) {}
-        if (!window.carromQuickUndo || !window.carromQuickUndo(detail.id)) {
-          hideQuickUndo();
-          alert('تعذّر التراجع السريع لأن خطوة أخرى سُجّلت بعده. استخدم سجل التراجع في لوحة التحكم.');
-        }
-      });
-      const x = document.createElement('button');
-      x.type = 'button'; x.className = 'quick-undo-close'; x.setAttribute('aria-label', 'إغلاق'); x.textContent = '✕';
-      x.addEventListener('click', hideQuickUndo);
-      bar.append(text, btn, x);
-      document.body.appendChild(bar);
-      quickUndoTimer = setTimeout(hideQuickUndo, 9000);
+    // ======== 💊 كبسولة الإجراءات (أسلوب iOS): عنصر واحد يجمع «تراجع» و«مشاركة» ========
+    // بعد تسجيل نتيجة: «سُجّلت النتيجة» + تراجع + مشاركة. بعد إجراء كبير: اسم الإجراء + تراجع.
+    // تختفي وحدها بعد ثوانٍ، أو بسحبها لأسفل؛ وتتوقف مؤقتًا أثناء لمسها.
+    const CAPSULE_MS = 5500;
+    let capsuleEl = null, capsuleTimer = null, capsuleState = null;
+    function capsuleArm() { clearTimeout(capsuleTimer); capsuleTimer = setTimeout(() => capsuleHide(), CAPSULE_MS); }
+    function capsuleHide(down) {
+      clearTimeout(capsuleTimer); capsuleTimer = null; capsuleState = null;
+      const el = capsuleEl; capsuleEl = null;
+      if (!el) return;
+      el.id = '';                                   // يفسح المكان فورًا لكبسولة جديدة
+      el.classList.remove('in', 'dragging');
+      if (down) el.style.transform = 'translateY(calc(100% + 40px))';
+      el.classList.add('out');
+      setTimeout(() => el.remove(), 360);
     }
+    function capsuleRender() {
+      const st = capsuleState; if (!st) return;
+      let el = capsuleEl;
+      const fresh = !el;
+      if (fresh) {
+        el = document.createElement('div');
+        el.id = 'actionCapsule'; el.className = 'capsule'; el.setAttribute('role', 'status'); el.setAttribute('aria-live', 'polite');
+        el.innerHTML = '<span class="cap-ok" aria-hidden="true"><span class="ic ic-check"></span></span><span class="cap-label"></span><span class="cap-actions"></span>';
+        wireCapsuleGestures(el);
+        document.body.appendChild(el);
+        capsuleEl = el;
+      }
+      el.querySelector('.cap-label').textContent = st.label;
+      const acts = el.querySelector('.cap-actions');
+      acts.innerHTML = '';
+      const mk = (cls, icon, text, onClick, disabled) => {
+        const b = document.createElement('button'); b.type = 'button'; b.className = 'cap-btn ' + cls;
+        b.innerHTML = `<span class="ic ic-${icon}" aria-hidden="true"></span>`; b.appendChild(document.createTextNode(text));
+        b.disabled = !!disabled; b.addEventListener('click', onClick); acts.appendChild(b); return b;
+      };
+      if (st.undoId || st.awaitUndo) {
+        const ub = mk('', 'undo', 'تراجع', () => {
+          ub.disabled = true; ub.lastChild.textContent = 'جارٍ…';
+          clearTimeout(capsuleTimer);
+          if (!window.carromQuickUndo || !window.carromQuickUndo(st.undoId)) {
+            capsuleHide();
+            alert('تعذّر التراجع السريع لأن خطوة أخرى سُجّلت بعده. استخدم سجل التراجع في لوحة التحكم.');
+          }
+        }, !st.undoId);
+      }
+      if (st.share) {
+        const sb = mk('primary', 'share', 'مشاركة', async () => {
+          const run = st.share;
+          clearTimeout(capsuleTimer);
+          if (await exportGuardedRun(run, null)) capsuleHide(); else capsuleArm();
+        });
+      }
+      if (fresh) { void el.offsetWidth; requestAnimationFrame(() => el.classList.add('in')); }
+      capsuleArm();
+    }
+    function wireCapsuleGestures(el) {
+      let y0 = null, dy = 0, moved = false;
+      el.addEventListener('pointerdown', e => { y0 = e.clientY; dy = 0; moved = false; clearTimeout(capsuleTimer); });
+      el.addEventListener('pointermove', e => {
+        if (y0 === null) return;
+        dy = e.clientY - y0;
+        if (!moved && Math.abs(dy) > 6) { moved = true; el.classList.add('dragging'); try { el.setPointerCapture(e.pointerId); } catch (er) {} }
+        if (moved) el.style.transform = `translateY(${dy > 0 ? dy : dy / 4}px)`;   // للأعلى بمقاومة، للأسفل حر
+      });
+      const end = () => {
+        if (y0 === null) return; y0 = null;
+        el.classList.remove('dragging');
+        if (moved && dy > 26) { capsuleHide(true); return; }
+        el.style.transform = '';
+        if (capsuleEl === el) capsuleArm();
+      };
+      el.addEventListener('pointerup', end); el.addEventListener('pointercancel', end);
+      el.addEventListener('click', e => { if (moved) { e.stopPropagation(); e.preventDefault(); } }, true);   // سحب ليس ضغطة
+      el.addEventListener('mouseenter', () => clearTimeout(capsuleTimer));
+      el.addEventListener('mouseleave', () => { if (capsuleEl === el && y0 === null) capsuleArm(); });
+    }
+    // بعد تسجيل نتيجة (يُستدعى فورًا) — زر التراجع يصبح جاهزًا لحظة تسجيل الخطوة في سجل التراجع
+    function showQuickShare(run) {
+      capsuleState = { label: 'سُجّلت النتيجة', share: run, undoId: null, awaitUndo: true, at: Date.now() };
+      capsuleRender();
+      const mine = capsuleState;
+      setTimeout(() => { if (capsuleState === mine && !mine.undoId) { mine.awaitUndo = false; capsuleRender(); } }, 2500);
+    }
+    function showQuickUndo(detail) {
+      if (!detail || !detail.id) return;
+      if (capsuleState && capsuleState.share && capsuleState.awaitUndo && !capsuleState.undoId && Date.now() - capsuleState.at < 2500) {
+        capsuleState.undoId = detail.id; capsuleRender(); return;
+      }
+      capsuleState = { label: detail.label, share: null, undoId: detail.id, awaitUndo: false, at: Date.now() };
+      capsuleRender();
+    }
+    function hideQuickUndo() { capsuleHide(); }
+    function hideQuickShare() { capsuleHide(); }
     window.addEventListener('carrom-undoable', e => showQuickUndo(e.detail));
 
     // ======== 🆕 بطولة جديدة بنفس اللاعبين ========
@@ -8071,22 +8164,6 @@ function buildLeagueStandingsCanvas() {
       await renderLeagueSheet('نتيجة مباراة', leagueCtx(), 1, [{ heading: `الجولة ${m.round} — مباراة ${m.id}`, matches: [it] }], `League-Match-${m.id}.png`);
     }
 
-    // زر عائم يظهر بعد حفظ نتيجة ويفتح صورتها في الاستوديو مباشرة
-    let quickShareTimer = null;
-    function hideQuickShare() { const o = document.getElementById('quickShareBar'); if (o) o.remove(); clearTimeout(quickShareTimer); }
-    function showQuickShare(run) {
-      hideQuickShare();
-      const bar = document.createElement('div'); bar.id = 'quickShareBar';
-      bar.style.cssText = 'position:fixed;left:50%;transform:translateX(-50%);bottom:calc(18px + env(safe-area-inset-bottom,0px));z-index:99000;display:flex;gap:6px;direction:rtl;font-family:Tajawal,system-ui,sans-serif';
-      const b = document.createElement('button'); b.type = 'button'; b.textContent = 'شارك النتيجة';
-      b.style.cssText = 'min-height:48px;padding:0 20px;border-radius:24px;border:1px solid #CFA963;background:#CFA963;color:#30251F;font:800 16px Tajawal,system-ui,sans-serif;box-shadow:0 8px 24px rgba(0,0,0,.3);cursor:pointer';
-      const x = document.createElement('button'); x.type = 'button'; x.textContent = '✕'; x.setAttribute('aria-label', 'إغلاق');
-      x.style.cssText = 'width:48px;min-height:48px;border-radius:24px;border:1px solid #CFA963;background:#30251F;color:#F7F3EA;font:700 16px sans-serif;cursor:pointer';
-      b.addEventListener('click', async () => { if (await exportGuardedRun(run, b, 'جارٍ الإنشاء…')) hideQuickShare(); });
-      x.addEventListener('click', hideQuickShare);
-      bar.append(b, x); document.body.appendChild(bar);
-      quickShareTimer = setTimeout(hideQuickShare, 15000);
-    }
     // التفاف يستدعي الدالة الأصلية كما هي ثم يعرض الزر (لا تغيير في تسجيل النتائج)
     { const _confirmWinner = confirmWinner;
       confirmWinner = function (matchId, winnerName) {
@@ -9280,7 +9357,7 @@ function buildLeagueStandingsCanvas() {
     // ===================================
     // 🧭 سلوك التطبيق: إعادة الوضع للأعلى، تعديل العنوان بالضغط المطوّل، تنبيه التحديث، رقم الإصدار
     // ===================================
-    const APP_VERSION = '8';   // يُرفع مع رقم الإصدار في sw.js عند كل تحديث
+    const APP_VERSION = '9';   // يُرفع مع رقم الإصدار في sw.js عند كل تحديث
     (function setupAppBehaviors() {
       const root = document.documentElement;
 
