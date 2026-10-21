@@ -1452,6 +1452,27 @@
     /* انتقال ناعم عند تبديل وضع البطولة */
     @keyframes modeEnter { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: none; } }
     .main.mode-enter { animation: modeEnter .28s var(--ease, ease-out) both; }
+    /* ===== الهيدر المنكمش (أسلوب العنوان الكبير في iOS) =====
+       الهيدر لاصق بإزاحة سالبة: يصعد مع التمرير حتى لا يبقى منه إلا شريط رفيع (منطقة الساعة + 52px) ثم يثبت.
+       --hdr-p (0 → 1) تقدّم الانكماش، تحسبه الدالة setupCollapsingHeader من موضع التمرير، وكل الحركة transform/opacity فقط. */
+    .app-header-wrap { position: sticky; top: var(--hdr-top, 0px); z-index: 95; }
+    .app-header { background-image: linear-gradient(180deg, var(--wood-2), var(--wood)); background-size: auto; background-position: 0 0; background-repeat: no-repeat; overflow: hidden; isolation: isolate; }
+    .app-header::before {
+      content: ""; position: absolute; inset: 0; z-index: -1; pointer-events: none;
+      background: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='260' height='260' viewBox='0 0 260 260' fill='none' stroke='%23CFA963' stroke-opacity='.22'><circle cx='130' cy='130' r='46' stroke-width='1.2'/><circle cx='130' cy='130' r='74' stroke-width='1'/><circle cx='130' cy='130' r='6' fill='%23CFA963' fill-opacity='.35' stroke='none'/></svg>") no-repeat center 40% / 260px 260px;
+      opacity: calc(1 - var(--hdr-p, 0) * 1.4);
+      transform: translateY(calc(var(--hdr-d, 0px) * var(--hdr-p, 0) * .55)) scale(calc(1 - var(--hdr-p, 0) * .25));
+    }
+    .app-header .app-bar { position: relative; }
+    .app-header .theme-switch, .app-header .control-open-btn, .header-title h2, .header-title h1 { will-change: transform; transform-origin: center; }
+    .header-title h1 { opacity: calc(1 - var(--hdr-p, 0) * 1.8); }
+    .header-title h2 { transition: none; }
+    /* أزرار الأوضاع: مفتاح تبديل مدمج يلتصق تحت الشريط الخشبي */
+    .mode-nav { top: var(--hdr-c, 0px); padding-top: var(--s2); padding-bottom: var(--s2); z-index: 94;
+      box-shadow: 0 10px 22px -16px rgba(20, 14, 10, calc(.7 * var(--hdr-p, 0))); }
+    .btn.mode-switch { min-height: 38px; border-radius: 10px; }
+    #modeSelection { padding: 3px; gap: 3px; border-radius: 13px; }
+    html { scroll-padding-top: var(--top-stack, 0px); }
   </style>
 </head>
 <body>
@@ -8823,6 +8844,65 @@ function buildLeagueStandingsCanvas() {
           navigator.serviceWorker.ready.then(reg => { if (navigator.onLine && reg.active) reg.active.postMessage('warm-fonts'); }).catch(() => {});
         });
       }
+    })();
+
+    // ===================================
+    // 🪵 الهيدر المنكمش: كبير في أعلى الصفحة، شريط خشبي رفيع ثابت عند التمرير
+    // ===================================
+    (function setupCollapsingHeader() {
+      const root = document.documentElement;
+      const wrap = document.querySelector('.app-header-wrap');
+      const header = document.querySelector('.app-header');
+      const bar = header && header.querySelector('.app-bar');
+      const h2 = document.getElementById('tournamentName');
+      const h1 = document.getElementById('tournamentTitle');
+      const btns = [document.getElementById('themeSwitch'), document.getElementById('openControlDashboard')];
+      const nav = document.querySelector('.mode-nav');
+      if (!wrap || !header || !bar || !h2 || !h1 || !nav) return;
+      const BAR = 52;             // ارتفاع الشريط الرفيع تحت منطقة الساعة
+      const TITLE_SCALE = 0.7;    // حجم العنوان في الشريط الرفيع
+      let D = 0, safeTop = 0, targets = null, ticking = false, lastP = -1;
+
+      const centerY = el => { const r = el.getBoundingClientRect(), h = header.getBoundingClientRect(); return r.top - h.top + r.height / 2; };
+      function measure() {
+        // القياس بلا أي تحويلات حتى تكون المواضع الأصلية
+        [h2, h1, ...btns].forEach(el => { if (el) el.style.transform = ''; });
+        safeTop = parseFloat(getComputedStyle(header).paddingTop) || 0;
+        const H = header.offsetHeight, C = safeTop + BAR;
+        D = Math.max(0, H - C);
+        const target = D + safeTop + BAR / 2;     // مركز الشريط الرفيع بإحداثيات الهيدر
+        targets = { h2: target - centerY(h2), h1: target - centerY(h1), btns: btns.map(b => b ? target - centerY(b) : 0) };
+        root.style.setProperty('--hdr-top', (-D) + 'px');
+        root.style.setProperty('--hdr-c', C + 'px');
+        root.style.setProperty('--hdr-d', D + 'px');
+        root.style.setProperty('--top-stack', (C + nav.offsetHeight + 8) + 'px');
+        lastP = -1; apply();
+      }
+      // منحنى ناعم: بداية سريعة ونهاية هادئة مثل حركات iOS
+      const ease = t => 1 - Math.pow(1 - t, 2);
+      function apply() {
+        ticking = false;
+        if (!targets) return;
+        const raw = D > 0 ? Math.min(1, Math.max(0, window.scrollY / D)) : 0;
+        const p = Math.round(raw * 1000) / 1000;
+        if (p === lastP) return; lastP = p;
+        const e = ease(p);
+        root.style.setProperty('--hdr-p', e.toFixed(3));
+        h2.style.transform = `translateY(${(targets.h2 * p).toFixed(2)}px) scale(${(1 - (1 - TITLE_SCALE) * e).toFixed(4)})`;
+        h1.style.transform = `translateY(${(targets.h1 * p).toFixed(2)}px) scale(${(1 - .2 * e).toFixed(4)})`;
+        btns.forEach((b, i) => { if (b) b.style.transform = `translateY(${(targets.btns[i] * p).toFixed(2)}px) scale(${(1 - .14 * e).toFixed(4)})`; });
+        header.classList.toggle('is-collapsed', p >= 1);
+      }
+      window.addEventListener('scroll', () => { if (!ticking) { ticking = true; requestAnimationFrame(apply); } }, { passive: true });
+      window.addEventListener('resize', () => requestAnimationFrame(measure));
+      window.addEventListener('orientationchange', () => setTimeout(measure, 250));
+      // تعديل العنوان قد يغيّر عدد أسطره، وتحميل الخط يغيّر المقاسات
+      [h2, h1].forEach(el => el.addEventListener('blur', () => requestAnimationFrame(measure)));
+      if (window.ResizeObserver) new ResizeObserver(() => requestAnimationFrame(measure)).observe(bar);
+      if (document.fonts && document.fonts.ready) document.fonts.ready.then(() => requestAnimationFrame(measure));
+      // أثناء تعديل العنوان لا يُصغَّر حتى يبقى واضحًا للكتابة
+      [h2, h1].forEach(el => el.addEventListener('focus', () => { if (window.scrollY > 0) window.scrollTo({ top: 0, behavior: 'smooth' }); }));
+      measure();
     })();
 
     // ===================================
