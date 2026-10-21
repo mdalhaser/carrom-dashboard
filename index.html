@@ -1554,6 +1554,37 @@
     /* شريطا «تراجع» و«شارك النتيجة» لا يغطيان أزرار النافذة المفتوحة؛ يعودان بعد إغلاقها إن بقي وقتهما */
     #quickUndoBar, #quickShareBar { transition: opacity .2s ease; }
     html.sheet-open #quickUndoBar, html.sheet-open #quickShareBar { opacity: 0; pointer-events: none; }
+    /* مساحة مؤقتة أسفل الصفحة بقدر الشريط السفلي حتى لا يغطي آخر الأزرار */
+    .container { transition: padding-bottom .25s ease; }
+    body:has(#quickUndoBar) .container, body:has(#quickShareBar) .container { padding-bottom: calc(84px + var(--safe-bottom)); }
+    body:has(#quickUndoBar.above-share) .container { padding-bottom: calc(146px + var(--safe-bottom)); }
+
+    /* العنوان: تعديل بالضغط المطوّل فقط (لا كيبورد بلمسة عابرة) */
+    .header-title { -webkit-user-select: none; user-select: none; -webkit-touch-callout: none; cursor: default; }
+    .header-title h2, .header-title h1 { cursor: inherit; }
+    .header-title.pressing h2 { opacity: .78; transition: opacity .5s ease; }
+    .title-edit .ui-dialog { text-align: start; }
+    .title-edit h3 { text-align: center; margin-bottom: var(--s4); }
+    .title-edit label { display: block; font-size: var(--fs-sm); font-weight: 700; color: var(--text-2); margin: 0 0 6px; }
+    .title-edit input { width: 100%; margin-bottom: var(--s4); }
+
+    /* حالات فارغة أوضح */
+    .empty-rich { display: flex; flex-direction: column; align-items: center; gap: 6px; text-align: center; }
+    .empty-rich .ic { font-size: 30px; color: var(--gold-deep); margin-bottom: 4px; }
+    .empty-rich b { color: var(--text); font-size: var(--fs-base); }
+    .empty-rich span:last-child { max-width: 34ch; }
+    .manual-empty { width: 100%; color: var(--text-2); font-size: var(--fs-sm); text-align: center; line-height: 1.6; padding: 4px 0; }
+
+    /* شريط «يتوفر تحديث» */
+    .update-bar { position: fixed; left: 0; right: 0; margin: 0 auto; width: max-content; white-space: nowrap; top: calc(var(--nav-bottom, 120px) + 8px); z-index: 96;
+      display: flex; align-items: center; gap: 10px; padding: 6px 6px 6px 14px; border-radius: 999px; max-width: calc(100vw - 24px);
+      background: var(--wood); color: var(--on-wood); border: 1px solid rgba(207, 169, 99, .5); box-shadow: 0 12px 30px -10px rgba(0, 0, 0, .55);
+      font-size: var(--fs-sm); font-weight: 700; animation: toastIn .35s var(--ease) both; direction: rtl; }
+    .update-bar .ic { color: var(--gold); }
+    .update-bar button { min-height: 36px; padding: 0 16px; border-radius: 999px; border: 0; background: var(--gold); color: #1d1610; font: inherit; font-weight: 800; cursor: pointer; }
+    .update-bar .ub-x { min-height: 36px; width: 36px; padding: 0; background: rgba(255, 255, 255, .08); color: var(--on-wood); }
+    html.sheet-open .update-bar { opacity: 0; pointer-events: none; }
+    .cd-version { margin-top: 4px; font-variant-numeric: tabular-nums; opacity: .8; }
     /* سحب النوافذ لأسفل للإغلاق (الهاتف) */
     .sheet-dragging { transition: none !important; animation: none !important; will-change: transform; }
     .sheet-settling { transition: transform .32s cubic-bezier(.2, .8, .2, 1) !important; animation: none !important; }
@@ -1598,8 +1629,8 @@
             <span id="themeIcon" class="ic ic-moon" aria-hidden="true"></span>
           </button>
           <div class="header-title">
-            <h2 id="tournamentName" contenteditable="true" spellcheck="false">بطولة المجلس للكيرم</h2>
-            <h1 id="tournamentTitle" contenteditable="true">إدارة القرعة</h1>
+            <h2 id="tournamentName" spellcheck="false">بطولة المجلس للكيرم</h2>
+            <h1 id="tournamentTitle">إدارة القرعة</h1>
           </div>
           <button type="button" id="openControlDashboard" class="control-open-btn" aria-label="فتح لوحة التحكم" data-ic="shield"><span>لوحة التحكم</span></button>
         </div>
@@ -1837,7 +1868,7 @@
         <div id="cdFeedback" class="cd-feedback" role="status" aria-live="polite"></div>
         <div class="cd-note"><strong>مهم:</strong> تاريخ التصدير يعني أن التطبيق بدأ تنزيل الملف، وليس تأكيداً بأنك حفظته خارجياً. بعد التصدير، تأكد من وجود الملف في تطبيق «الملفات» أو في مكان آمن. لا تحذف بيانات الموقع أو التطبيق قبل تجربة النسخة.</div>
       </div>
-      <div class="cd-footer">مركز حماية البيانات · النسخة الاحتياطية ملف مستقل عن التخزين المحلي</div>
+      <div class="cd-footer">مركز حماية البيانات · النسخة الاحتياطية ملف مستقل عن التخزين المحلي<div class="cd-version" id="appVersionLabel"></div></div>
     </div>
   </section>
 
@@ -2528,7 +2559,8 @@ return teamName.replace('غير محدد', replacement);
         playersGrid.appendChild(addCard);
 
       } else {
-        playersGrid.innerHTML = '<div class="empty" style="grid-column: 1 / -1;">اللاعبون المدخلون جاهزون للمشاركة في القرعة.</div>';
+        playersGrid.innerHTML = '';
+        playersGrid.style.display = 'none';   // لا معنى له في الفردي: القائمة الفعلية في manualPlayersList
 
         manualPlayersList.innerHTML = '';
         let allManual = [...manualPlayersPool];
@@ -2548,7 +2580,7 @@ return teamName.replace('غير محدد', replacement);
         });
 
         if (manualPlayersPool.length === 0 && teams.length === 0) {
-          manualPlayersList.innerHTML = '<div style="color:var(--muted);font-size:14px;"> أسماء اللاعبين ...</div>';
+          manualPlayersList.innerHTML = '<div class="manual-empty">لم تُضف أي لاعب بعد. اكتب الاسم بالأعلى أو اختر من اللاعبين المعروفين.</div>';
         }
         renderKnownPlayers(document.getElementById('singleKnownPlayers'), manualPlayersPool,
           n => addManualPlayerNames([n], false), list => addManualPlayerNames(list, false), isBracketDrawn);
@@ -3488,8 +3520,13 @@ return teamName.replace('غير محدد', replacement);
     // ===================================
     // ⚙️ دالة التبديل بين الأوضاع
     // ===================================
+    // موضع التمرير لكل وضع (في الذاكرة فقط): أول زيارة من الأعلى، والرجوع إلى حيث توقفت
+    const modeScrollMemory = {};
     function setMode(mode) {
       if (!['fixed', 'league', 'single'].includes(mode) || currentMode === mode) return;
+      modeScrollMemory[currentMode] = window.scrollY;
+      // شريطا «تراجع» و«شارك النتيجة» يخصّان الوضع السابق، فلا يتبعانك
+      try { hideQuickUndo(); hideQuickShare(); } catch (e) {}
 
       // احفظ مساحة الوضع الذي نغادره قبل تغيير العرض، دون إنهائه أو حذف بياناته.
       if (currentMode === 'fixed' || currentMode === 'single') saveModeSnapshot(currentMode);
@@ -3508,6 +3545,8 @@ return teamName.replace('غير محدد', replacement);
         if (Object.keys(bracketState).length > 0) reRenderBracket();
         else bracketArea.innerHTML = '<div class="empty">سيظهر جدول المباريات هنا بعد الضغط على "إنشاء جدول المباريات"</div>';
       }
+      const targetY = modeScrollMemory[mode] || 0;
+      window.scrollTo({ top: Math.min(targetY, Math.max(0, document.documentElement.scrollHeight - innerHeight)), behavior: 'instant' });
     }
 
     function setModeDisplay(mode) {
@@ -3839,8 +3878,9 @@ return teamName.replace('غير محدد', replacement);
 
     function renderStats() {
       const d = getStatsData();
+      exportStatsBtn.style.display = d.completedTournaments ? '' : 'none';
       if (!d.completedTournaments) {
-        statsContent.innerHTML = '<div class="empty-stats">لا توجد بطولات مكتملة في السجل حتى الآن.</div>';
+        statsContent.innerHTML = '<div class="empty-stats empty-rich"><span class="ic ic-trophy" aria-hidden="true"></span><b>لا توجد بطولات مكتملة بعد</b><span>بعد حسم أول نهائي أو اكتمال أول دوري يظهر هنا ترتيب اللاعبين وأفضل الشراكات وسجل البطولات.</span></div>';
         return;
       }
 
@@ -6825,7 +6865,7 @@ function changeScore(inputId, amount){
     function renderLeagueSetup() {
       leaguePlayersList.innerHTML = '';
       if (leaguePlayers.length === 0) {
-        leaguePlayersList.innerHTML = '<div class="league-empty">أسماء اللاعبين ...</div>';
+        leaguePlayersList.innerHTML = '<div class="league-empty">لم تُضف أي لاعب بعد. اكتب الاسم بالأعلى أو اختر من اللاعبين المعروفين.</div>';
       }
       leaguePlayers.forEach(name => {
         const chip = document.createElement('span');
@@ -9238,6 +9278,105 @@ function buildLeagueStandingsCanvas() {
     })();
 
     // ===================================
+    // 🧭 سلوك التطبيق: إعادة الوضع للأعلى، تعديل العنوان بالضغط المطوّل، تنبيه التحديث، رقم الإصدار
+    // ===================================
+    const APP_VERSION = '8';   // يُرفع مع رقم الإصدار في sw.js عند كل تحديث
+    (function setupAppBehaviors() {
+      const root = document.documentElement;
+
+      // ---------- الضغط على الوضع النشط مرة ثانية: صعود ناعم لأعلى الصفحة (كما في iOS) ----------
+      document.querySelectorAll('#modeSelection [data-mode]').forEach(btn => {
+        btn.addEventListener('click', () => {
+          if (btn.dataset.mode === currentMode && btn.classList.contains('active') && window.scrollY > 0 && btn.dataset.justSwitched !== '1') {
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+          }
+        });
+        // نقرة التبديل نفسها لا تُحسب «ضغطة ثانية»
+        btn.addEventListener('pointerdown', () => { btn.dataset.justSwitched = btn.dataset.mode === currentMode ? '0' : '1'; });
+      });
+
+      // ---------- تعديل اسم البطولة بالضغط المطوّل ----------
+      const titleBox = document.querySelector('.header-title');
+      function openTitleEditor() {
+        if (document.getElementById('titleEditBackdrop')) return;
+        const prevName = tournamentName.textContent.trim(), prevSub = tournamentTitle.textContent.trim();
+        const bd = document.createElement('div');
+        bd.id = 'titleEditBackdrop'; bd.className = 'ui-backdrop open title-edit'; bd.setAttribute('role', 'presentation');
+        bd.innerHTML = `<div class="ui-dialog" role="dialog" aria-modal="true" aria-labelledby="titleEditHead">
+            <h3 id="titleEditHead">تعديل اسم البطولة</h3>
+            <label for="titleEditName">اسم البطولة</label><input type="text" id="titleEditName" maxlength="60" autocomplete="off" enterkeyhint="next">
+            <label for="titleEditSub">العنوان الفرعي</label><input type="text" id="titleEditSub" maxlength="60" autocomplete="off" enterkeyhint="done">
+            <div class="ui-dialog-actions"><button type="button" class="btn" data-act="cancel">إلغاء</button><button type="button" class="btn primary" data-act="save">حفظ</button></div>
+          </div>`;
+        const nameIn = bd.querySelector('#titleEditName'), subIn = bd.querySelector('#titleEditSub');
+        nameIn.value = prevName; subIn.value = prevSub;
+        const close = () => { bd.remove(); root.classList.remove('sheet-open'); document.removeEventListener('keydown', onKey, true); };
+        const save = () => {
+          const n = nameIn.value.replace(/\s+/g, ' ').trim(), t = subIn.value.replace(/\s+/g, ' ').trim();
+          tournamentName.textContent = n || prevName;
+          tournamentTitle.textContent = t || prevSub;
+          updateTitleAndSave();
+          close();
+          if ((n || prevName) !== prevName || (t || prevSub) !== prevSub) uiToast('تم حفظ اسم البطولة.', 'ok', 2600);
+        };
+        const onKey = e => {
+          if (e.key === 'Escape') { e.preventDefault(); close(); }
+          else if (e.key === 'Enter') { e.preventDefault(); if (e.target === nameIn) subIn.focus(); else save(); }
+        };
+        bd.addEventListener('click', e => {
+          const act = e.target.closest('[data-act]');
+          if (act) { act.dataset.act === 'save' ? save() : close(); }
+          else if (e.target === bd) close();
+        });
+        document.addEventListener('keydown', onKey, true);
+        document.body.appendChild(bd);
+        root.classList.add('sheet-open');
+        setTimeout(() => { nameIn.focus(); try { nameIn.setSelectionRange(0, nameIn.value.length); } catch (e) {} }, 60);
+      }
+      if (titleBox) {
+        let timer = null, sx = 0, sy = 0;
+        const cancel = () => { clearTimeout(timer); timer = null; titleBox.classList.remove('pressing'); };
+        titleBox.addEventListener('pointerdown', e => {
+          if (e.pointerType === 'mouse' && e.button !== 0) return;
+          sx = e.clientX; sy = e.clientY; titleBox.classList.add('pressing');
+          timer = setTimeout(() => { cancel(); if (navigator.vibrate) try { navigator.vibrate(12); } catch (er) {} openTitleEditor(); }, 550);
+        });
+        titleBox.addEventListener('pointermove', e => { if (timer && Math.hypot(e.clientX - sx, e.clientY - sy) > 10) cancel(); });
+        ['pointerup', 'pointercancel', 'pointerleave'].forEach(ev => titleBox.addEventListener(ev, cancel));
+        titleBox.addEventListener('contextmenu', e => e.preventDefault());
+        titleBox.title = 'اضغط مطوّلًا لتعديل اسم البطولة';
+      }
+      window.carromOpenTitleEditor = openTitleEditor;
+
+      // ---------- رقم الإصدار في لوحة التحكم ----------
+      const vl = document.getElementById('appVersionLabel');
+      if (vl) vl.textContent = 'الإصدار ' + APP_VERSION;
+
+      // ---------- «يتوفر تحديث جديد» ----------
+      function showUpdateBar() {
+        if (document.getElementById('updateBar')) return;
+        const bar = document.createElement('div');
+        bar.id = 'updateBar'; bar.className = 'update-bar'; bar.setAttribute('role', 'status');
+        bar.innerHTML = '<span class="ic ic-restore" aria-hidden="true"></span><span>يتوفر تحديث جديد</span><button type="button" data-u="go">تحديث</button><button type="button" class="ub-x" data-u="x" aria-label="لاحقًا">✕</button>';
+        bar.addEventListener('click', e => {
+          const b = e.target.closest('[data-u]'); if (!b) return;
+          if (b.dataset.u === 'go') { b.disabled = true; b.textContent = 'جارٍ التحديث…'; location.reload(); }
+          else bar.remove();
+        });
+        document.body.appendChild(bar);
+      }
+      window.carromShowUpdateBar = showUpdateBar;
+      if ('serviceWorker' in navigator) {
+        let hadController = !!navigator.serviceWorker.controller;
+        navigator.serviceWorker.addEventListener('controllerchange', () => { if (hadController) showUpdateBar(); hadController = true; });
+        // التطبيق على الآيفون يُستأنف من الخلفية دون إعادة تحميل؛ نتحقق من وجود نسخة جديدة كلما ظهر
+        const check = () => { if (navigator.onLine) navigator.serviceWorker.getRegistration().then(r => r && r.update()).catch(() => {}); };
+        document.addEventListener('visibilitychange', () => { if (document.visibilityState === 'visible') check(); });
+        setInterval(check, 30 * 60 * 1000);
+      }
+    })();
+
+    // ===================================
     // 🪵 الهيدر المنكمش: كبير في أعلى الصفحة، شريط خشبي رفيع ثابت عند التمرير
     // ===================================
     (function setupCollapsingHeader() {
@@ -9283,6 +9422,7 @@ function buildLeagueStandingsCanvas() {
         h1.style.transform = `translateY(${(targets.h1 * p).toFixed(2)}px) scale(${(1 - .2 * e).toFixed(4)})`;
         btns.forEach((b, i) => { if (b) b.style.transform = `translateY(${(targets.btns[i] * p).toFixed(2)}px) scale(${(1 - .14 * e).toFixed(4)})`; });
         header.classList.toggle('is-collapsed', p >= 1);
+        root.style.setProperty('--nav-bottom', Math.round(nav.getBoundingClientRect().bottom) + 'px');
       }
       window.addEventListener('scroll', () => { if (!ticking) { ticking = true; requestAnimationFrame(apply); } }, { passive: true });
       window.addEventListener('resize', () => requestAnimationFrame(measure));
