@@ -8819,6 +8819,8 @@ function buildLeagueStandingsCanvas() {
       if ('serviceWorker' in navigator && (location.protocol === 'https:' || location.hostname === 'localhost' || location.hostname === '127.0.0.1')) {
         window.addEventListener('load', () => {
           navigator.serviceWorker.register('sw.js').catch(err => console.warn('تعذر تفعيل العمل دون إنترنت', err));
+          // عند كل فتح متصل: يتأكد عامل الخدمة أن خط Tajawal محفوظ كاملًا على الجهاز
+          navigator.serviceWorker.ready.then(reg => { if (navigator.onLine && reg.active) reg.active.postMessage('warm-fonts'); }).catch(() => {});
         });
       }
     })();

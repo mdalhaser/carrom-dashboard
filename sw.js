@@ -3,13 +3,41 @@
    - خط Tajawal: يُحفظ بعد أول فتح متصل، ثم يُقرأ من الجهاز دائمًا.
    - لا يلمس بيانات البطولات (التخزين المحلي) إطلاقًا.
    عند تعديل الملفات مستقبلًا: غيّر رقم الإصدار أدناه ليُحدَّث المخزون القديم. */
-const VERSION = 'carrom-v2';
+const VERSION = 'carrom-v3';
 const SHELL = VERSION + '-shell';
 const FONTS = 'carrom-fonts';
 const SHELL_FILES = ['./', './index.html', './manifest.webmanifest', './icons/apple-touch-icon.png', './icons/icon-192.png', './icons/icon-512.png', './icons/icon-maskable-512.png'];
 
+// نفس رابط الخط في index.html حرفيًا (بعد فك &amp;)
+const FONT_CSS = 'https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700;800;900&display=swap';
+
+// تخزين الخط مسبقًا عند التثبيت: لا ننتظر أن تطلبه الصفحة، لأن أول فتح للتطبيق
+// (خصوصًا بعد إضافته للشاشة الرئيسية) يتم قبل أن يتولى عامل الخدمة الطلبات، فلا يُحفظ الخط وقتها.
+async function cacheFonts() {
+  const cache = await caches.open(FONTS);
+  const res = await fetch(FONT_CSS, { mode: 'cors', credentials: 'omit' });
+  if (!res.ok) throw new Error('font css ' + res.status);
+  const css = await res.clone().text();
+  const urls = [...new Set([...css.matchAll(/url\((https:\/\/fonts\.gstatic\.com\/[^)'"]+)\)/g)].map(m => m[1]))];
+  if (!urls.length) throw new Error('no font files');
+  await Promise.all(urls.map(async u => {
+    if (await cache.match(u)) return;
+    const f = await fetch(u, { mode: 'cors', credentials: 'omit' });
+    if (f.ok) await cache.put(u, f);
+  }));
+  await cache.put(FONT_CSS, res);
+  return urls.length;
+}
+
 self.addEventListener('install', e => {
-  e.waitUntil(caches.open(SHELL).then(c => c.addAll(SHELL_FILES)).then(() => self.skipWaiting()));
+  e.waitUntil(caches.open(SHELL).then(c => c.addAll(SHELL_FILES))
+    .then(() => cacheFonts().catch(() => {}))   // فشل الخط (دون إنترنت) لا يمنع تثبيت التطبيق
+    .then(() => self.skipWaiting()));
+});
+
+// الصفحة تطلب التحقق من الخط عند كل فتح متصل، فيُستكمل إن نقص شيء
+self.addEventListener('message', e => {
+  if (e.data === 'warm-fonts') e.waitUntil(cacheFonts().catch(() => {}));
 });
 
 self.addEventListener('activate', e => {
@@ -34,7 +62,7 @@ function networkFirst(req, timeoutMs) {
 }
 
 function cacheFirst(req, cacheName) {
-  return caches.open(cacheName).then(c => c.match(req).then(hit => hit || fetch(req).then(res => {
+  return caches.open(cacheName).then(c => c.match(req, { ignoreVary: true, ignoreSearch: false }).then(hit => hit || fetch(req).then(res => {
     if (res && (res.ok || res.type === 'opaque')) c.put(req, res.clone());
     return res;
   })));
@@ -45,7 +73,7 @@ self.addEventListener('fetch', e => {
   if (req.method !== 'GET') return;
   const url = new URL(req.url);
   if (url.hostname === 'fonts.googleapis.com' || url.hostname === 'fonts.gstatic.com') {
-    e.respondWith(cacheFirst(req, FONTS).catch(() => caches.match(req)));
+    e.respondWith(cacheFirst(req, FONTS).catch(() => caches.match(req, { ignoreVary: true })));
     return;
   }
   if (url.origin !== self.location.origin) return;
