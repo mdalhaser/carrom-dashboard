@@ -134,6 +134,7 @@
       --ic-check: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2.6' stroke-linecap='round' stroke-linejoin='round'><path d='M5 12.5l4.5 4.5L19 7.5'/></svg>");
       --ic-x: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2.2' stroke-linecap='round' stroke-linejoin='round'><path d='M6 6l12 12M18 6L6 18'/></svg>");
       --ic-pencil: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='1.9' stroke-linecap='round' stroke-linejoin='round'><path d='M4 20l1-4L16.5 4.5a2.1 2.1 0 0 1 3 3L8 19z'/><path d='M14.5 6.5l3 3'/></svg>");
+      --ic-lock: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'><rect x='5' y='11' width='14' height='10' rx='2'/><path d='M8 11V8a4 4 0 0 1 8 0v3'/></svg>");
       --ic-share: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='1.9' stroke-linecap='round' stroke-linejoin='round'><path d='M12 3v12'/><path d='M8 7l4-4 4 4'/><path d='M7 11H6a2 2 0 0 0-2 2v6a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-6a2 2 0 0 0-2-2h-1'/></svg>");
       --ic-undo: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='1.9' stroke-linecap='round' stroke-linejoin='round'><path d='M9 14L4 9l5-5'/><path d='M4 9h10a6 6 0 0 1 0 12h-3'/></svg>");
       --ic-redo: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='1.9' stroke-linecap='round' stroke-linejoin='round'><path d='M15 14l5-5-5-5'/><path d='M20 9H10a6 6 0 0 0 0 12h3'/></svg>");
@@ -218,7 +219,7 @@
     .ic-trophy { --ic: var(--ic-trophy); } .ic-table { --ic: var(--ic-table); } .ic-dice { --ic: var(--ic-dice); }
     .ic-bracket { --ic: var(--ic-bracket); } .ic-image { --ic: var(--ic-image); } .ic-chart { --ic: var(--ic-chart); }
     .ic-trash { --ic: var(--ic-trash); } .ic-plus { --ic: var(--ic-plus); } .ic-check { --ic: var(--ic-check); }
-    .ic-x { --ic: var(--ic-x); } .ic-pencil { --ic: var(--ic-pencil); } .ic-undo { --ic: var(--ic-undo); } .ic-share { --ic: var(--ic-share); }
+    .ic-x { --ic: var(--ic-x); } .ic-pencil { --ic: var(--ic-pencil); } .ic-undo { --ic: var(--ic-undo); } .ic-share { --ic: var(--ic-share); } .ic-lock { --ic: var(--ic-lock); } [data-ic="lock"]::before { --ic: var(--ic-lock); }
     .ic-redo { --ic: var(--ic-redo); } .ic-chev-r { --ic: var(--ic-chev-r); } .ic-chev-l { --ic: var(--ic-chev-l); }
     .ic-download { --ic: var(--ic-download); } .ic-restore { --ic: var(--ic-restore); } .ic-swap { --ic: var(--ic-swap); }
     .ic-calendar { --ic: var(--ic-calendar); } .ic-info { --ic: var(--ic-info); } .ic-alert { --ic: var(--ic-alert); }
@@ -900,7 +901,7 @@
     .podium-pts { grid-column: 3; grid-row: 1 / span 2; font-size: var(--fs-sm); font-weight: 800; color: var(--gold-soft); white-space: nowrap; }
 
     /* ---------- 6) النوافذ المنبثقة ---------- */
-    #playerSelectionModal, #scoreModal, #statsModal, .lg-modal, #controlDashboard, .ui-backdrop {
+    #playerSelectionModal, #scoreModal, #resultModal, #statsModal, .lg-modal, #controlDashboard, .ui-backdrop {
       display: none;
       position: fixed; inset: 0;
       z-index: 9999;
@@ -915,7 +916,7 @@
     /* الحوارات والإشعارات فوق استوديو معاينة الصور (z-index 99990) حتى تظهر رسائله وتأكيداته */
     .ui-backdrop { z-index: 100000; align-items: center; padding: var(--s4); }
     #controlDashboard.open, .ui-backdrop.open { display: flex; }
-    #playerSelectionModal .modal-content, #scoreModal .modal-content, #statsModal .stats-modal-content, .lg-modal-content, .cd-shell, .ui-dialog {
+    #playerSelectionModal .modal-content, #scoreModal .modal-content, #resultModal .modal-content, #statsModal .stats-modal-content, .lg-modal-content, .cd-shell, .ui-dialog {
       width: 100%; max-width: 560px;
       max-height: 92vh; max-height: 92dvh;
       overflow-y: auto; overscroll-behavior: contain;
@@ -928,7 +929,7 @@
       direction: rtl;
       animation: sheet var(--t-base) var(--ease) both;
     }
-    #playerSelectionModal .modal-content::before, #scoreModal .modal-content::before, #statsModal .stats-modal-content::before, .lg-modal-content::before {
+    #playerSelectionModal .modal-content::before, #scoreModal .modal-content::before, #resultModal .modal-content::before, #statsModal .stats-modal-content::before, .lg-modal-content::before {
       content: ""; display: block; width: 40px; height: 5px; margin: -8px auto var(--s4); border-radius: 999px; background: var(--line-strong);
     }
     #statsModal .stats-modal-content { max-width: 1040px; }
@@ -951,7 +952,30 @@
     }
 
     /* نافذة النتيجة */
-    #scoreModal .modal-content { max-width: 480px; }
+    #scoreModal .modal-content, #resultModal .modal-content { max-width: 480px; }
+    /* ورقة عرض النتيجة المسجلة */
+    #resultModal h3 { font-size: var(--fs-lg); font-weight: 800; text-align: center; color: var(--text); }
+    #resultModal .result-sub { text-align: center; color: var(--text-2); font-size: var(--fs-sm); margin: 4px 0 var(--s4); }
+    .result-lock { display: flex; align-items: center; justify-content: center; gap: 6px; margin: 0 auto var(--s3); width: fit-content;
+      padding: 5px 12px; border-radius: 999px; background: var(--warn-bg); color: var(--warn); font-size: var(--fs-xs); font-weight: 800; }
+    .result-lock[hidden] { display: none; }
+    .result-lock .ic { width: 14px; height: 14px; }
+    .result-rows { display: flex; flex-direction: column; gap: 8px; }
+    .result-rows .match-team { cursor: default; min-height: 56px; font-size: var(--fs-md); }
+    .result-rows .match-team:hover { background: var(--surface-2) !important; border-color: transparent !important; }
+    .result-rows .match-team.winner:hover { background: var(--ok-bg) !important; border-color: var(--ok-line) !important; }
+    .result-rows .score-badge { min-width: 40px; height: 36px; font-size: 20px; }
+    .result-outcome { text-align: center; margin-top: var(--s3); font-size: var(--fs-sm); font-weight: 800; color: var(--ok); }
+    .result-outcome.draw { color: var(--text-2); }
+    .result-meta { display: flex; justify-content: center; align-items: center; gap: 6px; margin-top: var(--s3); color: var(--text-3); font-size: var(--fs-xs); font-weight: 700; }
+    .result-meta .ic { width: 14px; height: 14px; }
+    #resultModal .score-modal-actions .btn { flex: 1; white-space: nowrap; }
+    [data-ic="pencil"]::before { --ic: var(--ic-pencil); }
+    /* قفل البطولة المحسومة */
+    .lock-banner { display: flex; align-items: center; gap: 6px; width: fit-content; margin: 0 0 var(--s3); padding: 5px 12px; border-radius: 999px;
+      background: var(--warn-bg); color: var(--warn); font-size: var(--fs-xs); font-weight: 800; }
+    .lock-banner .ic { width: 14px; height: 14px; }
+    .is-locked .match-status.done::before { -webkit-mask-image: var(--ic-lock); mask-image: var(--ic-lock); }
     .score-modal-subtitle { margin: 6px 0 var(--s5); text-align: center; color: var(--text-2); font-size: var(--fs-sm); line-height: 1.6; }
     .score-card {
       display: flex; flex-direction: column; align-items: center; gap: var(--s3);
@@ -1209,10 +1233,10 @@
       .podium-card.p1 { padding-top: var(--s6); padding-bottom: var(--s6); }
       .podium-medal { grid-row: auto; margin-bottom: 4px; }
       .podium-label, .podium-name, .podium-pts { grid-column: 1; grid-row: auto; }
-      #playerSelectionModal, #scoreModal, #statsModal, .lg-modal, #controlDashboard { align-items: center; padding: var(--s6); }
-      #playerSelectionModal .modal-content, #scoreModal .modal-content, #statsModal .stats-modal-content, .lg-modal-content, .cd-shell { border-radius: var(--r-lg); padding-bottom: var(--s5); animation-name: pop; }
+      #playerSelectionModal, #scoreModal, #resultModal, #statsModal, .lg-modal, #controlDashboard { align-items: center; padding: var(--s6); }
+      #playerSelectionModal .modal-content, #scoreModal .modal-content, #resultModal .modal-content, #statsModal .stats-modal-content, .lg-modal-content, .cd-shell { border-radius: var(--r-lg); padding-bottom: var(--s5); animation-name: pop; }
       .cd-shell { padding: 0; }
-      #playerSelectionModal .modal-content::before, #scoreModal .modal-content::before, #statsModal .stats-modal-content::before, .lg-modal-content::before { display: none; }
+      #playerSelectionModal .modal-content::before, #scoreModal .modal-content::before, #resultModal .modal-content::before, #statsModal .stats-modal-content::before, .lg-modal-content::before { display: none; }
     }
     @media (min-width: 960px) {
       .main { grid-template-columns: minmax(0, 5fr) minmax(0, 6fr); padding: var(--s6) var(--s8) var(--s8); }
@@ -1278,8 +1302,8 @@
     @media (orientation: landscape) and (max-height: 520px) {
       .app-bar { padding-block: var(--s2); }
       .mode-nav { padding-block: 6px; }
-      #playerSelectionModal .modal-content, #scoreModal .modal-content, #statsModal .stats-modal-content, .lg-modal-content, .cd-shell { max-height: 94vh; max-height: 94dvh; }
-      #playerSelectionModal, #scoreModal, #statsModal, .lg-modal, #controlDashboard { align-items: center; padding: var(--s2); }
+      #playerSelectionModal .modal-content, #scoreModal .modal-content, #resultModal .modal-content, #statsModal .stats-modal-content, .lg-modal-content, .cd-shell { max-height: 94vh; max-height: 94dvh; }
+      #playerSelectionModal, #scoreModal, #resultModal, #statsModal, .lg-modal, #controlDashboard { align-items: center; padding: var(--s2); }
     }
     @media (prefers-reduced-motion: reduce) {
       *, *::before, *::after { animation-duration: .01ms !important; animation-iteration-count: 1 !important; transition-duration: .01ms !important; scroll-behavior: auto !important; }
@@ -1833,6 +1857,22 @@
       <div class="score-modal-actions">
         <button id="saveScoreBtn" class="btn primary" data-ic="check">اعتماد النتيجة</button>
         <button id="cancelScoreBtn" class="btn">إلغاء</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ====== ورقة عرض نتيجة مسجلة (العرض أولًا، والتعديل خطوة مقصودة) ====== -->
+  <div id="resultModal" role="dialog" aria-modal="true" aria-labelledby="resultTitle">
+    <div class="modal-content">
+      <h3 id="resultTitle">نتيجة المباراة</h3>
+      <p class="result-sub" id="resultSub"></p>
+      <div class="result-lock" id="resultLock" hidden><span class="ic ic-lock" aria-hidden="true"></span><span>البطولة محسومة · النتائج مقفلة</span></div>
+      <div class="result-rows" id="resultRows"></div>
+      <div class="result-outcome" id="resultOutcome"></div>
+      <div class="result-meta" id="resultMeta"></div>
+      <div class="score-modal-actions">
+        <button type="button" class="btn primary" id="resultCloseBtn">تم</button>
+        <button type="button" class="btn" id="resultEditBtn" data-ic="pencil">تعديل النتيجة</button>
       </div>
     </div>
   </div>
@@ -9258,6 +9298,127 @@ function buildLeagueStandingsCanvas() {
     })();
 
     // ===================================
+    // 🔒 النتيجة المسجلة: عرض أولًا ثم «تعديل» مقصود، وقفل البطولة بعد حسمها
+    // (عرض فقط: لا يغيّر منطق التسجيل؛ التعديل يمر بنفس نافذة النتيجة القائمة)
+    // ===================================
+    (function setupResultView() {
+      const modal = document.getElementById('resultModal');
+      if (!modal) return;
+      const $ = id => document.getElementById(id);
+      const fmtTime = ts => { try { return new Intl.DateTimeFormat('ar-OM-u-nu-latn', { weekday: 'long', day: 'numeric', month: 'long', hour: 'numeric', minute: '2-digit' }).format(new Date(ts)); } catch (e) { return ''; } };
+      // وقت التسجيل من سجل المباريات الملعوبة (آخر حفظ صالح لهذه النتيجة)
+      function recordedAt(kind, id) {
+        try {
+          const hits = readMatchLog().filter(e => e.k === kind && e.id === id && matchLogStillValid(e));
+          return hits.length ? hits[hits.length - 1].at : null;
+        } catch (e) { return null; }
+      }
+      const isKoLocked = () => { try { return currentMode !== 'league' && !!getVerifiedTournamentChampion(); } catch (e) { return false; } };
+      const isLeagueLocked = () => currentMode === 'league' && !!leagueCompleted;
+
+      let current = null;   // { kind, id }
+      function row(name, score, won) {
+        const d = document.createElement('div');
+        d.className = 'match-team' + (won ? ' winner' : '');
+        const n = document.createElement('span'); n.textContent = name;
+        const b = document.createElement('span'); b.className = 'score-badge ' + (won ? 'winner-badge' : 'loser-badge'); b.textContent = score;
+        d.append(n, b); return d;
+      }
+      function open(kind, id) {
+        let title, sub, a, b, sa, sb, outcome, draw = false, locked;
+        if (kind === 'ko') {
+          const m = bracketState[id]; if (!m || !m.winner) return false;
+          const t1Won = m.winner === m.team1;
+          a = getDisplayTeamName(m.team1); b = getDisplayTeamName(m.team2);
+          sa = t1Won ? m.winnerScore : m.loserScore; sb = t1Won ? m.loserScore : m.winnerScore;
+          title = isFinalMatch(m) ? 'المباراة النهائية' : `مباراة ${m.matchNumber}`;
+          sub = isFinalMatch(m) ? 'النتيجة المعتمدة' : String(m.roundName).replace(/\u{1F3C6}/gu, '').trim();
+          outcome = `الفائز: ${getDisplayTeamName(m.winner)}`;
+          locked = isKoLocked();
+          $('resultRows').replaceChildren(row(a, sa, t1Won), row(b, sb, !t1Won));
+        } else {
+          const m = leagueMatches.find(x => x.id === id); if (!m || !isLeagueMatchCompleted(m)) return false;
+          const d = deriveLeagueResult(m.scoreA, m.scoreB);
+          title = `مباراة ${(String(m.id).match(/M(\d+)$/) || [])[1] || ''}`; sub = `الجولة ${m.round}`;
+          draw = d.result === 'draw';
+          outcome = draw ? 'تعادل · نقطة لكل لاعب' : `الفائز: ${d.result === 'A' ? m.playerA : m.playerB} · 3 نقاط`;
+          locked = isLeagueLocked();
+          $('resultRows').replaceChildren(row(m.playerA, m.scoreA, d.result === 'A'), row(m.playerB, m.scoreB, d.result === 'B'));
+        }
+        $('resultTitle').textContent = title;
+        $('resultSub').textContent = sub;
+        $('resultOutcome').textContent = outcome; $('resultOutcome').classList.toggle('draw', draw);
+        $('resultLock').hidden = !locked;
+        const at = recordedAt(kind, id);
+        $('resultMeta').innerHTML = at ? '<span class="ic ic-calendar" aria-hidden="true"></span>' : '';
+        $('resultMeta').appendChild(document.createTextNode(at ? `سُجّلت ${fmtTime(at)}` : ''));
+        const eb = $('resultEditBtn');
+        eb.setAttribute('data-ic', locked ? 'lock' : 'pencil');
+        eb.textContent = locked ? 'فتح القفل' : 'تعديل النتيجة';
+        current = { kind, id, locked };
+        modal.style.display = 'flex';
+        return true;
+      }
+      function close() { modal.style.display = 'none'; current = null; }
+      $('resultCloseBtn').addEventListener('click', close);
+      modal.addEventListener('click', e => { if (e.target === modal) close(); });
+      document.addEventListener('keydown', e => { if (e.key === 'Escape' && modal.style.display === 'flex') close(); });
+      $('resultEditBtn').addEventListener('click', async () => {
+        if (!current) return;
+        const { kind, id, locked } = current;
+        if (locked) {
+          const msg = kind === 'ko'
+            ? 'هذه البطولة محسومة ونتائجها معلنة. تعديل هذه النتيجة قد يغيّر البطل ويُلغي نتائج المباريات التي بُنيت عليها، ويحدّث سجل البطولات. هل تريد فتح القفل وتعديلها؟'
+            : 'هذا الدوري مكتمل وترتيبه معلن. تعديل هذه النتيجة قد يغيّر الترتيب والبطل، ويحدّث سجل البطولات. هل تريد فتح القفل وتعديلها؟';
+          close();
+          if (!(await uiConfirm(msg, { title: 'تعديل نتيجة رسمية', okText: 'فتح القفل والتعديل', cancelText: 'إلغاء', danger: true }))) return;
+        } else close();
+        if (kind === 'ko') _selectWinner(id); else _openLeague(id);
+      });
+
+      // ---------- الربط: المباراة المكتملة تُعرض، وغير المكتملة تُسجَّل مباشرة كما كانت ----------
+      const _selectWinner = selectWinner;
+      selectWinner = function (matchId) {
+        const m = bracketState[matchId];
+        if (m && m.winner && open('ko', matchId)) return;
+        return _selectWinner.apply(this, arguments);
+      };
+      window.selectWinner = selectWinner;
+      const _openLeague = openLeagueScoreModal;
+      openLeagueScoreModal = function (matchId) {
+        const m = leagueMatches.find(x => x.id === matchId);
+        if (m && isLeagueMatchCompleted(m) && open('lg', matchId)) return;
+        return _openLeague.apply(this, arguments);
+      };
+      window.carromOpenResult = open;
+
+      // ---------- شارة القفل فوق الجدول وجولات الدوري ----------
+      function banner(host, show, text) {
+        if (!host) return;
+        let el = host.querySelector(':scope > .lock-banner');
+        if (!show) { if (el) el.remove(); host.classList.remove('is-locked'); return; }
+        host.classList.add('is-locked');
+        if (!el) { el = document.createElement('div'); el.className = 'lock-banner'; el.innerHTML = '<span class="ic ic-lock" aria-hidden="true"></span><span></span>'; host.prepend(el); }
+        el.lastChild.textContent = text;
+      }
+      const _reRender = reRenderBracket;
+      reRenderBracket = function () {
+        const r = _reRender.apply(this, arguments);
+        banner(bracketArea, isKoLocked(), 'البطولة محسومة · النتائج مقفلة');
+        return r;
+      };
+      const _renderRounds = renderLeagueRounds;
+      renderLeagueRounds = function () {
+        const r = _renderRounds.apply(this, arguments);
+        banner(leagueRoundsEl, isLeagueLocked() && leagueStarted && !leagueFixtureError, 'الدوري مكتمل · النتائج مقفلة');
+        return r;
+      };
+      // تطبيق الحالة على ما هو معروض الآن
+      try { if (Object.keys(bracketState || {}).length && currentMode !== 'league') banner(bracketArea, isKoLocked(), 'البطولة محسومة · النتائج مقفلة'); } catch (e) {}
+      try { if (currentMode === 'league') banner(leagueRoundsEl, isLeagueLocked() && leagueStarted, 'الدوري مكتمل · النتائج مقفلة'); } catch (e) {}
+    })();
+
+    // ===================================
     // 📝 خانات النتيجة + النوافذ: تحديد الرقم عند اللمس، تجميد الخلفية، السحب لأسفل للإغلاق
     // ===================================
     (function setupSheetsAndScoreInputs() {
@@ -9289,6 +9450,7 @@ function buildLeagueStandingsCanvas() {
       // ---------- النوافذ المعروفة وزر إغلاق كل منها (الإغلاق يمر بنفس منطق زر الإلغاء القائم) ----------
       const SHEETS = [
         { overlay: '#scoreModal', panel: '#scoreModal .modal-content', close: '#cancelScoreBtn' },
+        { overlay: '#resultModal', panel: '#resultModal .modal-content', close: '#resultCloseBtn' },
         { overlay: '#playerSelectionModal', panel: '#playerSelectionModal .modal-content', close: '#playerSelectionModal .close-modal-btn' },
         { overlay: '#statsModal', panel: '#statsModal .stats-modal-content', close: '#closeStatsBtn' },
         { overlay: '#leagueHistoryModal', panel: '#leagueHistoryModal .lg-modal-content', close: '#leagueHistoryClose' },
@@ -9379,7 +9541,7 @@ function buildLeagueStandingsCanvas() {
     // ===================================
     // 🧭 سلوك التطبيق: إعادة الوضع للأعلى، تعديل العنوان بالضغط المطوّل، تنبيه التحديث، رقم الإصدار
     // ===================================
-    const APP_VERSION = '11';   // يُرفع مع رقم الإصدار في sw.js عند كل تحديث
+    const APP_VERSION = '12';   // يُرفع مع رقم الإصدار في sw.js عند كل تحديث
     (function setupAppBehaviors() {
       const root = document.documentElement;
 
