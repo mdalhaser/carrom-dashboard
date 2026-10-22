@@ -1864,6 +1864,39 @@
     html.view-mode .view-bar { display: flex; justify-content: center; margin: 8px var(--s4) -6px; padding: 0; }
     /* العمود الأيسر (إدارة اللاعبين والقرعة) فارغ في صفحة المشاهدة: لا نترك فراغه */
     html.view-mode section.main > .left { display: none !important; }
+    /* زر «تم» وحده بعرض كامل (زر المشاركة مخفي في صفحة المشاهدة) */
+    html.view-mode #profileModal .score-modal-actions { grid-template-columns: minmax(0, 1fr); }
+    /* ملخص الإحصائيات (التطبيق وصفحة المشاهدة): لا يبقى مربع وحيد في سطر */
+    @media (max-width: 639px) { .stats-summary > :last-child:nth-child(odd) { grid-column: 1 / -1; } }
+    @media (min-width: 640px) {
+      .stats-summary:has(> :nth-child(5):last-child) { grid-template-columns: repeat(5, minmax(0, 1fr)); }
+    }
+    /* مباراة وحيدة في آخر الدور (مثل النهائي) تتوسط السطر بدل أن تلتصق بجهة — حيث تكون المباريات بعمودين */
+    @media (min-width: 640px) and (max-width: 959px), (min-width: 1100px) {
+      .round-matches > :last-child:nth-child(odd) { grid-column: 1 / -1; justify-self: center; width: 100%; max-width: calc(50% - var(--s3) / 2); }
+    }
+    @media (min-width: 960px) {
+      html.view-mode .round-matches > :last-child:nth-child(odd) { grid-column: 1 / -1; justify-self: center; width: 100%; max-width: calc(50% - var(--s3) / 2); }
+    }
+    .lv-col { display: flex; flex-direction: column; gap: var(--s4); min-width: 0; }
+    .lv-col > #leagueFinal:empty { display: none; }
+    @media (max-width: 959px) {
+      html.view-mode body.lg-focus #leagueMainPanel[data-tab="matches"] .lv-side,
+      html.view-mode body.lg-focus #leagueMainPanel[data-tab="standings"] .lv-main { display: none; }
+    }
+    /* الشاشات الكبيرة (كمبيوتر/آيباد أفقي): عمود واحد بعرض مريح، والدوري بعمودين بدل التبويبين */
+    @media (min-width: 960px) {
+      html.view-mode section.main { grid-template-columns: minmax(0, 1fr); width: 100%; max-width: 1180px; margin-inline: auto; }
+      html.view-mode .round-matches { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+      html.view-mode body.lg-focus .lg-tabs { display: none; }
+      html.view-mode body.lg-focus #leagueMainPanel { flex-direction: row; align-items: flex-start; gap: var(--s5); }
+      html.view-mode body.lg-focus #leagueMainPanel .lv-main,
+      html.view-mode body.lg-focus #leagueMainPanel .lv-side { display: flex; }
+      html.view-mode body.lg-focus #leagueMainPanel #leagueProgress, html.view-mode body.lg-focus #leagueMainPanel #leagueRounds,
+      html.view-mode body.lg-focus #leagueMainPanel #leagueStandings { display: block; }
+      html.view-mode body.lg-focus #leagueMainPanel .lv-main { flex: 1 1 0; }
+      html.view-mode body.lg-focus #leagueMainPanel .lv-side { flex: 0 0 400px; }
+    }
     .view-bar .stamp { font-size: 11.5px; font-weight: 700; color: var(--text-3); text-align: center; line-height: 1.6; }
     .view-bar .stamp b { color: var(--text-2); font-weight: 800; }
     .view-bar .stamp.none b { color: var(--danger, #B3402F); }
@@ -10200,7 +10233,7 @@ function buildLeagueStandingsCanvas() {
     // ===================================
     // 🧭 سلوك التطبيق: إعادة الوضع للأعلى، تعديل العنوان بالضغط المطوّل، تنبيه التحديث، رقم الإصدار
     // ===================================
-    const APP_VERSION = '28';   // يُرفع مع رقم الإصدار في sw.js عند كل تحديث
+    const APP_VERSION = '30';   // يُرفع مع رقم الإصدار في sw.js عند كل تحديث
     (function setupAppBehaviors() {
       const root = document.documentElement;
 
@@ -10477,6 +10510,12 @@ function buildLeagueStandingsCanvas() {
         const sb = document.createElement('button'); sb.type = 'button'; sb.id = 'viewStatsBtn'; sb.className = adminBtn.className;
         sb.setAttribute('aria-label', 'اللاعبون والإحصائيات'); sb.setAttribute('data-ic', 'chart'); sb.innerHTML = '<span>الإحصائيات</span>';
         sb.addEventListener('click', () => openStats()); adminBtn.after(sb);
+      }
+      // الدوري: عمودان داخل اللوحة (المباريات | الترتيب). في الجوال يبقى التبويبان، وفي الشاشات الكبيرة يظهران جنبًا إلى جنب
+      const lmp = document.getElementById('leagueMainPanel');
+      if (lmp) {
+        const col = (cls, ids) => { const w = document.createElement('div'); w.className = 'lv-col ' + cls; ids.forEach(id => { const e = document.getElementById(id); if (e) w.appendChild(e); }); return w; };
+        lmp.append(col('lv-main', ['leagueProgress', 'leagueRounds']), col('lv-side', ['leagueFinal', 'leagueStandings']));
       }
       // ورقة المباراة (داخل نافذة الملف بنفس الشكل والحركة)
       const modal = document.getElementById('profileModal'), body = document.getElementById('profileBody');
