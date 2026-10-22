@@ -22,7 +22,7 @@
       get length() { return Object.keys(mem).length; }
     };
     try { Object.defineProperty(window, 'localStorage', { value: store, configurable: true, writable: false }); } catch (e) {}
-    window.CARROM_VIEW_DATA = { ok: !!data, publishedAt: data && data.publishedAt };
+    window.CARROM_VIEW_DATA = { ok: !!data, publishedAt: data && data.publishedAt, dayStartHour: data && typeof data.dayStartHour === 'number' ? data.dayStartHour : null };
   })();
   </script>
 
@@ -2027,6 +2027,41 @@
     body.dark-mode .vlive button { background: var(--gold-fill); color: #1A140F; }
     .vlive.busy button { opacity: .7; }
     @media (prefers-reduced-motion: reduce) { .vlive { transition: opacity .2s ease; } .vlive .dot { animation: none; } }
+    /* «نتائج اليوم» */
+    .vday { border-radius: var(--r-lg); background: var(--surface); border: 1px solid var(--line); box-shadow: var(--sh-1); overflow: hidden; }
+    .vday-h { display: grid; grid-template-columns: minmax(0, 1fr) auto auto; align-items: center; gap: 10px; width: 100%; min-height: 54px; padding: 10px 14px; border: 0; background: none; font: inherit; color: var(--text); text-align: start; cursor: pointer; -webkit-tap-highlight-color: transparent; }
+    .vday-h .ttl { display: flex; flex-direction: column; align-items: flex-start; gap: 2px; min-width: 0; }
+    .vday-h .ttl b { font-size: var(--fs-md); font-weight: 800; }
+    .vday-h .ttl small { font-size: var(--fs-xs); font-weight: 700; color: var(--text-2); }
+    .vday-h .meta { font-size: 11.5px; font-weight: 700; color: var(--text-3); white-space: nowrap; }
+    .vday-h .chev { width: 18px; height: 18px; color: var(--text-3); transition: transform .4s cubic-bezier(.2,.8,.2,1); }
+    .vday.open .vday-h .chev { transform: rotate(180deg); }
+    .vday-b { display: grid; grid-template-rows: 0fr; opacity: 0; transition: grid-template-rows .45s cubic-bezier(.2,.8,.2,1), opacity .35s ease; }
+    .vday.open .vday-b { grid-template-rows: 1fr; opacity: 1; }
+    .vday-b > .in { min-height: 0; overflow: hidden; display: flex; flex-direction: column; padding: 0 6px; }
+    .vday.open .vday-b > .in { padding-bottom: 8px; }
+    .vday-r { display: grid; grid-template-columns: 32px minmax(0, 1fr) 50px minmax(0, 1fr); align-items: center; column-gap: 6px; width: 100%; min-height: 46px; padding: 6px 4px; border: 0; border-top: 1px solid var(--line); background: none; border-radius: 0; font: inherit; color: var(--text); cursor: pointer; -webkit-tap-highlight-color: transparent; transition: background .2s ease; }
+    .vday-r:first-child { border-top: 0; }
+    .vday-r.latest { background: var(--warn-bg); border-radius: var(--r-md); }
+    .vday-r.latest + .vday-r { border-top-color: transparent; }
+    .vday-r:active { background: var(--surface-2); }
+    .vday-r .rd { justify-self: start; display: grid; place-items: center; width: 32px; height: 24px; padding: 0; border-radius: 999px; background: var(--surface-2); font-size: 11.5px; font-weight: 800; color: var(--text-2); font-variant-numeric: tabular-nums; }
+    .vday-r.latest .rd { background: var(--surface); }
+    .vday-r .nm { min-width: 0; font-size: 15px; font-weight: 700; color: var(--text); line-height: 1.35; }
+    .vday-r .nm:nth-of-type(2) { text-align: end; }   /* الأول: ملتصق بالنتيجة من جهتها */
+    .vday-r .nm:last-child { text-align: start; }      /* الثاني: ملتصق بالنتيجة من جهتها */
+    .vday-r .nm.me { color: var(--gold-deep); }
+    .vday-r .sc { display: flex; align-items: center; justify-content: center; gap: 6px; font-size: 17px; font-weight: 800; color: var(--text); font-variant-numeric: tabular-nums; }
+    .vday-r .sc .dash { color: var(--text-3); font-weight: 600; }
+    .vday-r .sc > span:not(.dash) { width: 12px; text-align: center; }   /* خانة ثابتة لكل رقم: الشرطة في نفس الموضع مهما كان الرقم */
+    @media (prefers-reduced-motion: reduce) { .vday-b, .vday-h .chev { transition: none; } }
+    @media (max-width: 370px) {   /* الشاشات الصغيرة (iPhone SE/mini): نصغّر بهدوء حتى تبقى الأسماء على سطر واحد */
+      .vday-r { grid-template-columns: 28px minmax(0, 1fr) 46px minmax(0, 1fr); column-gap: 5px; }
+      .vday-r .rd { width: 28px; font-size: 10.5px; }
+      .vday-r .nm { font-size: 13px; }
+      .vday-r .sc { font-size: 15.5px; gap: 5px; }
+      .vday-r .sc > span:not(.dash) { width: 11px; }
+    }
     .vnew { display: inline-flex; align-items: center; margin-inline-start: 6px; padding: 1px 8px; border-radius: 999px; background: var(--gold); color: #2A1E10; font-size: 10.5px; font-weight: 800; vertical-align: 2px; }
     .match-head .vnew { margin-inline-start: 0; margin-inline-end: auto; }
     .vnew-count { color: var(--gold-deep) !important; }
@@ -9465,7 +9500,7 @@ function buildLeagueStandingsCanvas() {
       const PUB_KEY='__carrom_last_publish_v1';
       function buildPublish(){
         const entries=allAppEntries(); ['exportCenterSettings','exportCenterTemplates','theme'].forEach(k=>delete entries[k]);
-        const payload={format:'carrom-view-data',version:1,publishedAt:new Date().toISOString(),app:'إدارة القرعة',entries};
+        const payload={format:'carrom-view-data',version:1,publishedAt:new Date().toISOString(),dayStartHour:Number(exportSettings.dayStartHour),app:'إدارة القرعة',entries};
         return {blob:new Blob([JSON.stringify(payload)],{type:'application/json;charset=utf-8'}),name:'data.json'};
       }
       // بصمة النتائج المنشورة: إذا تغيّرت النتائج بعد آخر نشر يظهر تنبيه «لم تُنشر بعد» (بطاقة النشر + نقطة على زر لوحة التحكم)
@@ -9538,7 +9573,7 @@ function buildLeagueStandingsCanvas() {
             setTimeout(tick,8000);};setTimeout(tick,15000);}
         async function publishNow(){const c=load();if(!c)return;
           btn.setAttribute('aria-busy','true');btn.disabled=true;say(st,'جارٍ نشر النتائج…','',true);
-          const payload={format:'carrom-view-data',version:1,publishedAt:new Date().toISOString(),app:'إدارة القرعة',entries:(()=>{const en=allAppEntries();['exportCenterSettings','exportCenterTemplates','theme'].forEach(k=>delete en[k]);return en;})()};
+          const payload={format:'carrom-view-data',version:1,publishedAt:new Date().toISOString(),dayStartHour:Number(exportSettings.dayStartHour),app:'إدارة القرعة',entries:(()=>{const en=allAppEntries();['exportCenterSettings','exportCenterTemplates','theme'].forEach(k=>delete en[k]);return en;})()};
           const content=b64(JSON.stringify(payload)), path='/contents/data.json';
           const getSha=async()=>{const r=await api(c,path+'?ref='+encodeURIComponent(c.branch));if(r.status===404)return {sha:null};if(!r.ok)throw r;const j=await r.json();return {sha:j.sha};};
           const put=sha=>api(c,path,{method:'PUT',headers:{'Content-Type':'application/json'},body:JSON.stringify(Object.assign({message:'تحديث النتائج — '+fmtDayDate(payload.publishedAt)+' '+fmtTimeNum(payload.publishedAt),content,branch:c.branch},sha?{sha}:{}))});
@@ -10441,7 +10476,7 @@ function buildLeagueStandingsCanvas() {
     // ===================================
     // 🧭 سلوك التطبيق: إعادة الوضع للأعلى، تعديل العنوان بالضغط المطوّل، تنبيه التحديث، رقم الإصدار
     // ===================================
-    const APP_VERSION = '35';   // يُرفع مع رقم الإصدار في sw.js عند كل تحديث
+    const APP_VERSION = '37';   // يُرفع مع رقم الإصدار في sw.js عند كل تحديث
     (function setupAppBehaviors() {
       const root = document.documentElement;
 
@@ -10704,6 +10739,7 @@ function buildLeagueStandingsCanvas() {
       if (!window.CARROM_VIEW) return;
       document.documentElement.classList.add('view-mode');
       const info = window.CARROM_VIEW_DATA || {};
+      if (Number.isFinite(info.dayStartHour)) exportSettings.dayStartHour = info.dayStartHour;   // نفس «بداية يوم اللعب» عند المدير
       tournamentTitle.textContent = 'نتائج المجلس';
       const esc = x => String(x == null ? '' : x).replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
       // شريط: آخر تحديث + الإحصائيات
@@ -10941,6 +10977,33 @@ function buildLeagueStandingsCanvas() {
         paintMe();
         // المباريات القادمة وفرصها تتغير مع تبديل القسم: نعيد الرسم بهدوء
         ['modeLeagueBtn', 'modeSingleBtn', 'modeFixedBtn'].forEach(id => { const b = document.getElementById(id); if (b) b.addEventListener('click', () => setTimeout(() => { if (me) paintMe(); else decorate(); }, 60)); });
+      })();
+      // ===== «نتائج اليوم»: مباريات الدوري حسب يوم اللعب (يبدأ عند ساعة «بداية يوم اللعب») — الأحدث أولًا =====
+      (function setupPlayDay() {
+        const host = document.querySelector('#leagueMainPanel .lv-main'); if (!host) return;
+        let me0 = null; try { me0 = (JSON.parse(localStorage.getItem('__carrom_me_v1') || 'null') || {}).name || null; } catch (e) {}
+        const log = (() => { try { return readMatchLog().filter(e => e.k === 'lg' && matchLogStillValid(e)); } catch (e) { return []; } })();
+        if (!log.length) return;   // لا نتائج مسجلة بوقت: لا بطاقة أصلًا
+        const latestKey = log.reduce((k, e) => { const x = nightKeyOf(e.at); return x > k ? x : k; }, '');
+        const isToday = latestKey === nightKeyOf(Date.now());
+        // سجل واحد لكل مباراة (آخر حفظ لها)، والأحدث أولًا
+        const seen = new Set();
+        const rows = log.filter(e => nightKeyOf(e.at) === latestKey).sort((a, b) => b.at - a.at).filter(e => !seen.has(e.id) && seen.add(e.id))
+          .map(e => leagueMatches.find(m => m.id === e.id)).filter(Boolean);
+        if (!rows.length) return;
+        const n = rows.length, cnt = n === 1 ? 'مباراة واحدة' : n === 2 ? 'مباراتان' : n <= 10 ? `${n} مباريات` : `${n} مباراة`;
+        const box = document.createElement('section'); box.className = 'vday' + (isToday ? ' open' : ''); box.id = 'viewPlayDay';
+        const nm = (name, win, draw) => `<span class="nm${win ? ' w' : ''}${!win && !draw ? ' l' : ''}${me0 && name === me0 ? ' me' : ''}">${esc(name)}</span>`;
+        box.innerHTML = `<button type="button" class="vday-h" aria-expanded="${isToday}">
+            <span class="ttl"><b>${isToday ? 'نتائج اليوم' : 'آخر يوم لعب'}</b>${isToday ? '' : `<small>${esc(nightLabel(latestKey))}</small>`}</span>
+            <span class="meta">${cnt}</span><svg class="chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m6 9 6 6 6-6"/></svg></button>
+          <div class="vday-b"><div class="in">${rows.map((m, i) => { const d = deriveLeagueResult(m.scoreA, m.scoreB), draw = d.result === 'draw', aw = d.result === 'A', bw = d.result === 'B';
+            return `<button type="button" class="vday-r${i === 0 ? ' latest' : ''}" data-id="${esc(m.id)}" aria-label="الجولة ${m.round}: ${esc(m.playerA)} ${m.scoreA} مقابل ${m.scoreB} ${esc(m.playerB)}">
+              <span class="rd">ج${m.round}</span>${nm(m.playerA, aw, draw)}<span class="sc"><span class="${aw ? 'w' : ''}">${m.scoreA}</span><span class="dash">–</span><span class="${bw ? 'w' : ''}">${m.scoreB}</span></span>${nm(m.playerB, bw, draw)}</button>`; }).join('')}</div></div>`;
+        host.prepend(box);
+        const h = box.querySelector('.vday-h');
+        h.addEventListener('click', () => { const o = !box.classList.contains('open'); box.classList.toggle('open', o); h.setAttribute('aria-expanded', String(o)); });
+        box.querySelectorAll('.vday-r').forEach(b => b.addEventListener('click', () => openLeagueScoreModal(b.dataset.id)));
       })();
       // ===== تحديث تلقائي والصفحة مفتوحة: فحص هادئ كل دقيقة (وعند العودة للتطبيق)، وتنبيه صغير عند وجود نشر أحدث =====
       (function setupLiveCheck() {
