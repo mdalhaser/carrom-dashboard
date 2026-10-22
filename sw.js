@@ -2,11 +2,12 @@
    - الصفحة: من الشبكة أولًا (لتصلك التحديثات)، ومن النسخة المخزنة إذا لم يتوفر اتصال أو تأخر.
    - خط Tajawal: يُحفظ بعد أول فتح متصل، ثم يُقرأ من الجهاز دائمًا.
    - لا يلمس بيانات البطولات (التخزين المحلي) إطلاقًا.
+   - data.json (صفحة المشاهدة للاعبين): من الشبكة دائمًا، والمخزن عند انقطاع الإنترنت.
    عند تعديل الملفات مستقبلًا: غيّر رقم الإصدار أدناه ليُحدَّث المخزون القديم. */
-const VERSION = 'carrom-v26';
+const VERSION = 'carrom-v28';
 const SHELL = VERSION + '-shell';
 const FONTS = 'carrom-fonts';
-const SHELL_FILES = ['./', './index.html', './manifest.webmanifest', './icons/apple-touch-icon.png', './icons/icon-192.png', './icons/icon-512.png', './icons/icon-maskable-512.png', './assets/wood.webp'];
+const SHELL_FILES = ['./', './index.html', './manifest.webmanifest', './view.html', './view.webmanifest', './icons/apple-touch-icon.png', './icons/icon-192.png', './icons/icon-512.png', './icons/icon-maskable-512.png', './assets/wood.webp'];
 
 // نفس رابط الخط في index.html حرفيًا (بعد فك &amp;)
 const FONT_CSS = 'https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700;800;900&display=swap';
@@ -77,6 +78,12 @@ self.addEventListener('fetch', e => {
     return;
   }
   if (url.origin !== self.location.origin) return;
+  // بيانات صفحة المشاهدة: من الشبكة دائمًا (آخر نشر)، والنسخة المخزنة عند انقطاع الإنترنت فقط
+  if (url.pathname.endsWith('/data.json')) {
+    e.respondWith(fetch(req, { cache: 'no-store' }).then(res => { if (res && res.ok) { const copy = res.clone(); caches.open(SHELL).then(c => c.put('./data.json', copy)); } return res; })
+      .catch(() => caches.match('./data.json')));
+    return;
+  }
   if (req.mode === 'navigate' || url.pathname.endsWith('.html') || url.pathname.endsWith('/')) {
     e.respondWith(networkFirst(req, 3000));
     return;
