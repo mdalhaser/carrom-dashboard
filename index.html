@@ -1225,6 +1225,31 @@
     .cd-note { font-size: var(--fs-xs); line-height: 1.9; color: var(--text-2); padding: var(--s3) var(--s4); border-radius: var(--r-md); background: var(--surface-2); border: 1px dashed var(--line-strong); }
     .cd-note strong { color: var(--text); }
     .cd-file-input { display: none; }
+    /* النشر المباشر */
+    .gh-live { display: flex; flex-direction: column; gap: var(--s2); }
+    .gh-status { padding: 10px 12px; border-radius: var(--r-md); font-size: var(--fs-sm); line-height: 1.7; font-weight: 700; background: var(--surface-2); border: 1px solid var(--line); color: var(--text-2); display: flex; gap: 8px; align-items: flex-start; }
+    .gh-status.ok { background: var(--ok-bg); border-color: var(--ok-line); color: var(--ok); }
+    .gh-status.err { background: var(--danger-bg); border-color: var(--danger-line); color: var(--danger); }
+    .gh-status .spin { flex: none; width: 15px; height: 15px; margin-top: 4px; border-radius: 50%; border: 2px solid currentColor; border-top-color: transparent; animation: ghSpin .8s linear infinite; }
+    @keyframes ghSpin { to { transform: rotate(360deg); } }
+    #ghPublishBtn[aria-busy="true"] { opacity: .7; pointer-events: none; }
+    .gh-more { margin-top: var(--s3); border-top: 1px solid var(--line); }
+    .gh-more summary { list-style: none; cursor: pointer; display: flex; align-items: center; justify-content: space-between; gap: 8px; min-height: 46px; font-size: var(--fs-sm); font-weight: 800; color: var(--text-2); -webkit-tap-highlight-color: transparent; }
+    .gh-more summary::-webkit-details-marker { display: none; }
+    .gh-more summary::after { content: ""; flex: none; width: 8px; height: 8px; border-right: 2px solid currentColor; border-bottom: 2px solid currentColor; transform: translateY(-2px) rotate(45deg); margin-inline-end: 6px; transition: transform .25s ease; }
+    .gh-more[open] summary::after { transform: translateY(2px) rotate(-135deg); }
+    .gh-body { padding-bottom: var(--s2); display: flex; flex-direction: column; gap: var(--s3); }
+    .gh-form { display: flex; flex-direction: column; gap: var(--s3); }
+    .gh-form[hidden] { display: none; }
+    .gh-field { display: flex; flex-direction: column; gap: 6px; font-size: var(--fs-xs); font-weight: 800; color: var(--text-2); }
+    .gh-field input { width: 100%; min-height: var(--h-control); padding: 0 var(--s4); border-radius: var(--r-md); border: 1px solid var(--line-strong); background: var(--surface); color: var(--text); font-size: 16px; font-weight: 500; text-align: left; }
+    .gh-note { margin: 0 !important; font-size: var(--fs-xs) !important; color: var(--text-3) !important; line-height: 1.7 !important; }
+    .gh-linked-row { display: flex; align-items: center; gap: 10px; }
+    .gh-linked-row b { display: block; font-size: var(--fs-sm); color: var(--text); }
+    .gh-linked-row small { display: block; font-size: var(--fs-xs); color: var(--text-3); font-weight: 700; text-align: right; }
+    .gh-ok { flex: none; display: grid; place-items: center; width: 30px; height: 30px; border-radius: 50%; background: var(--ok-bg); color: var(--ok); border: 1px solid var(--ok-line); font-weight: 800; }
+    .gh-two { display: grid; grid-template-columns: 1fr 1fr; gap: var(--s2); margin-top: var(--s3); }
+    .gh-danger { color: var(--danger) !important; }
     .cd-feedback { display: none; padding: var(--s3) var(--s4); border-radius: var(--r-md); font-size: var(--fs-sm); line-height: 1.7; font-weight: 600; }
     .cd-feedback.show { display: block; }
     .cd-feedback.ok { background: var(--ok-bg); border: 1px solid var(--ok-line); color: var(--ok); }
@@ -2162,12 +2187,40 @@
           </article>
           <article class="cd-card" id="cdPublishCard">
             <div class="cd-card-head"><div class="cd-icon gold"><span class="ic ic-share" aria-hidden="true"></span></div><div><h3>نشر للاعبين</h3><div class="sub">صفحة المشاهدة: view.html</div></div></div>
-            <p>ينشئ ملف <b dir="ltr">data.json</b> بآخر النتائج والإحصائيات. ارفعه إلى GitHub بنفس طريقة رفع التحديثات (يحل محل الملف السابق)، وبعد دقيقة تقريبًا يراه اللاعبون في صفحة المشاهدة.</p>
-            <div class="cd-backup-actions">
-              <button type="button" id="cdSharePublishBtn" class="cd-primary" data-ic="share" hidden>حفظ data.json في «الملفات» أو مشاركته</button>
-              <button type="button" id="cdPublishBtn" class="cd-secondary" data-ic="download">تنزيل data.json</button>
+            <p id="ghIntro">ينشر آخر النتائج والإحصائيات إلى صفحة المشاهدة، وبعد دقيقة تقريبًا يراها اللاعبون.</p>
+            <!-- النشر المباشر إلى GitHub بضغطة زر -->
+            <div class="gh-live" id="ghLive" hidden>
+              <button type="button" id="ghPublishBtn" class="cd-primary" data-ic="share">نشر النتائج الآن</button>
+              <div id="ghStatus" class="gh-status" role="status" aria-live="polite" hidden></div>
             </div>
             <div class="cd-history-meta"><span id="cdLastPublish">آخر نشر: لم يُنشر بعد</span></div>
+            <details class="gh-more" id="ghSetupBox">
+              <summary id="ghSetupSum">ربط النشر المباشر (بضغطة زر)</summary>
+              <div class="gh-body">
+                <div class="gh-linked" id="ghLinked" hidden>
+                  <div class="gh-linked-row"><span class="gh-ok">✓</span><div><b>النشر المباشر مفعّل</b><small id="ghLinkedRepo" dir="ltr"></small></div></div>
+                  <div class="gh-two"><button type="button" id="ghEditBtn" class="cd-secondary">تغيير الإعدادات</button><button type="button" id="ghUnlinkBtn" class="cd-secondary gh-danger">إزالة المفتاح</button></div>
+                </div>
+                <form class="gh-form" id="ghForm" autocomplete="off">
+                  <label class="gh-field"><span>مفتاح GitHub</span><input type="password" id="ghToken" dir="ltr" placeholder="github_pat_…" autocomplete="off" autocapitalize="off" spellcheck="false"></label>
+                  <label class="gh-field"><span>المستودع</span><input type="text" id="ghRepo" dir="ltr" placeholder="mdalhaser/carrom-dashboard" autocapitalize="off" spellcheck="false"></label>
+                  <label class="gh-field"><span>الفرع</span><input type="text" id="ghBranch" dir="ltr" placeholder="main" autocapitalize="off" spellcheck="false"></label>
+                  <p class="gh-note">يُحفظ المفتاح على هذا الجهاز فقط، ولا يدخل في النسخ الاحتياطية ولا في ملف النشر.</p>
+                  <button type="submit" id="ghSaveBtn" class="cd-primary" data-ic="check">حفظ واختبار الاتصال</button>
+                  <div id="ghFormStatus" class="gh-status" role="status" aria-live="polite" hidden></div>
+                </form>
+              </div>
+            </details>
+            <details class="gh-more" id="ghManualBox">
+              <summary>النشر اليدوي (تنزيل data.json)</summary>
+              <div class="gh-body">
+                <p class="gh-note">ارفع الملف إلى GitHub بنفس طريقة رفع التحديثات (يحل محل الملف السابق).</p>
+                <div class="cd-backup-actions">
+                  <button type="button" id="cdSharePublishBtn" class="cd-primary" data-ic="share" hidden>حفظ data.json في «الملفات» أو مشاركته</button>
+                  <button type="button" id="cdPublishBtn" class="cd-secondary" data-ic="download">تنزيل data.json</button>
+                </div>
+              </div>
+            </details>
           </article>
           <article class="cd-card">
             <div class="cd-card-head"><div class="cd-icon"><span class="ic ic-restore" aria-hidden="true"></span></div><div><h3>استعادة نسخة احتياطية</h3><div class="sub">استرجاع البيانات من ملف JSON سابق</div></div></div>
@@ -9319,6 +9372,69 @@ function buildLeagueStandingsCanvas() {
       document.getElementById('cdPublishBtn').addEventListener('click',downloadPublish);
       { const sb=document.getElementById('cdSharePublishBtn'); try{ if(navigator.share&&navigator.canShare&&navigator.canShare({files:[new File(['{}'],'t.json',{type:'application/json'})]})) sb.hidden=false; }catch(e){} sb.addEventListener('click',sharePublish); }
       paintPublish();
+      // ===== النشر المباشر إلى GitHub (بضغطة زر) =====
+      // المفتاح والإعدادات في مفتاح داخلي يبدأ بـ __carrom_ : خارج النسخ الاحتياطية وملف النشر وسجل التراجع.
+      (function setupGitHubPublish(){
+        const GH_KEY='__carrom_gh_publish_v1', $=id=>document.getElementById(id);
+        const live=$('ghLive'), btn=$('ghPublishBtn'), st=$('ghStatus'), box=$('ghSetupBox'), sum=$('ghSetupSum'), form=$('ghForm'), linked=$('ghLinked'), fst=$('ghFormStatus'), manual=$('ghManualBox');
+        if(!btn||!form) return;
+        const guessRepo=()=>{const h=location.hostname.match(/^([^.]+)\.github\.io$/i),seg=location.pathname.split('/').filter(Boolean)[0];return h&&seg&&!/\.html?$/i.test(seg)?h[1]+'/'+seg:'mdalhaser/carrom-dashboard';};
+        const load=()=>{try{const c=JSON.parse(localStorage.getItem(GH_KEY)||'null');return c&&c.token&&c.repo?c:null}catch(e){return null}};
+        const save=c=>{try{c?localStorage.setItem(GH_KEY,JSON.stringify(c)):localStorage.removeItem(GH_KEY)}catch(e){}};
+        const say=(el,msg,type,busy)=>{if(!msg){el.hidden=true;return;}el.hidden=false;el.className='gh-status'+(type?' '+type:'');el.innerHTML='';if(busy){const sp=document.createElement('span');sp.className='spin';el.appendChild(sp);}const t=document.createElement('span');t.textContent=msg;el.appendChild(t);};
+        const api=(c,path,opt={})=>fetch('https://api.github.com/repos/'+c.repo+path,Object.assign({cache:'no-store'},opt,{headers:Object.assign({'Accept':'application/vnd.github+json','Authorization':'Bearer '+c.token,'X-GitHub-Api-Version':'2022-11-28'},opt.headers||{})}));
+        const why=(res,stage)=>{
+          if(!res) return navigator.onLine===false?'لا يوجد اتصال بالإنترنت. حاول بعد قليل، أو استخدم النشر اليدوي.':'تعذّر الاتصال بـ GitHub. تأكد من الإنترنت وحاول مرة أخرى.';
+          if(res.status===401) return 'المفتاح غير صحيح أو انتهت صلاحيته. أنشئ مفتاحًا جديدًا وضعه في «تغيير الإعدادات».';
+          if(res.status===403||res.status===429) return res.headers.get('x-ratelimit-remaining')==='0'?'طلبات كثيرة خلال وقت قصير. حاول بعد دقائق.':'المفتاح لا يملك صلاحية الكتابة. عند إنشائه اختر Contents: Read and write.';
+          if(res.status===404) return stage==='repo'?'لم يُعثر على المستودع. تأكد من اسمه، ومن اختياره ضمن مستودعات المفتاح.':'لم يُعثر على الفرع أو المستودع. تأكد من الإعدادات.';
+          return 'تعذّر النشر (رمز '+res.status+'). حاول مرة أخرى، أو استخدم النشر اليدوي.';
+        };
+        const b64=str=>{const bytes=new TextEncoder().encode(str);let bin='';for(let i=0;i<bytes.length;i+=0x8000)bin+=String.fromCharCode.apply(null,bytes.subarray(i,i+0x8000));return btoa(bin);};
+        const paint=()=>{const c=load();live.hidden=!c;linked.hidden=!c;form.hidden=!!c;
+          sum.textContent=c?'إعدادات النشر المباشر':'ربط النشر المباشر (بضغطة زر)';
+          $('ghIntro').textContent=c?'ينشر آخر النتائج والإحصائيات إلى صفحة المشاهدة مباشرة، وبعد دقيقة تقريبًا يراها اللاعبون.':'ينشئ ملف data.json بآخر النتائج والإحصائيات لصفحة المشاهدة. اربط النشر المباشر مرة واحدة لتنشر بضغطة زر، أو استخدم النشر اليدوي.';
+          if(c) $('ghLinkedRepo').textContent=c.repo+' · '+c.branch;
+          if(!c){manual.open=manual.open||false;}};
+        const fill=()=>{const c=load();$('ghToken').value='';$('ghToken').placeholder=c?'المفتاح الحالي محفوظ (اتركه فارغًا للإبقاء عليه)':'github_pat_…';$('ghRepo').value=c?c.repo:guessRepo();$('ghBranch').value=c?c.branch:'main';};
+        $('ghEditBtn').addEventListener('click',()=>{fill();linked.hidden=true;form.hidden=false;say(fst,'');$('ghToken').focus();});
+        $('ghUnlinkBtn').addEventListener('click',async()=>{
+          const okk=typeof uiConfirm==='function'?await uiConfirm('إزالة مفتاح النشر من هذا الجهاز؟ يمكنك النشر يدويًا أو ربطه من جديد لاحقًا.',{title:'إزالة المفتاح',okText:'إزالة',danger:true}):confirm('إزالة مفتاح النشر من هذا الجهاز؟');
+          if(!okk) return; save(null); say(st,''); fill(); paint(); say(fst,'أُزيل المفتاح من هذا الجهاز.','ok');});
+        form.addEventListener('submit',async e=>{e.preventDefault();
+          const prev=load(), token=$('ghToken').value.trim()||(prev&&prev.token)||'', repo=$('ghRepo').value.trim().replace(/^https?:\/\/github\.com\//i,'').replace(/\.git$/,'').replace(/\/+$/,''), branch=$('ghBranch').value.trim()||'main';
+          if(!token){say(fst,'ضع مفتاح GitHub أولًا.','err');$('ghToken').focus();return;}
+          if(!/^[\w.-]+\/[\w.-]+$/.test(repo)){say(fst,'اكتب المستودع بهذا الشكل: اسم-الحساب/اسم-المستودع','err');$('ghRepo').focus();return;}
+          const c={token,repo,branch}; const sb=$('ghSaveBtn'); sb.disabled=true; say(fst,'جارٍ اختبار الاتصال…','',true);
+          let res=null; try{res=await api(c,'');}catch(err){}
+          if(!res||!res.ok){sb.disabled=false;say(fst,why(res,'repo'),'err');return;}
+          let br=null; try{br=await api(c,'/branches/'+encodeURIComponent(branch));}catch(err){}
+          sb.disabled=false;
+          if(!br||!br.ok){say(fst,br&&br.status===404?'الفرع «'+branch+'» غير موجود في المستودع. غالبًا اسمه main.':why(br,'branch'),'err');return;}
+          save(c); fill(); paint(); say(fst,''); say(st,'تم الربط بنجاح ✓ صار بإمكانك النشر بضغطة «نشر النتائج الآن».','ok'); box.open=false; live.scrollIntoView({block:'nearest',behavior:'smooth'});});
+        // التحقق من ظهور النسخة الجديدة في صفحة المشاهدة (بعد بناء GitHub Pages)
+        let watch=0;
+        function watchLive(c,stamp){const my=++watch,[o,r]=c.repo.split('/'),base=location.hostname.toLowerCase()===(o+'.github.io').toLowerCase()?new URL('data.json',location.href).href:'https://'+o+'.github.io/'+r+'/data.json';
+          const t0=Date.now();const tick=async()=>{if(my!==watch)return;
+            try{const res=await fetch(base+'?t='+Date.now(),{cache:'no-store'});if(res.ok){const d=await res.json();if(d&&d.publishedAt===stamp){say(st,'ظهرت النتائج الجديدة للاعبين ✓','ok');return;}}}catch(e){}
+            if(Date.now()-t0>240000){say(st,'تم الرفع ✓ قد يتأخر ظهورها للاعبين دقيقة إضافية.','ok');return;}
+            setTimeout(tick,8000);};setTimeout(tick,15000);}
+        async function publishNow(){const c=load();if(!c)return;
+          btn.setAttribute('aria-busy','true');btn.disabled=true;say(st,'جارٍ نشر النتائج…','',true);
+          const payload={format:'carrom-view-data',version:1,publishedAt:new Date().toISOString(),app:'إدارة القرعة',entries:(()=>{const en=allAppEntries();['exportCenterSettings','exportCenterTemplates','theme'].forEach(k=>delete en[k]);return en;})()};
+          const content=b64(JSON.stringify(payload)), path='/contents/data.json';
+          const getSha=async()=>{const r=await api(c,path+'?ref='+encodeURIComponent(c.branch));if(r.status===404)return {sha:null};if(!r.ok)throw r;const j=await r.json();return {sha:j.sha};};
+          const put=sha=>api(c,path,{method:'PUT',headers:{'Content-Type':'application/json'},body:JSON.stringify(Object.assign({message:'تحديث النتائج — '+fmtDayDate(payload.publishedAt)+' '+fmtTimeNum(payload.publishedAt),content,branch:c.branch},sha?{sha}:{}))});
+          let res=null;
+          try{let {sha}=await getSha();res=await put(sha);
+            if(res.status===409||res.status===422){({sha}=await getSha());res=await put(sha);}   // تغيّر الملف في GitHub بين القراءة والكتابة: نعيد مرة واحدة
+          }catch(err){res=err instanceof Response?err:null;}
+          btn.removeAttribute('aria-busy');btn.disabled=false;
+          if(res&&res.ok){markPublished();say(st,'تم النشر ✓ تظهر للاعبين خلال دقيقة تقريبًا…','ok',true);watchLive(c,payload.publishedAt);}
+          else say(st,why(res,'put'),'err');}
+        btn.addEventListener('click',publishNow);
+        fill(); paint();
+      })();
       function markBackupDone(b){
         try{localStorage.setItem(META_KEY,JSON.stringify({lastExportAt:new Date().toISOString(),entryCount:Object.keys(b.entries).length,bytes:b.blob.size}))}catch(e){}
         updateMetrics();
@@ -9394,6 +9510,7 @@ function buildLeagueStandingsCanvas() {
           try{
             localStorage.clear();
             for(const key of keys)localStorage.setItem(key,entries[key]);
+            if(previous['__carrom_gh_publish_v1'])localStorage.setItem('__carrom_gh_publish_v1',previous['__carrom_gh_publish_v1']);   // مفتاح النشر يخص الجهاز: يبقى بعد الاستعادة
             localStorage.setItem(META_KEY,JSON.stringify({lastExportAt:null,lastImportedAt:new Date().toISOString(),importedFile:file.name}));
             localStorage.removeItem(CHANGE_KEY);
           }catch(applyError){
@@ -10207,7 +10324,7 @@ function buildLeagueStandingsCanvas() {
     // ===================================
     // 🧭 سلوك التطبيق: إعادة الوضع للأعلى، تعديل العنوان بالضغط المطوّل، تنبيه التحديث، رقم الإصدار
     // ===================================
-    const APP_VERSION = '30';   // يُرفع مع رقم الإصدار في sw.js عند كل تحديث
+    const APP_VERSION = '31';   // يُرفع مع رقم الإصدار في sw.js عند كل تحديث
     (function setupAppBehaviors() {
       const root = document.documentElement;
 
