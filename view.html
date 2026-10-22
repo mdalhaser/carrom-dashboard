@@ -1944,7 +1944,7 @@
     .vm-when { display: flex; align-items: center; justify-content: center; gap: 6px; margin-top: 10px; font-size: var(--fs-xs); font-weight: 700; color: var(--text-3); }
     .vm-when .ic { width: 14px; height: 14px; }
     /* «أنا» */
-    .vme { display: flex; flex-direction: column; gap: 8px; padding: 12px; border-radius: var(--r-lg); background: var(--surface); border: 1px solid var(--line); box-shadow: var(--sh-1); }
+    .vme { display: flex; flex-direction: column; gap: 12px; padding: 14px; border-radius: var(--r-lg); background: var(--surface); border: 1px solid var(--line); box-shadow: var(--sh-1); }
     .vme.vme-in { animation: lgIn .45s cubic-bezier(.2,.8,.2,1) both; }
     .vme.ask { flex-direction: row; align-items: center; justify-content: space-between; gap: 10px; }
     .vme-ask { display: flex; align-items: center; gap: 10px; min-width: 0; }
@@ -1953,15 +1953,28 @@
     .vme-av { flex: none; width: 38px; height: 38px; border-radius: 50%; background: var(--warn-bg); color: var(--gold-deep); display: grid; place-items: center; }
     .vme-av .ic { width: 18px; height: 18px; }
     .vme-pick { flex: none; min-height: 40px; padding: 0 14px; font-size: var(--fs-sm); }
-    .vme-top { display: grid; grid-template-columns: auto minmax(0, 1fr) auto; align-items: center; gap: 10px; width: 100%; padding: 0; border: 0; background: none; font: inherit; color: var(--text); text-align: start; cursor: pointer; -webkit-tap-highlight-color: transparent; }
-    .vme-top .who { display: flex; flex-direction: column; align-items: flex-start; gap: 4px; min-width: 0; }
-    .vme-top .who b { font-size: 17px; font-weight: 800; overflow-wrap: anywhere; }
-    .vme-top .rt { display: flex; flex-direction: column; align-items: flex-end; }
-    .vme-top .rt b { font-size: 24px; font-weight: 800; font-variant-numeric: tabular-nums; line-height: 1.1; }
-    .vme-top .rt small { font-size: 11px; font-weight: 800; color: var(--text-3); }
-    .vme-top .rt small.up { color: var(--ok); } .vme-top .rt small.down { color: var(--danger); }
-    .vme-lg { display: flex; align-items: center; justify-content: space-between; gap: 8px; min-height: 22px; font-size: var(--fs-xs); font-weight: 700; color: var(--text-2); padding: 0 2px; }
-    .vme-lg b { color: var(--text); }
+    .vme-top { display: block; width: 100%; padding: 0; border: 0; background: none; font: inherit; color: var(--text); text-align: start; cursor: pointer; -webkit-tap-highlight-color: transparent; }
+    .vme-top .who { display: flex; flex-direction: column; align-items: flex-start; gap: 5px; min-width: 0; }
+    .vme-top .who b { font-size: 18px; font-weight: 800; line-height: 1.3; overflow-wrap: anywhere; }
+    .vme-top .pf-tier { padding: 2px 10px; font-size: 11.5px; }
+    .vme-stats { display: grid; grid-template-columns: repeat(var(--n, 3), minmax(0, 1fr)); width: 100%; padding: 10px 0; border: 0; border-radius: var(--r-md); background: var(--surface-2); font: inherit; color: var(--text); cursor: pointer; -webkit-tap-highlight-color: transparent; }
+    .vme-stats .c { display: flex; flex-direction: column; align-items: center; gap: 3px; padding: 0 6px; min-width: 0; }
+    .vme-stats .c + .c { border-inline-start: 1px solid var(--line); }
+    .vme-stats b { font-size: 21px; font-weight: 800; line-height: 1.15; font-variant-numeric: tabular-nums; }
+    .vme-stats b .of { font-size: 12px; font-weight: 700; color: var(--text-3); }
+    .vme-stats small { font-size: 11px; font-weight: 700; color: var(--text-3); text-align: center; line-height: 1.4; }
+    .vme-stats em { font-style: normal; font-weight: 800; } .vme-stats em.up { color: var(--ok); } .vme-stats em.down { color: var(--danger); }
+    .vme-head { display: grid; grid-template-columns: auto minmax(0, 1fr); align-items: center; gap: 12px; }
+    /* الصورة الرمزية هي زر تغيير الاسم، مع شارة ⇄ صغيرة على طرفها */
+    .vme-change { position: relative; flex: none; padding: 0; border: 0; background: none; cursor: pointer; border-radius: 50%; -webkit-tap-highlight-color: transparent; transition: transform .18s ease; }
+    .vme-change:active { transform: scale(.94); }
+    .vme-change .sw { position: absolute; bottom: -2px; inset-inline-end: -4px; display: grid; place-items: center; width: 20px; height: 20px; border-radius: 50%; background: var(--surface); border: 1px solid var(--line-strong); color: var(--text-2); }
+    .vme-change .sw .ic { width: 11px; height: 11px; }
+    .vme-track { display: flex; gap: 0; overflow-x: auto; overscroll-behavior-x: contain; scroll-snap-type: x mandatory; scrollbar-width: none; -webkit-overflow-scrolling: touch; border-radius: var(--r-md); outline: none; }
+    .vme-track::-webkit-scrollbar { display: none; }
+    .vme-track > .vme-next { flex: 0 0 100%; scroll-snap-align: center; scroll-snap-stop: always; }
+    .vme-track.dragging { scroll-snap-type: none; cursor: grabbing; user-select: none; }
+    .vme-track.dragging > .vme-next { pointer-events: none; }
     .vme-h { font-size: 11.5px; font-weight: 800; color: var(--text-3); margin-top: 2px; padding: 0 2px; }
     .vme-next { display: flex; align-items: center; justify-content: space-between; gap: 10px; width: 100%; min-height: 54px; padding: 8px 12px; border-radius: var(--r-md); border: 1px solid var(--gold); background: var(--warn-bg); font: inherit; color: var(--text); text-align: start; cursor: pointer; -webkit-tap-highlight-color: transparent; transition: transform .18s ease; }
     .vme-next:active { transform: scale(.985); }
@@ -1971,12 +1984,11 @@
     .vme-next .pct small { font-size: 10.5px; font-weight: 800; color: var(--text-3); }
     .vme-next .pct bdi { font-size: 17px; font-weight: 800; }
     .vme-none { font-size: var(--fs-xs); font-weight: 700; color: var(--text-3); padding: 2px; }
-    .vme-change { margin-inline-start: auto; border: 0; background: none; padding: 2px; font: inherit; font-size: 11.5px; font-weight: 700; color: var(--text-3); text-decoration: underline; text-underline-offset: 3px; cursor: pointer; }
     @media (min-width: 960px) {   /* الشاشات الكبيرة: بياناتي يمينًا ومبارياتي القادمة يسارًا */
       .vme:not(.ask) { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); column-gap: var(--s5); row-gap: 8px; align-items: center; padding: 14px 16px; }
-      .vme:not(.ask) .vme-top { grid-column: 1; grid-row: 1; }
-      .vme:not(.ask) .vme-lg { grid-column: 1; grid-row: 2; }
-      .vme:not(.ask) .vme-next, .vme:not(.ask) .vme-none { grid-column: 2; }
+      .vme:not(.ask) .vme-head { grid-column: 1; grid-row: 1; }
+      .vme:not(.ask) .vme-stats { grid-column: 1; grid-row: 2; }
+      .vme:not(.ask) .vme-track, .vme:not(.ask) .vme-none { grid-column: 2; grid-row: 1 / span 2; }
     }
     .vpick-h { text-align: center; margin: 0 0 4px; font-size: var(--fs-lg, 20px); }
     .vpick-sub { text-align: center; margin: 0 0 14px; font-size: var(--fs-xs); color: var(--text-3); font-weight: 700; }
@@ -10413,7 +10425,7 @@ function buildLeagueStandingsCanvas() {
     // ===================================
     // 🧭 سلوك التطبيق: إعادة الوضع للأعلى، تعديل العنوان بالضغط المطوّل، تنبيه التحديث، رقم الإصدار
     // ===================================
-    const APP_VERSION = '33';   // يُرفع مع رقم الإصدار في sw.js عند كل تحديث
+    const APP_VERSION = '34';   // يُرفع مع رقم الإصدار في sw.js عند كل تحديث
     (function setupAppBehaviors() {
       const root = document.documentElement;
 
@@ -10811,11 +10823,7 @@ function buildLeagueStandingsCanvas() {
         if (host) host.prepend(card);
         const allNames = () => { const s = new Set(Object.values(ratings.players).filter(p => p.games).map(p => p.name)); (leaguePlayers || []).forEach(n => s.add(n)); return [...s].sort((a, b) => a.localeCompare(b, 'ar')); };
         function nextMatches() {
-          const out = [];
-          if (Array.isArray(leagueMatches)) {
-            const m = leagueMatches.filter(x => !isLeagueMatchCompleted(x) && (x.playerA === me || x.playerB === me) && real(x.playerA) && real(x.playerB)).sort((a, b) => a.round - b.round)[0];
-            if (m) { const opp = m.playerA === me ? m.playerB : m.playerA; out.push({ mode: 'league', id: m.id, label: `الدوري · الجولة ${m.round}`, opp, mA: [me], mB: [opp], lg: true, final: false }); }
-          }
+          const out = [];   // الفردي/الفرق أولًا (تُلعب عادة في نفس الليلة)، ثم الدوري بالترتيب — 5 مباريات بحد أقصى
           MODES.forEach(mode => {
             const bs = bracketOf(mode);
             Object.values(bs || {}).filter(m => m && !m.winner && real(m.team1) && real(m.team2)).forEach(m => {
@@ -10825,8 +10833,14 @@ function buildLeagueStandingsCanvas() {
               out.push({ mode, id: m.id, label: `${mode === 'single' ? 'الفردي' : 'الفرق'} · ${isFinalMatch(m) ? 'النهائي' : cleanRound(m.roundName)}`, opp: oppName, mA: sp(mine), mB: sp(opp), lg: false, final: isFinalMatch(m), aLabel: mine });
             });
           });
-          return out.slice(0, 3);
+          if (Array.isArray(leagueMatches)) {
+            leagueMatches.filter(x => !isLeagueMatchCompleted(x) && (x.playerA === me || x.playerB === me) && real(x.playerA) && real(x.playerB))
+              .sort((a, b) => a.round - b.round || String(a.id).localeCompare(String(b.id), 'en', { numeric: true }))
+              .forEach(m => { const opp = m.playerA === me ? m.playerB : m.playerA; out.push({ mode: 'league', id: m.id, label: `الدوري · الجولة ${m.round}`, opp, mA: [me], mB: [opp], lg: true, final: false }); });
+          }
+          return out.slice(0, 5);
         }
+        let slide = 0;   // البطاقة الظاهرة في شريط المباريات (تبقى عند إعادة الرسم)
         function paintMe() {
           if (!me) {
             card.className = 'vme ask';
@@ -10835,33 +10849,62 @@ function buildLeagueStandingsCanvas() {
           }
           const p = ratings.players[me], known = !!(p && p.games), r = known ? p.rating : ELO_START, tier = eloTier(r);
           const prev = prevRatingOf(me), dl = known && prev != null ? r - prev : 0;
-          let lgLine = '';
-          try { if (leagueStarted && (leaguePlayers || []).includes(me)) { const st = calculateLeagueStandings().find(x => x.name === me); if (st && st.played) lgLine = `<span>مركزك في الدوري: <b>${st.rank}</b> · ${st.points} ${st.points === 1 ? 'نقطة' : st.points === 2 ? 'نقطتان' : st.points <= 10 && st.points > 2 ? 'نقاط' : 'نقطة'}</span>`; } } catch (e) {}
+          let lg = null;
+          try { if (leagueStarted && (leaguePlayers || []).includes(me)) { const st = calculateLeagueStandings().find(x => x.name === me); if (st && st.played) lg = st; } } catch (e) {}
+          const ptsW = n => n === 1 ? 'نقطة' : n === 2 ? 'نقطتان' : n >= 3 && n <= 10 ? 'نقاط' : 'نقطة';
+          const rankedN = ratings.ranked.filter(x => x.games).length;
+          // شريط أرقام هادئ: التقييم · الترتيب العام · الدوري (إن كان مشاركًا)
+          const cells = [
+            `<div class="c"><b>${r.toLocaleString('en-US')}</b><small>التقييم${dl ? ` <em class="${dl > 0 ? 'up' : 'down'}"><bdi dir="ltr">${dl > 0 ? '▲' + dl : '▼' + Math.abs(dl)}</bdi></em>` : ''}</small></div>`,
+            known ? `<div class="c"><b>${p.rank}</b><small>ترتيبك من ${rankedN}</small></div>` : '',
+            lg ? `<div class="c"><b>${lg.rank}</b><small>مركزك في الدوري</small></div>` : ''
+          ].filter(Boolean);
           const nx = nextMatches();
           const rows = nx.map((m, i) => {
             m.label = (i === 0 ? 'مباراتك القادمة · ' : '') + m.label; let pct = ''; try { const s = versusStory({ a: m.aLabel || me, b: m.opp, members: [m.mA, m.mB], lg: m.lg, final: m.final }); pct = `<span class="pct"><small>فرصتك</small><bdi dir="ltr">${Math.round(s.pA * 100)}%</bdi></span>`; } catch (e) {}
             return `<button type="button" class="vme-next" data-i="${i}"><span class="t"><small>${esc(m.label)}</small><b>ضد ${esc(m.opp)}</b></span>${pct}</button>`; }).join('');
           card.className = 'vme';
-          card.innerHTML = `<button type="button" class="vme-top"><span class="vme-av"><span class="ic ic-user" aria-hidden="true"></span></span>
-              <span class="who"><b>${esc(me)}</b><span class="pf-tier t${tier.level}">${esc(known ? tier.name : 'أول ظهور')}</span></span>
-              <span class="rt"><b>${r.toLocaleString('en-US')}</b>${dl ? `<small class="${dl > 0 ? 'up' : 'down'}"><bdi dir="ltr">${dl > 0 ? '▲' + dl : '▼' + Math.abs(dl)}</bdi> منذ زيارتك</small>` : '<small>التقييم</small>'}</span></button>
-            <div class="vme-lg">${lgLine}<button type="button" class="vme-change">تغيير الاسم</button></div>
-            ${rows || '<div class="vme-none">لا توجد مباراة قادمة لك حاليًا</div>'}`;
-          card.querySelector('.vme-top').addEventListener('click', () => { try { window.carromOpenProfile(me); } catch (e) {} });
+          card.innerHTML = `<div class="vme-head"><button type="button" class="vme-change" aria-label="تغيير الاسم" title="تغيير الاسم"><span class="vme-av"><span class="ic ic-user" aria-hidden="true"></span></span><span class="sw"><span class="ic ic-swap" aria-hidden="true"></span></span></button><button type="button" class="vme-top">
+              <span class="who"><b>${esc(me)}</b><span class="pf-tier t${tier.level}">${esc(known ? tier.name : 'أول ظهور')}</span></span></button></div>
+            <button type="button" class="vme-stats" style="--n:${cells.length}">${cells.join('')}</button>
+            ${rows ? `<div class="vme-track" dir="rtl">${rows}</div>` : '<div class="vme-none">لا توجد مباراة قادمة لك حاليًا</div>'}`;
+          card.querySelectorAll('.vme-top, .vme-stats').forEach(el => el.addEventListener('click', () => { try { window.carromOpenProfile(me); } catch (e) {} }));
           card.querySelector('.vme-change').addEventListener('click', openPicker);
+          const track = card.querySelector('.vme-track');
+          if (track) setupTrack(track, nx.length);
           card.querySelectorAll('.vme-next').forEach(b => b.addEventListener('click', () => {
+            if (track && track.dataset.dragged === '1') return;   // نهاية سحب بالماوس ليست ضغطة
             const m = nx[+b.dataset.i]; if (!m) return;
             if (currentMode !== m.mode) { const btn = document.getElementById({ league: 'modeLeagueBtn', single: 'modeSingleBtn', fixed: 'modeFixedBtn' }[m.mode]); if (btn) btn.click(); }
             if (m.mode === 'league') openLeagueScoreModal(m.id); else selectWinner(m.id);
           }));
           decorate();
         }
+        // شريط المباريات القادمة: سحب أفقي أصلي بالتثبيت على كل بطاقة (اللمس ولوحة اللمس)، وسحب بالماوس على الكمبيوتر
+        function setupTrack(track, n) {
+          const w = () => track.clientWidth || 1;
+          const idx = () => Math.round(Math.abs(track.scrollLeft) / w());
+          const go = (i, smooth) => { i = Math.max(0, Math.min(n - 1, i)); const x = i * w() * (getComputedStyle(track).direction === 'rtl' ? -1 : 1);
+            track.scrollTo({ left: x, behavior: smooth && !(window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches) ? 'smooth' : 'auto' }); };
+          requestAnimationFrame(() => go(Math.min(slide, n - 1), false));
+          let t = 0; track.addEventListener('scroll', () => { clearTimeout(t); t = setTimeout(() => { slide = idx(); }, 120); }, { passive: true });
+          // الماوس: اضغط واسحب (بدون أي أزرار إضافية)
+          let down = null;
+          track.addEventListener('pointerdown', e => { if (e.pointerType !== 'mouse' || e.button !== 0) return; down = { x: e.clientX, left: track.scrollLeft, i: idx(), moved: false }; track.dataset.dragged = ''; });
+          window.addEventListener('pointermove', e => { if (!down) return; const dx = e.clientX - down.x; if (Math.abs(dx) > 4) { down.moved = true; track.classList.add('dragging'); } if (down.moved) track.scrollLeft = down.left - dx; });
+          window.addEventListener('pointerup', e => { if (!down) return; const d = down; down = null; track.classList.remove('dragging');
+            if (!d.moved) return; track.dataset.dragged = '1'; setTimeout(() => { track.dataset.dragged = ''; }, 0);
+            const dx = e.clientX - d.x, step = Math.abs(dx) > w() * 0.18 ? 1 : 0;
+            // RTL: السحب لليمين يظهر المباراة التالية
+            go(d.i + (dx > 0 ? step : -step), true); });
+          track.addEventListener('keydown', e => { if (e.key === 'ArrowLeft') { e.preventDefault(); go(idx() + 1, true); } if (e.key === 'ArrowRight') { e.preventDefault(); go(idx() - 1, true); } });
+        }
         function openPicker() {
           const names = allNames();
           body.innerHTML = `<div class="vm-round">صفحتي</div><h3 class="vpick-h">من أنت؟</h3><p class="vpick-sub">يُحفظ اختيارك على جهازك فقط، ويمكنك تغييره في أي وقت.</p>
             <div class="vpick">${names.map(n => `<button type="button" class="${n === me ? 'on' : ''}" data-n="${esc(n)}">${esc(n)}</button>`).join('')}</div>`;
           body.querySelectorAll('.vpick button').forEach(b => b.addEventListener('click', () => {
-            me = b.dataset.n; wr(ME_KEY, { name: me }); modal.style.display = 'none'; paintMe();
+            me = b.dataset.n; slide = 0; wr(ME_KEY, { name: me }); modal.style.display = 'none'; paintMe();
             card.classList.remove('vme-in'); void card.offsetWidth; card.classList.add('vme-in');
             card.scrollIntoView({ block: 'nearest', behavior: 'smooth' });
           }));
