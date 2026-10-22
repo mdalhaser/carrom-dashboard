@@ -1989,7 +1989,16 @@
     html.view-mode .match-card.has-me { box-shadow: 0 0 0 2px var(--gold) inset, var(--sh-1); }
     .lgc-row.is-me { outline: 2px solid var(--gold); outline-offset: -2px; }
     .lgc-row.is-me .n b::after { content: " (أنت)"; font-size: 11px; font-weight: 800; color: var(--gold-deep); }
-    #statsContent tr.st-player.is-me td { background: var(--warn-bg); }
+    /* صفّي في ترتيب اللاعبين: لمسة ذهبية هادئة على الصف كله + شارة «أنت» (بدل تلوين كل خلية) */
+    #statsContent tr.st-player.is-me { background: linear-gradient(rgba(207, 169, 99, .10), rgba(207, 169, 99, .10)), var(--surface); }
+    #statsContent tr.st-player.is-me td:first-child { box-shadow: inset -3px 0 0 var(--gold); }
+    #statsContent tr.st-player.is-me td:nth-child(2)::after { content: "أنت"; display: inline-flex; align-items: center; margin-inline-start: 8px; padding: 1px 9px; border-radius: 999px;
+      background: var(--gold); color: #2A1E10; font-size: 11px; font-weight: 800; line-height: 1.7; vertical-align: 2px; }
+    body.dark-mode #statsContent tr.st-player.is-me { background: linear-gradient(rgba(207, 169, 99, .08), rgba(207, 169, 99, .08)), var(--surface); }
+    @media (max-width: 639px) {   /* الجوال: الصف بطاقة، فنحدّها بإطار ذهبي بدل الشريط الجانبي */
+      #statsContent tr.st-player.is-me { border-color: var(--gold); box-shadow: 0 0 0 1px var(--gold) inset; }
+      #statsContent tr.st-player.is-me td:first-child { box-shadow: none; }
+    }
     .vnew { display: inline-flex; align-items: center; margin-inline-start: 6px; padding: 1px 8px; border-radius: 999px; background: var(--gold); color: #2A1E10; font-size: 10.5px; font-weight: 800; vertical-align: 2px; }
     .match-head .vnew { margin-inline-start: 0; margin-inline-end: auto; }
     .vnew-count { color: var(--gold-deep) !important; }
@@ -10404,7 +10413,7 @@ function buildLeagueStandingsCanvas() {
     // ===================================
     // 🧭 سلوك التطبيق: إعادة الوضع للأعلى، تعديل العنوان بالضغط المطوّل، تنبيه التحديث، رقم الإصدار
     // ===================================
-    const APP_VERSION = '32';   // يُرفع مع رقم الإصدار في sw.js عند كل تحديث
+    const APP_VERSION = '33';   // يُرفع مع رقم الإصدار في sw.js عند كل تحديث
     (function setupAppBehaviors() {
       const root = document.documentElement;
 
