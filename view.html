@@ -9,7 +9,7 @@
     try { var x = new XMLHttpRequest(); x.open('GET', 'data.json?t=' + Date.now(), false); x.send();
       if ((x.status >= 200 && x.status < 300) || (x.status === 0 && x.responseText)) data = JSON.parse(x.responseText); } catch (e) {}
     if (!data || data.format !== 'carrom-view-data' || !data.entries) data = null;
-    var mem = {}, real = null, KEEP = /^(theme|__carrom_lgTab)$/;
+    var mem = {}, real = null, KEEP = /^(theme|__carrom_lgTab|__carrom_me_v1|__carrom_seen_v1)$/;
     try { real = window.localStorage; } catch (e) {}
     if (data) for (var k in data.entries) if (Object.prototype.hasOwnProperty.call(data.entries, k)) mem[k] = String(data.entries[k]);
     var has = function (k) { return Object.prototype.hasOwnProperty.call(mem, k); };
@@ -1941,6 +1941,60 @@
     .vm-vs { padding: 4px 14px; border-radius: 999px; border: 1px solid var(--gold); background: color-mix(in srgb, var(--gold) 16%, transparent); color: var(--gold-deep); font-weight: 800; font-size: var(--fs-sm); }
     .vm-score { display: grid; grid-template-columns: 1fr auto 1fr; align-items: center; margin-top: 12px; text-align: center; font-size: 40px; font-weight: 800; color: var(--text); font-variant-numeric: tabular-nums; }
     .vm-score .dash { font-size: 24px; color: var(--text-3); padding: 0 6px; }
+    .vm-when { display: flex; align-items: center; justify-content: center; gap: 6px; margin-top: 10px; font-size: var(--fs-xs); font-weight: 700; color: var(--text-3); }
+    .vm-when .ic { width: 14px; height: 14px; }
+    /* «أنا» */
+    .vme { display: flex; flex-direction: column; gap: 8px; padding: 12px; border-radius: var(--r-lg); background: var(--surface); border: 1px solid var(--line); box-shadow: var(--sh-1); }
+    .vme.vme-in { animation: lgIn .45s cubic-bezier(.2,.8,.2,1) both; }
+    .vme.ask { flex-direction: row; align-items: center; justify-content: space-between; gap: 10px; }
+    .vme-ask { display: flex; align-items: center; gap: 10px; min-width: 0; }
+    .vme-ask b { display: block; font-size: var(--fs-sm); font-weight: 800; color: var(--text); }
+    .vme-ask small { display: block; font-size: 11.5px; font-weight: 700; color: var(--text-3); line-height: 1.5; }
+    .vme-av { flex: none; width: 38px; height: 38px; border-radius: 50%; background: var(--warn-bg); color: var(--gold-deep); display: grid; place-items: center; }
+    .vme-av .ic { width: 18px; height: 18px; }
+    .vme-pick { flex: none; min-height: 40px; padding: 0 14px; font-size: var(--fs-sm); }
+    .vme-top { display: grid; grid-template-columns: auto minmax(0, 1fr) auto; align-items: center; gap: 10px; width: 100%; padding: 0; border: 0; background: none; font: inherit; color: var(--text); text-align: start; cursor: pointer; -webkit-tap-highlight-color: transparent; }
+    .vme-top .who { display: flex; flex-direction: column; align-items: flex-start; gap: 4px; min-width: 0; }
+    .vme-top .who b { font-size: 17px; font-weight: 800; overflow-wrap: anywhere; }
+    .vme-top .rt { display: flex; flex-direction: column; align-items: flex-end; }
+    .vme-top .rt b { font-size: 24px; font-weight: 800; font-variant-numeric: tabular-nums; line-height: 1.1; }
+    .vme-top .rt small { font-size: 11px; font-weight: 800; color: var(--text-3); }
+    .vme-top .rt small.up { color: var(--ok); } .vme-top .rt small.down { color: var(--danger); }
+    .vme-lg { display: flex; align-items: center; justify-content: space-between; gap: 8px; min-height: 22px; font-size: var(--fs-xs); font-weight: 700; color: var(--text-2); padding: 0 2px; }
+    .vme-lg b { color: var(--text); }
+    .vme-h { font-size: 11.5px; font-weight: 800; color: var(--text-3); margin-top: 2px; padding: 0 2px; }
+    .vme-next { display: flex; align-items: center; justify-content: space-between; gap: 10px; width: 100%; min-height: 54px; padding: 8px 12px; border-radius: var(--r-md); border: 1px solid var(--gold); background: var(--warn-bg); font: inherit; color: var(--text); text-align: start; cursor: pointer; -webkit-tap-highlight-color: transparent; transition: transform .18s ease; }
+    .vme-next:active { transform: scale(.985); }
+    .vme-next .t small { display: block; font-size: 11px; font-weight: 800; color: var(--gold-deep); }
+    .vme-next .t b { display: block; font-size: 15.5px; font-weight: 800; }
+    .vme-next .pct { flex: none; display: flex; flex-direction: column; align-items: center; line-height: 1.2; }
+    .vme-next .pct small { font-size: 10.5px; font-weight: 800; color: var(--text-3); }
+    .vme-next .pct bdi { font-size: 17px; font-weight: 800; }
+    .vme-none { font-size: var(--fs-xs); font-weight: 700; color: var(--text-3); padding: 2px; }
+    .vme-change { margin-inline-start: auto; border: 0; background: none; padding: 2px; font: inherit; font-size: 11.5px; font-weight: 700; color: var(--text-3); text-decoration: underline; text-underline-offset: 3px; cursor: pointer; }
+    @media (min-width: 960px) {   /* الشاشات الكبيرة: بياناتي يمينًا ومبارياتي القادمة يسارًا */
+      .vme:not(.ask) { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); column-gap: var(--s5); row-gap: 8px; align-items: center; padding: 14px 16px; }
+      .vme:not(.ask) .vme-top { grid-column: 1; grid-row: 1; }
+      .vme:not(.ask) .vme-lg { grid-column: 1; grid-row: 2; }
+      .vme:not(.ask) .vme-next, .vme:not(.ask) .vme-none { grid-column: 2; }
+    }
+    .vpick-h { text-align: center; margin: 0 0 4px; font-size: var(--fs-lg, 20px); }
+    .vpick-sub { text-align: center; margin: 0 0 14px; font-size: var(--fs-xs); color: var(--text-3); font-weight: 700; }
+    .vpick { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; }
+    .vpick button { min-height: 50px; padding: 6px 10px; border-radius: var(--r-md); border: 1px solid var(--line-strong); background: var(--surface-2); font: inherit; font-size: 15px; font-weight: 800; color: var(--text); cursor: pointer; overflow-wrap: anywhere; -webkit-tap-highlight-color: transparent; }
+    .vpick button.on { border-color: var(--gold); background: var(--warn-bg); }
+    /* تمييز اسمي + شارة «جديد» */
+    html.view-mode .match-team.is-me > span:first-child { color: var(--gold-deep); font-weight: 800; }
+    html.view-mode .match-team.is-me > span:first-child::before { content: "● "; font-size: .7em; vertical-align: 2px; }
+    html.view-mode .match-card.has-me { box-shadow: 0 0 0 2px var(--gold) inset, var(--sh-1); }
+    .lgc-row.is-me { outline: 2px solid var(--gold); outline-offset: -2px; }
+    .lgc-row.is-me .n b::after { content: " (أنت)"; font-size: 11px; font-weight: 800; color: var(--gold-deep); }
+    #statsContent tr.st-player.is-me td { background: var(--warn-bg); }
+    .vnew { display: inline-flex; align-items: center; margin-inline-start: 6px; padding: 1px 8px; border-radius: 999px; background: var(--gold); color: #2A1E10; font-size: 10.5px; font-weight: 800; vertical-align: 2px; }
+    .match-head .vnew { margin-inline-start: 0; margin-inline-end: auto; }
+    .vnew-count { color: var(--gold-deep) !important; }
+    .btn.mode-switch.vhas-new { position: relative; }
+    .btn.mode-switch.vhas-new::after { content: ""; position: absolute; top: 6px; inset-inline-end: 8px; width: 7px; height: 7px; border-radius: 50%; background: var(--gold); box-shadow: 0 0 0 2px var(--surface); }
     .vm-out { text-align: center; margin-top: 6px; font-size: var(--fs-sm); font-weight: 800; color: var(--ok); }
     .vm-rt { display: grid; grid-template-columns: 1fr auto 1fr; align-items: center; margin-top: 14px; text-align: center; gap: 6px; }
     .vm-rt .v b { display: block; font-size: 22px; font-weight: 800; color: var(--text); font-variant-numeric: tabular-nums; }
@@ -10350,7 +10404,7 @@ function buildLeagueStandingsCanvas() {
     // ===================================
     // 🧭 سلوك التطبيق: إعادة الوضع للأعلى، تعديل العنوان بالضغط المطوّل، تنبيه التحديث، رقم الإصدار
     // ===================================
-    const APP_VERSION = '31';   // يُرفع مع رقم الإصدار في sw.js عند كل تحديث
+    const APP_VERSION = '32';   // يُرفع مع رقم الإصدار في sw.js عند كل تحديث
     (function setupAppBehaviors() {
       const root = document.documentElement;
 
@@ -10643,6 +10697,8 @@ function buildLeagueStandingsCanvas() {
           <div class="vm-names"><div class="nm">${sideHTML(o.a, o.mA)}</div><span class="vm-vs">ضد</span><div class="nm">${sideHTML(o.b, o.mB)}</div></div>`;
         if (o.done) {
           h += `<div class="vm-score"><span>${o.sa}</span><span class="dash">–</span><span>${o.sb}</span></div><div class="vm-out">${esc(o.outcome)}</div>`;
+          const at = recordedAt(o.kind, o.id);
+          if (at) h += `<div class="vm-when"><span class="ic ic-calendar" aria-hidden="true"></span>سُجّلت النتيجة: ${esc(fmtDayDate(at))} · ${esc(fmtTimeNum(at))}</div>`;
         } else if (st) {
           const pa = Math.round(st.pA * 100), pb = 100 - pa, tier = S => S.known ? `<span class="pf-tier t${S.tier.level}">${esc(S.tier.name)}</span>` : '<span class="pf-tier t0">أول ظهور</span>';
           h += `<div class="vm-rt"><div class="v"><b>${st.A.rating.toLocaleString('en-US')}</b>${tier(st.A)}</div><span class="lbl">${o.mA.length > 1 ? 'متوسط التقييم' : 'التقييم'}</span><div class="v"><b>${st.B.rating.toLocaleString('en-US')}</b>${tier(st.B)}</div></div>
@@ -10658,20 +10714,154 @@ function buildLeagueStandingsCanvas() {
         }
         body.innerHTML = h; modal.style.display = 'flex'; modal.querySelector('.modal-content').scrollTop = 0;
       }
+      // وقت تسجيل النتيجة من سجل المباريات الملعوبة (آخر حفظ صالح لها). النتائج الأقدم من ميزة التوقيت لا وقت لها.
+      function recordedAt(kind, id) {
+        try { const hits = readMatchLog().filter(e => e.k === kind && e.id === id && matchLogStillValid(e)); return hits.length ? hits[hits.length - 1].at : null; } catch (e) { return null; }
+      }
       const split = n => currentMode === 'single' ? [n] : String(n).split(' + ').map(x => x.trim()).filter(Boolean);
       const real = n => n && !String(n).includes('الفائز من م') && !String(n).includes('Bye');
       selectWinner = function (id) {   // الإقصائيات: عرض فقط
         const m = bracketState[id]; if (!m || !real(m.team1) || !real(m.team2)) return;
         const a = getDisplayTeamName(m.team1), b = getDisplayTeamName(m.team2), done = !!m.winner, t1 = m.winner === m.team1;
-        showMatch({ a, b, mA: split(a), mB: split(b), lg: false, final: isFinalMatch(m), round: `${cleanRound(m.roundName)} · مباراة ${m.matchNumber}`, done,
+        showMatch({ kind: 'ko', id, a, b, mA: split(a), mB: split(b), lg: false, final: isFinalMatch(m), round: `${cleanRound(m.roundName)} · مباراة ${m.matchNumber}`, done,
           sa: done ? (t1 ? m.winnerScore : m.loserScore) : null, sb: done ? (t1 ? m.loserScore : m.winnerScore) : null, outcome: done ? 'فاز ' + getDisplayTeamName(m.winner) : '' });
       };
       openLeagueScoreModal = function (id) {   // الدوري: عرض فقط
         const m = leagueMatches.find(x => x.id === id); if (!m) return;
         const done = isLeagueMatchCompleted(m), d = done ? deriveLeagueResult(m.scoreA, m.scoreB) : null;
-        showMatch({ a: m.playerA, b: m.playerB, mA: [m.playerA], mB: [m.playerB], lg: true, final: false, round: `الجولة ${m.round}`, done, sa: m.scoreA, sb: m.scoreB,
+        showMatch({ kind: 'lg', id, a: m.playerA, b: m.playerB, mA: [m.playerA], mB: [m.playerB], lg: true, final: false, round: `الجولة ${m.round}`, done, sa: m.scoreA, sb: m.scoreB,
           outcome: d ? (d.result === 'draw' ? 'تعادل' : 'فاز ' + (d.result === 'A' ? m.playerA : m.playerB)) : '' });
       };
+      // ===== «أنا» + «الجديد منذ آخر زيارة» (يُحفظان على جهاز اللاعب فقط) =====
+      (function setupMeAndNew() {
+        const ME_KEY = '__carrom_me_v1', SEEN_KEY = '__carrom_seen_v1';
+        const rd = k => { try { return JSON.parse(localStorage.getItem(k) || 'null'); } catch (e) { return null; } };
+        const wr = (k, v) => { try { localStorage.setItem(k, JSON.stringify(v)); } catch (e) {} };
+        const J = k => { try { return JSON.parse(localStorage.getItem(k) || 'null'); } catch (e) { return null; } };
+        const MODES = ['single', 'fixed'];
+        const startMode = (() => { try { return localStorage.getItem('tournamentMode') || 'fixed'; } catch (e) { return 'fixed'; } })();
+        const bracketOf = mode => mode === currentMode ? bracketState : ((J('tournamentModeSnapshot_' + mode) || {}).bracketState || {});
+        const lgSig = m => `lg|${m.id}|${m.playerA}|${m.playerB}|${m.scoreA}|${m.scoreB}`;
+        const koSig = (mode, m) => `ko|${mode}|${m.id}|${m.team1}|${m.team2}|${m.winner}|${m.winnerScore}|${m.loserScore}`;
+        // بصمات كل النتائج المسجلة الآن (الدوري + الفردي + الفرق)
+        const allSigs = () => {
+          const S = { league: [], single: [], fixed: [] };
+          (Array.isArray(leagueMatches) ? leagueMatches : []).forEach(m => { if (isLeagueMatchCompleted(m)) S.league.push(lgSig(m)); });
+          MODES.forEach(mode => { const bs = bracketOf(mode); Object.values(bs || {}).forEach(m => { if (m && m.winner) S[mode].push(koSig(mode, m)); }); });
+          return S;
+        };
+        const now = allSigs(), seen = rd(SEEN_KEY), seenSet = new Set(seen && seen.sigs || []);
+        const fresh = new Set(), freshBy = { league: 0, single: 0, fixed: 0 };
+        if (seen) Object.keys(now).forEach(k => now[k].forEach(s => { if (!seenSet.has(s)) { fresh.add(s); freshBy[k]++; } }));
+        const ratings = (() => { try { return computePlayerRatings(); } catch (e) { return { players: {}, ranked: [] }; } })();
+        let me = rd(ME_KEY); if (me && typeof me === 'object') me = me.name || null;
+        const prevRatingOf = n => seen && seen.ratings && n in seen.ratings ? seen.ratings[n] : null;
+        // نحفظ «ما شوهد» لهذه الزيارة؛ الشارات تبقى ظاهرة حتى إعادة فتح الصفحة
+        const ratingsNow = {}; Object.values(ratings.players).forEach(p => { if (p.games) ratingsNow[p.name] = p.rating; });
+        wr(SEEN_KEY, { sigs: [].concat(now.league, now.single, now.fixed), ratings: ratingsNow, at: Date.now() });
+
+        // 1) عدد الجديد في سطر التحديث + نقطة على القسم الذي فيه جديد
+        const total = fresh.size;
+        if (total) {
+          const stamp = bar.querySelector('.stamp');
+          if (stamp) { const n = document.createElement('b'); n.className = 'vnew-count'; n.textContent = ` · ${total === 1 ? 'نتيجة جديدة' : total === 2 ? 'نتيجتان جديدتان' : total + (total <= 10 ? ' نتائج جديدة' : ' نتيجة جديدة')} منذ زيارتك`; stamp.appendChild(n); }
+          [['league', 'modeLeagueBtn'], ['single', 'modeSingleBtn'], ['fixed', 'modeFixedBtn']].forEach(([k, id]) => {
+            const b = document.getElementById(id); if (!b || !freshBy[k]) return;
+            b.classList.add('vhas-new'); b.addEventListener('click', () => b.classList.remove('vhas-new'), { once: true });
+          });
+        }
+
+        // 2) تمييز البطاقات: «جديد» على النتائج الجديدة، واسمي باللون الذهبي
+        const isMine = name => !!me && String(name || '').split(' + ').map(x => x.trim()).includes(me);
+        let busy = false;
+        function decorate() {
+          if (busy) return; busy = true;
+          try {
+            document.querySelectorAll('.match-card[data-league-match], #bracketArea .match-card[data-match-id]').forEach(card => {
+              let sig = null;
+              if (card.dataset.leagueMatch) { const m = leagueMatches.find(x => x.id === card.dataset.leagueMatch); if (m && isLeagueMatchCompleted(m)) sig = lgSig(m); }
+              else { const m = bracketState[card.dataset.matchId]; if (m && m.winner) sig = koSig(currentMode, m); }
+              const isNew = !!sig && fresh.has(sig), has = card.querySelector('.vnew');
+              if (isNew && !has) { const t = card.querySelector('.match-title'); if (t) { const s = document.createElement('span'); s.className = 'vnew'; s.textContent = 'جديد'; t.after(s); } }
+              else if (!isNew && has) has.remove();
+              card.classList.toggle('is-new', isNew);
+              card.querySelectorAll('.match-team').forEach(r => { const n = r.querySelector('span'); r.classList.toggle('is-me', !!n && isMine(n.textContent)); });
+              card.classList.toggle('has-me', !sig && !!card.querySelector('.match-team.is-me'));   // الإطار الذهبي لمبارياتي القادمة فقط
+            });
+            document.querySelectorAll('.lgc-row').forEach(r => r.classList.toggle('is-me', !!me && r.dataset.player === me));
+            document.querySelectorAll('#statsContent tr.st-player').forEach(r => r.classList.toggle('is-me', !!me && r.dataset.player === me));
+          } finally { busy = false; }
+        }
+        let raf = 0; const schedule = () => { if (!raf) raf = requestAnimationFrame(() => { raf = 0; decorate(); }); };
+        const mo = new MutationObserver(muts => { if (!busy) schedule(); });
+        ['bracketArea', 'leagueRounds', 'leagueStandings', 'statsContent'].forEach(id => { const el = document.getElementById(id); if (el) mo.observe(el, { childList: true, subtree: true }); });
+
+        // 3) بطاقة «أنا»
+        const host = document.querySelector('section.main > .right');
+        const card = document.createElement('div'); card.className = 'vme'; card.id = 'viewMeCard';
+        if (host) host.prepend(card);
+        const allNames = () => { const s = new Set(Object.values(ratings.players).filter(p => p.games).map(p => p.name)); (leaguePlayers || []).forEach(n => s.add(n)); return [...s].sort((a, b) => a.localeCompare(b, 'ar')); };
+        function nextMatches() {
+          const out = [];
+          if (Array.isArray(leagueMatches)) {
+            const m = leagueMatches.filter(x => !isLeagueMatchCompleted(x) && (x.playerA === me || x.playerB === me) && real(x.playerA) && real(x.playerB)).sort((a, b) => a.round - b.round)[0];
+            if (m) { const opp = m.playerA === me ? m.playerB : m.playerA; out.push({ mode: 'league', id: m.id, label: `الدوري · الجولة ${m.round}`, opp, mA: [me], mB: [opp], lg: true, final: false }); }
+          }
+          MODES.forEach(mode => {
+            const bs = bracketOf(mode);
+            Object.values(bs || {}).filter(m => m && !m.winner && real(m.team1) && real(m.team2)).forEach(m => {
+              const t1 = isMine(m.team1), t2 = isMine(m.team2); if (!t1 && !t2) return;
+              const mine = t1 ? m.team1 : m.team2, opp = t1 ? m.team2 : m.team1, sp = n => mode === 'single' ? [n] : String(n).split(' + ').map(x => x.trim()).filter(Boolean);
+              let oppName = opp; try { oppName = getDisplayTeamName(opp); } catch (e) {}
+              out.push({ mode, id: m.id, label: `${mode === 'single' ? 'الفردي' : 'الفرق'} · ${isFinalMatch(m) ? 'النهائي' : cleanRound(m.roundName)}`, opp: oppName, mA: sp(mine), mB: sp(opp), lg: false, final: isFinalMatch(m), aLabel: mine });
+            });
+          });
+          return out.slice(0, 3);
+        }
+        function paintMe() {
+          if (!me) {
+            card.className = 'vme ask';
+            card.innerHTML = `<div class="vme-ask"><span class="vme-av"><span class="ic ic-user" aria-hidden="true"></span></span><div><b>من أنت؟</b><small>اختر اسمك لتظهر لك مباراتك القادمة وتقييمك</small></div></div><button type="button" class="btn primary vme-pick">اختر اسمي</button>`;
+            card.querySelector('.vme-pick').addEventListener('click', openPicker); decorate(); return;
+          }
+          const p = ratings.players[me], known = !!(p && p.games), r = known ? p.rating : ELO_START, tier = eloTier(r);
+          const prev = prevRatingOf(me), dl = known && prev != null ? r - prev : 0;
+          let lgLine = '';
+          try { if (leagueStarted && (leaguePlayers || []).includes(me)) { const st = calculateLeagueStandings().find(x => x.name === me); if (st && st.played) lgLine = `<span>مركزك في الدوري: <b>${st.rank}</b> · ${st.points} ${st.points === 1 ? 'نقطة' : st.points === 2 ? 'نقطتان' : st.points <= 10 && st.points > 2 ? 'نقاط' : 'نقطة'}</span>`; } } catch (e) {}
+          const nx = nextMatches();
+          const rows = nx.map((m, i) => {
+            m.label = (i === 0 ? 'مباراتك القادمة · ' : '') + m.label; let pct = ''; try { const s = versusStory({ a: m.aLabel || me, b: m.opp, members: [m.mA, m.mB], lg: m.lg, final: m.final }); pct = `<span class="pct"><small>فرصتك</small><bdi dir="ltr">${Math.round(s.pA * 100)}%</bdi></span>`; } catch (e) {}
+            return `<button type="button" class="vme-next" data-i="${i}"><span class="t"><small>${esc(m.label)}</small><b>ضد ${esc(m.opp)}</b></span>${pct}</button>`; }).join('');
+          card.className = 'vme';
+          card.innerHTML = `<button type="button" class="vme-top"><span class="vme-av"><span class="ic ic-user" aria-hidden="true"></span></span>
+              <span class="who"><b>${esc(me)}</b><span class="pf-tier t${tier.level}">${esc(known ? tier.name : 'أول ظهور')}</span></span>
+              <span class="rt"><b>${r.toLocaleString('en-US')}</b>${dl ? `<small class="${dl > 0 ? 'up' : 'down'}"><bdi dir="ltr">${dl > 0 ? '▲' + dl : '▼' + Math.abs(dl)}</bdi> منذ زيارتك</small>` : '<small>التقييم</small>'}</span></button>
+            <div class="vme-lg">${lgLine}<button type="button" class="vme-change">تغيير الاسم</button></div>
+            ${rows || '<div class="vme-none">لا توجد مباراة قادمة لك حاليًا</div>'}`;
+          card.querySelector('.vme-top').addEventListener('click', () => { try { window.carromOpenProfile(me); } catch (e) {} });
+          card.querySelector('.vme-change').addEventListener('click', openPicker);
+          card.querySelectorAll('.vme-next').forEach(b => b.addEventListener('click', () => {
+            const m = nx[+b.dataset.i]; if (!m) return;
+            if (currentMode !== m.mode) { const btn = document.getElementById({ league: 'modeLeagueBtn', single: 'modeSingleBtn', fixed: 'modeFixedBtn' }[m.mode]); if (btn) btn.click(); }
+            if (m.mode === 'league') openLeagueScoreModal(m.id); else selectWinner(m.id);
+          }));
+          decorate();
+        }
+        function openPicker() {
+          const names = allNames();
+          body.innerHTML = `<div class="vm-round">صفحتي</div><h3 class="vpick-h">من أنت؟</h3><p class="vpick-sub">يُحفظ اختيارك على جهازك فقط، ويمكنك تغييره في أي وقت.</p>
+            <div class="vpick">${names.map(n => `<button type="button" class="${n === me ? 'on' : ''}" data-n="${esc(n)}">${esc(n)}</button>`).join('')}</div>`;
+          body.querySelectorAll('.vpick button').forEach(b => b.addEventListener('click', () => {
+            me = b.dataset.n; wr(ME_KEY, { name: me }); modal.style.display = 'none'; paintMe();
+            card.classList.remove('vme-in'); void card.offsetWidth; card.classList.add('vme-in');
+            card.scrollIntoView({ block: 'nearest', behavior: 'smooth' });
+          }));
+          modal.style.display = 'flex'; modal.querySelector('.modal-content').scrollTop = 0;
+        }
+        paintMe();
+        // المباريات القادمة وفرصها تتغير مع تبديل القسم: نعيد الرسم بهدوء
+        ['modeLeagueBtn', 'modeSingleBtn', 'modeFixedBtn'].forEach(id => { const b = document.getElementById(id); if (b) b.addEventListener('click', () => setTimeout(() => { if (me) paintMe(); else decorate(); }, 60)); });
+      })();
     })();
   </script>
 
