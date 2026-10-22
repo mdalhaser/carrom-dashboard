@@ -7847,22 +7847,12 @@ function buildLeagueStandingsCanvas() {
       else exportText(ctx, text, x, cy, { size: 26, weight: w, color, align, maxW, min: 16 });
     }
     // تصميم موحد: الاسمان بنمط واحد (بلا علامة صح أو خلفية للفائز) والنتيجة واضحة بجانب كل اسم
-    // شارة «ضد» الموحدة في كل الصور: قرص ذهبي متدرج بإطار داخلي رفيع ونص خشبي واضح
-    function drawVsBadge(ctx, x, y, r, size) {
-      const B = EXPORT_BRAND; ctx.save();
-      ctx.shadowColor = 'rgba(133,101,42,0.28)'; ctx.shadowBlur = r * 0.5; ctx.shadowOffsetY = r * 0.12;
-      const g = ctx.createLinearGradient(x - r, y - r, x + r, y + r); g.addColorStop(0, '#EBD08C'); g.addColorStop(0.55, B.gold); g.addColorStop(1, '#A67C32');
-      ctx.beginPath(); ctx.arc(x, y, r, 0, Math.PI * 2); ctx.fillStyle = g; ctx.fill();
-      ctx.shadowColor = 'transparent'; ctx.lineWidth = Math.max(1.2, r * 0.05); ctx.strokeStyle = 'rgba(255,248,226,0.7)';
-      ctx.beginPath(); ctx.arc(x, y, r * 0.84, 0, Math.PI * 2); ctx.stroke(); ctx.restore();
-      exportText(ctx, 'ضد', x, y, { size, weight: 800, color: B.wood });
-    }
     // كبسولة «ضد» في بطاقات المباريات: ذهبية فاتحة بإطار ذهبي ونص بحجم متناسق مع أسماء اللاعبين (32px)
-    function drawVsPill(ctx, x, y) {
-      const B = EXPORT_BRAND, w = 74, h = 44;
+    function drawVsPill(ctx, x, y, k) {
+      k = k || 1; const B = EXPORT_BRAND, w = 74 * k, h = 44 * k;
       ctx.save(); const g = ctx.createLinearGradient(0, y - h / 2, 0, y + h / 2); g.addColorStop(0, '#FBF3DF'); g.addColorStop(1, '#F1E2BF');
       drawRoundedRect(ctx, x - w / 2, y - h / 2, w, h, h / 2); ctx.fillStyle = g; ctx.fill(); ctx.strokeStyle = B.gold; ctx.lineWidth = 1.6; ctx.stroke(); ctx.restore();
-      exportText(ctx, 'ضد', x, y, { size: 26, weight: 800, color: B.goldDeep });
+      exportText(ctx, 'ضد', x, y, { size: Math.round(26 * k), weight: 800, color: B.goldDeep });
     }
     // الألقاب حسب النوع بأيقونات: سطر علوي (فردي · فرق · دوري) بعدد كل نوع، وتحته المجموع
     const TITLE_KINDS = [['single', 'user', 'فردي'], ['team', 'users', 'فرق'], ['league', 'table', 'دوري']];
@@ -8249,7 +8239,7 @@ function buildLeagueStandingsCanvas() {
       });
       h.total = h.a + h.b + h.d;
       const pA = 1 / (1 + Math.pow(10, (B.rating - A.rating) / 400));
-      const date = iso => fmtDateNum(iso);
+      const date = iso => fmtDayDate(iso);   // التنسيق المعتمد: اليوم، 18.09.2026
       let head = 'مواجهة منتظرة', sub = '';
       const lgTop = v.lg && getLeagueProgress().done > 0 && (() => { const st = calculateLeagueStandings(), r = n => (st.find(x => x.name === n) || {}).rank; return [r(v.a), r(v.b)].sort().join() === '1,2'; })();
       if (v.final) { head = 'النهائي الكبير'; sub = 'مباراة واحدة تحسم اللقب'; }
@@ -8272,10 +8262,10 @@ function buildLeagueStandingsCanvas() {
       const storyH = show.story ? 96 : 0, nameH = teams ? 210 : 170, rateH = show.rating ? 120 : 0;
       const mainH = 44 + storyH + nameH + rateH + 30;
       const probH = show.prob ? 136 : 0;
-      const R = [['التقييم', st.A.rating, st.B.rating, x => x.toLocaleString('en-US')], ['الألقاب', st.A.titles, st.B.titles, String], ['نسبة الفوز', st.A.winRate, st.B.winRate, x => x + '%']];
-      if (!teams) R.push(['آخر 5 مباريات', st.A.form ? st.A.form.filter(x => x === 'w').length : null, st.B.form ? st.B.form.filter(x => x === 'w').length : null, x => `${x} فوز`]);
+      const R = [...(show.rating ? [] : [['التقييم', st.A.rating, st.B.rating, x => x.toLocaleString('en-US')]]), ['الألقاب', st.A.titles, st.B.titles, String], ['نسبة الفوز', st.A.winRate, st.B.winRate, x => x + '%']];   // التقييم ظاهر تحت الأسماء: لا يتكرر هنا
+      if (!teams) R.push(['انتصارات آخر 5', st.A.form ? st.A.form.filter(x => x === 'w').length : null, st.B.form ? st.B.form.filter(x => x === 'w').length : null, x => `${x} من 5`]);
       else R.push(['انتصارات معًا', st.A.together ? st.A.together.w : 0, st.B.together ? st.B.together.w : 0, String]);
-      const tapeH = show.tape ? 70 + 14 + R.length * 70 - 8 : 0, h2hH = show.h2h ? 70 + 14 + 150 : 0;
+      const tapeH = show.tape ? 70 + 14 + 48 + R.length * 70 - 8 : 0, h2hH = show.h2h ? 70 + 14 + 170 : 0;
       const H = Math.ceil(top + gapC + mainH + (probH ? G + probH : 0) + (tapeH ? G + tapeH : 0) + (h2hH ? G + h2hH : 0) + 90);
       const { canvas, ctx } = exportNewCanvas(W, H);
       exportBrandHeader(ctx, M, M, CW, tournamentName.textContent.trim() || 'بطولة المجلس للكيرم', 'مواجهة قادمة', meta);
@@ -8296,16 +8286,14 @@ function buildLeagueStandingsCanvas() {
         else S.members.forEach((n, i) => exportText(ctx, n, x, nameCY + (i - (S.members.length - 1) / 2) * 66, { size: 48, weight: 800, color: B.ink, maxW: CW * 0.38, min: 24 }));
       };
       names(st.A, xA); names(st.B, xB);
-      // شارة «ضد» هادئة + خط فاصل رأسي
-      ctx.save(); ctx.strokeStyle = B.line; ctx.lineWidth = 2; ctx.beginPath(); ctx.moveTo(W / 2, cy + 6); ctx.lineTo(W / 2, nameCY - 54); ctx.moveTo(W / 2, nameCY + 54); ctx.lineTo(W / 2, cy + nameH + rateH - 10); ctx.stroke(); ctx.restore();
-      drawVsBadge(ctx, W / 2, nameCY, 44, 30);
+      drawVsPill(ctx, W / 2, nameCY, 1.3);   // نفس كبسولة «ضد» في بطاقات المباريات، مكبّرة لتناسب الأسماء الكبيرة
       cy += nameH;
       if (show.rating) {
         [[st.A, xA], [st.B, xB]].forEach(([S, x]) => {
           exportTierPill(ctx, S.known ? S.tier.level : 0, S.known ? S.tier.name : 'أول ظهور', x, cy + 20, 22, 'center');
-          exportText(ctx, S.rating.toLocaleString('en-US'), x, cy + 78, { size: 40, weight: 800, color: B.text, dir: 'ltr' });
+          exportText(ctx, S.rating.toLocaleString('en-US'), x, cy + 80, { size: 40, weight: 800, color: B.ink, dir: 'ltr' });
         });
-        exportText(ctx, teams ? 'متوسط التقييم' : 'التقييم', W / 2, cy + 78, { size: 20, weight: 700, color: B.faint });
+        exportText(ctx, teams ? 'متوسط التقييم' : 'التقييم', W / 2, cy + 80, { size: 24, weight: 700, color: B.muted });   // عنوان واحد في المنتصف يفصل بين الرقمين
       }
       y += mainH;
       // ===== فرص الفوز =====
@@ -8314,24 +8302,33 @@ function buildLeagueStandingsCanvas() {
         ctx.save(); drawRoundedRect(ctx, M, y, CW, probH, 26); ctx.fillStyle = B.paper; ctx.fill(); ctx.strokeStyle = B.line; ctx.lineWidth = 1.6; ctx.stroke(); ctx.restore();
         const pa = Math.round(st.pA * 100), pb = 100 - pa, bx = M + 40, bw = CW - 80, by = y + 94, bh = 16;
         exportText(ctx, 'فرص الفوز حسب التقييم', W / 2, y + 44, { size: 24, weight: 800, color: B.muted });
-        exportText(ctx, pa + '%', bx + bw, y + 44, { size: 36, weight: 800, color: pa >= pb ? B.goldDeep : B.text, align: 'right', dir: 'ltr' });
-        exportText(ctx, pb + '%', bx, y + 44, { size: 36, weight: 800, color: pb > pa ? B.goldDeep : B.text, align: 'left', dir: 'ltr' });
+        // الأرجح فوزًا: رقم أكبر وشريط ذهبي غامق؛ الأقل: رقم أهدأ وشريط فاتح. التساوي: الاثنان بنفس الدرجة
+        const favA = pa > pb, favB = pb > pa, strong = ctx.createLinearGradient(bx, 0, bx + bw, 0); strong.addColorStop(0, '#B8893D'); strong.addColorStop(1, '#8F6927');
+        exportText(ctx, pa + '%', bx + bw, y + 44, { size: 36, weight: 800, color: B.ink, align: 'right', dir: 'ltr' });   // أرقام اللاعبين بلون واحد؛ الشريط يوضح الأرجح
+        exportText(ctx, pb + '%', bx, y + 44, { size: 36, weight: 800, color: B.ink, align: 'left', dir: 'ltr' });
         ctx.save(); drawRoundedRect(ctx, bx, by - bh / 2, bw, bh, bh / 2); ctx.fillStyle = B.surface3; ctx.fill(); ctx.clip();
-        const sp = bx + bw * (pb / 100); const ga = ctx.createLinearGradient(sp, 0, bx + bw, 0); ga.addColorStop(0, B.gold); ga.addColorStop(1, B.goldDeep); ctx.fillStyle = ga; ctx.fillRect(sp, by - bh / 2, bx + bw - sp, bh);
-        ctx.fillStyle = B.lineStrong; ctx.fillRect(bx, by - bh / 2, sp - bx, bh); ctx.fillStyle = B.paper; ctx.fillRect(sp - 2, by - bh / 2, 4, bh); ctx.restore();
+        const sp = bx + bw * (pb / 100), light = '#E3CCA0';
+        ctx.fillStyle = favA ? strong : favB ? light : B.gold; ctx.fillRect(sp, by - bh / 2, bx + bw - sp, bh);    // جهة اللاعب الأول (يمين)
+        ctx.fillStyle = favB ? strong : favA ? light : B.gold; ctx.fillRect(bx, by - bh / 2, sp - bx, bh);        // جهة اللاعب الثاني (يسار)
+        ctx.fillStyle = B.paper; ctx.fillRect(sp - 2, by - bh / 2, 4, bh); ctx.restore();
         y += probH;
       }
       // ===== وجهًا لوجه =====
       if (show.tape) {
         y += G; cuts.push(y - G / 2); y += exportSectionBar(ctx, M, y, CW, 'وجهًا لوجه', 'chart') + 14;
+        // صف الأسماء فوق الأعمدة حتى يُعرف لمن كل رقم دون الرجوع للأعلى
+        const nm = S => S.single ? S.label : S.members.join(' + ');
+        exportText(ctx, nm(st.A), xA, y + 20, { size: 22, weight: 800, color: B.muted, maxW: CW * 0.36, min: 14 });
+        exportText(ctx, nm(st.B), xB, y + 20, { size: 22, weight: 800, color: B.muted, maxW: CW * 0.36, min: 14 });
+        y += 48;
         R.forEach(([lab, a, b, fmt], i) => {
           if (i) cuts.push(y - 4);
           drawRoundedRect(ctx, M, y, CW, 62, 16); ctx.fillStyle = i % 2 ? B.surface2 : B.paper; ctx.fill(); ctx.strokeStyle = B.line; ctx.lineWidth = 1.2; ctx.stroke();
           const c = y + 31, lead = a != null && b != null && a !== b ? (a > b ? 'A' : 'B') : null, ar = v => /[؀-ۿ]/.test(v) ? 'rtl' : 'ltr';
           exportText(ctx, lab, W / 2, c, { size: 26, weight: 700, color: B.muted });
           const va = a == null ? '—' : fmt(a), vb = b == null ? '—' : fmt(b);
-          exportText(ctx, va, xA, c, { size: 32, weight: 800, color: lead === 'A' ? B.goldDeep : B.text, dir: ar(va) });
-          exportText(ctx, vb, xB, c, { size: 32, weight: 800, color: lead === 'B' ? B.goldDeep : B.text, dir: ar(vb) });
+          exportText(ctx, va, xA, c, { size: 30, weight: 800, color: B.ink, dir: ar(va) });
+          exportText(ctx, vb, xB, c, { size: 30, weight: 800, color: B.ink, dir: ar(vb) });
           y += 70;
         });
         y -= 8;
@@ -8339,19 +8336,21 @@ function buildLeagueStandingsCanvas() {
       // ===== المواجهات السابقة =====
       if (show.h2h) {
         y += G; cuts.push(y - G / 2); y += exportSectionBar(ctx, M, y, CW, 'المواجهات السابقة', 'users') + 14;
-        ctx.save(); drawRoundedRect(ctx, M, y, CW, 150, 22); ctx.fillStyle = B.paper; ctx.fill(); ctx.strokeStyle = B.line; ctx.lineWidth = 1.4; ctx.stroke(); ctx.restore();
-        const h = st.h;
+        ctx.save(); drawRoundedRect(ctx, M, y, CW, 170, 22); ctx.fillStyle = B.paper; ctx.fill(); ctx.strokeStyle = B.line; ctx.lineWidth = 1.4; ctx.stroke(); ctx.restore();
+        const h = st.h, nm2 = S => S.single ? S.label : S.members.join(' + ');
         if (h.total) {
-          exportText(ctx, String(h.a), xA, y + 60, { size: 64, weight: 800, color: h.a > h.b ? B.goldDeep : B.text, dir: 'ltr' });
-          exportText(ctx, String(h.b), xB, y + 60, { size: 64, weight: 800, color: h.b > h.a ? B.goldDeep : B.text, dir: 'ltr' });
-          exportText(ctx, `التقيا ${h.total === 1 ? 'مرة واحدة' : h.total === 2 ? 'مرتين' : h.total + (h.total <= 10 ? ' مرات' : ' مرة')}` + (h.d ? ` · تعادلا ${h.d}` : ''), W / 2, y + 60, { size: 24, weight: 700, color: B.muted });
+          exportText(ctx, String(h.a), xA, y + 54, { size: 56, weight: 800, color: B.ink, dir: 'ltr' });
+          exportText(ctx, String(h.b), xB, y + 54, { size: 56, weight: 800, color: B.ink, dir: 'ltr' });
+          exportText(ctx, `فوز ${nm2(st.A)}`, xA, y + 102, { size: 19, weight: 700, color: B.faint, maxW: CW * 0.36, min: 12 });
+          exportText(ctx, `فوز ${nm2(st.B)}`, xB, y + 102, { size: 19, weight: 700, color: B.faint, maxW: CW * 0.36, min: 12 });
+          exportText(ctx, `التقيا ${h.total === 1 ? 'مرة واحدة' : h.total === 2 ? 'مرتين' : h.total + (h.total <= 10 ? ' مرات' : ' مرة')}` + (h.d ? ` · تعادلا ${h.d}` : ''), W / 2, y + 54, { size: 24, weight: 700, color: B.muted });
           const L = h.last, who = L.win === 'A' ? st.A.label : L.win === 'B' ? st.B.label : null;
-          exportText(ctx, `آخر لقاء: ${who ? 'فاز ' + who : 'تعادل'} · ${L.final ? 'النهائي' : L.round} · ${st.date(L.date)}`, W / 2, y + 118, { size: 24, weight: 700, color: B.text, maxW: CW - 60, min: 15 });
+          exportText(ctx, `آخر لقاء: ${who ? 'فاز ' + who : 'تعادل'} · ${L.final ? 'النهائي' : L.round} · ${st.date(L.date)}`, W / 2, y + 142, { size: 23, weight: 700, color: B.text, maxW: CW - 60, min: 15 });
         } else {
-          exportText(ctx, 'اللقاء الأول بينهما', W / 2, y + 58, { size: 36, weight: 800, color: B.goldDeep });
-          exportText(ctx, 'لا توجد مواجهة سابقة في سجل المجلس', W / 2, y + 108, { size: 24, weight: 700, color: B.muted });
+          exportText(ctx, 'اللقاء الأول بينهما', W / 2, y + 66, { size: 36, weight: 800, color: B.goldDeep });
+          exportText(ctx, 'لا توجد مواجهة سابقة في سجل المجلس', W / 2, y + 116, { size: 24, weight: 700, color: B.muted });
         }
-        y += 150;
+        y += 170;
       }
       exportFooterDivider(ctx, M, H - 40, CW);
       canvas.__ctxOrig = ctxOrig;   // بلا حدود قطع: بطاقة المواجهة صفحة واحدة دائمًا (تُصغَّر إن لزم ولا تُقسَّم)
@@ -8528,7 +8527,7 @@ function buildLeagueStandingsCanvas() {
       if (document.fonts && document.fonts.load) { try { await document.fonts.load('800 120px Tajawal'); await document.fonts.load('700 30px Tajawal'); await document.fonts.load('500 30px Tajawal'); await document.fonts.ready; } catch (e) {} }
     }
     const exportTodayLabel = () => fmtDayDate(new Date());
-    const exportShortDate = iso => fmtDateNum(iso);
+    const exportShortDate = iso => fmtDayDate(iso);
     const ratingPlayersList = () => computePlayerRatings().ranked.filter(p => p.games > 0);
     const arCount = (n, one, two, few) => n === 1 ? one : n === 2 ? two : `${n} ${n >= 3 && n <= 10 ? few : one}`;
     const winPct = p => { const d = p.w + p.l; return d ? Math.round(p.w / d * 100) : 0; };
@@ -10016,7 +10015,7 @@ function buildLeagueStandingsCanvas() {
     // ===================================
     // 🧭 سلوك التطبيق: إعادة الوضع للأعلى، تعديل العنوان بالضغط المطوّل، تنبيه التحديث، رقم الإصدار
     // ===================================
-    const APP_VERSION = '22';   // يُرفع مع رقم الإصدار في sw.js عند كل تحديث
+    const APP_VERSION = '24';   // يُرفع مع رقم الإصدار في sw.js عند كل تحديث
     (function setupAppBehaviors() {
       const root = document.documentElement;
 

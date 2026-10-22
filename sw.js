@@ -3,7 +3,7 @@
    - خط Tajawal: يُحفظ بعد أول فتح متصل، ثم يُقرأ من الجهاز دائمًا.
    - لا يلمس بيانات البطولات (التخزين المحلي) إطلاقًا.
    عند تعديل الملفات مستقبلًا: غيّر رقم الإصدار أدناه ليُحدَّث المخزون القديم. */
-const VERSION = 'carrom-v22';
+const VERSION = 'carrom-v24';
 const SHELL = VERSION + '-shell';
 const FONTS = 'carrom-fonts';
 const SHELL_FILES = ['./', './index.html', './manifest.webmanifest', './icons/apple-touch-icon.png', './icons/icon-192.png', './icons/icon-512.png', './icons/icon-maskable-512.png', './assets/wood.webp'];
