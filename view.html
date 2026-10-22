@@ -2011,6 +2011,22 @@
       #statsContent tr.st-player.is-me { border-color: var(--gold); box-shadow: 0 0 0 1px var(--gold) inset; }
       #statsContent tr.st-player.is-me td:first-child { box-shadow: none; }
     }
+    /* آخر 5 نتائج في الترتيب المضغوط (صفحة المشاهدة): سطر مستقل تحت الاسم، يبدأ من نفس محاذاته */
+    .lgf { display: flex; gap: 3px; direction: rtl; justify-content: flex-start; margin: 4px 0 3px; }
+    .lgf i { display: grid; place-items: center; width: 17px; height: 17px; border-radius: 5px; font-style: normal; font-size: 10px; font-weight: 800; line-height: 1; }
+    .lgf i.w { background: var(--ok-bg); color: var(--ok); } .lgf i.l { background: var(--danger-bg, #FBEAE6); color: var(--danger, #B3402F); } .lgf i.d { background: var(--surface-3); color: var(--text-2); }
+    /* تنبيه «نتائج جديدة» أسفل الشاشة */
+    .vlive { position: fixed; z-index: 60; left: 50%; bottom: calc(16px + env(safe-area-inset-bottom, 0px)); transform: translate(-50%, 140%); display: flex; align-items: center; gap: 10px;
+      padding: 6px 6px 6px 14px; padding-inline-start: 14px; padding-inline-end: 6px; border-radius: 999px; background: var(--surface); border: 1px solid var(--gold); box-shadow: 0 10px 30px rgba(0,0,0,.18);
+      font-size: var(--fs-sm); font-weight: 800; color: var(--text); white-space: nowrap; opacity: 0; pointer-events: none; transition: transform .5s cubic-bezier(.2,.9,.25,1.1), opacity .3s ease; }
+    .vlive.show { transform: translate(-50%, 0); opacity: 1; pointer-events: auto; }
+    .vlive .dot { width: 8px; height: 8px; border-radius: 50%; background: var(--gold); box-shadow: 0 0 0 0 rgba(207,169,99,.6); animation: vlivePulse 1.8s ease-out infinite; }
+    @keyframes vlivePulse { to { box-shadow: 0 0 0 8px rgba(207,169,99,0); } }
+    .vlive button { min-height: 36px; padding: 0 16px; border: 0; border-radius: 999px; background: var(--wood); color: var(--on-wood); font: inherit; font-size: var(--fs-sm); font-weight: 800; cursor: pointer; -webkit-tap-highlight-color: transparent; }
+    body.dark-mode .vlive { box-shadow: 0 10px 30px rgba(0,0,0,.5); }
+    body.dark-mode .vlive button { background: var(--gold-fill); color: #1A140F; }
+    .vlive.busy button { opacity: .7; }
+    @media (prefers-reduced-motion: reduce) { .vlive { transition: opacity .2s ease; } .vlive .dot { animation: none; } }
     .vnew { display: inline-flex; align-items: center; margin-inline-start: 6px; padding: 1px 8px; border-radius: 999px; background: var(--gold); color: #2A1E10; font-size: 10.5px; font-weight: 800; vertical-align: 2px; }
     .match-head .vnew { margin-inline-start: 0; margin-inline-end: auto; }
     .vnew-count { color: var(--gold-deep) !important; }
@@ -10425,7 +10441,7 @@ function buildLeagueStandingsCanvas() {
     // ===================================
     // 🧭 سلوك التطبيق: إعادة الوضع للأعلى، تعديل العنوان بالضغط المطوّل، تنبيه التحديث، رقم الإصدار
     // ===================================
-    const APP_VERSION = '34';   // يُرفع مع رقم الإصدار في sw.js عند كل تحديث
+    const APP_VERSION = '35';   // يُرفع مع رقم الإصدار في sw.js عند كل تحديث
     (function setupAppBehaviors() {
       const root = document.documentElement;
 
@@ -10793,6 +10809,10 @@ function buildLeagueStandingsCanvas() {
         }
 
         // 2) تمييز البطاقات: «جديد» على النتائج الجديدة، واسمي باللون الذهبي
+        const leagueFormOf = name => (Array.isArray(leagueMatches) ? leagueMatches : [])
+          .filter(m => isLeagueMatchCompleted(m) && (m.playerA === name || m.playerB === name))
+          .sort((a, b) => a.round - b.round || String(a.id).localeCompare(String(b.id), 'en', { numeric: true }))
+          .slice(-5).map(m => { const d = deriveLeagueResult(m.scoreA, m.scoreB); return d.result === 'draw' ? 'd' : (d.result === 'A') === (m.playerA === name) ? 'w' : 'l'; });
         const isMine = name => !!me && String(name || '').split(' + ').map(x => x.trim()).includes(me);
         let busy = false;
         function decorate() {
@@ -10809,7 +10829,15 @@ function buildLeagueStandingsCanvas() {
               card.querySelectorAll('.match-team').forEach(r => { const n = r.querySelector('span'); r.classList.toggle('is-me', !!n && isMine(n.textContent)); });
               card.classList.toggle('has-me', !sig && !!card.querySelector('.match-team.is-me'));   // الإطار الذهبي لمبارياتي القادمة فقط
             });
-            document.querySelectorAll('.lgc-row').forEach(r => r.classList.toggle('is-me', !!me && r.dataset.player === me));
+            document.querySelectorAll('.lgc-row').forEach(r => {
+              r.classList.toggle('is-me', !!me && r.dataset.player === me);
+              // آخر 5 نتائج في الدوري: تُقرأ زمنيًا كالكتابة — الأقدم يمينًا والأحدث في آخر السطر يسارًا
+              const n = r.querySelector('.n'); if (!n || n.querySelector('.lgf')) return;
+              const seq = leagueFormOf(r.dataset.player); if (!seq.length) return;
+              const row = document.createElement('span'); row.className = 'lgf'; row.setAttribute('aria-label', 'آخر النتائج: ' + seq.map(x => x === 'w' ? 'فوز' : x === 'l' ? 'خسارة' : 'تعادل').join('، '));
+              row.innerHTML = seq.map(x => `<i class="${x}">${x === 'w' ? 'ف' : x === 'l' ? 'خ' : 'ت'}</i>`).join('');
+              n.querySelector('b').after(row);   // سطر مستقل تحت الاسم: لا يضغط الاسم ولا يكسره
+            });
             document.querySelectorAll('#statsContent tr.st-player').forEach(r => r.classList.toggle('is-me', !!me && r.dataset.player === me));
           } finally { busy = false; }
         }
@@ -10913,6 +10941,42 @@ function buildLeagueStandingsCanvas() {
         paintMe();
         // المباريات القادمة وفرصها تتغير مع تبديل القسم: نعيد الرسم بهدوء
         ['modeLeagueBtn', 'modeSingleBtn', 'modeFixedBtn'].forEach(id => { const b = document.getElementById(id); if (b) b.addEventListener('click', () => setTimeout(() => { if (me) paintMe(); else decorate(); }, 60)); });
+      })();
+      // ===== تحديث تلقائي والصفحة مفتوحة: فحص هادئ كل دقيقة (وعند العودة للتطبيق)، وتنبيه صغير عند وجود نشر أحدث =====
+      (function setupLiveCheck() {
+        const RESUME = '__carrom_view_resume';
+        // بعد التحديث: نعود لنفس القسم والتبويب وموضع التمرير
+        try {
+          const r = JSON.parse(sessionStorage.getItem(RESUME) || 'null'); sessionStorage.removeItem(RESUME);
+          if (r && Date.now() - r.t < 60000) {
+            const ids = { league: 'modeLeagueBtn', single: 'modeSingleBtn', fixed: 'modeFixedBtn' };
+            if (r.mode && r.mode !== currentMode && ids[r.mode]) { const b = document.getElementById(ids[r.mode]); if (b) b.click(); }
+            requestAnimationFrame(() => requestAnimationFrame(() => window.scrollTo({ top: r.y || 0, behavior: 'instant' })));
+          }
+        } catch (e) {}
+        if (!info.ok) return;
+        const pill = document.createElement('div'); pill.className = 'vlive'; pill.setAttribute('role', 'status'); pill.setAttribute('aria-live', 'polite');
+        pill.innerHTML = '<span class="dot" aria-hidden="true"></span><span class="t">نُشرت نتائج جديدة</span><button type="button">تحديث</button>';
+        document.body.appendChild(pill);
+        const reload = () => {
+          try { sessionStorage.setItem(RESUME, JSON.stringify({ mode: currentMode, y: window.scrollY, t: Date.now() })); } catch (e) {}
+          pill.classList.add('busy'); pill.querySelector('button').textContent = 'جارٍ التحديث…'; location.reload();
+        };
+        pill.querySelector('button').addEventListener('click', reload);
+        let shown = false, busy = false, last = 0;
+        async function check() {
+          if (shown || busy || document.hidden || navigator.onLine === false) return;
+          busy = true; last = Date.now();
+          try {
+            const res = await fetch('data.json?t=' + Date.now(), { cache: 'no-store' });
+            if (res.ok) { const d = await res.json(); if (d && d.publishedAt && info.publishedAt && new Date(d.publishedAt) > new Date(info.publishedAt)) { shown = true; pill.classList.add('show'); } }
+          } catch (e) {}
+          busy = false;
+        }
+        setInterval(check, 60000);
+        // عند الرجوع للتطبيق/التبويب نفحص فورًا (إن مضى أكثر من 20 ثانية على آخر فحص)
+        document.addEventListener('visibilitychange', () => { if (!document.hidden && Date.now() - last > 20000) check(); });
+        window.addEventListener('online', () => check());
       })();
     })();
   </script>
