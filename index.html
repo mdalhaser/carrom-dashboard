@@ -1071,6 +1071,8 @@
     .stats-close::before, .lg-close::before, .cd-close::before { content: ""; width: 16px; height: 16px; background: currentColor; -webkit-mask: var(--ic-x) center / contain no-repeat; mask: var(--ic-x) center / contain no-repeat; }
     .stats-close:hover, .lg-close:hover, .cd-close:hover { background: var(--line-strong); }
     .stats-summary { display: grid; grid-template-columns: repeat(4, 1fr); gap: var(--s2); margin-bottom: var(--s5); }
+    .stats-live-note { display: flex; align-items: flex-start; gap: 8px; margin: calc(var(--s3) * -1) 0 var(--s5); padding: 10px 12px; border-radius: var(--r-md); background: var(--ok-bg); color: var(--ok); font-size: var(--fs-xs); font-weight: 700; line-height: 1.7; }
+    .stats-live-note .dot { flex: none; width: 8px; height: 8px; margin-top: 7px; border-radius: 50%; background: currentColor; }
     .stats-card { padding: var(--s3) 6px; text-align: center; border-radius: var(--r-md); background: var(--surface-2); border: 1px solid var(--line); }
     .stats-card .value { font-size: var(--fs-xl); font-weight: 800; color: var(--text); line-height: 1.2; }
     .stats-card .label { font-size: var(--fs-xs); font-weight: 600; color: var(--text-2); margin-top: 2px; }
@@ -3908,6 +3910,21 @@ return teamName.replace('غير محدد', replacement);
       } catch (e) { return null; }
     }
 
+    // صيغة مباريات الإقصائيات في السجل — مشتركة بين التسجيل عند الاكتمال والبطولة الجارية في الإحصائيات
+    function knockoutHistoryMatches(bs) {
+      return Object.values(bs || {}).filter(m => m.winner).map(m => ({
+        id: m.id, roundName: m.roundName, matchNumber: m.matchNumber, team1: m.team1, team2: m.team2,
+        winner: m.winner, winnerScore: m.winnerScore, loserScore: m.loserScore
+      }));
+    }
+    function knockoutParticipantsOf(bs) {
+      const participants = new Set();
+      Object.values(bs || {}).forEach(m => [m.team1, m.team2].forEach(name => {
+        if (name && !String(name).includes('الفائز من م') && name !== '--- Bye (إنتظار) ---') participants.add(name);
+      }));
+      return participants;
+    }
+
     function recordCompletedTournament() {
       const finalMatch = Object.values(bracketState).find(isFinalMatch);
       if (!finalMatch || !finalMatch.winner || !finalMatch.team1 || !finalMatch.team2) return;
@@ -3925,16 +3942,7 @@ return teamName.replace('غير محدد', replacement);
         });
       });
 
-      const matches = Object.values(bracketState).filter(m => m.winner).map(m => ({
-        id: m.id,
-        roundName: m.roundName,
-        matchNumber: m.matchNumber,
-        team1: m.team1,
-        team2: m.team2,
-        winner: m.winner,
-        winnerScore: m.winnerScore,
-        loserScore: m.loserScore
-      }));
+      const matches = knockoutHistoryMatches(bracketState);
 
       const record = {
         id: currentTournamentId,
@@ -3955,6 +3963,42 @@ return teamName.replace('غير محدد', replacement);
       else tournamentHistory.push(record);
       saveTournamentHistory();
     }
+
+    // ===== البطولة الجارية في الإحصائيات =====
+    // مباريات البطولة التي لم تنتهِ بعد تُحتسب فورًا: الفوز والخسارة والمواجهات المباشرة والتقييم.
+    // اللقب والوصافة والمشاركة وبلوغ نصف النهائي تنتظر نهاية البطولة. لا تُنسخ إلى السجل أبدًا:
+    // تُقرأ مباشرة من حالة البطولة في كل مرة، فالتعديل والتراجع يظهران فورًا، وعند الاكتمال تنتقل إلى السجل مرة واحدة.
+    function liveTournamentRecords() {
+      const out = [], now = new Date().toISOString();
+      try {
+        if (leagueStarted && !leagueFixtureError && !getLeagueProgress().completed) {
+          const matches = leagueHistoryMatches();
+          if (matches.length) out.push({ id: 'live:league', live: true, name: 'الدوري الجاري', date: now, mode: 'league',
+            participants: [...leaguePlayers], teamMap: Object.fromEntries(leaguePlayers.map(n => [n, [n]])), champion: null, runnerUp: null, matches });
+        }
+        ['fixed', 'single'].forEach(mode => {
+          let bs, teamMap;
+          if (currentMode === mode) { bs = bracketState; teamMap = getCurrentTeamSnapshot(mode); }
+          else {   // الوضع غير المعروض الآن: من نسخته المحفوظة
+            let snap = null; try { snap = JSON.parse(localStorage.getItem(`tournamentModeSnapshot_${mode}`) || 'null'); } catch (e) { snap = null; }
+            if (!snap || snap.version !== 1) return;
+            bs = snap.bracketState || {}; teamMap = {};
+            if (mode === 'single') knockoutParticipantsOf(bs).forEach(n => { teamMap[n] = [n]; });
+            else (snap.teams || []).forEach(t => { const raw = `${t.a} + ${t.b}`, rep = displayReplacements[t.id];
+              const members = [t.a, t.b].map(n => n === 'غير محدد' && rep ? rep : n).filter(n => n && n !== 'غير محدد'); teamMap[t.customName || raw] = members; teamMap[raw] = members; });
+          }
+          const all = Object.values(bs || {}), fin = all.find(isFinalMatch);
+          if (!all.length || (fin && fin.winner)) return;   // لم تبدأ، أو اكتملت فهي في السجل
+          const matches = knockoutHistoryMatches(bs);
+          if (matches.length) out.push({ id: 'live:' + mode, live: true, name: mode === 'single' ? 'البطولة الفردية الجارية' : 'بطولة الفرق الجارية', date: now, mode,
+            participants: [...knockoutParticipantsOf(bs)], teamMap, champion: null, runnerUp: null, matches });
+        });
+      } catch (e) { console.error('تعذّر قراءة البطولة الجارية للإحصائيات', e); }
+      return out;
+    }
+    // مصدر الإحصائيات: البطولات المكتملة في السجل + مباريات البطولات الجارية
+    function statsSourceRecords() { return (tournamentHistory || []).concat(liveTournamentRecords()); }
+    function liveMatchesCount() { return liveTournamentRecords().reduce((n, t) => n + t.matches.length, 0); }
 
     function getStatsData() {
       const players = {};
@@ -3978,12 +4022,15 @@ return teamName.replace('غير محدد', replacement);
         return partnerships[key];
       };
 
-      tournamentHistory.forEach(t => {
-        if (t.mode === 'single') singleTournaments++;
+      let liveMatches = 0;
+      statsSourceRecords().forEach(t => {
+        const live = !!t.live;   // بطولة جارية: مبارياتها فقط
+        if (live) liveMatches += (t.matches || []).length;
+        else if (t.mode === 'single') singleTournaments++;
         else if (t.mode === 'league') leagueTournaments++;
         else teamTournaments++;
         const participantNames = t.participants || [];
-        participantNames.forEach(p => (t.teamMap?.[p] || (t.mode === 'single' ? [p] : String(p).split(' + '))).forEach(name => {
+        if (!live) participantNames.forEach(p => (t.teamMap?.[p] || (t.mode === 'single' ? [p] : String(p).split(' + '))).forEach(name => {
           const st = ensurePlayer(name); st.tournaments++;
         }));
 
@@ -3994,7 +4041,7 @@ return teamName.replace('غير محدد', replacement);
           (t.teamMap?.[t.runnerUp] || (t.mode === 'single' ? [t.runnerUp] : String(t.runnerUp).split(' + '))).forEach(name => ensurePlayer(name).runnerUps++);
         }
 
-        if (t.mode !== 'single') {
+        if (t.mode !== 'single' && !live) {
           const seenTeams = new Set();
           participantNames.forEach(p => {
             const st = ensurePartnership(t.teamMap?.[p] || String(p).split(' + '));
@@ -4025,8 +4072,8 @@ return teamName.replace('غير محدد', replacement);
           }
         });
 
-        // الوصول إلى نصف النهائي = أي فريق/لاعب لعب مباراة في نصف النهائي
-        (t.matches || []).filter(m => String(m.roundName).includes('نصف النهائي')).forEach(m => {
+        // الوصول إلى نصف النهائي = أي فريق/لاعب لعب مباراة في نصف النهائي (يُعتمد عند اكتمال البطولة)
+        if (!live) (t.matches || []).filter(m => String(m.roundName).includes('نصف النهائي')).forEach(m => {
           [m.team1, m.team2].forEach(side => {
             const members = t.teamMap?.[side] || (t.mode === 'single' ? [side] : String(side || '').split(' + '));
             members.filter(Boolean).forEach(name => ensurePlayer(name).semifinals++);
@@ -4036,15 +4083,15 @@ return teamName.replace('غير محدد', replacement);
 
       Object.values(players).forEach(p => p.winRate = (p.wins + p.losses) ? Math.round((p.wins / (p.wins+p.losses))*100) : 0);
       Object.values(partnerships).forEach(p => p.winRate = (p.wins + p.losses) ? Math.round((p.wins / (p.wins+p.losses))*100) : 0);
-      return { players, partnerships, totalMatches, completedTournaments, teamTournaments, singleTournaments, leagueTournaments };
+      return { players, partnerships, totalMatches, completedTournaments, teamTournaments, singleTournaments, leagueTournaments, liveMatches };
     }
 
     let statsSortMode = 'titles';   // اختيار مؤقت في الذاكرة
     function renderStats() {
       const d = getStatsData();
-      exportStatsBtn.style.display = d.completedTournaments ? '' : 'none';
-      if (!d.completedTournaments) {
-        statsContent.innerHTML = '<div class="empty-stats empty-rich"><span class="ic ic-trophy" aria-hidden="true"></span><b>لا توجد بطولات مكتملة بعد</b><span>بعد حسم أول نهائي أو اكتمال أول دوري يظهر هنا ترتيب اللاعبين وأفضل الشراكات وسجل البطولات.</span></div>';
+      exportStatsBtn.style.display = d.completedTournaments || d.liveMatches ? '' : 'none';
+      if (!d.completedTournaments && !d.liveMatches) {
+        statsContent.innerHTML = '<div class="empty-stats empty-rich"><span class="ic ic-trophy" aria-hidden="true"></span><b>لا توجد نتائج مسجلة بعد</b><span>بعد تسجيل أول نتيجة يظهر هنا ترتيب اللاعبين وتقييمهم، وتُضاف الألقاب وسجل البطولات بعد حسم أول نهائي أو اكتمال أول دوري.</span></div>';
         return;
       }
 
@@ -4070,6 +4117,7 @@ return teamName.replace('غير محدد', replacement);
           <div class="stats-card"><div class="value">${d.leagueTournaments}</div><div class="label">بطولات دوري مكتملة</div></div>
           <div class="stats-card"><div class="value">${d.totalMatches}</div><div class="label">مباراة مسجلة</div></div>
         </div>
+        ${d.liveMatches ? `<div class="stats-live-note"><span class="dot" aria-hidden="true"></span>الأرقام والتقييم تشمل ${d.liveMatches} ${d.liveMatches === 1 ? 'مباراة' : d.liveMatches === 2 ? 'مباراتين' : d.liveMatches <= 10 ? 'مباريات' : 'مباراة'} من البطولة الجارية، وتتحدث بعد كل نتيجة. الألقاب والمشاركات تُضاف عند اكتمالها.</div>` : ''}
 
         <div class="stats-section"><h4><span class="ic ic-trophy" aria-hidden="true"></span>ترتيب اللاعبين</h4><div class="st-sort" role="group" aria-label="ترتيب اللاعبين حسب"><button type="button" data-sort="titles" aria-pressed="${!byRating}">الألقاب</button><button type="button" data-sort="rating" aria-pressed="${byRating}">التقييم</button></div><p class="st-hint">اضغط على أي لاعب لعرض ملفه الكامل</p><div class="stats-table-wrap"><table class="stats-table"><thead><tr><th>#</th><th>اللاعب</th><th>التقييم</th><th>ألقاب</th><th>وصافة</th><th>نصف النهائي</th><th>مشاركات</th><th>فوز</th><th>خسارة</th><th>نسبة الفوز</th></tr></thead><tbody>${playerRows}</tbody></table></div></div>
 
@@ -4171,8 +4219,8 @@ function getStatsColumnCenters(x, w, keys) {
 // =========================================================
 async function exportStatsImage() {
   const d = getStatsData();
-  if (!d.completedTournaments) {
-    alert('لا توجد بطولات مكتملة لتصدير إحصائياتها.');
+  if (!d.completedTournaments && !d.liveMatches) {
+    alert('لا توجد نتائج مسجلة لتصدير إحصائياتها.');
     return;
   }
   const originalText = exportStatsBtn.textContent;
@@ -6398,14 +6446,7 @@ function changeScore(inputId, amount){
       const runnerUp = standings[1]?.name || null;
       if (!champion) return;
       const teamMap = Object.fromEntries(leaguePlayers.map(name => [name, [name]]));
-      const matches = leagueMatches.filter(isLeagueMatchCompleted).map(m => ({
-        id: m.id, roundName: `الجولة ${m.round}`, matchNumber: m.id,
-        team1: m.playerA, team2: m.playerB,
-        winner: m.scoreA > m.scoreB ? m.playerA : m.scoreB > m.scoreA ? m.playerB : null,
-        winnerScore: Math.max(Number(m.scoreA), Number(m.scoreB)),
-        loserScore: Math.min(Number(m.scoreA), Number(m.scoreB)),
-        scoreA: Number(m.scoreA), scoreB: Number(m.scoreB), result: m.result
-      }));
+      const matches = leagueHistoryMatches();
       const record = {
         id: leagueTournamentId,
         name: tournamentName.textContent.trim() || 'بطولة الدوري',
@@ -6418,6 +6459,18 @@ function changeScore(inputId, amount){
       if (existingIndex >= 0) tournamentHistory[existingIndex] = record;
       else tournamentHistory.push(record);
       saveTournamentHistory();
+    }
+
+    // صيغة مباريات الدوري في السجل — مشتركة بين التسجيل عند الاكتمال والبطولة الجارية في الإحصائيات
+    function leagueHistoryMatches() {
+      return leagueMatches.filter(isLeagueMatchCompleted).map(m => ({
+        id: m.id, roundName: `الجولة ${m.round}`, matchNumber: m.id,
+        team1: m.playerA, team2: m.playerB,
+        winner: m.scoreA > m.scoreB ? m.playerA : m.scoreB > m.scoreA ? m.playerB : null,
+        winnerScore: Math.max(Number(m.scoreA), Number(m.scoreB)),
+        loserScore: Math.min(Number(m.scoreA), Number(m.scoreB)),
+        scoreA: Number(m.scoreA), scoreB: Number(m.scoreB), result: m.result
+      }));
     }
 
     // يُعاد بناء كل الإحصائيات من leagueMatches في كل مرة
@@ -7435,7 +7488,7 @@ function buildLeagueStandingsCanvas() {
     const hubEl = (tag, cls, text) => { const e = document.createElement(tag); if (cls) e.className = cls; if (text != null) e.textContent = text; return e; };
 
     function hubItems(snap) {
-      const lg = snap.mode === 'league', hasStats = Number(getStatsData().completedTournaments || 0) > 0, hasRatings = ratingPlayersList().length > 0;
+      const sd = getStatsData(), lg = snap.mode === 'league', hasStats = Number(sd.completedTournaments || 0) > 0 || sd.liveMatches > 0, hasRatings = ratingPlayersList().length > 0;
       const I = o => Object.assign({ ok: true, why: '', ctl: [], quick: false, final: false, icon: 'image' }, o);
       const shared = [
         I({ id: 'history', cat: 'honors', title: 'سجل البطولات السابقة', desc: 'كل بطولة مكتملة مع بطلها ووصيفها', icon: 'table', ok: historyRecords().length > 0, why: 'يظهر بعد اكتمال بطولة وتسجيلها', run: exportHistoryImage }),
@@ -8036,7 +8089,7 @@ function buildLeagueStandingsCanvas() {
       // تاريخ المواجهات: الأفراد = أي مباراة كانا فيها متقابلين؛ الفرق = نفس الثنائيين بالضبط
       const same = (L, M) => L.length === M.length && L.every(x => M.includes(x));
       const h = { a: 0, b: 0, d: 0, last: null };
-      (tournamentHistory || []).filter(t => t && Array.isArray(t.matches)).slice().sort((x, y) => new Date(x.date) - new Date(y.date)).forEach(t => {
+      statsSourceRecords().filter(t => t && Array.isArray(t.matches)).slice().sort((x, y) => new Date(x.date) - new Date(y.date)).forEach(t => {
         t.matches.slice().sort((x, y) => historyMatchOrder(x) - historyMatchOrder(y)).forEach(m => {
           const s1 = historyMembers(t, m.team1), s2 = historyMembers(t, m.team2);
           const fits = (X, Y) => A.single && B.single ? X.includes(A.members[0]) && Y.includes(B.members[0]) : same(X, A.members) && same(Y, B.members);
@@ -8353,7 +8406,8 @@ function buildLeagueStandingsCanvas() {
       const nT = historyRecords().length;
       const meta = [{ icon: 'calendar', label: exportTodayLabel() }, { icon: 'users', label: `${list.length} ${list.length === 1 ? 'لاعب' : 'لاعبًا'}` }];
       const top = M + exportBrandHeaderHeight(meta) + 34;
-      const ctxOrig = `محسوب من ${arCount(nT, 'بطولة مكتملة', 'بطولتين مكتملتين', 'بطولات مكتملة')} · البداية 1000 والتغيير حسب قوة المنافس`;
+      const lm = liveMatchesCount();
+      const ctxOrig = `محسوب من ${arCount(nT, 'بطولة مكتملة', 'بطولتين مكتملتين', 'بطولات مكتملة')}${lm ? ` و${arCount(lm, 'مباراة', 'مباراتين', 'مباريات')} من البطولة الجارية` : ''} · البداية 1000${lm ? '' : ' والتغيير حسب قوة المنافس'}`;
       const ctxRes = exportContextResolve(ctxOrig);
       const show = exportParts('rating');
       const gapC = ctxRes.shown ? 52 : 6, HEAD = 66, ROW = 88, GAP = 12, LEG = show.legend ? 150 : 0;
@@ -8405,7 +8459,7 @@ function buildLeagueStandingsCanvas() {
 
     async function exportPlayerProfile(name) {
       const d = playerProfileData(name);
-      if (!d) { alert('لا توجد مباريات مكتملة لهذا اللاعب في سجل البطولات بعد.'); return; }
+      if (!d) { alert('لا توجد مباريات مكتملة لهذا اللاعب بعد.'); return; }
       await exportLoadFonts();
       const { p, elo, stats, peak } = d;
       const B = EXPORT_BRAND, W = 1080, M = 56, CW = W - M * 2, GAPS = 26;
@@ -9416,7 +9470,7 @@ function buildLeagueStandingsCanvas() {
     function computePlayerRatings() {
       const P = {};   // name → state
       const st = n => P[n] || (P[n] = { name: n, rating: ELO_START, games: 0, w: 0, l: 0, d: 0, seq: [], points: [], h2h: {}, partners: {}, lastDelta: 0, beforeLast: ELO_START });
-      const tours = (tournamentHistory || []).filter(t => t && Array.isArray(t.matches)).slice().sort((a, b) => new Date(a.date) - new Date(b.date));
+      const tours = statsSourceRecords().filter(t => t && Array.isArray(t.matches)).slice().sort((a, b) => new Date(a.date) - new Date(b.date));
       tours.forEach(t => {
         const played = new Set();
         const startOf = {};
@@ -9482,7 +9536,7 @@ function buildLeagueStandingsCanvas() {
         const head = el('div', 'pf-head');
         const nm = el('div', 'pf-name', name); nm.id = 'pfName'; head.appendChild(nm);
         if (!p || !p.games) {
-          head.appendChild(el('div', 'pf-empty', 'لا توجد مباريات مكتملة لهذا اللاعب في سجل البطولات بعد. يظهر ملفه وتقييمه بعد أول بطولة أو دوري مكتمل يشارك فيه.'));
+          head.appendChild(el('div', 'pf-empty', 'لا توجد مباريات مكتملة لهذا اللاعب بعد. يظهر ملفه وتقييمه بعد أول نتيجة تُسجَّل له.'));
           body.appendChild(head); modal.style.display = 'flex'; return;
         }
         const rt = el('div', 'pf-rating');
@@ -9539,7 +9593,7 @@ function buildLeagueStandingsCanvas() {
           });
           sec.appendChild(list); body.appendChild(sec);
         }
-        body.appendChild(el('div', 'pf-note', 'التقييم يُحسب من البطولات المكتملة في السجل فقط، ويتحدث تلقائيًا بعد كل بطولة أو دوري مكتمل.'));
+        { const lm = liveMatchesCount(); body.appendChild(el('div', 'pf-note', lm ? `يشمل التقييم والأرقام ${lm} ${lm === 1 ? 'مباراة' : lm === 2 ? 'مباراتين' : lm <= 10 ? 'مباريات' : 'مباراة'} من البطولة الجارية ويتحدث بعد كل نتيجة. الألقاب والمشاركات تُحتسب عند اكتمال البطولة.` : 'يتحدث التقييم تلقائيًا بعد كل نتيجة تُسجَّل.')); }
         modal.style.display = 'flex';
         modal.querySelector('.modal-content').scrollTop = 0;
       }
@@ -9813,7 +9867,7 @@ function buildLeagueStandingsCanvas() {
     // ===================================
     // 🧭 سلوك التطبيق: إعادة الوضع للأعلى، تعديل العنوان بالضغط المطوّل، تنبيه التحديث، رقم الإصدار
     // ===================================
-    const APP_VERSION = '18';   // يُرفع مع رقم الإصدار في sw.js عند كل تحديث
+    const APP_VERSION = '19';   // يُرفع مع رقم الإصدار في sw.js عند كل تحديث
     (function setupAppBehaviors() {
       const root = document.documentElement;
 
