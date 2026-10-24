@@ -4,7 +4,7 @@
    - لا يلمس بيانات البطولات (التخزين المحلي) إطلاقًا.
    - data.json (صفحة المشاهدة للاعبين): من الشبكة دائمًا، والمخزن عند انقطاع الإنترنت.
    عند تعديل الملفات مستقبلًا: غيّر رقم الإصدار أدناه ليُحدَّث المخزون القديم. */
-const VERSION = 'carrom-v41';
+const VERSION = 'carrom-v42';
 const SHELL = VERSION + '-shell';
 const FONTS = 'carrom-fonts';
 const SHELL_FILES = ['./', './index.html', './manifest.webmanifest', './view.html', './view.webmanifest', './icons/apple-touch-icon.png', './icons/icon-192.png', './icons/icon-512.png', './icons/icon-maskable-512.png', './assets/wood.webp'];
