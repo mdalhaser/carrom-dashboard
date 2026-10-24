@@ -989,6 +989,8 @@
     .pf-stat { padding: 10px 4px; border-radius: var(--r-md); background: var(--surface-2); text-align: center; }
     .pf-stat b { display: block; font-size: var(--fs-lg); font-weight: 800; color: var(--text); font-variant-numeric: tabular-nums; }
     .pf-stat span { font-size: 11.5px; color: var(--text-2); font-weight: 700; }
+    .pf-excl { display: flex; align-items: center; gap: 8px; margin: 0 0 var(--s3); padding: 9px 12px; border-radius: var(--r-md); background: var(--danger-bg, #FBEAE6); color: var(--danger, #B3402F); font-size: var(--fs-sm); font-weight: 800; }
+    .pf-excl .ic { flex: none; width: 16px; height: 16px; }
     .pf-form { display: flex; align-items: center; justify-content: space-between; gap: 8px; flex-wrap: wrap; padding: 10px 12px; border-radius: var(--r-md); border: 1px solid var(--line); margin-bottom: var(--s3); }
     .pf-form .lbl { font-size: var(--fs-sm); font-weight: 800; color: var(--text-2); }
     .pf-form .lbl-wrap { display: flex; flex-direction: column; gap: 2px; }
@@ -1102,6 +1104,7 @@
     .lg-history-table tr.res-win td.res { color: var(--ok); font-weight: 800; }
     .lg-history-table tr.res-loss td.res { color: var(--danger); font-weight: 800; }
     .lg-history-table tr.res-draw td.res { color: var(--text-2); font-weight: 800; }
+    .lg-history-table tr.res-void td { color: var(--text-3); }
     .lg-history-table td.res .res-ff { display: block; margin-top: 1px; font-size: 10.5px; font-weight: 700; color: var(--text-3); }
     .lg-history-table tr.res-pending td, .lg-history-table tr.res-bye td { color: var(--text-3); }
     .lg-history-table td { overflow-wrap: anywhere; }
@@ -1849,6 +1852,8 @@
     .lgc-row.rank-2 { background: var(--rank-2-tint); border-color: var(--rank-2-main); }
     .lgc-row.rank-3 { background: var(--rank-3-tint); border-color: var(--rank-3-main); }
     body.lg-focus .lgc-legend { display: block; margin-top: 10px; text-align: center; font-size: 11.5px; font-weight: 700; color: var(--text-3); }
+    .lgc-legend .key { display: block; line-height: 1.7; }
+    .lgc-legend .hint { display: block; margin-top: 6px; font-weight: 600; opacity: .85; }
     body.lg-focus .league-matches > .lg-wide { grid-column: 1 / -1; }   /* مباراة منتظرة وحيدة/أخيرة بالعرض الكامل */
     @media (prefers-reduced-motion: reduce) { .lg-enter { animation: none; } .lg-tabs .ind, .lg-setup-body, .lg-sum .chev { transition: none !important; } }
 
@@ -2027,6 +2032,7 @@
     .vday-r .nm:nth-of-type(2) { text-align: end; }   /* الأول: ملتصق بالنتيجة من جهتها */
     .vday-r .nm:last-child { text-align: start; }      /* الثاني: ملتصق بالنتيجة من جهتها */
     .vday-r .nm.me { color: var(--gold-deep); }
+    .vday-r.void .nm, .vday-r.void .sc { color: var(--text-3); }
     .vday-r .nm .ffl { display: block; font-size: 10.5px; font-weight: 700; color: var(--text-3); line-height: 1.3; }
     .vday-r .sc { display: flex; align-items: center; justify-content: center; gap: 6px; font-size: 17px; font-weight: 800; color: var(--text); font-variant-numeric: tabular-nums; }
     .vday-r .sc .dash { color: var(--text-3); font-weight: 600; }
@@ -2096,6 +2102,9 @@
     .lgc-pill { display: inline-flex; align-items: center; margin-inline-start: 6px; padding: 0 7px; border-radius: 999px; background: var(--warn-bg); color: var(--warn); font-size: 10.5px; font-weight: 800; line-height: 1.7; vertical-align: 2px; }
     .lgc-pill.ex { background: var(--danger-bg, #FBEAE6); color: var(--danger, #B3402F); }
     .lgc-row.excluded { opacity: .62; }
+    .lg-match.annulled { opacity: .7; }
+    .lg-match.annulled .match-team { background: var(--surface-2); }
+    .match-status.done.ff.void { background: var(--surface-3); color: var(--text-2); }
     .lgc-row.excluded .r { font-weight: 800; color: var(--text-3); }
     .lg-ff { display: flex; align-items: center; gap: 10px; margin: 2px 0 10px; }
     .lg-ff[hidden] { display: none; }
@@ -2110,6 +2119,8 @@
     .vnew-count { color: var(--gold-deep) !important; }
     .btn.mode-switch.vhas-new { position: relative; }
     .btn.mode-switch.vhas-new::after { content: ""; position: absolute; top: 6px; inset-inline-end: 8px; width: 7px; height: 7px; border-radius: 50%; background: var(--gold); box-shadow: 0 0 0 2px var(--surface); }
+    .vm-out.void { color: var(--text-2) !important; }
+    .vm-score.void { color: var(--text-3); }
     .vm-out { text-align: center; margin-top: 6px; font-size: var(--fs-sm); font-weight: 800; color: var(--ok); }
     .vm-rt { display: grid; grid-template-columns: 1fr auto 1fr; align-items: center; margin-top: 14px; text-align: center; gap: 6px; }
     .vm-rt .v b { display: block; font-size: 22px; font-weight: 800; color: var(--text); font-variant-numeric: tabular-nums; }
@@ -4412,7 +4423,8 @@ return teamName.replace('غير محدد', replacement);
         if (leagueStarted && !leagueFixtureError && !getLeagueProgress().completed) {
           const matches = leagueHistoryMatches();
           if (matches.length) out.push({ id: 'live:league', live: true, name: 'الدوري الجاري', date: now, mode: 'league',
-            participants: [...leaguePlayers], teamMap: Object.fromEntries(leaguePlayers.map(n => [n, [n]])), champion: null, runnerUp: null, matches });
+            participants: leaguePlayers.filter(n => !leagueIsExcluded(n)), teamMap: Object.fromEntries(leaguePlayers.map(n => [n, [n]])), champion: null, runnerUp: null, matches,
+            ...(leagueExcluded.length ? { excluded: [...leagueExcluded] } : {}) });
         }
         ['fixed', 'single'].forEach(mode => {
           let bs, teamMap;
@@ -6727,6 +6739,10 @@ function changeScore(inputId, amount){
     function isLeagueMatchCompleted(m) {
       return !!m && m.status === 'completed' && isValidLeagueScore(m.scoreA, m.scoreB);
     }
+    // مباراة ملغاة: أحد طرفيها مستبعد من الدوري — تُحذف من الترتيب والنقاط والتقدّم كأنه لم يشارك
+    function isLeagueMatchAnnulled(m) { return !!m && (leagueExcluded.includes(m.playerA) || leagueExcluded.includes(m.playerB)); }
+    // «محسومة» لأغراض التقدّم والجولات: مكتملة أو ملغاة (لا تنتظر لعبًا)
+    function isLeagueMatchSettled(m) { return isLeagueMatchCompleted(m) || isLeagueMatchAnnulled(m); }
 
     // ---------- توليد الجدول: دوري ذهاب وإياب (طريقة الدائرة / Circle Method) ----------
     //
@@ -6929,7 +6945,8 @@ function changeScore(inputId, amount){
         name: tournamentName.textContent.trim() || 'بطولة الدوري',
         title: tournamentTitle.textContent.trim() || 'الدوري',
         date: new Date().toISOString(), mode: 'league',
-        participants: [...leaguePlayers], teamMap, champion, runnerUp, matches,
+        participants: leaguePlayers.filter(n => !leagueIsExcluded(n)), teamMap, champion, runnerUp, matches,
+        ...(leagueExcluded.length ? { excluded: [...leagueExcluded] } : {}),
         leagueStandings: standings.map(r => ({ name: r.name, rank: r.rank, points: r.points }))
       };
       const existingIndex = tournamentHistory.findIndex(t => t.id === leagueTournamentId);
@@ -6962,7 +6979,7 @@ function changeScore(inputId, amount){
       const byName = new Map(rows.map(r => [r.name, r]));
 
       leagueMatches.forEach(m => {
-        if (!isLeagueMatchCompleted(m)) return;
+        if (!isLeagueMatchCompleted(m) || isLeagueMatchAnnulled(m)) return;
         const A = byName.get(m.playerA);
         const B = byName.get(m.playerB);
         if (!A || !B) return;
@@ -6993,7 +7010,7 @@ function changeScore(inputId, amount){
           const names = new Set(group.map(r => r.name));
           const mini = new Map(group.map(r => [r.name, 0]));
           leagueMatches.forEach(m => {
-            if (!isLeagueMatchCompleted(m) || !names.has(m.playerA) || !names.has(m.playerB)) return;
+            if (!isLeagueMatchCompleted(m) || isLeagueMatchAnnulled(m) || !names.has(m.playerA) || !names.has(m.playerB)) return;
             const d = deriveLeagueResult(m.scoreA, m.scoreB);
             mini.set(m.playerA, mini.get(m.playerA) + d.pointsA);
             mini.set(m.playerB, mini.get(m.playerB) + d.pointsB);
@@ -7011,8 +7028,9 @@ function changeScore(inputId, amount){
 
     // ---------- التقدّم والجولات ----------
     function getLeagueProgress() {
-      const total = leagueMatches.length;
-      const done = leagueMatches.filter(isLeagueMatchCompleted).length;
+      const live = leagueMatches.filter(m => !isLeagueMatchAnnulled(m));   // الملغاة لا تُعدّ
+      const total = live.length;
+      const done = live.filter(isLeagueMatchCompleted).length;
       return {
         total,
         done,
@@ -7030,11 +7048,11 @@ function changeScore(inputId, amount){
         const p = getLeagueProgress(), st = calculateLeagueStandings();
         if (!st.length || !st[0].played) return null;
         if (p.completed) return { name: st[0].name, points: st[0].points, roundsLeft: 0, matchesLeft: 0, final: true };
-        const left = {}; leagueMatches.forEach(m => { if (!isLeagueMatchCompleted(m)) { left[m.playerA] = (left[m.playerA] || 0) + 1; left[m.playerB] = (left[m.playerB] || 0) + 1; } });
+        const left = {}; leagueMatches.forEach(m => { if (!isLeagueMatchSettled(m)) { left[m.playerA] = (left[m.playerA] || 0) + 1; left[m.playerB] = (left[m.playerB] || 0) + 1; } });
         const top = st[0];
         if (top.excluded) return null;
         if (!st.slice(1).filter(x => !x.excluded).every(x => x.points + 3 * (left[x.name] || 0) < top.points)) return null;
-        const roundsLeft = new Set(leagueMatches.filter(m => !isLeagueMatchCompleted(m)).map(m => m.round)).size;
+        const roundsLeft = new Set(leagueMatches.filter(m => !isLeagueMatchSettled(m)).map(m => m.round)).size;
         return { name: top.name, points: top.points, roundsLeft, matchesLeft: p.remaining, final: false };
       } catch (e) { return null; }
     }
@@ -7055,6 +7073,12 @@ function changeScore(inputId, amount){
         return out;
       } catch (e) { return {}; }
     }
+    // سجل استبعادات اللاعب: الدوريات المكتملة في السجل + الدوري الجاري (يظهر في ملفه وصورة ملفه)
+    function playerExclusions(name) {
+      const out = (tournamentHistory || []).filter(t => t && t.mode === 'league' && Array.isArray(t.excluded) && t.excluded.includes(name)).map(t => ({ name: t.name || 'الدوري', date: t.date }));
+      try { if (leagueStarted && leagueIsExcluded(name) && !getLeagueProgress().completed) out.push({ name: (tournamentName.textContent.trim() || 'الدوري') + ' (الجاري)', date: null }); } catch (e) {}
+      return out;
+    }
     function arRounds(n) { return n === 1 ? 'جولة واحدة' : n === 2 ? 'جولتين' : n <= 10 ? `${n} جولات` : `${n} جولة`; }
 
     function getLeagueRoundMatches(round) {
@@ -7065,7 +7089,7 @@ function changeScore(inputId, amount){
     function getLeagueActiveRound() {
       const totalRounds = leagueExpectedTotals(leaguePlayers.length).rounds;
       for (let r = 1; r <= totalRounds; r++) {
-        if (getLeagueRoundMatches(r).some(m => !isLeagueMatchCompleted(m))) return r;
+        if (getLeagueRoundMatches(r).some(m => !isLeagueMatchSettled(m))) return r;
       }
       return Math.max(totalRounds, 1);
     }
@@ -7091,9 +7115,9 @@ function changeScore(inputId, amount){
           const points = isA ? d.pointsA : d.pointsB;
           const outcome = d.result === 'draw' ? 'draw' : ((d.result === 'A') === isA ? 'win' : 'loss');
           const ff = m.forfeit ? ((m.forfeit === 'A') === isA ? 'self' : 'opp') : null;   // من انسحب: اللاعب نفسه أو خصمه
-          rows.push({ round: m.round, opponent, completed: true, own, opp, outcome, points, ff, auto: !!m.auto });
+          rows.push({ round: m.round, opponent, completed: true, own, opp, outcome, points, ff, auto: !!m.auto, annul: isLeagueMatchAnnulled(m) });
         } else {
-          rows.push({ round: m.round, opponent, completed: false });
+          rows.push({ round: m.round, opponent, completed: false, annul: isLeagueMatchAnnulled(m) });
         }
       });
       const totalRounds = leagueExpectedTotals(leaguePlayers.length).rounds;
@@ -7157,7 +7181,9 @@ function changeScore(inputId, amount){
             match.scoreA = m.scoreA; match.scoreB = m.scoreB; match.status = 'completed';
             match.result = d.result; match.pointsA = d.pointsA; match.pointsB = d.pointsB;
             if (m.forfeit === 'A' || m.forfeit === 'B') match.forfeit = m.forfeit;   // انسحاب (2–0 للخصم)
-            if (m.forfeit && m.auto) match.auto = true;                               // نتيجة استبعاد تلقائية (خارج التقييم)
+          }
+          if (m && m.forfeit && m.auto) {   // نتائج الاستبعاد التلقائية من إصدارات سابقة: تُلغى (المباراة ملغاة الآن)
+            Object.assign(match, { scoreA: null, scoreB: null, status: 'pending', result: null, pointsA: 0, pointsB: 0 }); delete match.forfeit;
           }
           return match;
         });
@@ -7481,8 +7507,9 @@ function changeScore(inputId, amount){
       const totalRounds = leagueExpectedTotals(leaguePlayers.length).rounds;
       const round = leagueCurrentRound;
       const matches = getLeagueRoundMatches(round);
-      const doneCount = matches.filter(isLeagueMatchCompleted).length;
-      const roundDone = matches.length > 0 && doneCount === matches.length;
+      const liveMs = matches.filter(m => !isLeagueMatchAnnulled(m));
+      const doneCount = liveMs.filter(isLeagueMatchCompleted).length;
+      const roundDone = matches.length > 0 && matches.every(isLeagueMatchSettled);
 
       // شريط التنقل بين الجولات
       const nav = document.createElement('div');
@@ -7497,7 +7524,7 @@ function changeScore(inputId, amount){
 
       const title = document.createElement('div');
       title.className = 'league-round-title';
-      title.innerHTML = `الجولة ${round}<small>${roundDone ? 'اكتملت الجولة' : `${doneCount} من ${matches.length} مباريات مكتملة`}</small>`;
+      title.innerHTML = `الجولة ${round}<small>${roundDone ? 'اكتملت الجولة' : `${doneCount} من ${liveMs.length} مباريات مكتملة`}</small>`;
 
       const next = document.createElement('button');
       next.type = 'button';
@@ -7516,7 +7543,7 @@ function changeScore(inputId, amount){
       dots.className = 'league-round-dots';
       for (let r = 1; r <= totalRounds; r++) {
         const rm = getLeagueRoundMatches(r);
-        const done = rm.length > 0 && rm.every(isLeagueMatchCompleted);
+        const done = rm.length > 0 && rm.every(isLeagueMatchSettled);
         const dot = document.createElement('button');
         dot.type = 'button';
         dot.className = 'league-dot' + (done ? ' done' : '') + (r === round ? ' active' : '');
@@ -7542,24 +7569,24 @@ function changeScore(inputId, amount){
     }
 
     function createLeagueMatchCard(m) {
-      const done = isLeagueMatchCompleted(m);
-      const d = done ? deriveLeagueResult(m.scoreA, m.scoreB) : null;
+      const done = isLeagueMatchCompleted(m), annul = isLeagueMatchAnnulled(m);
+      const d = done && !annul ? deriveLeagueResult(m.scoreA, m.scoreB) : null;
       const card = document.createElement('div');
       // نفس بنية بطاقة مباراة جدول البطولة (العنوان + الحالة + صفان) لهوية موحّدة في كل الأوضاع
-      card.className = 'match-card lg-match' + (done ? ' done' : '');
+      card.className = 'match-card lg-match' + (done || annul ? ' done' : '') + (annul ? ' annulled' : '');
       card.dataset.leagueMatch = m.id;
       card.tabIndex = 0;
       card.setAttribute('role', 'button');
       card.title = done ? 'اضغط لتعديل النتيجة' : 'اضغط لإدخال النتيجة';
 
-      const ff = done && m.forfeit ? m.forfeit : null;
+      const ff = done && m.forfeit && !annul ? m.forfeit : null;
       const row = (name, score, won, side) => `
         <div class="match-team${won ? ' winner' : ''}">
-          <span>${leagueEscape(name)}${ff === side ? `<em class="ff-tag">${m.auto ? 'مستبعد' : 'انسحب'}</em>` : ''}</span>
+          <span>${leagueEscape(name)}${annul && leagueIsExcluded(name) ? '<em class="ff-tag">مستبعد</em>' : ff === side ? `<em class="ff-tag">${m.auto ? 'مستبعد' : 'انسحب'}</em>` : ''}</span>
           ${score === null ? '' : `<span class="score-badge ${won ? 'winner-badge' : 'loser-badge'}">${score}</span>`}
         </div>`;
       const seq = (String(m.id).match(/M(\d+)$/) || [])[1] || '';
-      const status = done
+      const status = annul ? '<span class="match-status done ff void">ملغاة</span>' : done
         ? (ff ? `<span class="match-status done ff">${m.auto ? 'استبعاد' : 'انسحاب'}</span>` : `<span class="match-status done">${d.result === 'draw' ? 'تعادل' : 'مكتملة'}</span>`)
         : '<span class="match-status ready">جاهزة للتسجيل</span>';
 
@@ -7570,9 +7597,10 @@ function changeScore(inputId, amount){
           ${row(m.playerB, done ? m.scoreB : null, !!d && d.result === 'B', 'B')}
         </div>`;
 
-      card.addEventListener('click', () => openLeagueScoreModal(m.id));
+      const go = () => { if (annul && !done && !window.CARROM_VIEW) { uiToast(`مباراة ملغاة: ${leagueExcluded.find(n => n === m.playerA || n === m.playerB)} مستبعد من الدوري`, 'warn'); return; } openLeagueScoreModal(m.id); };
+      card.addEventListener('click', go);
       card.addEventListener('keydown', e => {
-        if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); openLeagueScoreModal(m.id); }
+        if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); go(); }
       });
       return card;
     }
@@ -7637,6 +7665,9 @@ function changeScore(inputId, amount){
       const body = rows.map(r => {
         if (r.bye) {
           return `<tr class="res-bye"><td>${r.round}</td><td>استراحة</td><td>—</td><td>—</td><td>—</td></tr>`;
+        }
+        if (r.annul) {   // ملغاة: أحد الطرفين مستبعد — لا نقاط
+          return `<tr class="res-void"><td>${r.round}</td><td>${leagueEscape(r.opponent)}</td><td>${r.completed ? `<bdi dir="ltr" class="lg-num">${r.own} - ${r.opp}</bdi>` : '—'}</td><td class="res">ملغاة</td><td>—</td></tr>`;
         }
         if (!r.completed) {
           return `<tr class="res-pending"><td>${r.round}</td><td>${leagueEscape(r.opponent)}</td><td>—</td><td>لم تلعب</td><td>—</td></tr>`;
@@ -7804,7 +7835,7 @@ function changeScore(inputId, amount){
 
       // الانتقال التلقائي للجولة التالية عند إكمال الجولة المعروضة لأول مرة
       if (wasPending && m.round === leagueCurrentRound &&
-          getLeagueRoundMatches(m.round).every(isLeagueMatchCompleted)) {
+          getLeagueRoundMatches(m.round).every(isLeagueMatchSettled)) {
         leagueCurrentRound = getLeagueActiveRound();
       }
 
@@ -7818,8 +7849,7 @@ function changeScore(inputId, amount){
     }
 
     async function offerLeagueExclusion(name) {
-      const left = leagueMatches.filter(m => !isLeagueMatchCompleted(m) && (m.playerA === name || m.playerB === name)).length;
-      const ok = await uiConfirm(`هذا الانسحاب ${LEAGUE_FORFEIT_LIMIT === 3 ? 'الثالث' : LEAGUE_FORFEIT_LIMIT} لـ ${name} في هذا الدوري.\n\nعند الاستبعاد:\n• تبقى مبارياته الملعوبة كما هي.\n• ${left ? `تُسجَّل مبارياته الباقية (${left}) فوزًا 2–0 لخصومه، ولا تدخل في التقييم.` : 'لا توجد له مباريات باقية.'}\n• ينزل إلى آخر الترتيب ولا يحق له أي مركز.`,
+      const ok = await uiConfirm(`هذا الانسحاب ${LEAGUE_FORFEIT_LIMIT === 3 ? 'الثالث' : LEAGUE_FORFEIT_LIMIT} لـ ${name} في هذا الدوري.\n\nعند الاستبعاد يصبح كأنه لم يشارك:\n• تُلغى كل مبارياته في الدوري (الملعوبة واللاحقة)، فلا يستفيد أحد ولا يتضرر.\n• يظهر آخر الترتيب «مستبعد»، ولا يُحسب له الدوري مشاركة.\n• يُسجَّل الاستبعاد في ملفه.`,
         { title: `استبعاد ${name} من الدوري؟`, okText: 'استبعاد', cancelText: 'ليس الآن', danger: true });
       if (!ok) return;
       excludeLeaguePlayer(name);
@@ -7828,14 +7858,8 @@ function changeScore(inputId, amount){
       if (leagueIsExcluded(name)) return;
       offerUndo(`استبعاد ${name}`);
       const wasCl = leagueClinch(), wasDone = leagueCompleted;
-      leagueExcluded = leagueExcluded.concat([name]);
-      leagueMatches.forEach(m => {
-        if (isLeagueMatchCompleted(m) || (m.playerA !== name && m.playerB !== name)) return;
-        const side = m.playerA === name ? 'A' : 'B';
-        m.scoreA = side === 'A' ? 0 : 2; m.scoreB = side === 'A' ? 2 : 0;
-        const d = deriveLeagueResult(m.scoreA, m.scoreB);
-        Object.assign(m, { status: 'completed', result: d.result, pointsA: d.pointsA, pointsB: d.pointsB, forfeit: side, auto: true });
-      });
+      leagueExcluded = leagueExcluded.concat([name]);   // كل مبارياته (الملعوبة واللاحقة) تصبح ملغاة في الترتيب
+      leagueCompleted = leagueStarted && !leagueFixtureError && getLeagueProgress().completed;
       renderLeague(); saveLeagueState();
       if (leagueCompleted) syncCompletedLeagueTournament();
       try {
@@ -8093,7 +8117,7 @@ function buildLeagueStandingsCanvas() {
         I({ id: 'profile', cat: 'players', title: 'ملف لاعب كامل', desc: 'التقييم وتطوره والإنجازات والمواجهات من كل البطولات', icon: 'users', ok: hasRatings, why: 'يظهر بعد تسجيل بطولة مكتملة', ctl: [{ t: 'hplayer' }], run: () => exportPlayerProfile(exportProfileSel.n) })
       ];
       if (lg) {
-        const pendingAny = leagueMatches.some(m => !isLeagueMatchCompleted(m));
+        const pendingAny = leagueMatches.some(m => !isLeagueMatchSettled(m));
         const st = snap.started, done = snap.progress.done > 0, many = snap.standings.length >= 2;
         return [
           I({ id: 'lg-standings', cat: 'live', title: 'ترتيب الدوري', desc: snap.completed ? 'الترتيب النهائي بالنقاط والأشواط' : 'الترتيب الحالي بالنقاط والأشواط', icon: 'table', ok: st, why: 'ابدأ الدوري أولًا', quick: true, run: exportLeagueStandingsImage }),
@@ -8181,7 +8205,7 @@ function buildLeagueStandingsCanvas() {
           b.addEventListener('click', () => { const i = exportCenterSel.rounds.indexOf(r); if (i >= 0) { if (exportCenterSel.rounds.length > 1) exportCenterSel.rounds.splice(i, 1); } else exportCenterSel.rounds.push(r); exportCenterSel.rounds.sort((x, y) => x - y); hubSync(); }); chips.appendChild(b); }
         w.appendChild(chips);
         const q = hubEl('div', 'xh-rchips');
-        [['الحالية والتالية', () => [active, active + 1].filter(r => r <= total)], ['كل المتبقية', () => { const a = []; for (let r = 1; r <= total; r++) if (getLeagueRoundMatches(r).some(m => !isLeagueMatchCompleted(m))) a.push(r); return a.length ? a : [active]; }], ['كل الجولات', () => Array.from({ length: total }, (_, i) => i + 1)]]
+        [['الحالية والتالية', () => [active, active + 1].filter(r => r <= total)], ['كل المتبقية', () => { const a = []; for (let r = 1; r <= total; r++) if (getLeagueRoundMatches(r).some(m => !isLeagueMatchSettled(m))) a.push(r); return a.length ? a : [active]; }], ['كل الجولات', () => Array.from({ length: total }, (_, i) => i + 1)]]
           .forEach(([t, f]) => { const b = hubEl('button', 'xh-rchip', t); b.type = 'button'; b.addEventListener('click', () => { exportCenterSel.rounds = f(); hubSync(); }); q.appendChild(b); });
         w.appendChild(q); hubRepaint.push(paint); paint(); return w;
       }
@@ -8329,7 +8353,7 @@ function buildLeagueStandingsCanvas() {
 
     async function exportLeaguePlayerCard(name) {
       const r = leagueRow(name); if (!r) { alert('اللاعب غير موجود في الدوري الحالي.'); return; }
-      const done = getLeaguePlayerHistory(name).filter(h => h.completed);
+      const done = getLeaguePlayerHistory(name).filter(h => h.completed && !h.annul);
       const last = done.slice(-5).reverse().map(h => [`ج${h.round}: ${h.opponent}` + (h.ff ? (h.auto ? ' · استبعاد' : ' · انسحاب') : ''), `${h.own} – ${h.opp}`, h.outcome === 'win' ? 'فوز' : h.outcome === 'draw' ? 'تعادل' : 'خسارة']);
       const show = exportParts('lgCard');
       const secs = [{ heading: `${name} — ${getLeagueProgress().completed ? 'المركز النهائي' : 'المركز الحالي'} ${r.rank}`, rows: [
@@ -8345,7 +8369,7 @@ function buildLeagueStandingsCanvas() {
     async function exportLeagueCompare(a, b) {
       const A = leagueRow(a), B = leagueRow(b);
       if (!A || !B || a === b) { alert('اختر لاعبين مختلفين موجودين في الدوري.'); return; }
-      const h2h = leagueMatches.filter(m => isLeagueMatchCompleted(m) && ((m.playerA === a && m.playerB === b) || (m.playerA === b && m.playerB === a)));
+      const h2h = leagueMatches.filter(m => isLeagueMatchCompleted(m) && !isLeagueMatchAnnulled(m) && ((m.playerA === a && m.playerB === b) || (m.playerA === b && m.playerB === a)));
       let wa = 0, wb = 0, dr = 0; h2h.forEach(m => { const d = deriveLeagueResult(m.scoreA, m.scoreB); if (d.result === 'draw') dr++; else if ((d.result === 'A') === (m.playerA === a)) wa++; else wb++; });
       const show = exportParts('lgCompare');
       const rows = [['المركز', A.rank, B.rank], ['المباريات', A.played, B.played], ['النقاط', A.points, B.points],
@@ -8422,13 +8446,18 @@ function buildLeagueStandingsCanvas() {
           y += 72; return;
         }
         const H = 88, cy = y + H / 2;
-        drawRoundedRect(ctx, M, y, CW, H, 20); ctx.fillStyle = B.paper; ctx.fill(); ctx.strokeStyle = it.done ? B.doneLine : B.readyLine; ctx.lineWidth = 2; ctx.stroke();
-        // الانسحاب/الاستبعاد: اسم المنسحب في سطر واحد وتحته كلمة صغيرة «انسحب» أو «مستبعد» بنفس محاذاته
-        const ffName = (text, x, align) => { exportText(ctx, text, x, cy - 13, { size: 30, weight: 700, color: B.ink, align, maxW: nameW, min: 16 });
-          exportText(ctx, it.auto ? 'مستبعد' : 'انسحب', x, cy + 23, { size: 21, weight: 800, color: B.muted, align }); };
-        if (it.ff === 'a') ffName(it.a, M + CW - 24, 'right'); else drawMatchName(ctx, it.a, M + CW - 24, cy, nameW, 'right', false, B.ink);
-        if (it.ff === 'b') ffName(it.b, M + 24, 'left'); else drawMatchName(ctx, it.b, M + 24, cy, nameW, 'left', false, B.ink);
-        if (it.done) {
+        const voided = !!it.annul, ink = voided ? B.muted : B.ink;
+        drawRoundedRect(ctx, M, y, CW, H, 20); ctx.fillStyle = voided ? B.surface2 : B.paper; ctx.fill(); ctx.strokeStyle = voided ? B.line : it.done ? B.doneLine : B.readyLine; ctx.lineWidth = 2; ctx.stroke();
+        // تحت اسم الطرف كلمة صغيرة بنفس محاذاته: «انسحب» للمنسحب، و«مستبعد» للمستبعد (المباراة ملغاة)
+        const tagName = (text, x, align, tag) => { exportText(ctx, text, x, cy - 13, { size: 30, weight: 700, color: ink, align, maxW: nameW, min: 16 });
+          exportText(ctx, tag, x, cy + 23, { size: 21, weight: 800, color: B.muted, align }); };
+        const tagOf = side => it.annul === side ? 'مستبعد' : it.ff === side && !voided ? 'انسحب' : '';
+        if (tagOf('a')) tagName(it.a, M + CW - 24, 'right', tagOf('a')); else drawMatchName(ctx, it.a, M + CW - 24, cy, nameW, 'right', false, ink);
+        if (tagOf('b')) tagName(it.b, M + 24, 'left', tagOf('b')); else drawMatchName(ctx, it.b, M + 24, cy, nameW, 'left', false, ink);
+        if (voided) {   // مباراة ملغاة: كبسولة «ملغاة» مكان النتيجة (لا تُحسب)
+          const w = 104, h = 44; drawRoundedRect(ctx, mid - w / 2, cy - h / 2, w, h, h / 2); ctx.fillStyle = B.paper; ctx.fill(); ctx.strokeStyle = B.line; ctx.lineWidth = 1.6; ctx.stroke();
+          exportText(ctx, 'ملغاة', mid, cy, { size: 24, weight: 800, color: B.muted });
+        } else if (it.done) {
           exportText(ctx, String(it.sa), mid + 36, cy, { size: 44, weight: 800, color: B.ink, dir: 'ltr', maxW: 70, min: 24 });
           exportText(ctx, String(it.sb), mid - 36, cy, { size: 44, weight: 800, color: B.ink, dir: 'ltr', maxW: 70, min: 24 });
           exportText(ctx, '–', mid, cy, { size: 34, weight: 700, color: B.muted, dir: 'ltr' });
@@ -8439,10 +8468,12 @@ function buildLeagueStandingsCanvas() {
       });
       return y;
     }
-    const leagueItem = m => { const it = leagueItem0(m); if (isLeagueMatchCompleted(m) && m.forfeit) { it.ff = m.forfeit === 'A' ? 'a' : 'b'; it.auto = !!m.auto; } return it; };
+    const leagueItem = m => { const it = leagueItem0(m); if (isLeagueMatchCompleted(m) && m.forfeit) { it.ff = m.forfeit === 'A' ? 'a' : 'b'; it.auto = !!m.auto; }
+      if (isLeagueMatchAnnulled(m)) it.annul = leagueIsExcluded(m.playerA) ? 'a' : 'b';
+      return it; };
     const leagueItem0 = m => { const done = isLeagueMatchCompleted(m), d = done ? deriveLeagueResult(m.scoreA, m.scoreB) : null; return matchItem(m.playerA, m.playerB, done ? m.scoreA : null, done ? m.scoreB : null, d ? (d.result === 'A' ? 'a' : d.result === 'B' ? 'b' : null) : null); };
     const koItem = m => { const nm = x => getDisplayTeamName(x || '—'); if (!m.winner) return matchItem(nm(m.team1), nm(m.team2), null, null, null); const w1 = m.winner === m.team1; return matchItem(nm(m.team1), nm(m.team2), w1 ? m.winnerScore : m.loserScore, w1 ? m.loserScore : m.winnerScore, w1 ? 'a' : 'b'); };
-    const itemLine = it => it.bye ? `• راحة: ${it.bye}` : it.done ? `• ${it.a} ${it.sa} – ${it.sb} ${it.b}` + (it.ff ? ` (${it.auto ? 'استُبعد' : 'انسحب'} ${it.ff === 'a' ? it.a : it.b})` : '') : `• ${it.a} × ${it.b}`;
+    const itemLine = it => it.bye ? `• راحة: ${it.bye}` : it.annul ? `• ${it.a} × ${it.b} (ملغاة: استُبعد ${it.annul === 'a' ? it.a : it.b})` : it.done ? `• ${it.a} ${it.sa} – ${it.sb} ${it.b}` + (it.ff ? ` (${it.auto ? 'استُبعد' : 'انسحب'} ${it.ff === 'a' ? it.a : it.b})` : '') : `• ${it.a} × ${it.b}`;
 
     // الإنجازات المعتمدة من سجل البطولات المكتملة فقط (بلا أي رمز كأس)
     function playerAchievementsSection(name) {
@@ -8455,7 +8486,7 @@ function buildLeagueStandingsCanvas() {
       const r = leagueRow(name); if (!r) { alert('اللاعب غير موجود في الدوري الحالي.'); return; }
       const hist = getLeaguePlayerHistory(name);
       if (!hist.length) { alert('لا توجد مباريات لهذا اللاعب.'); return; }
-      const rows = hist.map(h => h.bye ? [`الجولة ${h.round}`, 'راحة', '—'] : h.completed
+      const rows = hist.map(h => h.bye ? [`الجولة ${h.round}`, 'راحة', '—'] : h.annul ? [`ج${h.round}: ${h.opponent}`, h.completed ? `${h.own} – ${h.opp}` : '—', 'ملغاة'] : h.completed
         ? [`ج${h.round}: ${h.opponent}` + (h.ff ? (h.auto ? ' · استبعاد' : ' · انسحاب') : ''), `${h.own} – ${h.opp}`, h.outcome === 'win' ? 'فوز' : h.outcome === 'draw' ? 'تعادل' : 'خسارة']
         : [`ج${h.round}: ${h.opponent}`, '—', 'لم تُلعب']);
       await renderLeagueSheet('سجل مباريات لاعب', leagueCtx(), 2, [{ heading: name, cols: ['النتيجة', 'الحالة'], rows }], `League-Log-${safeName(name)}.png`);
@@ -8569,16 +8600,16 @@ function buildLeagueStandingsCanvas() {
 
     async function exportLeagueRound(roundsIn) {
       const rs = normRounds(roundsIn), secs = [];
-      rs.forEach(r => { const ms = getLeagueRoundMatches(r); if (!ms.length) return; const items = ms.map(leagueItem), bye = getLeagueRoundBye(r); if (bye) items.push({ bye }); secs.push({ r, heading: `الجولة ${r}`, matches: items, total: ms.length, done: ms.filter(isLeagueMatchCompleted).length }); });
+      rs.forEach(r => { const ms = getLeagueRoundMatches(r); if (!ms.length) return; const items = ms.map(leagueItem), bye = getLeagueRoundBye(r); if (bye) items.push({ bye }); secs.push({ r, heading: `الجولة ${r}`, matches: items, total: ms.filter(m => !isLeagueMatchAnnulled(m)).length, done: ms.filter(m => isLeagueMatchCompleted(m) && !isLeagueMatchAnnulled(m)).length }); });
       if (!secs.length) { alert('لا توجد مباريات في الجولات المحددة.'); return; }
       const used = secs.map(x => x.r), total = secs.reduce((a, x) => a + x.total, 0), done = secs.reduce((a, x) => a + x.done, 0), file = `League-Round-${roundsFile(used)}.png`;
-      setCaption(file, secs.map(x => `نتائج ${x.heading}:\n` + x.matches.map(it => itemLine(it) + (!it.bye && !it.done ? ' (لم تُلعب)' : '')).join('\n')).join('\n\n'));
+      setCaption(file, secs.map(x => `نتائج ${x.heading}:\n` + x.matches.map(it => itemLine(it) + (!it.bye && !it.done && !it.annul ? ' (لم تُلعب)' : '')).join('\n')).join('\n\n'));
       await renderLeagueSheet('نتائج جولة', `${roundsLabel(used)} · ${done} من ${total} مباراة مكتملة`, 1, secs, file);
     }
 
     async function exportLeagueUpcoming(roundsIn) {
       const rs = normRounds(roundsIn), secs = [];
-      rs.forEach(r => { const pending = getLeagueRoundMatches(r).filter(m => !isLeagueMatchCompleted(m)); if (!pending.length) return; const items = pending.map(leagueItem), bye = getLeagueRoundBye(r); if (bye) items.push({ bye }); secs.push({ r, heading: `مباريات الجولة ${r}`, matches: items, count: pending.length }); });
+      rs.forEach(r => { const pending = getLeagueRoundMatches(r).filter(m => !isLeagueMatchSettled(m)); if (!pending.length) return; const items = pending.map(leagueItem), bye = getLeagueRoundBye(r); if (bye) items.push({ bye }); secs.push({ r, heading: `مباريات الجولة ${r}`, matches: items, count: pending.length }); });
       if (!secs.length) { alert('الجولات المحددة مكتملة كلها، لا توجد مباريات قادمة.'); return; }
       const used = secs.map(x => x.r), count = secs.reduce((a, x) => a + x.count, 0), file = `League-Upcoming-Round-${roundsFile(used)}.png`;
       setCaption(file, secs.map(x => `${x.heading}:\n` + x.matches.map(itemLine).join('\n')).join('\n\n'));
@@ -8670,7 +8701,7 @@ function buildLeagueStandingsCanvas() {
       if (!list.length) { alert('لا توجد مباريات في هذه الليلة.'); return; }
       const label = nightLabel(key), file = `Night-Summary-${key}.png`, nm = x => lg ? x : getDisplayTeamName(x);
       const items = list.map(e => { const it = matchItem(nm(e.a), nm(e.b), e.sa, e.sb, e.sa === e.sb ? null : (lg ? (e.sa > e.sb ? 'a' : 'b') : (e.w === e.a ? 'a' : 'b')));
-        if (lg) { const m = leagueMatches.find(x => x.id === e.id); if (m && m.forfeit) { it.ff = m.forfeit === 'A' ? 'a' : 'b'; it.auto = !!m.auto; } }
+        if (lg) { const m = leagueMatches.find(x => x.id === e.id); if (m && m.forfeit) { it.ff = m.forfeit === 'A' ? 'a' : 'b'; it.auto = !!m.auto; } if (m && isLeagueMatchAnnulled(m)) it.annul = leagueIsExcluded(m.playerA) ? 'a' : 'b'; }
         return it; });
       setCaption(file, `ملخص ليلة ${label} (${list.length} مباراة):\n` + items.map(itemLine).join('\n'));
       await renderLeagueSheet('ملخص الليلة', `${label} · ${list.length === 2 ? 'مباراتان' : list.length + ' ' + (list.length === 1 ? 'مباراة' : 'مباريات')}`, 1, [{ heading: 'مباريات الليلة', matches: items }], file);
@@ -8745,7 +8776,7 @@ function buildLeagueStandingsCanvas() {
       const split = n => currentMode === 'single' || currentMode === 'league' ? [n] : String(n).split(' + ').map(x => x.trim()).filter(Boolean);
       if (currentMode === 'league') {
         if (!leagueStarted || leagueFixtureError) return [];
-        return leagueMatches.filter(m => !isLeagueMatchCompleted(m)).slice().sort((x, y) => x.round - y.round)
+        return leagueMatches.filter(m => !isLeagueMatchSettled(m)).slice().sort((x, y) => x.round - y.round)
           .map(m => ({ id: 'lg:' + m.id, a: m.playerA, b: m.playerB, members: [[m.playerA], [m.playerB]], lg: true, final: false, round: `الجولة ${m.round}`, label: `الجولة ${m.round}`, file: `League-Versus-${safeName(m.id)}` }));
       }
       return knockoutUpcomingMatches().slice().sort((x, y) => x.matchNumber - y.matchNumber)
@@ -9160,8 +9191,8 @@ function buildLeagueStandingsCanvas() {
       const show = exportParts('profile');
       const hasChart = show.chart && pts.length >= 3;
       const H2H = show.h2h ? d.h2h.slice(0, 8) : [], PARTS = show.partners ? d.parts.slice(0, 5) : [], RH = 84;
-      const HERO = 318, CHART = 380, TILE = 152, FORM = 150, SEC = 70 + 14;
-      const H = Math.ceil(top + HERO + GAPS + (hasChart ? CHART + GAPS : 0) + (show.tiles ? TILE * 2 + 16 + GAPS : 0) + (show.form ? FORM + GAPS : 0) +
+      const HERO = 318, CHART = 380, TILE = 152, FORM = 150, SEC = 70 + 14, EXC = playerExclusions(name), EXH = 64;
+      const H = Math.ceil(top + HERO + GAPS + (EXC.length ? EXC.length * (EXH + 12) + GAPS - 12 : 0) + (hasChart ? CHART + GAPS : 0) + (show.tiles ? TILE * 2 + 16 + GAPS : 0) + (show.form ? FORM + GAPS : 0) +
         (H2H.length ? SEC + H2H.length * RH + GAPS : 0) + (PARTS.length ? SEC + PARTS.length * RH + GAPS : 0) + 70);
       const { canvas, ctx } = exportNewCanvas(W, H);
       exportBrandHeader(ctx, M, M, CW, tournamentName.textContent.trim() || 'بطولة المجلس للكيرم', 'ملف لاعب', meta);
@@ -9185,6 +9216,12 @@ function buildLeagueStandingsCanvas() {
       if (p.lastDelta) exportDelta(ctx, p.lastDelta, rx - dw / 2, ry + 2, 30);
       exportText(ctx, `المركز ${p.rank} من ${elo.ranked.length} في تقييم المجلس`, M + CW / 2, y + 262, { size: 28, weight: 700, color: B.muted, maxW: CW - 80 });
       y += HERO + GAPS;
+      if (EXC.length) {   // سجل الاستبعاد: سطر هادئ بلون التحذير لكل دوري
+        EXC.forEach((x, i) => { drawRoundedRect(ctx, M, y, CW, EXH, 18); ctx.fillStyle = '#FBEAE6'; ctx.fill();
+          exportText(ctx, `مستبعد من ${x.name}` + (x.date ? ` · ${fmtDayDate(x.date)}` : ''), M + CW / 2, y + EXH / 2, { size: 27, weight: 800, color: '#B3402F', maxW: CW - 60, min: 16 });
+          y += EXH + (i < EXC.length - 1 ? 12 : 0); });
+        y += GAPS;
+      }
 
       // منحنى تطور التقييم
       if (hasChart) {
@@ -10333,6 +10370,7 @@ function buildLeagueStandingsCanvas() {
         head.appendChild(el('div', 'pf-spark-cap', `المركز ${p.rank} من ${elo.ranked.length} في تقييم المجلس`));
         const sp = spark([{ r: ELO_START }].concat(p.points)); if (sp) { head.appendChild(sp); head.appendChild(el('div', 'pf-spark-cap', `تطور التقييم عبر ${p.points.length} ${p.points.length === 1 ? 'بطولة' : 'بطولات'}`)); }
         body.appendChild(head);
+        playerExclusions(name).forEach(x => { const n = el('div', 'pf-excl'); n.append(el('span', 'ic ic-alert'), el('span', null, `مستبعد من ${x.name}` + (x.date ? ` · ${fmtDayDate(x.date)}` : ''))); n.firstChild.setAttribute('aria-hidden', 'true'); body.appendChild(n); });
         const grid = el('div', 'pf-grid');
         const decided = p.w + p.l;
         [[stats.championships || 0, 'ألقاب', titlesBreakdown(stats)], [stats.runnerUps || 0, 'وصافة'], [decided ? Math.round(p.w / decided * 100) + '%' : '—', 'نسبة الفوز'], [p.games, 'مباراة']]
@@ -10456,7 +10494,7 @@ function buildLeagueStandingsCanvas() {
           const d = deriveLeagueResult(m.scoreA, m.scoreB);
           title = `مباراة ${(String(m.id).match(/M(\d+)$/) || [])[1] || ''}`; sub = `الجولة ${m.round}`;
           draw = d.result === 'draw';
-          outcome = m.forfeit ? `فاز ${m.forfeit === 'A' ? m.playerB : m.playerA} ب${m.auto ? 'الاستبعاد' : 'الانسحاب'} · ${m.auto ? 'استُبعد' : 'انسحب'} ${m.forfeit === 'A' ? m.playerA : m.playerB}`
+          outcome = isLeagueMatchAnnulled(m) ? `ملغاة · ${leagueExcluded.find(n => n === m.playerA || n === m.playerB)} مستبعد من الدوري` : m.forfeit ? `فاز ${m.forfeit === 'A' ? m.playerB : m.playerA} ب${m.auto ? 'الاستبعاد' : 'الانسحاب'} · ${m.auto ? 'استُبعد' : 'انسحب'} ${m.forfeit === 'A' ? m.playerA : m.playerB}`
             : draw ? 'تعادل · نقطة لكل لاعب' : `الفائز: ${d.result === 'A' ? m.playerA : m.playerB} · 3 نقاط`;
           locked = isLeagueLocked();
           $('resultRows').replaceChildren(row(m.playerA, m.scoreA, d.result === 'A'), row(m.playerB, m.scoreB, d.result === 'B'));
@@ -10658,7 +10696,7 @@ function buildLeagueStandingsCanvas() {
     // ===================================
     // 🧭 سلوك التطبيق: إعادة الوضع للأعلى، تعديل العنوان بالضغط المطوّل، تنبيه التحديث، رقم الإصدار
     // ===================================
-    const APP_VERSION = '45';   // يُرفع مع رقم الإصدار في sw.js عند كل تحديث
+    const APP_VERSION = '1';   // ترقيم الاعتماد: 1 ثم 1.1 … 1.9 ثم 2 — ويُرفع معه رقم الإصدار في sw.js
     (function setupAppBehaviors() {
       const root = document.documentElement;
 
@@ -10863,8 +10901,8 @@ function buildLeagueStandingsCanvas() {
         if (on && setup.previousElementSibling !== main) main.after(setup);
         else if (!on && setup.parentNode !== home.parent) home.parent.insertBefore(setup, home.next && home.next.parentNode === home.parent ? home.next : null);
         if (!on) { setup.classList.remove('open'); return; }
-        const exp = leagueExpectedTotals(leaguePlayers.length);
-        sum.querySelector('.d').textContent = `${leaguePlayers.length} لاعبًا · ${exp.totalMatches} مباراة · ${exp.rounds} جولة`;
+        const exp = leagueExpectedTotals(leaguePlayers.length), nx = leagueExcluded.length;   // بعد الاستبعاد: المستبعد لا يُعدّ لاعبًا، والمباريات المحتسبة فقط
+        sum.querySelector('.d').textContent = `${leaguePlayers.length - nx} لاعبًا · ${nx ? getLeagueProgress().total : exp.totalMatches} مباراة · ${exp.rounds} جولة`;
       };
       // 4) الجولة: المنتظرة أولًا ثم فاصل «المباريات المكتملة»، وصف الجولات يتمركز على الجولة الحالية
       let roundDir = 0, firstPaint = true;
@@ -10905,7 +10943,7 @@ function buildLeagueStandingsCanvas() {
               <span class="n"><b>${leagueEscape(x.name)}${pill}</b><small>ف ${x.wins}\u2009·\u2009ت ${x.draws}\u2009·\u2009خ ${x.losses} <i class="sep"></i> له ${x.setsFor}\u2009·\u2009عليه ${x.setsAgainst}</small></span>
               <span class="c">${x.played}</span><span class="c sd ${sd > 0 ? 'up' : sd < 0 ? 'down' : ''}"><bdi dir="ltr">${sd > 0 ? '+' + sd : sd}</bdi></span><span class="pts">${x.points}</span></button>`; }).join('');
         box.addEventListener('click', e => { const b = e.target.closest('.lgc-row'); if (b) openLeaguePlayerHistory(b.dataset.player); });
-        const legend = document.createElement('div'); legend.className = 'lgc-legend'; legend.textContent = 'ف = فوز · ت = تعادل · خ = خسارة · له/عليه = الأشواط · الفارق = فارق الأشواط · اضغط على اللاعب لعرض سجله';
+        const legend = document.createElement('div'); legend.className = 'lgc-legend'; legend.innerHTML = '<span class="key">ف = فوز · ت = تعادل · خ = خسارة</span><span class="key">له/عليه = الأشواط · الفارق = فارق الأشواط</span><span class="hint">اضغط على اللاعب لعرض سجله</span>';
         const title = el.querySelector('.league-section-title'); (title ? title.after(box) : el.prepend(box)); box.after(legend);
         return r;
       };
@@ -10952,8 +10990,10 @@ function buildLeagueStandingsCanvas() {
         let st = null; try { st = versusStory({ a: o.a, b: o.b, members: [o.mA, o.mB], lg: o.lg, final: o.final }); } catch (e) {}
         let h = `<div class="vm-round">${esc(o.round)}</div>
           <div class="vm-names"><div class="nm">${sideHTML(o.a, o.mA)}</div><span class="vm-vs">ضد</span><div class="nm">${sideHTML(o.b, o.mB)}</div></div>`;
-        if (o.done) {
-          h += `<div class="vm-score"><span>${o.sa}</span><span class="dash">–</span><span>${o.sb}</span></div><div class="vm-out">${esc(o.outcome)}</div>`;
+        if (o.void && !o.done) {
+          h += `<div class="vm-out void">${esc(o.outcome)}</div>`;
+        } else if (o.done) {
+          h += `<div class="vm-score${o.void ? ' void' : ''}"><span>${o.sa}</span><span class="dash">–</span><span>${o.sb}</span></div><div class="vm-out${o.void ? ' void' : ''}">${esc(o.outcome)}</div>`;
           const at = recordedAt(o.kind, o.id);
           if (at) h += `<div class="vm-when"><span class="ic ic-calendar" aria-hidden="true"></span>سُجّلت النتيجة: ${esc(fmtDayDate(at))} · ${esc(fmtTimeNum(at))}</div>`;
         } else if (st) {
@@ -10986,8 +11026,8 @@ function buildLeagueStandingsCanvas() {
       openLeagueScoreModal = function (id) {   // الدوري: عرض فقط
         const m = leagueMatches.find(x => x.id === id); if (!m) return;
         const done = isLeagueMatchCompleted(m), d = done ? deriveLeagueResult(m.scoreA, m.scoreB) : null;
-        showMatch({ kind: 'lg', id, a: m.playerA, b: m.playerB, mA: [m.playerA], mB: [m.playerB], lg: true, final: false, round: `الجولة ${m.round}`, done, sa: m.scoreA, sb: m.scoreB,
-          outcome: d ? (m.forfeit ? `فاز ${m.forfeit === 'A' ? m.playerB : m.playerA} ب${m.auto ? 'الاستبعاد' : 'الانسحاب'} · ${m.auto ? 'استُبعد' : 'انسحب'} ${m.forfeit === 'A' ? m.playerA : m.playerB}` : d.result === 'draw' ? 'تعادل' : 'فاز ' + (d.result === 'A' ? m.playerA : m.playerB)) : '' });
+        showMatch({ kind: 'lg', id, a: m.playerA, b: m.playerB, mA: [m.playerA], mB: [m.playerB], lg: true, final: false, round: `الجولة ${m.round}`, done, sa: m.scoreA, sb: m.scoreB, void: isLeagueMatchAnnulled(m),
+          outcome: isLeagueMatchAnnulled(m) ? `ملغاة · ${leagueExcluded.find(n => n === m.playerA || n === m.playerB)} مستبعد من الدوري` : d ? (m.forfeit ? `فاز ${m.forfeit === 'A' ? m.playerB : m.playerA} ب${m.auto ? 'الاستبعاد' : 'الانسحاب'} · ${m.auto ? 'استُبعد' : 'انسحب'} ${m.forfeit === 'A' ? m.playerA : m.playerB}` : d.result === 'draw' ? 'تعادل' : 'فاز ' + (d.result === 'A' ? m.playerA : m.playerB)) : '' });
       };
       // ===== «أنا» + «الجديد منذ آخر زيارة» (يُحفظان على جهاز اللاعب فقط) =====
       (function setupMeAndNew() {
@@ -11033,7 +11073,7 @@ function buildLeagueStandingsCanvas() {
 
         // 2) تمييز البطاقات: «جديد» على النتائج الجديدة، واسمي باللون الذهبي
         const leagueFormOf = name => (Array.isArray(leagueMatches) ? leagueMatches : [])
-          .filter(m => isLeagueMatchCompleted(m) && (m.playerA === name || m.playerB === name))
+          .filter(m => isLeagueMatchCompleted(m) && !isLeagueMatchAnnulled(m) && (m.playerA === name || m.playerB === name))
           .sort((a, b) => a.round - b.round || String(a.id).localeCompare(String(b.id), 'en', { numeric: true }))
           .slice(-5).map(m => { const d = deriveLeagueResult(m.scoreA, m.scoreB); return d.result === 'draw' ? 'd' : (d.result === 'A') === (m.playerA === name) ? 'w' : 'l'; });
         const isMine = name => !!me && String(name || '').split(' + ').map(x => x.trim()).includes(me);
@@ -11085,7 +11125,7 @@ function buildLeagueStandingsCanvas() {
             });
           });
           if (Array.isArray(leagueMatches)) {
-            leagueMatches.filter(x => !isLeagueMatchCompleted(x) && (x.playerA === me || x.playerB === me) && real(x.playerA) && real(x.playerB))
+            leagueMatches.filter(x => !isLeagueMatchSettled(x) && (x.playerA === me || x.playerB === me) && real(x.playerA) && real(x.playerB))
               .sort((a, b) => a.round - b.round || String(a.id).localeCompare(String(b.id), 'en', { numeric: true }))
               .forEach(m => { const opp = m.playerA === me ? m.playerB : m.playerA; out.push({ mode: 'league', id: m.id, label: `الدوري · الجولة ${m.round}`, opp, mA: [me], mB: [opp], lg: true, final: false }); });
           }
@@ -11101,7 +11141,7 @@ function buildLeagueStandingsCanvas() {
           const p = ratings.players[me], known = !!(p && p.games), r = known ? p.rating : ELO_START, tier = eloTier(r);
           const prev = prevRatingOf(me), dl = known && prev != null ? r - prev : 0;
           let lg = null;
-          try { if (leagueStarted && (leaguePlayers || []).includes(me)) { const st = calculateLeagueStandings().find(x => x.name === me); if (st && st.played) lg = st; } } catch (e) {}
+          try { if (leagueStarted && (leaguePlayers || []).includes(me)) { const st = calculateLeagueStandings().find(x => x.name === me); if (st && (st.played || st.excluded)) lg = st; } } catch (e) {}
           const ptsW = n => n === 1 ? 'نقطة' : n === 2 ? 'نقطتان' : n >= 3 && n <= 10 ? 'نقاط' : 'نقطة';
           const rankedN = ratings.ranked.filter(x => x.games).length;
           // شريط أرقام هادئ: التقييم · الترتيب العام · الدوري (إن كان مشاركًا)
@@ -11183,8 +11223,8 @@ function buildLeagueStandingsCanvas() {
         const short = k => { const [, mo, d] = k.split('-'); return `${d}.${mo}`; };
         const countTxt = n => n === 1 ? 'مباراة واحدة' : n === 2 ? 'مباراتان' : n <= 10 ? `${n} مباريات` : `${n} مباراة`;
         const nm = (name, tag) => `<span class="nm${me0 && name === me0 ? ' me' : ''}">${esc(name)}${tag ? `<small class="ffl">${tag}</small>` : ''}</span>`;
-        const ffTag = (m, side) => m.forfeit === side ? (m.auto ? 'مستبعد' : 'انسحب') : '';
-        const rowsHTML = list => list.map((m, i) => `<button type="button" class="vday-r${i === 0 ? ' latest' : ''}" data-id="${esc(m.id)}" aria-label="الجولة ${m.round}: ${esc(m.playerA)} ${m.scoreA} مقابل ${m.scoreB} ${esc(m.playerB)}">
+        const ffTag = (m, side) => isLeagueMatchAnnulled(m) ? (leagueIsExcluded(side === 'A' ? m.playerA : m.playerB) ? 'مستبعد' : '') : m.forfeit === side ? (m.auto ? 'مستبعد' : 'انسحب') : '';
+        const rowsHTML = list => list.map((m, i) => `<button type="button" class="vday-r${i === 0 ? ' latest' : ''}${isLeagueMatchAnnulled(m) ? ' void' : ''}" data-id="${esc(m.id)}" aria-label="الجولة ${m.round}: ${esc(m.playerA)} ${m.scoreA} مقابل ${m.scoreB} ${esc(m.playerB)}">
               <span class="rd">ج${m.round}</span>${nm(m.playerA, ffTag(m, 'A'))}<span class="sc"><span>${m.scoreA}</span><span class="dash">–</span><span>${m.scoreB}</span></span>${nm(m.playerB, ffTag(m, 'B'))}</button>`).join('');
         let sel = latest;
         const box = document.createElement('section'); box.className = 'vday' + (latest === todayKey ? ' open' : ''); box.id = 'viewPlayDay';
