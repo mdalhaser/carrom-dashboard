@@ -994,6 +994,8 @@
     .result-meta { display: flex; justify-content: center; align-items: center; gap: 6px; margin-top: var(--s3); color: var(--text-3); font-size: var(--fs-xs); font-weight: 700; }
     .result-meta .ic { width: 14px; height: 14px; }
     #resultModal .score-modal-actions .btn { flex: 1; white-space: nowrap; }
+    #resultModal .score-modal-actions:has(#resultEditBtn[hidden]) { grid-template-columns: minmax(0, 1fr); }   /* ملغاة: «تم» وحده بالعرض الكامل */
+    #resultEditBtn[hidden] { display: none !important; }
     [data-ic="pencil"]::before { --ic: var(--ic-pencil); } [data-ic="share"]::before { --ic: var(--ic-share); }
     #profileModal .score-modal-actions .btn { flex: 1; white-space: nowrap; }
     /* ===== ملف اللاعب ===== */
@@ -2102,6 +2104,7 @@
     .vday-r .nm:last-child { text-align: start; }      /* الثاني: ملتصق بالنتيجة من جهتها */
     .vday-r .nm.me { color: var(--gold-deep); }
     .vday-r.void .nm, .vday-r.void .sc { color: var(--text-3); }
+    .vday-r .sc.void-tx { font-size: 11.5px; font-weight: 800; letter-spacing: 0; }
     .vday-r .nm .ffl { display: block; font-size: 10.5px; font-weight: 700; color: var(--text-3); line-height: 1.3; }
     .vday-r .sc { display: flex; align-items: center; justify-content: center; gap: 6px; font-size: 17px; font-weight: 800; color: var(--text); font-variant-numeric: tabular-nums; }
     .vday-r .sc .dash { color: var(--text-3); font-weight: 600; }
@@ -3433,7 +3436,12 @@ return teamName.replace('غير محدد', replacement);
 
     // ======== ⤺ التراجع السريع بعد الإجراءات المهمة ========
     // يُعلَّم الإجراء قبل حفظه؛ عندما يُسجَّل فعلًا في سجل التراجع يظهر شريط "تراجع" لثوانٍ.
-    function offerUndo(label) { window.__carromUndoOffer = { label, at: Date.now() }; }
+    // merge: الإجراء نتيجة مباشرة للخطوة السابقة (مثل الاستبعاد بعد الانسحاب الثالث) — يُدمج معها في خطوة تراجع واحدة
+    function offerUndo(label, merge) {
+      // نُنهي الخطوة المعلّقة أولًا حتى نعرف بالضبط الخطوة التي سنُدمج معها
+      const into = merge && window.carromFlushUndo ? window.carromFlushUndo() : null;
+      window.__carromUndoOffer = { label, at: Date.now(), merge: !!into, into };
+    }
     // ======== 💊 كبسولة الإجراءات (أسلوب iOS): عنصر واحد يجمع «تراجع» و«مشاركة» ========
     // بعد تسجيل نتيجة: «سُجّلت النتيجة» + تراجع + مشاركة. بعد إجراء كبير: اسم الإجراء + تراجع.
     // تختفي وحدها بعد ثوانٍ، أو بسحبها لأسفل؛ وتتوقف مؤقتًا أثناء لمسها.
@@ -3522,6 +3530,7 @@ return teamName.replace('غير محدد', replacement);
     }
     function showQuickUndo(detail) {
       if (!detail || !detail.id) return;
+      if (detail.fresh) { capsuleDismissed = null; capsuleState = { label: detail.label, share: null, undoId: detail.id, awaitUndo: false, at: Date.now() }; capsuleRender(); return; }
       if (capsuleDismissed && Date.now() - capsuleDismissed < 2500) { capsuleDismissed = null; return; }
       if (capsuleState && capsuleState.share && capsuleState.awaitUndo && !capsuleState.undoId && Date.now() - capsuleState.at < 2500) {
         capsuleState.undoId = detail.id; capsuleRender(); return;
@@ -7714,8 +7723,8 @@ function changeScore(inputId, amount){
       card.innerHTML = `
         <div class="match-head"><div class="match-title">مباراة ${seq}</div>${status}</div>
         <div class="match-body">
-          ${row(m.playerA, done ? m.scoreA : null, !!d && d.result === 'A', 'A')}
-          ${row(m.playerB, done ? m.scoreB : null, !!d && d.result === 'B', 'B')}
+          ${row(m.playerA, done && !annul ? m.scoreA : null, !!d && d.result === 'A', 'A')}
+          ${row(m.playerB, done && !annul ? m.scoreB : null, !!d && d.result === 'B', 'B')}
         </div>`;
 
       if (!done && !annul) vsDecorate(card);
@@ -7789,7 +7798,7 @@ function changeScore(inputId, amount){
           return `<tr class="res-bye"><td>${r.round}</td><td>استراحة</td><td>—</td><td>—</td><td>—</td></tr>`;
         }
         if (r.annul) {   // ملغاة: أحد الطرفين مستبعد — لا نقاط
-          return `<tr class="res-void"><td>${r.round}</td><td>${leagueEscape(r.opponent)}</td><td>${r.completed ? `<bdi dir="ltr" class="lg-num">${r.own} - ${r.opp}</bdi>` : '—'}</td><td class="res">ملغاة</td><td>—</td></tr>`;
+          return `<tr class="res-void"><td>${r.round}</td><td>${leagueEscape(r.opponent)}</td><td>—</td><td class="res">ملغاة</td><td>—</td></tr>`;
         }
         if (!r.completed) {
           return `<tr class="res-pending"><td>${r.round}</td><td>${leagueEscape(r.opponent)}</td><td>—</td><td>لم تلعب</td><td>—</td></tr>`;
@@ -7974,11 +7983,11 @@ function changeScore(inputId, amount){
       const ok = await uiConfirm(`هذا الانسحاب ${LEAGUE_FORFEIT_LIMIT === 3 ? 'الثالث' : LEAGUE_FORFEIT_LIMIT} لـ ${name} في هذا الدوري.\n\nعند الاستبعاد يصبح كأنه لم يشارك:\n• تُلغى كل مبارياته في الدوري (الملعوبة واللاحقة)، فلا يستفيد أحد ولا يتضرر.\n• يظهر آخر الترتيب «مستبعد»، ولا يُحسب له الدوري مشاركة.\n• يُسجَّل الاستبعاد في ملفه.`,
         { title: `استبعاد ${name} من الدوري؟`, okText: 'استبعاد', cancelText: 'ليس الآن', danger: true });
       if (!ok) return;
-      excludeLeaguePlayer(name);
+      excludeLeaguePlayer(name, true);
     }
-    function excludeLeaguePlayer(name) {
+    function excludeLeaguePlayer(name, afterForfeit) {
       if (leagueIsExcluded(name)) return;
-      offerUndo(`استبعاد ${name}`);
+      offerUndo(afterForfeit ? `انسحاب واستبعاد ${name}` : `استبعاد ${name}`, !!afterForfeit);
       const wasCl = leagueClinch(), wasDone = leagueCompleted;
       leagueExcluded = leagueExcluded.concat([name]);   // كل مبارياته (الملعوبة واللاحقة) تصبح ملغاة في الترتيب
       leagueCompleted = leagueStarted && !leagueFixtureError && getLeagueProgress().completed;
@@ -8608,7 +8617,7 @@ function buildLeagueStandingsCanvas() {
       const r = leagueRow(name); if (!r) { alert('اللاعب غير موجود في الدوري الحالي.'); return; }
       const hist = getLeaguePlayerHistory(name);
       if (!hist.length) { alert('لا توجد مباريات لهذا اللاعب.'); return; }
-      const rows = hist.map(h => h.bye ? [`الجولة ${h.round}`, 'راحة', '—'] : h.annul ? [`ج${h.round}: ${h.opponent}`, h.completed ? `${h.own} – ${h.opp}` : '—', 'ملغاة'] : h.completed
+      const rows = hist.map(h => h.bye ? [`الجولة ${h.round}`, 'راحة', '—'] : h.annul ? [`ج${h.round}: ${h.opponent}`, '—', 'ملغاة'] : h.completed
         ? [`ج${h.round}: ${h.opponent}` + (h.ff ? (h.auto ? ' · استبعاد' : ' · انسحاب') : ''), `${h.own} – ${h.opp}`, h.outcome === 'win' ? 'فوز' : h.outcome === 'draw' ? 'تعادل' : 'خسارة']
         : [`ج${h.round}: ${h.opponent}`, '—', 'لم تُلعب']);
       await renderLeagueSheet('سجل مباريات لاعب', leagueCtx(), 2, [{ heading: name, cols: ['النتيجة', 'الحالة'], rows }], `League-Log-${safeName(name)}.png`);
@@ -10082,6 +10091,14 @@ function buildLeagueStandingsCanvas() {
         if(mapsEqual(before,after))return;
         const offer=window.__carromUndoOffer;window.__carromUndoOffer=null;
         const offered=!!(offer&&Date.now()-offer.at<5000);
+        // دمج مع الخطوة السابقة: تراجع واحد يعيد الحالة كما كانت قبل الخطوتين معًا (مثل: الانسحاب الثالث + الاستبعاد)
+        const prevE=undoStack[undoStack.length-1];
+        if(offered&&offer.merge&&prevE&&prevE.id===offer.into&&Date.now()-new Date(prevE.at).getTime()<120000&&mapsEqual(prevE.after,before)){
+          prevE.after=after;prevE.label=offer.label;redoStack=[];writeHistory();
+          try{localStorage.setItem(CHANGE_KEY,String(Date.now()))}catch(e){}refreshBackupBadge();
+          try{window.dispatchEvent(new CustomEvent('carrom-undoable',{detail:{id:prevE.id,label:prevE.label,fresh:true}}));}catch(e){}
+          return;
+        }
         const entry={id:Date.now(),at:new Date().toISOString(),label:offered?offer.label:lastTrackedLabel,before,after};
         undoStack.push(entry);if(undoStack.length>MAX_UNDO)undoStack.shift();
         redoStack=[];writeHistory();
@@ -10172,6 +10189,7 @@ function buildLeagueStandingsCanvas() {
       }
       readHistory();
       // تراجع بضغطة من الشاشة الرئيسية: يتراجع فقط إذا كان آخر خطوة هي الإجراء المعروض نفسه
+      window.carromFlushUndo=function(){finishPending();return undoStack.length?undoStack[undoStack.length-1].id:null;};
       window.carromQuickUndo=function(id){
         finishPending();
         if(!undoStack.length||undoStack[undoStack.length-1].id!==id){updateUndoUI();return false;}
@@ -10598,11 +10616,12 @@ function buildLeagueStandingsCanvas() {
         const d = document.createElement('div');
         d.className = 'match-team' + (won ? ' winner' : '');
         const n = document.createElement('span'); n.textContent = name;
-        const b = document.createElement('span'); b.className = 'score-badge ' + (won ? 'winner-badge' : 'loser-badge'); b.textContent = score;
-        d.append(n, b); return d;
+        d.append(n);
+        if (score !== null) { const b = document.createElement('span'); b.className = 'score-badge ' + (won ? 'winner-badge' : 'loser-badge'); b.textContent = score; d.append(b); }   // الملغاة: بلا نتيجة
+        return d;
       }
       function open(kind, id) {
-        let title, sub, a, b, sa, sb, outcome, draw = false, locked;
+        let title, sub, a, b, sa, sb, outcome, draw = false, locked, voided = false;
         if (kind === 'ko') {
           const m = bracketState[id]; if (!m || !m.winner) return false;
           const t1Won = m.winner === m.team1;
@@ -10621,7 +10640,9 @@ function buildLeagueStandingsCanvas() {
           outcome = isLeagueMatchAnnulled(m) ? `ملغاة · ${leagueExcluded.find(n => n === m.playerA || n === m.playerB)} مستبعد من الدوري` : m.forfeit ? `فاز ${m.forfeit === 'A' ? m.playerB : m.playerA} ب${m.auto ? 'الاستبعاد' : 'الانسحاب'} · ${m.auto ? 'استُبعد' : 'انسحب'} ${m.forfeit === 'A' ? m.playerA : m.playerB}`
             : draw ? 'تعادل · نقطة لكل لاعب' : `الفائز: ${d.result === 'A' ? m.playerA : m.playerB} · 3 نقاط`;
           locked = isLeagueLocked();
-          $('resultRows').replaceChildren(row(m.playerA, m.scoreA, d.result === 'A'), row(m.playerB, m.scoreB, d.result === 'B'));
+          const an = isLeagueMatchAnnulled(m);   // الملغاة لا تعرض نتيجتها (لا تُحسب) ولا تُعدَّل
+          if (an) { voided = true; draw = true; }
+          $('resultRows').replaceChildren(row(m.playerA, an ? null : m.scoreA, !an && d.result === 'A'), row(m.playerB, an ? null : m.scoreB, !an && d.result === 'B'));
         }
         $('resultTitle').textContent = title;
         $('resultSub').textContent = sub;
@@ -10633,6 +10654,7 @@ function buildLeagueStandingsCanvas() {
         const eb = $('resultEditBtn');
         eb.setAttribute('data-ic', locked ? 'lock' : 'pencil');
         eb.textContent = locked ? 'فتح القفل' : 'تعديل النتيجة';
+        eb.hidden = voided;
         current = { kind, id, locked };
         modal.style.display = 'flex';
         return true;
@@ -10820,7 +10842,7 @@ function buildLeagueStandingsCanvas() {
     // ===================================
     // 🧭 سلوك التطبيق: إعادة الوضع للأعلى، تعديل العنوان بالضغط المطوّل، تنبيه التحديث، رقم الإصدار
     // ===================================
-    const APP_VERSION = '1.3';   // ترقيم الاعتماد: 1 ثم 1.1 … 1.9 ثم 2 — ويُرفع معه رقم الإصدار في sw.js
+    const APP_VERSION = '1.4';   // ترقيم الاعتماد: 1 ثم 1.1 … 1.9 ثم 2 — ويُرفع معه رقم الإصدار في sw.js
     (function setupAppBehaviors() {
       const root = document.documentElement;
 
@@ -11136,7 +11158,7 @@ function buildLeagueStandingsCanvas() {
         let st = null; try { st = versusStory({ a: o.a, b: o.b, members: [o.mA, o.mB], lg: o.lg, final: o.final }); } catch (e) {}
         let h = `<div class="vm-round">${esc(o.round)}</div>
           <div class="vm-names"><div class="nm">${sideHTML(o.a, o.mA)}</div><span class="vm-vs">ضد</span><div class="nm">${sideHTML(o.b, o.mB)}</div></div>`;
-        if (o.void && !o.done) {
+        if (o.void) {   // ملغاة: لا نتيجة ولا فرص
           h += `<div class="vm-out void">${esc(o.outcome)}</div>`;
         } else if (o.done) {
           h += `<div class="vm-score${o.void ? ' void' : ''}"><span>${o.sa}</span><span class="dash">–</span><span>${o.sb}</span></div><div class="vm-out${o.void ? ' void' : ''}">${esc(o.outcome)}</div>`;
@@ -11370,8 +11392,8 @@ function buildLeagueStandingsCanvas() {
         const countTxt = n => n === 1 ? 'مباراة واحدة' : n === 2 ? 'مباراتان' : n <= 10 ? `${n} مباريات` : `${n} مباراة`;
         const nm = (name, tag) => `<span class="nm${me0 && name === me0 ? ' me' : ''}">${esc(name)}${tag ? `<small class="ffl">${tag}</small>` : ''}</span>`;
         const ffTag = (m, side) => isLeagueMatchAnnulled(m) ? (leagueIsExcluded(side === 'A' ? m.playerA : m.playerB) ? 'مستبعد' : '') : m.forfeit === side ? (m.auto ? 'مستبعد' : 'انسحب') : '';
-        const rowsHTML = list => list.map((m, i) => `<button type="button" class="vday-r${i === 0 ? ' latest' : ''}${isLeagueMatchAnnulled(m) ? ' void' : ''}" data-id="${esc(m.id)}" aria-label="الجولة ${m.round}: ${esc(m.playerA)} ${m.scoreA} مقابل ${m.scoreB} ${esc(m.playerB)}">
-              <span class="rd">ج${m.round}</span>${nm(m.playerA, ffTag(m, 'A'))}<span class="sc"><span>${m.scoreA}</span><span class="dash">–</span><span>${m.scoreB}</span></span>${nm(m.playerB, ffTag(m, 'B'))}</button>`).join('');
+        const rowsHTML = list => list.map((m, i) => `<button type="button" class="vday-r${i === 0 ? ' latest' : ''}${isLeagueMatchAnnulled(m) ? ' void' : ''}" data-id="${esc(m.id)}" aria-label="الجولة ${m.round}: ${esc(m.playerA)} ${isLeagueMatchAnnulled(m) ? 'ضد' : m.scoreA + ' مقابل ' + m.scoreB} ${esc(m.playerB)}${isLeagueMatchAnnulled(m) ? ' (ملغاة)' : ''}">
+              <span class="rd">ج${m.round}</span>${nm(m.playerA, ffTag(m, 'A'))}${isLeagueMatchAnnulled(m) ? '<span class="sc void-tx">ملغاة</span>' : `<span class="sc"><span>${m.scoreA}</span><span class="dash">–</span><span>${m.scoreB}</span></span>`}${nm(m.playerB, ffTag(m, 'B'))}</button>`).join('');
         let sel = latest;
         const box = document.createElement('section'); box.className = 'vday' + (latest === todayKey ? ' open' : ''); box.id = 'viewPlayDay';
         box.innerHTML = `<button type="button" class="vday-h" aria-expanded="${latest === todayKey}"><span class="ttl"><b></b><small></small></span><span class="meta"></span>
