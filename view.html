@@ -9,7 +9,7 @@
     try { var x = new XMLHttpRequest(); x.open('GET', 'data.json?t=' + Date.now(), false); x.send();
       if ((x.status >= 200 && x.status < 300) || (x.status === 0 && x.responseText)) data = JSON.parse(x.responseText); } catch (e) {}
     if (!data || data.format !== 'carrom-view-data' || !data.entries) data = null;
-    var mem = {}, real = null, KEEP = /^(theme|__carrom_lgTab|__carrom_me_v1|__carrom_seen_v1)$/;
+    var mem = {}, real = null, KEEP = /^(theme|__carrom_lgTab|__carrom_me_v1|__carrom_seen_v1|__carrom_champ_seen_v1)$/;
     try { real = window.localStorage; } catch (e) {}
     if (data) for (var k in data.entries) if (Object.prototype.hasOwnProperty.call(data.entries, k)) mem[k] = String(data.entries[k]);
     var has = function (k) { return Object.prototype.hasOwnProperty.call(mem, k); };
@@ -2073,6 +2073,10 @@
     html.view-mode .lgc-row .n { padding-inline-start: 6px; }   /* مسافة تنفّس بين السهم والاسم */
     html.view-mode .lgc-head > .n { padding-inline-start: 6px; }
     @media (max-width: 389px) { html.view-mode .lgc-row { padding-inline: 8px; } }
+    /* سطر ف·ت·خ | له·عليه: يبقى في سطر واحد حتى مع الأرقام المزدوجة آخر الموسم */
+    html.view-mode .lgc-row .n small { font-size: 10.5px; }
+    html.view-mode .lgc-row .n small .sep { margin: 0 4px; }
+    @media (min-width: 371px) { html.view-mode .lgc-row .n small { white-space: nowrap; } }
     html.view-mode .lgc-head > .n { grid-column: 3; }
     .lgc-row .mv { display: flex; align-items: center; justify-content: center; gap: 2px; font-size: 13px; font-weight: 800; font-variant-numeric: tabular-nums; line-height: 1; }
     .lgc-row .mv i { width: 0; height: 0; border-inline: 4.5px solid transparent; }
@@ -2091,6 +2095,22 @@
       .vday-r .sc { font-size: 15.5px; gap: 5px; }
       .vday-r .sc > span:not(.dash) { width: 11px; }
     }
+    /* سطر «اللقب محسوم» تحت شريط التقدم (التطبيق) */
+    .lg-clinch { display: flex; align-items: center; gap: 6px; margin-top: 8px; font-size: 12.5px; font-weight: 700; color: var(--gold-deep); }
+    .lg-clinch b { font-weight: 800; }
+    .lg-clinch .ic { width: 15px; height: 15px; }
+    html.view-mode .lg-clinch { display: none; }   /* صفحة المشاهدة تعرض بطاقة البطل بدلًا منه */
+    /* بطاقة بطل الدوري (صفحة المشاهدة) */
+    .vchamp-card { display: grid; grid-template-columns: auto minmax(0, 1fr) auto; align-items: center; gap: 12px; width: 100%; padding: 12px 14px; border-radius: var(--r-lg);
+      border: 1px solid var(--rank-1-main); background: var(--rank-1-tint); box-shadow: var(--sh-1); font: inherit; color: var(--text); text-align: start; cursor: pointer; -webkit-tap-highlight-color: transparent; transition: transform .18s ease; }
+    .vchamp-card:active { transform: scale(.985); }
+    .vchamp-card .cup { display: grid; place-items: center; width: 42px; height: 42px; border-radius: 50%; background: linear-gradient(135deg, #F3DFAE, #CFA963); color: #3A2A0C; }
+    .vchamp-card .cup .ic { width: 21px; height: 21px; }
+    .vchamp-card .who { display: flex; flex-direction: column; gap: 1px; min-width: 0; }
+    .vchamp-card .who small { font-size: 11.5px; font-weight: 800; color: var(--gold-deep); }
+    .vchamp-card .who b { font-size: 18px; font-weight: 800; line-height: 1.3; overflow-wrap: anywhere; }
+    .vchamp-card .note { font-size: 11.5px; font-weight: 700; color: var(--text-2); white-space: nowrap; }
+    .vchamp { display: inline-flex; align-items: center; margin-inline-start: 6px; padding: 0 7px; border-radius: 999px; background: linear-gradient(135deg, #F3DFAE, #CFA963); color: #3A2A0C; font-size: 10.5px; font-weight: 800; line-height: 1.7; vertical-align: 2px; }
     .vnew { display: inline-flex; align-items: center; margin-inline-start: 6px; padding: 1px 8px; border-radius: 999px; background: var(--gold); color: #2A1E10; font-size: 10.5px; font-weight: 800; vertical-align: 2px; }
     .match-head .vnew { margin-inline-start: 0; margin-inline-end: auto; }
     .vnew-count { color: var(--gold-deep) !important; }
@@ -6997,6 +7017,23 @@ function changeScore(inputId, amount){
       };
     }
 
+    // حسم اللقب مبكرًا: نقاط المتصدر أكبر (لا تساوي) من أقصى ما يبلغه أي لاعب آخر بالفوز في كل مبارياته الباقية.
+    // يُرجع null إن لم يُحسم، أو { name, points, roundsLeft, matchesLeft, final }.
+    function leagueClinch() {
+      try {
+        if (!leagueStarted || leagueFixtureError || !leagueMatches.length) return null;
+        const p = getLeagueProgress(), st = calculateLeagueStandings();
+        if (!st.length || !st[0].played) return null;
+        if (p.completed) return { name: st[0].name, points: st[0].points, roundsLeft: 0, matchesLeft: 0, final: true };
+        const left = {}; leagueMatches.forEach(m => { if (!isLeagueMatchCompleted(m)) { left[m.playerA] = (left[m.playerA] || 0) + 1; left[m.playerB] = (left[m.playerB] || 0) + 1; } });
+        const top = st[0];
+        if (!st.slice(1).every(x => x.points + 3 * (left[x.name] || 0) < top.points)) return null;
+        const roundsLeft = new Set(leagueMatches.filter(m => !isLeagueMatchCompleted(m)).map(m => m.round)).size;
+        return { name: top.name, points: top.points, roundsLeft, matchesLeft: p.remaining, final: false };
+      } catch (e) { return null; }
+    }
+    function arRounds(n) { return n === 1 ? 'جولة واحدة' : n === 2 ? 'جولتين' : n <= 10 ? `${n} جولات` : `${n} جولة`; }
+
     function getLeagueRoundMatches(round) {
       return leagueMatches.filter(m => m.round === round);
     }
@@ -7372,6 +7409,8 @@ function changeScore(inputId, amount){
         </div>
         <div class="league-bar"><div style="width:${pct}%"></div></div>
         <div class="lg-prog"><span><b>${p.done}</b> من ${p.total} مباراة مكتملة</span><span><b>${p.remaining}</b> متبقية · <bdi dir="ltr">${pct}%</bdi></span></div>`;
+      const cl = leagueClinch();
+      if (cl && !cl.final) { const d = document.createElement('div'); d.className = 'lg-clinch'; d.innerHTML = `<span class="ic ic-trophy" aria-hidden="true"></span><span>اللقب محسوم لـ <b>${leagueEscape(cl.name)}</b></span>`; leagueProgressEl.appendChild(d); }
     }
 
     function pointsLabel(p) {
@@ -7969,7 +8008,7 @@ function buildLeagueStandingsCanvas() {
           I({ id: 'lg-log', cat: 'players', title: 'سجل مباريات لاعب', desc: 'كل مباريات اللاعب المكتملة والمتبقية', icon: 'table', ok: st, why: 'ابدأ الدوري أولًا', ctl: [{ t: 'player', key: 'a', label: 'اللاعب' }], run: () => exportLeaguePlayerLog(exportCenterSel.a) }),
           I({ id: 'lg-compare', cat: 'players', title: 'مقارنة لاعبين', desc: 'إحصائيات متقابلة والمواجهات المباشرة', icon: 'chart', ok: st && many, why: 'يحتاج لاعبين اثنين على الأقل', ctl: [{ t: 'player', key: 'a', label: 'اللاعب الأول' }, { t: 'player', key: 'b', label: 'اللاعب الثاني' }], run: () => exportLeagueCompare(exportCenterSel.a, exportCenterSel.b) }),
           I({ id: 'lg-report', cat: 'honors', title: 'إحصائيات الدوري الشاملة', desc: 'ملخص الدوري والأوائل ونسبة الإنجاز', icon: 'chart', ok: st && done, why: 'يظهر بعد أول نتيجة', run: exportLeagueReport }),
-          I({ id: 'lg-champion', cat: 'honors', title: 'بطل الدوري', desc: 'بطاقة البطل النهائي', icon: 'trophy', final: true, ok: snap.completed && snap.standings.length > 0, why: 'تظهر بعد اكتمال جميع المباريات', run: () => exportLeagueAchievementImage('champion', snap.standings, true) }),
+          I({ id: 'lg-champion', cat: 'honors', title: 'بطل الدوري', desc: 'بطاقة البطل النهائي', icon: 'trophy', final: true, ok: (snap.completed || !!leagueClinch()) && snap.standings.length > 0, why: 'تظهر بعد حسم اللقب أو اكتمال جميع المباريات', run: () => exportLeagueAchievementImage('champion', snap.standings, true) }),
           I({ id: 'lg-runner', cat: 'honors', title: 'الوصيف', desc: 'بطاقة وصيف الدوري', icon: 'shield', final: true, ok: snap.completed && many, why: 'تظهر بعد اكتمال جميع المباريات', run: () => exportLeagueAchievementImage('runnerUp', snap.standings, true) }),
           I({ id: 'lg-final3', cat: 'honors', title: 'أول 3 مراكز', desc: 'المراكز النهائية الثلاثة', icon: 'shield', final: true, ok: snap.completed && snap.standings.length > 0, why: 'تظهر بعد اكتمال جميع المباريات', run: () => exportLeagueAchievementImage('top3', snap.standings, true) }),
           I({ id: 'lg-podium', cat: 'honors', title: 'منصة التتويج', desc: 'المراكز الثلاثة الأولى على منصة واحدة', icon: 'trophy', final: true, ok: snap.completed && many, why: 'تظهر بعد اكتمال جميع المباريات', run: () => exportPodiumImage() }),
@@ -9150,15 +9189,17 @@ function buildLeagueStandingsCanvas() {
     async function exportLeagueAchievementImage(kind, standings, isFinal) {
       const rows = (standings || []).slice(0, kind === 'champion' || kind === 'runnerUp' ? 2 : (kind === 'top5' ? 5 : 3));
       if (!rows.length) { alert('لا توجد بيانات ترتيب قابلة للتصدير.'); return; }
-      if ((isFinal || kind === 'champion' || kind === 'runnerUp') && !(isFinal && getExportCenterSnapshot().completed)) { alert('لا يمكن تصدير بطاقة البطل أو الوصيف قبل اكتمال جميع مباريات الدوري.'); return; }
+      const clinched = kind === 'champion' && leagueClinch();
+      if ((isFinal || kind === 'champion' || kind === 'runnerUp') && !(isFinal && (getExportCenterSnapshot().completed || clinched))) { alert('لا يمكن تصدير بطاقة البطل أو الوصيف قبل اكتمال جميع مباريات الدوري.'); return; }
       let selected = rows;
       if (kind === 'champion') selected = rows.slice(0,1);
       if (kind === 'runnerUp') selected = rows.slice(1,2);
       if (!selected.length) { alert('لا يوجد مركز متاح للتصدير.'); return; }
       const title = tournamentName.textContent.trim() || 'بطولة المجلس للكيرم';
       const subtitle = kind === 'champion' ? 'بطل الدوري' : kind === 'runnerUp' ? 'وصيف الدوري' : (kind === 'top5' ? 'أفضل 5 مراكز' : 'أفضل 3 مراكز');
-      const leagueDone = !!(isFinal && getExportCenterSnapshot().completed);
-      await renderAchievementCanvas(selected.map(r => ({ rank:r.rank, name:r.name, detail:exportPointsLabel(r.points), points:exportPointsLabel(r.points), medal:r.rank, final: leagueDone, cup: leagueDone && r.rank === 1 })), subtitle, `${isFinal ? 'الترتيب النهائي' : 'الترتيب الحالي'} للدوري`, title,
+      const leagueDone = !!(isFinal && (getExportCenterSnapshot().completed || clinched));
+      const earlyLine = clinched && !clinched.final ? `حسم اللقب قبل ${arRounds(clinched.roundsLeft)} من النهاية` : null;
+      await renderAchievementCanvas(selected.map(r => ({ rank:r.rank, name:r.name, detail:exportPointsLabel(r.points), points:exportPointsLabel(r.points), medal:r.rank, final: leagueDone, cup: leagueDone && r.rank === 1 })), subtitle, earlyLine || `${isFinal ? 'الترتيب النهائي' : 'الترتيب الحالي'} للدوري`, title,
         `League-${kind}-${isFinal ? 'Final' : 'Live'}.png`);
     }
 
@@ -10048,13 +10089,16 @@ function buildLeagueStandingsCanvas() {
 
       const _saveLeague = saveLeagueMatchResult;
       saveLeagueMatchResult = function () {
-        const id = leagueScoreMatchId, wasDone = leagueCompleted;
+        const id = leagueScoreMatchId, wasDone = leagueCompleted, wasCl = leagueClinch();
         const r = _saveLeague.apply(this, arguments);
         try {
           if (id != null) replay(document.querySelector(`.lg-match[data-league-match="${cssEsc(id)}"]`), 'fx-scored', 1300);
           if (!wasDone && leagueCompleted) {
             const st = calculateLeagueStandings();
             if (st[0]) { const t = tournamentName.textContent.trim(); celebrate('بطل الدوري', st[0].name, `${exportPointsLabel(st[0].points)}` + (t ? ' · ' + t : '')); }
+          } else if (!leagueCompleted && !wasCl) {
+            const cl = leagueClinch();
+            if (cl && !cl.final) celebrate('حسم لقب الدوري', cl.name, `قبل ${arRounds(cl.roundsLeft)} من النهاية`);
           }
         } catch (e) { console.error(e); }
         return r;
@@ -10505,7 +10549,7 @@ function buildLeagueStandingsCanvas() {
     // ===================================
     // 🧭 سلوك التطبيق: إعادة الوضع للأعلى، تعديل العنوان بالضغط المطوّل، تنبيه التحديث، رقم الإصدار
     // ===================================
-    const APP_VERSION = '38';   // يُرفع مع رقم الإصدار في sw.js عند كل تحديث
+    const APP_VERSION = '39';   // يُرفع مع رقم الإصدار في sw.js عند كل تحديث
     (function setupAppBehaviors() {
       const root = document.documentElement;
 
@@ -10747,7 +10791,7 @@ function buildLeagueStandingsCanvas() {
           leagueStandings.map(x => { const top = any && x.played > 0 && x.rank <= 3, sd = x.setDifference;
             return `<button type="button" class="lgc-row${top ? ' rank-' + x.rank : ''}" data-player="${leagueEscape(x.name)}" aria-label="${leagueEscape(x.name)}: المركز ${x.rank}، ${x.points} نقطة">
               <span class="r">${top ? `<span class="rank-badge rb-${x.rank}">${x.rank}</span>` : x.rank}</span>
-              <span class="n"><b>${leagueEscape(x.name)}</b><small>ف ${x.wins} · ت ${x.draws} · خ ${x.losses} <i class="sep"></i> له ${x.setsFor} · عليه ${x.setsAgainst}</small></span>
+              <span class="n"><b>${leagueEscape(x.name)}</b><small>ف ${x.wins}\u2009·\u2009ت ${x.draws}\u2009·\u2009خ ${x.losses} <i class="sep"></i> له ${x.setsFor}\u2009·\u2009عليه ${x.setsAgainst}</small></span>
               <span class="c">${x.played}</span><span class="c sd ${sd > 0 ? 'up' : sd < 0 ? 'down' : ''}"><bdi dir="ltr">${sd > 0 ? '+' + sd : sd}</bdi></span><span class="pts">${x.points}</span></button>`; }).join('');
         box.addEventListener('click', e => { const b = e.target.closest('.lgc-row'); if (b) openLeaguePlayerHistory(b.dataset.player); });
         const legend = document.createElement('div'); legend.className = 'lgc-legend'; legend.textContent = 'ف = فوز · ت = تعادل · خ = خسارة · له/عليه = الأشواط · الفارق = فارق الأشواط · اضغط على اللاعب لعرض سجله';
@@ -11078,6 +11122,34 @@ function buildLeagueStandingsCanvas() {
         if (strip) strip.addEventListener('click', e => { const d = e.target.closest('.vday-d'); if (!d || d.dataset.k === sel) return;
           const dir = d.dataset.k > sel ? 1 : -1; sel = d.dataset.k; paint(dir); });   // الأحدث يسارًا: الانتقال إليه يدخل من اليسار
         paint(0);
+      })();
+      // ===== بطل الدوري (حسم مبكر أو نهاية الدوري): بطاقة أعلى القسم + احتفال مرة واحدة لكل جهاز =====
+      (function setupChampion() {
+        const host = document.querySelector('#leagueMainPanel .lv-main'), cl = leagueClinch();
+        if (!host || !cl) return;
+        let me1 = null; try { me1 = (JSON.parse(localStorage.getItem('__carrom_me_v1') || 'null') || {}).name || null; } catch (e) {}
+        const totalRounds = (() => { try { return getLeagueProgress().totalRounds; } catch (e) { return 0; } })();
+        const note = cl.final ? `${arRounds(totalRounds)} · ${exportPointsLabel(cl.points)}` : `حُسم قبل ${arRounds(cl.roundsLeft)}`;
+        const card = document.createElement('button'); card.type = 'button'; card.className = 'vchamp-card'; card.id = 'viewChampion';
+        card.setAttribute('aria-label', `بطل الدوري: ${cl.name}، ${note}`);
+        card.innerHTML = `<span class="cup"><span class="ic ic-trophy" aria-hidden="true"></span></span>
+          <span class="who"><small>بطل الدوري</small><b>${esc(cl.name)}</b></span><span class="note">${esc(note)}</span>`;
+        card.addEventListener('click', () => { try { window.carromOpenProfile(cl.name); } catch (e) {} });
+        host.prepend(card);
+        // شارة «البطل» بجانب اسمه في الترتيب
+        const mark = () => document.querySelectorAll('.lgc-row').forEach(r => { const b = r.querySelector('.n b'); if (!b) return;
+          const has = b.querySelector('.vchamp'); if (r.dataset.player === cl.name && !has) { const t = document.createElement('span'); t.className = 'vchamp'; t.textContent = 'البطل'; b.appendChild(t); } });
+        mark(); const st = document.getElementById('leagueStandings'); if (st) new MutationObserver(() => mark()).observe(st, { childList: true, subtree: true });
+        // الاحتفال: أول مرة يرى فيها هذا الجهاز هذا البطل
+        const KEY = '__carrom_champ_seen_v1', sig = `${cl.name}|${leaguePlayers.length}|${leagueMatches.length}|${cl.final ? 'f' : 'c'}`;
+        let seenSig = null; try { seenSig = localStorage.getItem(KEY); } catch (e) {}
+        if (seenSig !== sig) {
+          try { localStorage.setItem(KEY, sig); } catch (e) {}
+          const mine = me1 && me1 === cl.name;
+          const label = mine ? (cl.final ? 'مبروك! أنت بطل الدوري' : 'مبروك! حسمت لقب الدوري') : (cl.final ? 'بطل الدوري' : 'حسم لقب الدوري');
+          const sub = cl.final ? exportPointsLabel(cl.points) : `قبل ${arRounds(cl.roundsLeft)} من النهاية`;
+          setTimeout(() => { try { if (currentMode === 'league' && window.carromCelebrate) window.carromCelebrate(label, cl.name, sub); else { const b = document.getElementById('modeLeagueBtn'); const once = () => { b.removeEventListener('click', once); setTimeout(() => window.carromCelebrate && window.carromCelebrate(label, cl.name, sub), 450); }; if (b) b.addEventListener('click', once); } } catch (e) {} }, 700);
+        }
       })();
       // ===== تحديث تلقائي والصفحة مفتوحة: فحص هادئ كل دقيقة (وعند العودة للتطبيق)، وتنبيه صغير عند وجود نشر أحدث =====
       (function setupLiveCheck() {
