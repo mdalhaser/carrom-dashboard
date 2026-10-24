@@ -10070,9 +10070,10 @@ function buildLeagueStandingsCanvas() {
           if (!wasDone && leagueCompleted) {
             const st = calculateLeagueStandings();
             if (st[0]) { const t = tournamentName.textContent.trim(); celebrate('بطل الدوري', st[0].name, `${exportPointsLabel(st[0].points)}` + (t ? ' · ' + t : '')); }
-          } else if (!leagueCompleted && !wasCl) {
+          } else if (!leagueCompleted) {
+            // احتفال عند لحظة حسم جديدة: لم يكن محسومًا، أو صار محسومًا للاعب آخر بعد تعديل نتيجة
             const cl = leagueClinch();
-            if (cl && !cl.final) celebrate('حسم لقب الدوري', cl.name, `قبل ${arRounds(cl.roundsLeft)} من النهاية`);
+            if (cl && !cl.final && (!wasCl || wasCl.name !== cl.name)) celebrate('حسم لقب الدوري', cl.name, `قبل ${arRounds(cl.roundsLeft)} من النهاية`);
           }
         } catch (e) { console.error(e); }
         return r;
@@ -10523,7 +10524,7 @@ function buildLeagueStandingsCanvas() {
     // ===================================
     // 🧭 سلوك التطبيق: إعادة الوضع للأعلى، تعديل العنوان بالضغط المطوّل، تنبيه التحديث، رقم الإصدار
     // ===================================
-    const APP_VERSION = '39';   // يُرفع مع رقم الإصدار في sw.js عند كل تحديث
+    const APP_VERSION = '40';   // يُرفع مع رقم الإصدار في sw.js عند كل تحديث
     (function setupAppBehaviors() {
       const root = document.documentElement;
 
