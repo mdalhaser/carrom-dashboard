@@ -10842,7 +10842,7 @@ function buildLeagueStandingsCanvas() {
     // ===================================
     // 🧭 سلوك التطبيق: إعادة الوضع للأعلى، تعديل العنوان بالضغط المطوّل، تنبيه التحديث، رقم الإصدار
     // ===================================
-    const APP_VERSION = '1.4';   // ترقيم الاعتماد: 1 ثم 1.1 … 1.9 ثم 2 — ويُرفع معه رقم الإصدار في sw.js
+    const APP_VERSION = '1.5';   // ترقيم الاعتماد: 1 ثم 1.1 … 1.9 ثم 2 — ويُرفع معه رقم الإصدار في sw.js
     (function setupAppBehaviors() {
       const root = document.documentElement;
 
@@ -11077,7 +11077,20 @@ function buildLeagueStandingsCanvas() {
         return r;
       };
       const _go = goToLeagueRound;
-      goToLeagueRound = function (n) { roundDir = n > leagueCurrentRound ? 1 : n < leagueCurrentRound ? -1 : 0; return _go.apply(this, arguments); };
+      // التنقل بين الجولات يبقيك في مكانك: نثبّت ارتفاع القسم أثناء إعادة رسمه، ونعيد شريط الجولات لنفس موضعه على الشاشة
+      // (سفاري لا يملك «تثبيت التمرير» التلقائي، فكانت الصفحة تقفز للأعلى عند تبديل الجولة)
+      goToLeagueRound = function (n) {
+        roundDir = n > leagueCurrentRound ? 1 : n < leagueCurrentRound ? -1 : 0;
+        const dotsTop = () => { const d = leagueRoundsEl.querySelector('.league-round-dots'); return d ? d.getBoundingClientRect().top : null; };
+        const anchor = dotsTop(), y0 = window.scrollY;
+        leagueRoundsEl.style.minHeight = leagueRoundsEl.offsetHeight + 'px';
+        const r = _go.apply(this, arguments);
+        const fix = () => { const t = dotsTop(); if (anchor === null || t === null) return; const d = t - anchor; if (Math.abs(d) > 1) window.scrollTo({ top: window.scrollY + d, behavior: 'instant' }); };
+        if (Math.abs(window.scrollY - y0) > 1) window.scrollTo({ top: y0, behavior: 'instant' });
+        fix();
+        requestAnimationFrame(() => { fix(); leagueRoundsEl.style.minHeight = ''; requestAnimationFrame(fix); });
+        return r;
+      };
       // 5) الترتيب المضغوط: المركز · الاسم (ف/ت/خ تحته) · لعب · الفارق · النقاط — والتفاصيل في سجل اللاعب بلمسة
       const _renderStandings = renderLeagueStandings;
       renderLeagueStandings = function () {
