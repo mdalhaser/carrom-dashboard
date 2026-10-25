@@ -5582,11 +5582,12 @@ currentScoreWinnerName = null;
     // ========================================================
 
     const EXPORT_BRAND = {
-      wood: '#30251F', wood2: '#3A2D26', ink: '#191919',
-      ivory: '#F7F3EA', paper: '#FFFEFB',
+      wood: '#3A2314', wood2: '#4C2E1A', ink: '#191919',   // خشب جوز دافئ مستوحى من إطار لوح الكيرم
+      walnut: '#8C5228', walnutLine: 'rgba(122,68,33,0.38)',
+      ivory: '#F5EEE3', paper: '#FFFDF9',   // عاجي أدفأ قليلًا يتناغم مع خشب الجوز
       gold: '#CFA963', goldSoft: '#E3CCA0', goldDeep: '#85652A',
       text: '#292621', muted: '#5E584E', faint: '#736B5F',
-      line: '#E8E0D4', lineStrong: '#D9CDB9', surface2: '#F2ECE0', surface3: '#EAE2D3',
+      line: '#E6D9C6', lineStrong: '#D5C2A6', surface2: '#F3E9DA', surface3: '#EBDDC8',   // درجات رملية دافئة متناغمة مع الجوز
       ok: '#2F7A4E', okBg: '#E6F2EA', okLine: '#B9D9C5',
       readyLine: '#D2AE68', doneLine: '#A9D0B8',   // نفس ألوان حالات البطاقات في التطبيق: لم تُلعب (ذهبي) · مكتملة (أخضر)
       silver: '#9AA3AD', bronze: '#B7794A'
@@ -5938,25 +5939,52 @@ currentScoreWinnerName = null;
       ctx.restore();
     }
 
+    // سطح خشب الجوز: تدرّج دافئ + لمعة أفقية خفيفة + عروق ناعمة ثابتة الشكل — للهيدر وأشرطة الأقسام والجداول (هوية واحدة)
+    // نفس خامة خشب هيدر التطبيق (assets/wood.webp) في الصور: هوية واحدة. تُحمَّل مرة واحدة؛ وإن لم تتوفر يُرسم بديل مشابه.
+    const EXPORT_WOOD_IMG = new Image();
+    const exportWoodReady = new Promise(res => { EXPORT_WOOD_IMG.onload = () => res(true); EXPORT_WOOD_IMG.onerror = () => res(false); });
+    try { EXPORT_WOOD_IMG.src = 'assets/wood.webp'; } catch (e) {}
+    const exportWoodOk = () => EXPORT_WOOD_IMG.complete && EXPORT_WOOD_IMG.naturalWidth > 0;
+    function exportWoodTexture(ctx, x, y, w, h, shade) {   // يغطي المستطيل بالخامة (cover) ثم طبقة تعتيم مثل هيدر التطبيق
+      const I = EXPORT_WOOD_IMG, iw = I.naturalWidth, ih = I.naturalHeight, k = Math.max(w / iw, h / ih);
+      const sw = w / k, sh = h / k; ctx.drawImage(I, (iw - sw) / 2, (ih - sh) / 2, sw, sh, x, y, w, h);
+      const g = ctx.createLinearGradient(0, y, 0, y + h); g.addColorStop(0, `rgba(74,56,44,${shade ? shade[0] : 0.30})`); g.addColorStop(1, `rgba(30,22,17,${shade ? shade[1] : 0.55})`);
+      ctx.fillStyle = g; ctx.fillRect(x, y, w, h);
+    }
+    function exportWalnut(ctx, x, y, w, h, opts) {
+      if (exportWoodOk()) { exportWoodTexture(ctx, x, y, w, h); return; }
+      const B = EXPORT_BRAND, o = opts || {};
+      const g = ctx.createLinearGradient(0, y, 0, y + h); g.addColorStop(0, o.top || B.wood2); g.addColorStop(1, o.bottom || B.wood);
+      ctx.fillStyle = g; ctx.fillRect(x, y, w, h);
+      const sh = ctx.createLinearGradient(x, 0, x + w, 0); sh.addColorStop(0, 'rgba(0,0,0,0.16)'); sh.addColorStop(0.5, 'rgba(255,214,160,0.07)'); sh.addColorStop(1, 'rgba(0,0,0,0.16)');
+      ctx.fillStyle = sh; ctx.fillRect(x, y, w, h);
+      // عروق ناعمة: كثيرة ورفيعة بشفافيات متفاوتة وتموّج مختلف لكل عرق (لا خطوط مسطرة)
+      const n = Math.max(4, Math.round(h / 12)); ctx.save(); ctx.lineWidth = 1;
+      for (let k = 0; k < n; k++) { const yy = y + (k + 0.5) * h / n, amp = Math.min(4, h / 24) * (0.5 + ((k * 37) % 10) / 10), per = 90 + ((k * 53) % 7) * 28;
+        ctx.strokeStyle = `rgba(16,8,3,${0.05 + ((k * 29) % 6) * 0.018})`; ctx.beginPath(); ctx.moveTo(x, yy);
+        for (let xx = x; xx <= x + w; xx += 18) ctx.lineTo(xx, yy + Math.sin((xx - x) / per + k * 2.1) * amp + Math.sin((xx - x) / (per * 2.7) + k) * amp * 0.6); ctx.stroke(); }
+      ctx.restore();
+    }
     function exportWoodPanel(ctx, x, y, w, h, radius) {
       const B = EXPORT_BRAND;
+      // ظل البطاقة كاملة (اللوحة + الشريط): طبقة بعيدة ناعمة واسعة + طبقة قريبة رقيقة تلصقها بالسطح
+      // ظل ناعم ينتشر للأسفل كأن اللوحة مرفوعة عن السطح: طبقة واسعة بعيدة + طبقة متوسطة
       ctx.save();
-      ctx.shadowColor = 'rgba(48,37,31,0.28)';
-      ctx.shadowBlur = 30;
-      ctx.shadowOffsetY = 12;
-      drawRoundedRect(ctx, x, y, w, h, radius);
-      ctx.fillStyle = B.wood;
-      ctx.fill();
+      ctx.shadowColor = 'rgba(58,35,20,0.22)'; ctx.shadowBlur = 60; ctx.shadowOffsetY = 30;
+      drawRoundedRect(ctx, x + 26, y + 20, w - 52, h - 20, radius); ctx.fillStyle = B.wood; ctx.fill();
+      ctx.restore();
+      ctx.save();
+      ctx.shadowColor = 'rgba(58,35,20,0.20)'; ctx.shadowBlur = 22; ctx.shadowOffsetY = 10;
+      drawRoundedRect(ctx, x + 6, y + 4, w - 12, h - 4, radius); ctx.fillStyle = B.wood; ctx.fill();
+      ctx.restore();
+      ctx.save();
+      ctx.shadowColor = 'rgba(48,30,18,0.30)'; ctx.shadowBlur = 8; ctx.shadowOffsetY = 3;
+      drawRoundedRect(ctx, x, y, w, h, radius); ctx.fillStyle = B.wood; ctx.fill();
       ctx.restore();
       ctx.save();
       drawRoundedRect(ctx, x, y, w, h, radius);
       ctx.clip();
-      const g = ctx.createLinearGradient(0, y, 0, y + h);
-      g.addColorStop(0, B.wood2);
-      g.addColorStop(1, B.wood);
-      ctx.fillStyle = g;
-      ctx.fillRect(x, y, w, h);
-      exportRings(ctx, x + w / 2, y + h / 2, Math.max(1, h / 230), 0.2);
+      exportWalnut(ctx, x, y, w, h);
       ctx.restore();
       ctx.save();
       drawRoundedRect(ctx, x, y, w, h, radius);
@@ -5999,13 +6027,13 @@ currentScoreWinnerName = null;
         function exportDrawContext(ctx, text, cx, cy, maxW, size) {
           const B = EXPORT_BRAND, fs = size || 26;
           ctx.save(); ctx.font = `700 ${fs}px ${EXPORT_FONT}`; const tw = Math.min(ctx.measureText(text).width, maxW - 140); ctx.restore();
-          exportText(ctx, text, cx, cy, { size: fs, weight: 700, color: '#6B5432', maxW: maxW - 140, min: 17 });
+          exportText(ctx, text, cx, cy, { size: fs, weight: 700, color: '#6A4529', maxW: maxW - 140, min: 17 });
           const len = Math.max(0, Math.min(150, (maxW - tw) / 2 - 30));
           if (len > 24) [-1, 1].forEach(sg => {
             const x0 = cx + sg * (tw / 2 + 18), x1 = x0 + sg * len;
-            ctx.save(); const g = ctx.createLinearGradient(x0, 0, x1, 0); g.addColorStop(0, 'rgba(184,137,61,0.75)'); g.addColorStop(1, 'rgba(184,137,61,0)');
+            ctx.save(); const g = ctx.createLinearGradient(x0, 0, x1, 0); g.addColorStop(0, 'rgba(140,82,40,0.7)'); g.addColorStop(1, 'rgba(140,82,40,0)');
             ctx.strokeStyle = g; ctx.lineWidth = 1.6; ctx.beginPath(); ctx.moveTo(x0, cy); ctx.lineTo(x1, cy); ctx.stroke();
-            const r = 4; ctx.beginPath(); ctx.moveTo(x0, cy - r); ctx.lineTo(x0 + r, cy); ctx.lineTo(x0, cy + r); ctx.lineTo(x0 - r, cy); ctx.closePath(); ctx.fillStyle = B.gold; ctx.fill(); ctx.restore();
+            const r = 4; ctx.beginPath(); ctx.moveTo(x0, cy - r); ctx.lineTo(x0 + r, cy); ctx.lineTo(x0, cy + r); ctx.lineTo(x0 - r, cy); ctx.closePath(); ctx.fillStyle = B.walnut; ctx.fill(); ctx.restore();
           });
         }
         function exportBrandHeader(ctx, x, y, w, title, subtitle, meta) {
@@ -6019,16 +6047,32 @@ currentScoreWinnerName = null;
           meta = exportApplyMeta(meta);
           const L = exportHeaderLayout(meta, !exportSubtitleHidden()), h = L.woodH;   // h هنا ارتفاع اللوحة الخشبية؛ البطاقات تحتها
           exportWoodPanel(ctx, x, y, w, h, 34);
-          exportText(ctx, title, x + w / 2, y + L.titleY, { size: 58, weight: 800, color: B.ivory, maxW: w - 100, min: 30 });
-          if (L.band) {   // شريط ذهبي بعرض الهيدر يحمل عنوان الصورة، كلوحة اسم على الخشب
-            const by = y + h - L.band;
+          ctx.save(); ctx.shadowColor = 'rgba(12,6,2,0.5)'; ctx.shadowBlur = 12; ctx.shadowOffsetY = 3;   // نفس لون العنوان الفرعي (كريمي) بظل ناعم
+          exportText(ctx, title, x + w / 2, y + L.titleY, { size: 58, weight: 800, color: '#F7EAD3', maxW: w - 100, min: 30 });
+          ctx.restore();
+          if (L.band) {   // شريط العنوان الفرعي بلون إطار لوح الكيرم (خشب الجوز الدافئ) أسفل اللوحة الداكنة
+            const by = y + h - L.band, bh = L.band, cy = by + bh / 2;
             ctx.save(); drawRoundedRect(ctx, x, y, w, h, 34); ctx.clip();
-            const g = ctx.createLinearGradient(x, 0, x + w, 0); g.addColorStop(0, '#B98D45'); g.addColorStop(0.5, '#E6CB93'); g.addColorStop(1, '#B98D45');
-            ctx.fillStyle = g; ctx.fillRect(x, by, w, L.band);
-            ctx.fillStyle = 'rgba(48,37,31,0.35)'; ctx.fillRect(x, by, w, 1.5);   // حد علوي رفيع يفصل الشريط عن الخشب
+            const g = ctx.createLinearGradient(x, 0, x + w, 0);
+            g.addColorStop(0, '#6B3A1C'); g.addColorStop(0.22, '#8C5228'); g.addColorStop(0.5, '#A4652F'); g.addColorStop(0.78, '#8C5228'); g.addColorStop(1, '#6B3A1C');
+            ctx.fillStyle = g; ctx.fillRect(x, by, w, bh);
+            // عروق الجوز: خطوط داكنة متموجة ناعمة (ثابتة الشكل في كل صورة)
+            ctx.strokeStyle = 'rgba(52,24,10,0.22)'; ctx.lineWidth = 1.4;
+            for (let k = 0; k < 6; k++) { const yy = by + 7 + k * (bh - 14) / 5; ctx.beginPath(); ctx.moveTo(x, yy);
+              for (let xx = x; xx <= x + w; xx += 40) ctx.lineTo(xx, yy + Math.sin((xx - x) / (110 + k * 23) + k * 1.9) * 2.6); ctx.stroke(); }
+            // إضاءة ناعمة أعلى الشريط وظل خفيف أسفله: يبدو بارزًا كحافة إطار اللوح
+            const sh = ctx.createLinearGradient(0, by, 0, by + bh); sh.addColorStop(0, 'rgba(255,220,170,0.16)'); sh.addColorStop(0.35, 'rgba(255,220,170,0)'); sh.addColorStop(1, 'rgba(30,14,6,0.22)');
+            ctx.fillStyle = sh; ctx.fillRect(x, by, w, bh);
+            ctx.fillStyle = 'rgba(20,12,8,0.6)'; ctx.fillRect(x, by, w, 2);            // فاصل داكن عن اللوحة
+            ctx.fillStyle = 'rgba(227,204,160,0.35)'; ctx.fillRect(x, by + 2, w, 1);   // خيط ذهبي رفيع تحته
             ctx.restore();
             ctx.save(); drawRoundedRect(ctx, x, y, w, h, 34); ctx.strokeStyle = 'rgba(207,169,99,0.55)'; ctx.lineWidth = 2; ctx.stroke(); ctx.restore();
-            if (subtitle) exportText(ctx, subtitle, x + w / 2, by + L.band / 2, { size: 30, weight: 800, color: B.wood, maxW: w - 100, min: 18 });
+            if (subtitle) { ctx.save(); ctx.shadowColor = 'rgba(25,12,5,0.55)'; ctx.shadowBlur = 4; ctx.shadowOffsetY = 1;
+              { // توسيط بصري دقيق: نقيس حدود الحروف الفعلية لهذا النص (مع النقاط والحروف النازلة) ونضع منتصفها على منتصف الشريط
+                const fs = fitFont(ctx, subtitle, w - 100, 30, 800, 18); ctx.save(); ctx.font = `800 ${fs}px ${EXPORT_FONT}`; ctx.textBaseline = 'middle'; ctx.direction = 'rtl';
+                const mm = ctx.measureText(subtitle); ctx.restore();
+                const dy = (mm.actualBoundingBoxDescent - mm.actualBoundingBoxAscent) / 2;   // انحراف منتصف الحبر عن خط المنتصف
+                exportText(ctx, subtitle, x + w / 2, cy - dy + 0.75, { size: 30, weight: 800, color: '#F6E7CC', maxW: w - 100, min: 18 }); } ctx.restore(); }
           }
           if (meta && meta.length) {
             const PILL_H = HDR.ROW, PAD = 20, ICON = 26, GAP_I = 10, GAP = 14;
@@ -6054,11 +6098,11 @@ currentScoreWinnerName = null;
                 drawRoundedRect(ctx, px, py, pw, PILL_H, PILL_H / 2);
                 ctx.fillStyle = B.paper;
                 ctx.fill();
-                ctx.strokeStyle = 'rgba(184,137,61,0.55)';
+                ctx.strokeStyle = B.walnutLine;   // إطار بلون الجوز يربط البطاقات بالهيدر
                 ctx.lineWidth = 1.6;
                 ctx.stroke();
                 ctx.restore();
-                exportIcon(ctx, it.m.icon, px + pw - PAD - ICON / 2, py + PILL_H / 2, ICON, B.goldDeep, 2);   // داخل كبسولة: الأيقونة في المنتصف والنص يُنزل لمركزه البصري
+                exportIcon(ctx, it.m.icon, px + pw - PAD - ICON / 2, py + PILL_H / 2, ICON, B.walnut, 2);   // داخل كبسولة: الأيقونة في المنتصف والنص يُنزل لمركزه البصري
                 exportText(ctx, it.m.label, px + pw - PAD - ICON - GAP_I, py + PILL_H / 2 - exportOptDy(pf), { size: pf, weight: 700, color: B.ink, align: 'right' });
                 cursor -= pw + GAP;
               });
@@ -6087,7 +6131,7 @@ currentScoreWinnerName = null;
       ctx.stroke();
       ctx.translate(x + w / 2, y);
       ctx.rotate(Math.PI / 4);
-      ctx.fillStyle = B.gold;
+      ctx.fillStyle = B.walnut;
       ctx.fillRect(-6, -6, 12, 12);
       ctx.restore();
     }
@@ -6440,7 +6484,7 @@ currentScoreWinnerName = null;
       exportRunActive = true; exportStudioOpener = btn || document.activeElement; exportCurrentRun = run; exportLastParts = null; exportLastPartsResolved = null; exportLastTexts = null;
       const old = btn ? btn.textContent : '';
       if (btn) { btn.disabled = true; btn.textContent = busyText || 'جارٍ إنشاء الصورة…'; }
-      try { await run(); return true; }
+      try { await exportWoodReady; await run(); return true; }
       catch (e) { console.error(e); alert(exportErrorMessage(e)); return false; }
       finally { exportCurrentRun = null; exportRunActive = false; if (btn) { btn.disabled = false; btn.textContent = old; } }
     }
@@ -6457,10 +6501,10 @@ currentScoreWinnerName = null;
     // =========================================================
     const EXPORT_FORMATS = {
       auto:   { label: 'الأصلي', tag: '' },
-      portrait34: { label: 'عمودي 3:4', tag: 'Portrait-3x4', W:1080, H:1440, pad:36, top:60, bottom:76 },
-      portrait57: { label: 'عمودي 5:7', tag: 'Portrait-5x7', W:1080, H:1512, pad:36, top:70, bottom:86 },
-      story:  { label: 'ستوري 9:16', tag: 'Story', W: 1080, H: 1920, pad: 36, top: 110, bottom: 130 },
-      square: { label: 'مربع 1:1', tag: 'Square', W: 1080, H: 1080, pad: 36, top: 36, bottom: 36 }
+      portrait34: { label: 'عمودي 3:4', tag: 'Portrait-3x4', W:1080, H:1440, pad:22, top:40, bottom:52 },
+      portrait57: { label: 'عمودي 5:7', tag: 'Portrait-5x7', W:1080, H:1512, pad:22, top:44, bottom:56 },
+      story:  { label: 'ستوري 9:16', tag: 'Story', W: 1080, H: 1920, pad: 22, top: 96, bottom: 110 },   // أعلى وأسفل: مساحة آمنة لعناصر واجهة الستوري
+      square: { label: 'مربع 1:1', tag: 'Square', W: 1080, H: 1080, pad: 22, top: 26, bottom: 30 }
     };
     function composeFormat(src, fmtKey, split) {
       const F = EXPORT_FORMATS[fmtKey]; if (!F || !F.W) return [src];
@@ -6496,18 +6540,27 @@ currentScoreWinnerName = null;
         const c = document.createElement('canvas'); c.width = Math.ceil(F.W * kk); c.height = Math.ceil(F.H * kk);
         const ctx = c.getContext('2d'); if (!ctx) throw new Error('Canvas 2D context unavailable');
         ctx.scale(kk, kk); ctx.textRendering = 'optimizeLegibility';
-        const g = ctx.createLinearGradient(0, 0, 0, F.H); g.addColorStop(0, B.wood2); g.addColorStop(1, B.wood);
-        ctx.fillStyle = g; ctx.fillRect(0, 0, F.W, F.H); exportRings(ctx, F.W / 2, F.H / 2, F.H / 230, 0.16);
+        // خلفية المقاسات: سطح فاتح دافئ بتدرّج ناعم (إضاءة من الأعلى) — البطاقة هي البطل، والخلفية هادئة
+        { const g = ctx.createLinearGradient(0, 0, 0, F.H); g.addColorStop(0, '#EEE4D6'); g.addColorStop(1, '#DDCDB8'); ctx.fillStyle = g; ctx.fillRect(0, 0, F.W, F.H);
+          const r = ctx.createRadialGradient(F.W / 2, F.H * 0.38, 0, F.W / 2, F.H * 0.38, Math.max(F.W, F.H) * 0.7);
+          r.addColorStop(0, 'rgba(255,250,242,0.55)'); r.addColorStop(1, 'rgba(255,250,242,0)'); ctx.fillStyle = r; ctx.fillRect(0, 0, F.W, F.H); }
         const avail = F.H - F.top - F.bottom - (single ? 0 : labelRoom);
+        const BZ = 10;   // إطار البطاقة الأبيض (مثل حافة الجهاز) حول الصورة
         let sliceH = (b - a) * f, ff = f;
-        if (sliceH > avail) { ff = avail / (b - a); sliceH = avail; }                    // صورة بلا حدود معروفة: تصغير مضبوط
-        const cardW = 1080 * ff, cardX = (F.W - cardW) / 2, cardY = F.top + (avail - sliceH) / 2;
-        ctx.save(); ctx.shadowColor = 'rgba(0,0,0,.35)'; ctx.shadowBlur = 24; ctx.shadowOffsetY = 8;
-        drawRoundedRect(ctx, cardX, cardY, cardW, sliceH, 26); ctx.fillStyle = B.ivory; ctx.fill(); ctx.restore();
-        ctx.save(); drawRoundedRect(ctx, cardX, cardY, cardW, sliceH, 26); ctx.clip();
+        if (sliceH > avail - BZ * 2) { ff = (avail - BZ * 2) / (b - a); sliceH = avail - BZ * 2; }
+        let cardW = 1080 * ff;
+        if (cardW > F.W - F.pad * 2 - BZ * 2) { const k2 = (F.W - F.pad * 2 - BZ * 2) / cardW; cardW *= k2; sliceH *= k2; }
+        const cardX = (F.W - cardW) / 2, cardY = F.top + (avail - sliceH) / 2;
+        const ox = cardX - BZ, oy = cardY - BZ, ow = cardW + BZ * 2, oh = sliceH + BZ * 2, OR = 40, IR = 28;
+        // ظل ناعم واسع ينتشر للأسفل + ظل قريب رقيق
+        ctx.save(); ctx.shadowColor = 'rgba(70,42,20,0.30)'; ctx.shadowBlur = 100; ctx.shadowOffsetY = 56;
+        drawRoundedRect(ctx, ox + 30, oy + 30, ow - 60, oh - 40, OR); ctx.fillStyle = '#FFFDF9'; ctx.fill(); ctx.restore();
+        ctx.save(); ctx.shadowColor = 'rgba(70,42,20,0.18)'; ctx.shadowBlur = 18; ctx.shadowOffsetY = 7;
+        drawRoundedRect(ctx, ox, oy, ow, oh, OR); ctx.fillStyle = '#FFFDF9'; ctx.fill(); ctx.restore();
+        ctx.save(); drawRoundedRect(ctx, ox + 0.75, oy + 0.75, ow - 1.5, oh - 1.5, OR); ctx.strokeStyle = 'rgba(120,90,60,0.10)'; ctx.lineWidth = 1.5; ctx.stroke(); ctx.restore();
+        ctx.save(); drawRoundedRect(ctx, cardX, cardY, cardW, sliceH, IR); ctx.clip();
         ctx.drawImage(src, 0, a * ks, src.width, (b - a) * ks, cardX, cardY, cardW, sliceH); ctx.restore();
-        ctx.save(); drawRoundedRect(ctx, cardX, cardY, cardW, sliceH, 26); ctx.strokeStyle = B.gold; ctx.lineWidth = 2.5; ctx.stroke(); ctx.restore();
-        if (!single) exportText(ctx, `الصفحة ${i + 1} من ${ranges.length}`, F.W / 2, cardY + sliceH + 34, { size: 26, weight: 700, color: B.goldSoft, maxW: F.W - 80, min: 16 });
+        if (!single) exportText(ctx, `الصفحة ${i + 1} من ${ranges.length}`, F.W / 2, oy + oh + 34, { size: 26, weight: 700, color: B.muted, maxW: F.W - 80, min: 16 });
         return c;
       });
       return pages;
@@ -8789,7 +8842,7 @@ function buildLeagueStandingsCanvas() {
         const bodyH = sec.rows ? sec.rows.length * ROW - 8 : sec.matches ? sec.matches.reduce((b, it) => b + itemH(it), 0) - 12 : sec.honor ? sec.honor.length * 96 - 12 : 0;
         const framed = bodyH > 0, X = framed ? IM : M, XW = framed ? ICW : CW;
         if (framed) exportTableFrame(ctx, M, y, CW, HEAD + TP + bodyH + TP, HEAD, B.wood, 22);
-        else { drawRoundedRect(ctx, M, y, CW, HEAD, 18); ctx.fillStyle = B.wood; ctx.fill(); }
+        else { ctx.save(); drawRoundedRect(ctx, M, y, CW, HEAD, 18); ctx.clip(); exportWalnut(ctx, M, y, CW, HEAD); ctx.restore(); }
         exportText(ctx, sec.heading, X + XW - 24, y + HEAD / 2, { size: 30, weight: 800, color: B.goldSoft, align: 'right', maxW: sec.cols ? XW * 0.5 : XW - 48, min: 20 });   // بلا أعمدة: العنوان يأخذ العرض كله فلا تُصغَّر أسماء الفرق
         // wide: قسم بعمود قيم واحد يأخذ مساحة عمودين (مثل سجل البطولات بلا عمود الوصيف)
         const vx = (n, k) => sec.wide ? X + 260 : X + 170 + (n - 1 - k) * 200, vw = sec.wide ? 390 : 190;
@@ -9567,7 +9620,7 @@ function buildLeagueStandingsCanvas() {
       const B = EXPORT_BRAND, r = radius || 24;
       ctx.save();
       drawRoundedRect(ctx, x, y, w, h, r); ctx.fillStyle = B.surface2; ctx.fill();
-      ctx.save(); drawRoundedRect(ctx, x, y, w, h, r); ctx.clip(); ctx.fillStyle = headFill || B.surface3; ctx.fillRect(x, y, w, headH); ctx.restore();
+      ctx.save(); drawRoundedRect(ctx, x, y, w, h, r); ctx.clip(); if (headFill === B.wood) exportWalnut(ctx, x, y, w, headH); else { ctx.fillStyle = headFill || B.surface3; ctx.fillRect(x, y, w, headH); } ctx.restore();
       drawRoundedRect(ctx, x, y, w, h, r); ctx.strokeStyle = B.lineStrong; ctx.lineWidth = 2; ctx.stroke();
       ctx.restore();
     }
@@ -9575,7 +9628,7 @@ function buildLeagueStandingsCanvas() {
     function exportSectionBar(ctx, M, y, CW, text, icon, note, bodyH) {
       const B = EXPORT_BRAND, H = 70;
       if (bodyH) exportTableFrame(ctx, M, y, CW, H + EXPORT_TABLE_PAD + bodyH + EXPORT_TABLE_PAD, H, B.wood, 22);
-      else { drawRoundedRect(ctx, M, y, CW, H, 18); ctx.fillStyle = B.wood; ctx.fill(); }
+      else { ctx.save(); drawRoundedRect(ctx, M, y, CW, H, 18); ctx.clip(); exportWalnut(ctx, M, y, CW, H); ctx.restore(); }
       if (note) exportText(ctx, note, M + 24, y + H / 2 - exportOptDy(21), { size: 21, weight: 700, color: 'rgba(247,243,234,0.7)', align: 'left', maxW: CW * 0.4, min: 14 });
       const t = exportText(ctx, text, M + CW - 24 - (icon ? 44 : 0), y + H / 2 - exportOptDy(30), { size: 30, weight: 800, color: B.goldSoft, align: 'right', maxW: CW * 0.7, min: 20 });
       if (icon) exportIcon(ctx, icon, M + CW - 24 - 16, y + H / 2, 30, B.gold, 2);
@@ -9920,8 +9973,9 @@ function buildLeagueStandingsCanvas() {
   const EH = 66;
   const ER = 58;
 
+  const XTP = EXPORT_TABLE_PAD;
   const extraH = extra.reduce(
-    (a, sec) => a + EH + 12 + sec.rows.length * ER + 20,
+    (a, sec) => a + EH + XTP + sec.rows.length * ER - 8 + XTP + 20,
     0
   );
 
@@ -10034,44 +10088,16 @@ function buildLeagueStandingsCanvas() {
   extra.forEach(sec => {
     cuts.push(y - 10);
 
-    drawRoundedRect(ctx, M, y, CW, EH, 18);
-
-    const headingGradient = ctx.createLinearGradient(
-      M,
-      y,
-      M + CW,
-      y + EH
-    );
-
-    const hid = rankIdentity(sec.rank) || RANK_IDENTITY[1];
-    headingGradient.addColorStop(0, hid.head[0]);
-    headingGradient.addColorStop(0.5, hid.head[1]);
-    headingGradient.addColorStop(1, hid.head[2]);
-
-    ctx.fillStyle = headingGradient;
-    ctx.fill();
-
-    exportText(
-      ctx,
-      sec.heading,
-      M + CW - 24,
-      y + EH / 2,
-      {
-        size: 28,
-        weight: 800,
-        color: hid.headText,
-        align: 'right',
-        maxW: CW - 60,
-        min: 18
-      }
-    );
-
-    y += EH + 12;
+    // نفس إطار الجداول في كل الصور: رأس بخشب الجوز والصفوف داخله (بدل شريط ملوّن منفصل)
+    exportTableFrame(ctx, M, y, CW, EH + XTP + sec.rows.length * ER - 8 + XTP, EH, B.wood, 22);
+    { const hid = rankIdentity(sec.rank); if (hid) drawRankMedal(ctx, M + CW - 40, y + EH / 2, 34, sec.rank); }
+    exportText(ctx, sec.heading, M + CW - 70, y + EH / 2 - exportOptDy(28), { size: 28, weight: 800, color: '#F7EAD3', align: 'right', maxW: CW - 110, min: 18 });
+    y += EH + XTP;
 
     sec.rows.forEach((r, i) => {
-      drawRoundedRect(ctx, M, y, CW, ER - 8, 14);
+      drawRoundedRect(ctx, M + XTP, y, CW - 2 * XTP, ER - 8, 12);
 
-      ctx.fillStyle = i % 2 ? B.surface2 : B.paper;
+      ctx.fillStyle = B.paper;
       ctx.fill();
 
       ctx.strokeStyle = B.line;
@@ -10081,7 +10107,7 @@ function buildLeagueStandingsCanvas() {
       exportText(
         ctx,
         r[0],
-        M + CW - 24,
+        M + CW - XTP - 22,
         y + (ER - 8) / 2,
         {
           size: 26,
@@ -10125,7 +10151,7 @@ function buildLeagueStandingsCanvas() {
       y += ER;
     });
 
-    y += 20;
+    y += XTP - 8 + 20;
   });
 
   // التذييل الأصلي
@@ -11253,7 +11279,7 @@ function buildLeagueStandingsCanvas() {
     // ===================================
     // 🧭 سلوك التطبيق: إعادة الوضع للأعلى، تعديل العنوان بالضغط المطوّل، تنبيه التحديث، رقم الإصدار
     // ===================================
-    const APP_VERSION = '2.5';   // ترقيم الاعتماد: 1 ثم 1.1 … 1.9 ثم 2 — ويُرفع معه رقم الإصدار في sw.js
+    const APP_VERSION = '2.6';   // ترقيم الاعتماد: 1 ثم 1.1 … 1.9 ثم 2 — ويُرفع معه رقم الإصدار في sw.js
     (function setupAppBehaviors() {
       const root = document.documentElement;
 
