@@ -10,7 +10,7 @@
       if ((x.status >= 200 && x.status < 300) || (x.status === 0 && x.responseText)) { reason = 'invalid'; data = JSON.parse(x.responseText); }
       else reason = x.status === 404 ? 'notfound' : x.status === 0 ? 'offline' : 'error'; } catch (e) {}
     if (!data || data.format !== 'carrom-view-data' || !data.entries || typeof data.entries !== 'object') data = null;
-    var mem = {}, real = null, KEEP = /^(theme|__carrom_lgTab|__carrom_me_v1|__carrom_seen_v1|__carrom_champ_seen_v1|__carrom_stfold_v1)$/;
+    var mem = {}, real = null, KEEP = /^(theme|__carrom_lgTab|__carrom_me_v1|__carrom_seen_v1|__carrom_champ_seen_v1|__carrom_ko_champ_seen_v1|__carrom_stfold_v1)$/;
     try { real = window.localStorage; } catch (e) {}
     if (data) for (var k in data.entries) if (Object.prototype.hasOwnProperty.call(data.entries, k)) mem[k] = String(data.entries[k]);
     var has = function (k) { return Object.prototype.hasOwnProperty.call(mem, k); };
@@ -1878,16 +1878,16 @@
       animation: fade .3s ease both; }
     #celebration.leaving { animation: celebOut .45s ease forwards; }
     @keyframes celebOut { to { opacity: 0; } }
-    #celebration canvas { position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none; }
+    /* الغبار الذهبي: فوق الخلفية ويبهت تدريجيًا قبل منطقة الاسم والأزرار */
+    #celebration canvas.celeb-dust { z-index: 1; -webkit-mask-image: linear-gradient(180deg, #000 0%, #000 22%, transparent 48%); mask-image: linear-gradient(180deg, #000 0%, #000 22%, transparent 48%); }
+    #celebration canvas { position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none; z-index: 2; }   /* القصاصات فوق البطاقة (الشاشة الكاملة تغطي الخلفية) */
     .celeb-card { position: relative; width: min(340px, 100%); padding: 30px 22px 24px; border-radius: 26px; text-align: center; color: #F7F3EA;
       background: linear-gradient(180deg, rgba(74, 56, 44, .35), rgba(30, 22, 17, .7)), url("assets/wood.webp") center / cover, #30251F;
       border: 1px solid rgba(227, 204, 160, .55);
       box-shadow: 0 30px 70px -20px rgba(0, 0, 0, .8), inset 0 1px 0 rgba(255, 240, 210, .18);
       animation: celebIn .7s cubic-bezier(.18, .9, .25, 1.15) .08s both; overflow: hidden; }
     @keyframes celebIn { from { transform: translateY(26px) scale(.86); opacity: 0; } to { transform: none; opacity: 1; } }
-    .celeb-card::after { content: ""; position: absolute; top: 0; bottom: 0; width: 60%; left: -80%; pointer-events: none;
-      background: linear-gradient(100deg, transparent, rgba(255, 236, 190, .16), transparent); animation: celebShine 1.6s ease .7s both; }
-    @keyframes celebShine { to { left: 120%; } }
+
     .celeb-trophy { width: 76px; height: 76px; margin: 0 auto 12px; border-radius: 50%; display: grid; place-items: center;
       background: radial-gradient(circle at 35% 30%, #F6E4B4, #CFA963 55%, #8F6927); box-shadow: 0 10px 26px -8px rgba(207, 169, 99, .7), inset 0 2px 0 rgba(255, 255, 255, .45);
       animation: celebTrophy .9s cubic-bezier(.2, .9, .3, 1.3) .25s both; }
@@ -1896,6 +1896,37 @@
     .celeb-label { font-size: 15px; font-weight: 700; color: #E3CCA0; letter-spacing: .2px; animation: rise .5s ease .45s both; }
     .celeb-name { margin-top: 6px; font-size: 28px; font-weight: 800; line-height: 1.3; overflow-wrap: anywhere; text-shadow: 0 2px 8px rgba(0, 0, 0, .45); animation: rise .55s ease .55s both; }
     .celeb-sub { margin-top: 8px; font-size: 14px; color: rgba(247, 243, 234, .75); animation: rise .5s ease .7s both; }
+    /* شاشة التتويج: كاملة على الجوال (الكأس والاسم في المنتصف والأزرار أسفل الشاشة بمتناول الإبهام)، وبطاقة كبيرة على الكمبيوتر */
+    @media (max-width: 639px) {
+      #celebration { padding: 0; }
+      .celeb-card { width: 100%; height: 100%; border-radius: 0; border: 0; display: flex; flex-direction: column; justify-content: center;
+        padding: calc(env(safe-area-inset-top, 0px) + 40px) 24px calc(env(safe-area-inset-bottom, 0px) + 24px); }
+      .celeb-trophy { width: 128px; height: 128px; margin-bottom: 26px; }
+      .celeb-trophy::before { width: 64px; height: 64px; }
+      .celeb-label { font-size: 19px; }
+      .celeb-name { margin-top: 10px; font-size: 40px; }
+      .celeb-sub { margin-top: 12px; font-size: 16px; }
+      .celeb-trophy { margin-top: auto; }   /* المسافة الفارغة تتوزع فوق الكأس وبين التفاصيل والأزرار: البطل في وسط الشاشة والأزرار أسفلها */
+      .celeb-actions { margin-top: auto; padding-top: 24px; }
+      .celeb-btn { min-height: 56px; font-size: 17px; }
+    }
+    @media (max-width: 639px) and (max-height: 640px) {   /* شاشات قصيرة (SE): أحجام أصغر قليلًا */
+      .celeb-trophy { width: 100px; height: 100px; margin-bottom: 18px; } .celeb-trophy::before { width: 50px; height: 50px; }
+      .celeb-name { font-size: 34px; }
+    }
+    @media (min-width: 640px) {
+      .celeb-card { width: 520px; padding: 44px 36px 32px; border-radius: 30px; }
+      .celeb-trophy { width: 104px; height: 104px; margin-bottom: 18px; }
+      .celeb-trophy::before { width: 54px; height: 54px; }
+      .celeb-label { font-size: 17px; } .celeb-name { font-size: 36px; } .celeb-sub { font-size: 15px; }
+    }
+    /* الكأس: هالة ذهبية ناعمة «تتنفس» ببطء خلفه (توهج دائري يخفت ويشتد، لا شريط يتحرك) */
+    .celeb-trophy { position: relative; z-index: 0; }
+    .celeb-trophy::after { content: ""; position: absolute; inset: -55%; z-index: -1; border-radius: 50%; pointer-events: none;
+      background: radial-gradient(circle, rgba(240, 205, 130, .5) 0%, rgba(240, 205, 130, .18) 38%, rgba(240, 205, 130, 0) 68%);
+      opacity: 0; animation: celebBreath 3.4s ease-in-out 1.4s infinite; }
+    @keyframes celebBreath { 0%, 100% { opacity: .15; transform: scale(.92); } 50% { opacity: 1; transform: scale(1.04); } }
+    @media (prefers-reduced-motion: reduce) { .celeb-trophy::after { animation: none; opacity: .5; } }
     .celeb-actions { display: flex; flex-direction: column; gap: 10px; margin-top: 22px; animation: rise .5s ease 1s both; }
     .celeb-btn { display: inline-flex; align-items: center; justify-content: center; gap: 8px; width: 100%; min-height: 50px; padding: 0 18px; border-radius: 14px;
       font: inherit; font-size: 16px; font-weight: 800; cursor: pointer; -webkit-tap-highlight-color: transparent; transition: transform .15s ease; }
@@ -10626,6 +10657,7 @@ function buildLeagueStandingsCanvas() {
       // ---------- احتفال التتويج ----------
       function confetti(canvas) {
         const ctx = canvas.getContext('2d'); if (!ctx) return;
+        const run = canvas.__run = (canvas.__run || 0) + 1;   // دفعة جديدة توقف السابقة (لا تتنازعان على اللوحة)
         const dpr = Math.min(2, window.devicePixelRatio || 1);
         const W = canvas.clientWidth, H = canvas.clientHeight;
         canvas.width = W * dpr; canvas.height = H * dpr; ctx.scale(dpr, dpr);
@@ -10638,7 +10670,7 @@ function buildLeagueStandingsCanvas() {
         for (let i = 0; i < 16; i++) ps.push({ x: R(0, W), y: R(-H * .5, -20), vx: R(-1.2, 1.2), vy: R(1, 3), g: R(.12, .2), r: 0, vr: 0, w: R(8, 11), c: coins[i % coins.length], k: 'c' });
         const t0 = performance.now();
         (function frame(t) {
-          if (!canvas.isConnected) return;
+          if (!canvas.isConnected || canvas.__run !== run) return;
           const life = (t - t0) / 1000;
           ctx.clearRect(0, 0, W, H);
           let alive = 0;
@@ -10660,6 +10692,33 @@ function buildLeagueStandingsCanvas() {
       }
       // احتفال التتويج: حدث مهم — تبقى البطاقة حتى يغلقها المستخدم بـ«متابعة» (لا تختفي وحدها ولا تُغلق بلمسة عابرة على الخلفية).
       // في ملف التحكم: زر «مشاركة صورة البطل» يصدّر بطاقة البطل مباشرة.
+      function goldDust(host, isClosed) {
+        const c = document.createElement('canvas'); c.className = 'celeb-dust'; host.appendChild(c);
+        const ctx = c.getContext('2d'); if (!ctx) return;
+        const dpr = Math.min(2, window.devicePixelRatio || 1); let W = 0, H = 0;
+        const size = () => { W = c.clientWidth; H = c.clientHeight; c.width = W * dpr; c.height = H * dpr; ctx.setTransform(dpr, 0, 0, dpr, 0, 0); };
+        size(); window.addEventListener('resize', size);
+        const R = (a, b) => a + Math.random() * (b - a), N = W < 640 ? 7 : 9;
+        const mk = (top) => ({ x: R(0, W), y: top ? R(-H * .1, -4) : R(-H * .05, H * .45), r: R(1.1, 2.4), a: R(.28, .62), vy: R(14, 26), ph: R(0, 6.28), sw: R(6, 14), sp: R(.5, 1.1) });
+        const ps = Array.from({ length: N }, () => mk(false));
+        let last = performance.now(), born = last;
+        (function tick(t) {
+          if (isClosed() || !c.isConnected) { window.removeEventListener('resize', size); return; }
+          const dt = Math.min(.05, (t - last) / 1000); last = t;
+          if (document.hidden) { requestAnimationFrame(tick); return; }
+          const fadeIn = Math.min(1, (t - born) / 1500);
+          ctx.clearRect(0, 0, W, H);
+          for (const p of ps) {
+            p.y += p.vy * dt; p.ph += p.sp * dt;
+            const x = p.x + Math.sin(p.ph) * p.sw;
+            if (p.y > H * .62) Object.assign(p, mk(true));
+            const g = ctx.createRadialGradient(x, p.y, 0, x, p.y, p.r * 3);
+            g.addColorStop(0, `rgba(255, 236, 190, ${p.a * fadeIn})`); g.addColorStop(.35, `rgba(231, 199, 125, ${p.a * .55 * fadeIn})`); g.addColorStop(1, 'rgba(231, 199, 125, 0)');
+            ctx.fillStyle = g; ctx.beginPath(); ctx.arc(x, p.y, p.r * 3, 0, 6.2832); ctx.fill();
+          }
+          requestAnimationFrame(tick);
+        })(last);
+      }
       function celebrate(label, name, sub, opts) {
         opts = opts || {};
         const old = document.getElementById('celebration'); if (old) old.remove();
@@ -10689,7 +10748,10 @@ function buildLeagueStandingsCanvas() {
         card.addEventListener('click', e => { if (e.target.closest('.celeb-btn')) return; if (cv && cv.isConnected) confetti(cv); });
         document.addEventListener('keydown', onKey, true);
         document.body.appendChild(el);
-        if (cv) setTimeout(() => { if (!closed && cv.isConnected) confetti(cv); }, 2600);   // دفعة ثانية
+        // ثلاث دفعات ثم سكون (لمسة على البطاقة تعيده)؛ الكأس يبقى بلمعة هادئة خفيفة
+        if (cv) [2600, 5200].forEach(ms => setTimeout(() => { if (!closed && cv.isConnected) confetti(cv); }, ms));
+        // بعد الدفعات: غبار ذهبي خفيف جدًا ينزل ببطء حتى «متابعة» (6–8 حبات، يبهت قبل الاسم والأزرار، يتوقف خارج التطبيق)
+        if (cv) setTimeout(() => { if (!closed && el.isConnected) goldDust(el, () => closed); }, 7600);
       }
       window.carromCelebrate = celebrate;
 
@@ -11191,7 +11253,7 @@ function buildLeagueStandingsCanvas() {
     // ===================================
     // 🧭 سلوك التطبيق: إعادة الوضع للأعلى، تعديل العنوان بالضغط المطوّل، تنبيه التحديث، رقم الإصدار
     // ===================================
-    const APP_VERSION = '2.3';   // ترقيم الاعتماد: 1 ثم 1.1 … 1.9 ثم 2 — ويُرفع معه رقم الإصدار في sw.js
+    const APP_VERSION = '2.5';   // ترقيم الاعتماد: 1 ثم 1.1 … 1.9 ثم 2 — ويُرفع معه رقم الإصدار في sw.js
     (function setupAppBehaviors() {
       const root = document.documentElement;
 
@@ -11806,6 +11868,41 @@ function buildLeagueStandingsCanvas() {
         if (strip) strip.addEventListener('click', e => { const d = e.target.closest('.vday-d'); if (!d || d.dataset.k === sel) return;
           const dir = d.dataset.k > sel ? 1 : -1; sel = d.dataset.k; paint(dir); });   // الأحدث يسارًا: الانتقال إليه يدخل من اليسار
         paint(0);
+      })();
+      // ===== بطل الفردي/الفرق (خروج المغلوب): احتفال مرة واحدة لكل جهاز، ومن جديد إذا تغيّر البطل بتصحيح نتيجة النهائي =====
+      (function setupKoChampion() {
+        const KEY = '__carrom_ko_champ_seen_v1', ids = { single: 'modeSingleBtn', fixed: 'modeFixedBtn' };
+        const J = k => { try { return JSON.parse(localStorage.getItem(k) || 'null'); } catch (e) { return null; } };
+        const real = n => !!n && typeof n === 'string' && !n.includes('الفائز من م') && !n.includes('Bye');
+        // نفس شروط اعتماد البطل في getVerifiedTournamentChampion، على جدول أي وضع (الحالي أو المحفوظ)
+        const champOf = mode => { try {
+          const bs = mode === currentMode ? bracketState : ((J('tournamentModeSnapshot_' + mode) || {}).bracketState || {});
+          const finals = Object.values(bs || {}).filter(m => isFinalMatch(m) && !m.nextMatchId); if (finals.length !== 1) return null;
+          const f = finals[0], ws = Number(f.winnerScore), ls = Number(f.loserScore);
+          if (!real(f.team1) || !real(f.team2) || f.team1 === f.team2 || !f.winner || (f.winner !== f.team1 && f.winner !== f.team2)) return null;
+          if (f.winnerScore == null || f.loserScore == null || !isFinite(ws) || !isFinite(ls)) return null;
+          return { champion: String(f.winner), runnerUp: String(f.winner === f.team1 ? f.team2 : f.team1), score: `${ws} – ${ls}`, id: f.id };
+        } catch (e) { return null; } };
+        let seen = J(KEY) || {};
+        let me = null; try { me = (JSON.parse(localStorage.getItem('__carrom_me_v1') || 'null') || {}).name || null; } catch (e) {}
+        const show = (mode, c) => {
+          const name = (() => { try { return getDisplayTeamName(c.champion); } catch (e) { return c.champion; } })();
+          const members = String(name).split(' + ').map(x => x.trim());
+          const mine = me && (members.includes(me) || name === me);
+          const label = mine ? (mode === 'single' ? 'مبروك! أنت بطل المنافسة الفردية' : 'مبروك! أنت بطل البطولة') : (mode === 'single' ? 'بطل المنافسة الفردية' : 'بطل البطولة');
+          const t = (() => { try { return tournamentName.textContent.trim(); } catch (e) { return ''; } })();
+          window.carromCelebrate && window.carromCelebrate(label, name, (t ? t + ' · ' : '') + 'النهائي ' + c.score);
+        };
+        ['single', 'fixed'].forEach(mode => {
+          const c = champOf(mode); if (!c) return;
+          const sig = `${c.champion}|${c.runnerUp}|${c.score}|${c.id}`; if (seen[mode] === sig) return;
+          const mark = () => { seen = J(KEY) || {}; seen[mode] = sig; try { localStorage.setItem(KEY, JSON.stringify(seen)); } catch (e) {} };
+          if (currentMode === mode) { mark(); setTimeout(() => show(mode, c), 700); return; }
+          // البطل في قسم غير المعروض الآن: يظهر الاحتفال عند فتح ذلك القسم
+          const b = document.getElementById(ids[mode]); if (!b) return;
+          const once = () => { b.removeEventListener('click', once); const c2 = champOf(mode); if (!c2) return; mark(); setTimeout(() => show(mode, c2), 450); };
+          b.addEventListener('click', once);
+        });
       })();
       // ===== بطل الدوري (حسم مبكر أو نهاية الدوري): بطاقة أعلى القسم + احتفال مرة واحدة لكل جهاز =====
       (function setupChampion() {
