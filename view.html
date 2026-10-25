@@ -276,6 +276,7 @@
        عن «جسم» الكلمة. نرفعها لتتمركز على منتصف المسافة بين خط الأساس وأعلى الألف (المركز البصري للنص).
        الأزرار الدائرية بلا نص لا تُزاح. */
     .control-open-btn, .theme-switch { --ic-dy: 0; }
+    @media (max-width: 639px) { .control-open-btn::before { margin-inline-end: 0; } }   /* زر دائري بلا نص على الجوال: الأيقونة في المنتصف تمامًا (كان هامشها يزيحها 4px) */
     @media (min-width: 640px) { .control-open-btn { --ic-dy: -.3em; } }
     [data-ic="moon"]::before { --ic: var(--ic-moon); } [data-ic="sun"]::before { --ic: var(--ic-sun); }
     [data-ic="sliders"]::before { --ic: var(--ic-sliders); } [data-ic="shield"]::before { --ic: var(--ic-shield); }
@@ -306,11 +307,8 @@
       position: relative;
       background-color: var(--wood);
       background-image:
-        url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='260' height='260' viewBox='0 0 260 260' fill='none' stroke='%23CFA963' stroke-opacity='.22'><circle cx='130' cy='130' r='46' stroke-width='1.2'/><circle cx='130' cy='130' r='74' stroke-width='1'/></svg>"),
         linear-gradient(180deg, var(--wood-2), var(--wood));
       background-repeat: no-repeat;
-      background-position: center 40%, 0 0;
-      background-size: 260px 260px, auto;
       color: var(--on-wood);
       padding-top: var(--safe-top);
       border-bottom: 1px solid rgba(207, 169, 99, .28);
@@ -779,9 +777,8 @@
       border: 1px solid rgba(207, 169, 99, .6);
       background-color: var(--wood);
       background-image:
-        url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='300' height='300' viewBox='0 0 300 300' fill='none' stroke='%23CFA963' stroke-opacity='.28'><circle cx='150' cy='150' r='58' stroke-width='1.4'/><circle cx='150' cy='150' r='92' stroke-width='1'/><circle cx='150' cy='150' r='7' fill='%23CFA963' fill-opacity='.4' stroke='none'/></svg>"),
         linear-gradient(180deg, var(--wood-2), var(--wood));
-      background-repeat: no-repeat; background-position: center; background-size: 300px 300px, auto;
+      background-repeat: no-repeat;
       box-shadow: 0 14px 36px -12px rgba(48, 37, 31, .55);
       animation: rise .4s var(--ease) both;
     }
@@ -946,10 +943,12 @@
       border-radius: var(--r-lg); padding: var(--s5) var(--s4);
       color: var(--on-wood);
       background-color: var(--wood);
-      background-image:
-        url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='300' height='300' viewBox='0 0 300 300' fill='none' stroke='%23CFA963' stroke-opacity='.22'><circle cx='150' cy='150' r='58' stroke-width='1.4'/><circle cx='150' cy='150' r='92' stroke-width='1'/></svg>"),
+      background-image:   /* نفس خامة خشب الهيدر (بلا دوائر زخرفية) */
+        linear-gradient(180deg, rgba(74, 56, 44, .30), rgba(30, 22, 17, .55)),
+        url("assets/wood.webp"),
         linear-gradient(180deg, var(--wood-2), var(--wood));
-      background-repeat: no-repeat; background-position: center; background-size: 300px 300px, auto;
+      background-size: auto, cover, auto; background-position: 0 0, center, 0 0;
+      background-repeat: no-repeat;
       border: 1px solid rgba(207, 169, 99, .5);
       animation: rise .4s var(--ease) both;
     }
@@ -1221,10 +1220,12 @@
       padding: var(--s6) var(--s5) var(--s5);
       color: var(--on-wood);
       background-color: var(--wood);
-      background-image:
-        url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='220' height='220' viewBox='0 0 220 220' fill='none' stroke='%23CFA963' stroke-opacity='.22'><circle cx='110' cy='110' r='40' stroke-width='1.2'/><circle cx='110' cy='110' r='66' stroke-width='1'/></svg>"),
+      background-image:   /* نفس خامة خشب الهيدر (بلا دوائر زخرفية) */
+        linear-gradient(180deg, rgba(74, 56, 44, .30), rgba(30, 22, 17, .55)),
+        url("assets/wood.webp"),
         linear-gradient(180deg, var(--wood-2), var(--wood));
-      background-repeat: no-repeat; background-position: left -30px center, 0 0; background-size: 220px 220px, auto;
+      background-size: auto, cover, auto; background-position: 0 0, center, 0 0;
+      background-repeat: no-repeat;
     }
     .cd-topline { display: flex; align-items: center; justify-content: space-between; gap: var(--s3); }
     .cd-brand { display: flex; align-items: center; gap: var(--s3); min-width: 0; }
@@ -1743,7 +1744,7 @@
     .header-title h2 { text-shadow: 0 1px 2px rgba(0, 0, 0, .35); }
     .app-header::before {
       content: ""; position: absolute; inset: 0; z-index: -1; pointer-events: none;
-      background: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='260' height='260' viewBox='0 0 260 260' fill='none' stroke='%23CFA963' stroke-opacity='.22'><circle cx='130' cy='130' r='46' stroke-width='1.2'/><circle cx='130' cy='130' r='74' stroke-width='1'/></svg>") no-repeat center 40% / 260px 260px;
+      background: none;   /* بلا دوائر زخرفية: خلفية الخشب وحدها */
       opacity: calc(1 - var(--hdr-p, 0) * 1.4);
       transform: translateY(calc(var(--hdr-d, 0px) * var(--hdr-p, 0) * .55)) scale(calc(1 - var(--hdr-p, 0) * .25));
     }
@@ -9738,7 +9739,6 @@ function buildLeagueStandingsCanvas() {
       ctx.save(); drawRoundedRect(ctx, M, y, CW, HERO, 32);
       const hg = ctx.createLinearGradient(0, y, 0, y + HERO); hg.addColorStop(0, B.paper); hg.addColorStop(1, rid ? rankHexToRgba(rid.main, 0.14) : B.surface2);
       ctx.fillStyle = hg; ctx.fill(); ctx.strokeStyle = rid ? rid.main : B.lineStrong; ctx.lineWidth = rid ? 3 : 2; ctx.stroke(); ctx.restore();
-      exportRings(ctx, M + 120, y + HERO / 2, 1.1, 0.13); exportRings(ctx, M + CW - 120, y + HERO / 2, 1.1, 0.13);
       exportText(ctx, name, M + CW / 2, y + 66, { size: 60, weight: 800, color: B.ink, maxW: CW - 120, min: 30 });
       // صف التقييم (من اليمين): الرقم ← المستوى ← التغيير
       const numTxt = p.rating.toLocaleString('en-US');
@@ -11266,7 +11266,7 @@ function buildLeagueStandingsCanvas() {
     // ===================================
     // 🧭 سلوك التطبيق: إعادة الوضع للأعلى، تعديل العنوان بالضغط المطوّل، تنبيه التحديث، رقم الإصدار
     // ===================================
-    const APP_VERSION = '2.7';   // ترقيم الاعتماد: 1 ثم 1.1 … 1.9 ثم 2 — ويُرفع معه رقم الإصدار في sw.js
+    const APP_VERSION = '2.8';   // ترقيم الاعتماد: 1 ثم 1.1 … 1.9 ثم 2 — ويُرفع معه رقم الإصدار في sw.js
     (function setupAppBehaviors() {
       const root = document.documentElement;
 
