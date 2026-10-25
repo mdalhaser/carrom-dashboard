@@ -200,7 +200,7 @@
     button, input { font-family: inherit; }
     button { -webkit-tap-highlight-color: transparent; }
     h1, h2, h3, h4, p { margin: 0; }
-    :focus-visible { outline: 2.5px solid var(--gold); outline-offset: 2px; border-radius: 6px; }
+    :focus-visible { outline: 2.5px solid var(--gold); outline-offset: 2px; }   /* الإطار يتبع استدارة العنصر نفسه */
     [hidden] { display: none !important; }
     .num, .lg-num { direction: ltr; unicode-bidi: isolate; display: inline-block; font-variant-numeric: tabular-nums; }
 
@@ -592,7 +592,7 @@
     #statusText .num { display: inline-flex; align-items: center; justify-content: center; min-width: 34px; height: 28px; padding: 0 10px; border-radius: 999px;
       background: var(--surface-2); border: 1px solid var(--line); font-size: var(--fs-sm); font-variant-numeric: tabular-nums; line-height: 1; }
     #statusText .num span { color: inherit; }
-    #statusSep { color: var(--text-3) !important; font-weight: 700 !important; margin: 0 3px; }
+    #statusSep { color: var(--text-2) !important; font-weight: 700 !important; margin: 0 3px; }
     .draw-card { display: flex; flex-direction: column; gap: var(--s3); }
     #showBracketWrap, #exportWrap, #clearWrap { margin: 0 !important; }
     #showBracketWrap .btn, #exportWrap .btn, #clearWrap .btn, #statsBtn { width: 100%; }
@@ -675,6 +675,14 @@
     .match-card.vs .match-team > span:first-child { flex: 1 1 auto; }   /* الاسمان في المنتصف على محور «ضد»؛ بعد النتيجة تعود البطاقة للشكل المعتاد (الاسم يمينًا والنتيجة يسارًا) */
     .vs-sep { display: flex; align-items: center; gap: 8px; margin: 0 8px; color: var(--text-3); }
     .vs-sep::before, .vs-sep::after { content: ""; flex: 1; height: 1px; background: var(--line); }
+    /* توسيط بصري دقيق للنص داخل الشارات والكبسولات: مقاييس خط Tajawal تجعل النص أعلى من المنتصف بنحو ربع حرف.
+       text-box يقصّ صندوق السطر إلى ارتفاع الحروف (cap) وخط الأساس، والحشوة تعيد نفس الارتفاع الأصلي فلا يتغير التخطيط.
+       المتصفحات التي لا تدعمه (iOS أقدم من 18.2) تبقى كما كانت تمامًا. */
+    .tx { font-style: normal; }
+    @supports (text-box: trim-both cap alphabetic) {
+      .tx { display: block; text-box: trim-both cap alphabetic; padding-block: calc((1lh - 1cap) / 2); }
+      .vs-sep > span { display: inline-flex; align-items: center; justify-content: center; }
+    }
     .vs-sep span { padding: 1px 9px; border-radius: 999px; border: 1px solid var(--line); background: var(--surface); font-size: 11px; font-weight: 800; line-height: 1.5; color: var(--text-2); }
     @container (min-width: 300px) {
       .match-card.vs .match-body { display: grid; grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr); align-items: center; gap: 6px; }
@@ -1601,6 +1609,7 @@
       .round-matches > .match-card:only-child { grid-column: 1 / -1; }
       .match-card { min-width: 0; gap: 4px; padding: 5px; border-radius: 11px; }
       .match-head { padding: 1px 3px 0; gap: 4px; flex-wrap: wrap; }
+      .match-head .match-status { white-space: nowrap; }   /* الكبسولة لا تنكسر داخلها؛ رأس البطاقة بارتفاع واحد في كل البطاقات */
       .match-title { font-size: 12px; }
       .match-status { font-size: 10.5px; padding: 2px 7px; }
       .match-status.done::before { width: 10px; height: 10px; }
@@ -1984,6 +1993,16 @@
     .view-bar .stamp { font-size: 11.5px; font-weight: 700; color: var(--text-3); text-align: center; line-height: 1.6; }
     .view-bar .stamp b { color: var(--text-2); font-weight: 800; }
     .view-bar .stamp.none b { color: var(--danger, #B3402F); }
+    /* صفحة المشاهدة بلا بيانات: بطاقة سبب واضحة + إعادة المحاولة، ولا بطاقة «من أنت؟» بقائمة فارغة */
+    .vfail { display: grid; grid-template-columns: auto minmax(0, 1fr) auto; align-items: center; gap: 12px; width: 100%; max-width: 640px; padding: 12px 14px; border-radius: var(--r-lg); background: var(--surface); border: 1px solid var(--line); box-shadow: var(--sh-1); }
+    .vfail-ic { display: grid; place-items: center; width: 38px; height: 38px; border-radius: 50%; background: var(--warn-bg); color: var(--gold-deep); }
+    .vfail-ic .ic { width: 18px; height: 18px; }
+    .vfail-t { display: flex; flex-direction: column; gap: 2px; min-width: 0; }
+    .vfail-t b { font-size: var(--fs-sm); font-weight: 800; color: var(--text); }
+    .vfail-t small { font-size: 12px; font-weight: 700; color: var(--text-2); line-height: 1.5; }
+    .vfail-retry { min-height: 40px; padding: 0 14px; font-size: var(--fs-sm); white-space: nowrap; }
+    html.view-mode .view-bar:has(.vfail) { margin: var(--s3) var(--s4) 0; }
+    html.view-nodata #viewMeCard { display: none !important; }
     /* صفحة المشاهدة: «جاهزة للتسجيل» تصبح «قادمة»، والتاريخ يلتف بدل أن يُقص */
     html.view-mode .match-status.ready { font-size: 0; }
     html.view-mode .match-status.ready::before { content: "قادمة"; font-size: 11px; }
@@ -4642,6 +4661,7 @@ return teamName.replace('غير محدد', replacement);
     let statsFoldOpen = {}; try { statsFoldOpen = JSON.parse(localStorage.getItem(STATS_FOLD_KEY) || '{}') || {}; } catch (e) { statsFoldOpen = {}; }
     const statsFoldAll = {};
     const arCountW = (n, one, two, few, many) => n === 1 ? one : n === 2 ? two : n >= 3 && n <= 10 ? few : many;
+    const arMatchW = n => n >= 3 && n <= 10 ? 'مباريات' : 'مباراة';   // تمييز العدد بعد «من N»: «من 5 مباريات» / «من 110 مباراة»
     function statsFold(id, icon, title, summary, count, bodyHTML) {
       const open = !!statsFoldOpen[id], all = !!statsFoldAll[id], more = count > STATS_FOLD_PEEK;
       return `<section class="stats-section st-fold${open ? ' open' : ''}${all ? ' all' : ''}" data-fold="${id}">
@@ -4688,8 +4708,8 @@ return teamName.replace('غير محدد', replacement);
       const lastHist = tournamentHistory[tournamentHistory.length - 1];
       const lastChamp = lastHist ? (lastHist.teamMap?.[lastHist.champion] || (lastHist.mode === 'single' || lastHist.mode === 'league' ? [lastHist.champion] : String(lastHist.champion || '').split(' + '))).join(' + ') : '';
 
-      const playerRows = players.map((p,i) => `<tr class="st-player" data-player="${escHTML(p.name)}" tabindex="0" title="عرض ملف اللاعب"><td class="rank-number" data-l="#">${i < 3 ? `<span class="rank-badge rb-${i+1}">${i+1}</span>` : i+1}</td><td data-l="اللاعب">${escHTML(p.name)}</td><td data-l="التقييم" class="rt-cell">${ratingCell(p.name)}</td><td data-l="ألقاب"><span class="ic ic-trophy" aria-hidden="true"></span>${p.championships}${p.championships ? titlesCapsHTML(p) : ''}</td><td data-l="وصافة">${p.runnerUps}</td><td data-l="نصف النهائي">${p.semifinals}</td><td data-l="مشاركات">${p.tournaments}</td><td data-l="فوز">${p.wins}</td><td data-l="خسارة">${p.losses}</td><td data-l="نسبة الفوز">${p.winRate}%</td></tr>`).join('');
-      const pairRows = partnerships.map((p,i) => `<tr class="pair-row${i >= STATS_FOLD_PEEK ? ' st-extra' : ''}"><td class="rank-number" data-l="#">${i < 3 ? `<span class="rank-badge rb-${i+1}">${i+1}</span>` : i+1}</td><td data-l="الثنائي">${escHTML(p.name)}</td><td data-l="ألقاب"><span class="ic ic-trophy" aria-hidden="true"></span>${p.championships}</td><td data-l="وصافة">${p.runnerUps}</td><td data-l="مشاركات">${p.tournaments}</td><td data-l="فوز">${p.wins}</td><td data-l="خسارة">${p.losses}</td><td data-l="نسبة الفوز">${p.winRate}%</td></tr>`).join('');
+      const playerRows = players.map((p,i) => `<tr class="st-player" data-player="${escHTML(p.name)}" tabindex="0" title="عرض ملف اللاعب"><td class="rank-number" data-l="#">${i < 3 ? `<span class="rank-badge rb-${i+1}"><span class="tx">${i+1}</span></span>` : i+1}</td><td data-l="اللاعب">${escHTML(p.name)}</td><td data-l="التقييم" class="rt-cell">${ratingCell(p.name)}</td><td data-l="ألقاب"><span class="ic ic-trophy" aria-hidden="true"></span>${p.championships}${p.championships ? titlesCapsHTML(p) : ''}</td><td data-l="وصافة">${p.runnerUps}</td><td data-l="نصف النهائي">${p.semifinals}</td><td data-l="مشاركات">${p.tournaments}</td><td data-l="فوز">${p.wins}</td><td data-l="خسارة">${p.losses}</td><td data-l="نسبة الفوز">${p.winRate}%</td></tr>`).join('');
+      const pairRows = partnerships.map((p,i) => `<tr class="pair-row${i >= STATS_FOLD_PEEK ? ' st-extra' : ''}"><td class="rank-number" data-l="#">${i < 3 ? `<span class="rank-badge rb-${i+1}"><span class="tx">${i+1}</span></span>` : i+1}</td><td data-l="الثنائي">${escHTML(p.name)}</td><td data-l="ألقاب"><span class="ic ic-trophy" aria-hidden="true"></span>${p.championships}</td><td data-l="وصافة">${p.runnerUps}</td><td data-l="مشاركات">${p.tournaments}</td><td data-l="فوز">${p.wins}</td><td data-l="خسارة">${p.losses}</td><td data-l="نسبة الفوز">${p.winRate}%</td></tr>`).join('');
       // الفريق: كل لاعب في سطر وبينهما علامة «+» صغيرة
       const teamHTML = (t, side) => { const ms = t.teamMap?.[side] || (t.mode === 'single' || t.mode === 'league' ? [side] : String(side || '').split(' + '));
         return ms.length > 1 ? `<span class="hist-team">${ms.map(escHTML).join('<span class="hist-plus" aria-hidden="true">+</span>')}</span>` : escHTML(ms[0] || '—'); };
@@ -5155,11 +5175,11 @@ currentScoreWinnerName = null;
             team1WinnerTag = '';
             // عرض النتيجة إذا كانت موجودة
             if (match.winnerScore !== undefined && match.winnerScore !== null) {
-              scoreBadge1 = `<span class="score-badge winner-badge">${match.winnerScore}</span>`;
+              scoreBadge1 = `<span class="score-badge winner-badge"><span class="tx">${match.winnerScore}</span></span>`;
             }
-            onClick1 = isPlayable ? `onclick="selectWinner('${match.id}')"` : '';
+            onClick1 = isPlayable ? `onclick="selectWinner('${match.id}')" role="button" tabindex="0"` : '';
           } else if (isPlayable) {
-            onClick1 = `onclick="selectWinner('${match.id}')"`;
+            onClick1 = `onclick="selectWinner('${match.id}')" role="button" tabindex="0"`;
           } else {
             team1Class += ' placeholder';
             if (match.team1 && !match.team1.includes('الفائز من م')) {
@@ -5169,7 +5189,7 @@ currentScoreWinnerName = null;
           // إذا كان الفريق خاسراً والنتيجة موجودة
           if (match.winner && match.winner !== match.team1 && match.loserScore !== undefined && match.loserScore !== null) {
             if (!scoreBadge1) {
-              scoreBadge1 = `<span class="score-badge loser-badge">${match.loserScore}</span>`;
+              scoreBadge1 = `<span class="score-badge loser-badge"><span class="tx">${match.loserScore}</span></span>`;
             }
           }
 
@@ -5191,11 +5211,11 @@ currentScoreWinnerName = null;
             team2Class += ' winner';
             team2WinnerTag = '';
             if (match.winnerScore !== undefined && match.winnerScore !== null) {
-              scoreBadge2 = `<span class="score-badge winner-badge">${match.winnerScore}</span>`;
+              scoreBadge2 = `<span class="score-badge winner-badge"><span class="tx">${match.winnerScore}</span></span>`;
             }
-            onClick2 = isPlayable ? `onclick="selectWinner('${match.id}')"` : '';
+            onClick2 = isPlayable ? `onclick="selectWinner('${match.id}')" role="button" tabindex="0"` : '';
           } else if (isPlayable) {
-            onClick2 = `onclick="selectWinner('${match.id}')"`;
+            onClick2 = `onclick="selectWinner('${match.id}')" role="button" tabindex="0"`;
           } else {
             team2Class += ' placeholder';
             if (match.team2 && !match.team2.includes('الفائز من م')) {
@@ -5204,7 +5224,7 @@ currentScoreWinnerName = null;
           }
           if (match.winner && match.winner !== match.team2 && match.loserScore !== undefined && match.loserScore !== null) {
             if (!scoreBadge2) {
-              scoreBadge2 = `<span class="score-badge loser-badge">${match.loserScore}</span>`;
+              scoreBadge2 = `<span class="score-badge loser-badge"><span class="tx">${match.loserScore}</span></span>`;
             }
           }
 
@@ -5213,8 +5233,8 @@ currentScoreWinnerName = null;
 
           const completedBanner = '';
           const statusChip = match.winner
-            ? '<span class="match-status done">مكتملة</span>'
-            : (isPlayable ? '<span class="match-status ready">جاهزة للتسجيل</span>' : '<span class="match-status">بانتظار المتأهلين</span>');
+            ? '<span class="match-status done"><span class="tx">مكتملة</span></span>'
+            : (isPlayable ? '<span class="match-status ready"><span class="tx">جاهزة للتسجيل</span></span>' : '<span class="match-status"><span class="tx">بانتظار التأهل</span></span>');
 
           matchDiv.innerHTML = `
     ${completedBanner}
@@ -5565,10 +5585,10 @@ currentScoreWinnerName = null;
           const n = leaguePlayers.length; if (n) d.count = { name: 'عدد اللاعبين', icon: 'users', label: cnt(n, 'لاعب', 'لاعبين') };
           const p = getLeagueProgress();
           if (p.total) {
-            d.done = { name: 'المباريات المكتملة', icon: 'table', label: `${p.done} من ${p.total} مباراة` };
+            d.done = { name: 'المباريات المكتملة', icon: 'chart', label: `${p.done} من ${p.total} ${arMatchW(p.total)}` };
             d.pct = { name: 'نسبة الإنجاز', icon: 'chart', label: `إنجاز ${Math.round(p.done / p.total * 100)}%` };
             d.state = { name: 'حالة المنافسة', icon: 'check', label: p.completed ? 'الدوري مكتمل' : 'الدوري جارٍ' };
-            d.round = { name: 'الجولة الحالية', icon: 'table', label: `الجولة ${getLeagueActiveRound()}` };
+            d.round = { name: 'الجولة الحالية', icon: 'table', label: `الجولة ${getLeagueActiveRound()}` + (p.totalRounds ? ` من ${p.totalRounds}` : '') };
           }
           d.kind = { name: 'نوع المنافسة', icon: 'table', label: 'دوري' };
         } else {
@@ -5576,7 +5596,7 @@ currentScoreWinnerName = null;
           if (n) d.count = { name: currentMode === 'single' ? 'عدد اللاعبين' : 'عدد الفرق', icon: 'users', label: currentMode === 'single' ? cnt(n, 'لاعب', 'لاعبين') : cnt(n, 'فريق', 'فرق') };
           if (ms.length) {
             const done = ms.filter(m => m.winner).length, r = gatherExportData().roundsData.find(x => x.matches.some(m => !m.winner));
-            d.done = { name: 'المباريات المكتملة', icon: 'table', label: `${done} من ${ms.length} مباراة` };
+            d.done = { name: 'المباريات المكتملة', icon: 'chart', label: `${done} من ${ms.length} ${arMatchW(ms.length)}` };
             d.pct = { name: 'نسبة الإنجاز', icon: 'chart', label: `إنجاز ${Math.round(done / ms.length * 100)}%` };
             d.state = { name: 'حالة المنافسة', icon: 'check', label: getVerifiedTournamentChampion() ? 'حُسم النهائي' : 'قيد اللعب' };
             if (r) d.round = { name: 'الدور الحالي', icon: 'table', label: `الدور: ${cleanRound(r.roundName)}` };
@@ -6014,8 +6034,10 @@ currentScoreWinnerName = null;
 
     // ---------- تجميع بيانات التصدير ----------
     function gatherExportData() {
+      // العنوان الفرعي للصورة: ما كتبه المستخدم في «العنوان الفرعي»، أما عنوان الإدارة الافتراضي «إدارة القرعة» فلا يظهر للاعبين
+      const subT = tournamentTitle.textContent.trim();
       const title =
-        `${tournamentName.textContent.trim() || 'بطولة المجلس للكيرم'}\n${tournamentTitle.textContent.trim() || 'إدارة القرعة'}`;
+        `${tournamentName.textContent.trim() || 'بطولة المجلس للكيرم'}\n${subT && subT !== 'إدارة القرعة' ? subT : 'جدول البطولة'}`;
       const isDark = document.body.classList.contains('dark-mode');
 
       let teamsList = [];
@@ -6147,10 +6169,10 @@ currentScoreWinnerName = null;
       return 'تعذر تصدير الصورة' + (m ? ` (السبب: ${m.slice(0, 90)})` : '') + '. حاول مرة أخرى.';
     }
     // قفل واحد لكل عمليات إنشاء الصور: يمنع تشغيل تصديرين معًا (فيُربط زر «تخصيص» بصورة غير صورته)
-    let exportRunActive = false;
+    let exportRunActive = false, exportStudioOpener = null;   // الزر الذي فتح المعاينة: يعود إليه التركيز عند إغلاقها
     async function exportGuardedRun(run, btn, busyText) {
       if (exportRunActive) { uiToast('يجري إنشاء صورة الآن، انتظر حتى تكتمل.', 'info', 2600); return false; }
-      exportRunActive = true; exportCurrentRun = run; exportLastParts = null; exportLastPartsResolved = null; exportLastTexts = null;
+      exportRunActive = true; exportStudioOpener = btn || document.activeElement; exportCurrentRun = run; exportLastParts = null; exportLastPartsResolved = null; exportLastTexts = null;
       const old = btn ? btn.textContent : '';
       if (btn) { btn.disabled = true; btn.textContent = busyText || 'جارٍ إنشاء الصورة…'; }
       try { await run(); return true; }
@@ -6435,7 +6457,7 @@ currentScoreWinnerName = null;
         state.items.forEach(it => it.pages.forEach(c => scroller.appendChild(c)));
         const es = entries(), c0 = es[0].c;
         $('xsName').textContent = arType(state.items[0].filename); $('xsName').title = nameOf(es[0]);
-        info.textContent = `${c0.width}×${c0.height}` + (es.length > 1 ? ` · ${es.length} صفحات` : '');
+        const infoBase = `${c0.width}×${c0.height}` + (es.length > 1 ? ` · ${es.length} صفحات` : '') + (state.fontFallback ? ' · خط بديل' : ''); info.textContent = infoBase;
         root.querySelectorAll('[data-fmt]').forEach(b => b.setAttribute('aria-pressed', String(b.dataset.fmt === state.format)));
         $('xsSplit').setAttribute('aria-pressed', String(!!exportSettings.split)); $('xsSplit').disabled = state.format === 'auto';
         const canShare = !!(navigator.share && navigator.canShare);
@@ -6445,7 +6467,7 @@ currentScoreWinnerName = null;
         $('xsCap').hidden = !(captions().length && exportSettings.caption);
         $('xsMore').hidden = $('xsCopy').hidden && $('xsCap').hidden;
         syncEdit(); apply();
-        if (es.length === 1) { const mine = es[0]; blobOf(mine).then(b => { if (state && entries()[0] && entries()[0].c === mine.c) info.textContent += ` · ${(b.size / 1024).toFixed(0)} ك.ب`; }).catch(e => msg(exportErrorMessage(e))); }
+        if (es.length === 1) { const mine = es[0]; blobOf(mine).then(b => { if (state && entries()[0] && entries()[0].c === mine.c) info.textContent = infoBase + ` · ${(b.size / 1024).toFixed(0)} ك.ب`; }).catch(e => msg(exportErrorMessage(e))); }
         else {   // صفحات متعددة لصورة واحدة: تجهيز ملفات PNG مسبقًا، Safari يشترط أن تُستدعى المشاركة مباشرة بعد لمسة المستخدم
           (async () => { for (const e of es) { if (!state || !entries().some(x => x.c === e.c)) return; try { await blobOf(e); } catch (_) { /* يظهر الخطأ عند التنزيل */ } } })();
         }
@@ -6500,6 +6522,7 @@ currentScoreWinnerName = null;
       }
       function close() {
         if (!root) return; closeSheet(); closeMenu(); root.classList.remove('open'); document.body.style.overflow = (state && state.prevOverflow) || '';
+        const back = state && state.opener; if (back && back.isConnected && typeof back.focus === 'function') { try { back.focus({ preventScroll: true }); } catch (e) {} }
         if (state) { state.items.forEach(it => { releaseItem(it); it.src.remove(); it.src.width = 1; it.src.height = 1; }); state = null; }  // تحرير الذاكرة
         msg('');
       }
@@ -6623,10 +6646,14 @@ currentScoreWinnerName = null;
       }
       function openItem(items) {
         build(); if (state) close();
-        state = { items: items.map(x => ({ src: x.src, filename: x.filename || 'Carrom.png', caption: x.caption || '', rerun: x.rerun || null, ctxOrig: x.ctxOrig, chips: x.chips || [], subOrig: x.subOrig, titleOrig: x.titleOrig, partsKey: x.partsKey || null, partsResolved: x.partsResolved || null, texts: x.texts || null, textOverrides: {}, ctxOverride: null, subOverride: null, titleOverride: null, footerOverride: null, footerHidden: false, templateId: null, pages: [] })), z: 1, format: 'auto', prevOverflow: document.body.style.overflow };
+        const opener = exportStudioOpener || document.activeElement; exportStudioOpener = null;
+        state = { items: items.map(x => ({ src: x.src, filename: x.filename || 'Carrom.png', caption: x.caption || '', rerun: x.rerun || null, ctxOrig: x.ctxOrig, chips: x.chips || [], subOrig: x.subOrig, titleOrig: x.titleOrig, partsKey: x.partsKey || null, partsResolved: x.partsResolved || null, texts: x.texts || null, textOverrides: {}, ctxOverride: null, subOverride: null, titleOverride: null, footerOverride: null, footerHidden: false, templateId: null, pages: [] })), z: 1, format: 'auto', prevOverflow: document.body.style.overflow, opener };
         document.body.style.overflow = 'hidden'; root.classList.add('open'); root.setAttribute('tabindex', '-1'); root.focus({ preventScroll: true });
         const k = EXPORT_FORMATS[exportSettings.format] ? exportSettings.format : 'auto';
         if (k === 'auto') { state.items.forEach(it => { it.pages = [it.src]; }); render(); } else setFormat(k);
+        // الخط الأصلي غير محمّل (دون إنترنت قبل حفظه، أو تعذّر تحميله): الصورة رُسمت بخط بديل — ننبّه بدل أن تمر بصمت
+        let fontOk = true; try { const f = [...document.fonts].filter(x => /tajawal/i.test(x.family)); fontOk = f.some(x => x.status === 'loaded' && String(x.weight) === '800'); } catch (e) {}
+        if (!fontOk) { state.fontFallback = true; if (state.items.every(it => it.pages.length)) render(); setTimeout(() => { if (!state) return; msg('تنبيه: خط Tajawal لم يُحمَّل، فالصورة بخط بديل. اتصل بالإنترنت ثم أعد إنشاءها.'); }, 80); }
         return Promise.resolve();
       }
       const open = (canvas, filename) => openItem([{ src: canvas, filename, caption: canvas.__caption || '', rerun: canvas.__rerun, ctxOrig: canvas.__ctxOrig, chips: canvas.__chips, subOrig: canvas.__subOrig, titleOrig: canvas.__titleOrig, partsKey: canvas.__parts, partsResolved: canvas.__partsResolved, texts: canvas.__texts }]);
@@ -6677,6 +6704,22 @@ currentScoreWinnerName = null;
     // ===================================
     // 🔗 تهيئة الأحداث (Listeners)
     // ===================================
+    // حصر التركيز داخل النافذة المفتوحة الأعلى (الحوار ← المعاينة ← لوحة التحكم): Tab لا يتسلل إلى الصفحة خلفها
+    document.addEventListener('keydown', e => {
+      if (e.key !== 'Tab') return;
+      const top = [document.querySelector('.ui-backdrop.open .ui-dialog'), document.querySelector('#xsRoot.open'), document.querySelector('#controlDashboard.open')].find(Boolean);
+      if (!top) return;
+      const vis = el => { const r = el.getBoundingClientRect(); return r.width > 0 && r.height > 0 && getComputedStyle(el).visibility !== 'hidden'; };
+      const f = [...top.querySelectorAll('a[href], button:not([disabled]), input:not([disabled]):not([type="file"]), select:not([disabled]), textarea:not([disabled]), summary, [tabindex]:not([tabindex="-1"])')].filter(vis);
+      if (!f.length) return;
+      const first = f[0], last = f[f.length - 1], a = document.activeElement, inside = top.contains(a);
+      if (e.shiftKey && (!inside || a === first || a === top)) { e.preventDefault(); last.focus(); }
+      else if (!e.shiftKey && (!inside || a === last)) { e.preventDefault(); first.focus(); }
+    });
+    // لوحة المفاتيح: صفوف الفرق في بطاقات الإقصائيات تعمل بـ Enter/Space مثل اللمس
+    document.addEventListener('keydown', e => {
+      if ((e.key === 'Enter' || e.key === ' ') && e.target && e.target.matches && e.target.matches('.match-team[role="button"]')) { e.preventDefault(); e.target.click(); }
+    });
     drawBtn.addEventListener("click", formTeam);
     clearDataBtn.addEventListener("click", () => (currentMode === 'league' ? resetLeague() : clearTournamentData()));
     modeFixedBtn.addEventListener("click", () => setMode('fixed'));
@@ -7587,7 +7630,7 @@ function changeScore(inputId, amount){
           <div class="league-stat">المباريات المتبقية: <b>${p.remaining}</b></div>
         </div>
         <div class="league-bar"><div style="width:${pct}%"></div></div>
-        <div class="lg-prog"><span><b>${p.done}</b> من ${p.total} مباراة مكتملة</span><span><b>${p.remaining}</b> متبقية · <bdi dir="ltr">${pct}%</bdi></span></div>`;
+        <div class="lg-prog"><span><b>${p.done}</b> من ${p.total} ${arMatchW(p.total)} مكتملة</span><span><b>${p.remaining}</b> متبقية · <bdi dir="ltr">${pct}%</bdi></span></div>`;
       const cl = leagueClinch();
       if (cl && !cl.final) { const d = document.createElement('div'); d.className = 'lg-clinch'; d.innerHTML = `<span class="ic ic-trophy" aria-hidden="true"></span><span>اللقب محسوم لـ <b>${leagueEscape(cl.name)}</b></span>`; leagueProgressEl.appendChild(d); }
     }
@@ -7648,7 +7691,7 @@ function changeScore(inputId, amount){
 
       const title = document.createElement('div');
       title.className = 'league-round-title';
-      title.innerHTML = `الجولة ${round}<small>${roundDone ? 'اكتملت الجولة' : `${doneCount} من ${liveMs.length} مباريات مكتملة`}</small>`;
+      title.innerHTML = `الجولة ${round}<small>${roundDone ? 'اكتملت الجولة' : `${doneCount} من ${liveMs.length} ${arMatchW(liveMs.length)} مكتملة`}</small>`;
 
       const next = document.createElement('button');
       next.type = 'button';
@@ -7671,7 +7714,7 @@ function changeScore(inputId, amount){
         const dot = document.createElement('button');
         dot.type = 'button';
         dot.className = 'league-dot' + (done ? ' done' : '') + (r === round ? ' active' : '');
-        dot.textContent = r;
+        dot.innerHTML = `<span class="tx">${r}</span>`;
         dot.title = `الجولة ${r}`;
         dot.addEventListener('click', () => goToLeagueRound(r));
         dots.appendChild(dot);
@@ -7699,7 +7742,7 @@ function changeScore(inputId, amount){
       const rows = card.querySelectorAll('.match-body > .match-team');
       if (rows.length !== 2) return card;
       card.classList.add('vs');
-      rows[0].insertAdjacentHTML('afterend', '<div class="vs-sep" aria-hidden="true"><span>ضد</span></div>');
+      rows[0].insertAdjacentHTML('afterend', '<div class="vs-sep" aria-hidden="true"><span><i class="tx">ضد</i></span></div>');
       return card;
     }
     function createLeagueMatchCard(m) {
@@ -7717,12 +7760,12 @@ function changeScore(inputId, amount){
       const row = (name, score, won, side) => `
         <div class="match-team${won ? ' winner' : ''}">
           <span>${leagueEscape(name)}${annul && leagueIsExcluded(name) ? '<em class="ff-tag">مستبعد</em>' : ff === side ? `<em class="ff-tag">${m.auto ? 'مستبعد' : 'انسحب'}</em>` : ''}</span>
-          ${score === null ? '' : `<span class="score-badge ${won ? 'winner-badge' : 'loser-badge'}">${score}</span>`}
+          ${score === null ? '' : `<span class="score-badge ${won ? 'winner-badge' : 'loser-badge'}"><span class="tx">${score}</span></span>`}
         </div>`;
       const seq = (String(m.id).match(/M(\d+)$/) || [])[1] || '';
-      const status = annul ? '<span class="match-status done ff void">ملغاة</span>' : done
-        ? (ff ? `<span class="match-status done ff">${m.auto ? 'استبعاد' : 'انسحاب'}</span>` : `<span class="match-status done">${d.result === 'draw' ? 'تعادل' : 'مكتملة'}</span>`)
-        : '<span class="match-status ready">جاهزة للتسجيل</span>';
+      const status = annul ? '<span class="match-status done ff void"><span class="tx">ملغاة</span></span>' : done
+        ? (ff ? `<span class="match-status done ff"><span class="tx">${m.auto ? 'استبعاد' : 'انسحاب'}</span></span>` : `<span class="match-status done"><span class="tx">${d.result === 'draw' ? 'تعادل' : 'مكتملة'}</span></span>`)
+        : '<span class="match-status ready"><span class="tx">جاهزة للتسجيل</span></span>';
 
       card.innerHTML = `
         <div class="match-head"><div class="match-title">مباراة ${seq}</div>${status}</div>
@@ -7758,7 +7801,7 @@ function changeScore(inputId, amount){
       const anyResult = leagueStandings.some(r => r.played > 0);
       const body = leagueStandings.map(r => {
         const medal = anyResult && r.played > 0 && r.rank <= 3 ? ` rank-${r.rank}` : '';
-        const rankCell = medal ? `<span class="rank-badge">${r.rank}</span>` : `${r.rank}`;
+        const rankCell = medal ? `<span class="rank-badge"><span class="tx">${r.rank}</span></span>` : `${r.rank}`;
         const sd = r.setDifference > 0 ? `+${r.setDifference}` : `${r.setDifference}`;
         return `<tr class="${medal.trim()}" data-player="${leagueEscape(r.name)}" tabindex="0" title="عرض سجل مباريات اللاعب">
           <td data-l="المركز">${rankCell}</td>
@@ -8020,8 +8063,8 @@ function buildLeagueStandingsCanvas() {
 
   const dateStr = fmtDayDate(new Date());
   const meta = [
-    { icon: 'table', label: `الجولة ${activeRound} من ${progress.totalRounds}` },
-    { icon: 'chart', label: `${progress.done} / ${progress.total} مباراة` },
+    { id: 'round', icon: 'table', label: `الجولة ${activeRound} من ${progress.totalRounds}` },   // معرّفات البطاقات: تظهر مفعّلة في «تخصيص» كما في الصورة
+    { id: 'done', icon: 'chart', label: `${progress.done} من ${progress.total} ${arMatchW(progress.total)}` },
     { icon: 'calendar', label: dateStr }
   ];
   const title = tournamentName.textContent.trim() || 'بطولة المجلس للكيرم';
@@ -8223,7 +8266,7 @@ function buildLeagueStandingsCanvas() {
           ? 'لم يبدأ الدوري بعد. ابدأ الدوري وسجّل النتائج لتظهر خيارات التصدير المناسبة.'
           : snap.completed
             ? `اكتمل الدوري: ${p.done} من ${p.total} مباراة. أصبحت صور المراكز النهائية متاحة.`
-            : `الدوري جارٍ: ${p.done} من ${p.total} مباراة مكتملة. ستظهر صور البطل والمراكز النهائية بعد اكتمال جميع المباريات.`;
+            : `الدوري جارٍ: ${p.done} من ${p.total} ${arMatchW(p.total)} مكتملة. ستظهر صور البطل والمراكز النهائية بعد اكتمال جميع المباريات.`;
       } else {
         status.textContent = snap.completed
           ? 'حُسم النهائي. يمكنك تصدير صورة جدول البطولة أو بطاقات البطل والوصيف.'
@@ -8436,7 +8479,7 @@ function buildLeagueStandingsCanvas() {
       );
       body.appendChild(grid);
       const reset = hubEl('button', 'export-center-option', 'إعادة الإعدادات الافتراضية'); reset.type = 'button';
-      reset.addEventListener('click', () => { Object.assign(exportSettings, EXPORT_SETTINGS_DEFAULT); saveExportSettings(); renderExportCenter(); });
+      reset.addEventListener('click', async () => { if (!(await uiConfirm('ستعود كل إعدادات التصدير (العناوين والتذييل والنص الثابت والجودة وأسماء الملفات) إلى الافتراضي. لن تتأثر بيانات البطولة ولا القوالب المحفوظة.', { title: 'إعادة إعدادات التصدير', okText: 'إعادة الافتراضي' }))) return; Object.assign(exportSettings, EXPORT_SETTINGS_DEFAULT); saveExportSettings(); renderExportCenter(); uiToast('أُعيدت إعدادات التصدير الافتراضية.', 'ok', 2600); });
       body.appendChild(reset);
     }
 
@@ -8473,7 +8516,7 @@ function buildLeagueStandingsCanvas() {
         const framed = bodyH > 0, X = framed ? IM : M, XW = framed ? ICW : CW;
         if (framed) exportTableFrame(ctx, M, y, CW, HEAD + TP + bodyH + TP, HEAD, B.wood, 22);
         else { drawRoundedRect(ctx, M, y, CW, HEAD, 18); ctx.fillStyle = B.wood; ctx.fill(); }
-        exportText(ctx, sec.heading, X + XW - 24, y + HEAD / 2, { size: 30, weight: 800, color: B.goldSoft, align: 'right', maxW: XW * 0.5, min: 20 });
+        exportText(ctx, sec.heading, X + XW - 24, y + HEAD / 2, { size: 30, weight: 800, color: B.goldSoft, align: 'right', maxW: sec.cols ? XW * 0.5 : XW - 48, min: 20 });   // بلا أعمدة: العنوان يأخذ العرض كله فلا تُصغَّر أسماء الفرق
         // wide: قسم بعمود قيم واحد يأخذ مساحة عمودين (مثل سجل البطولات بلا عمود الوصيف)
         const vx = (n, k) => sec.wide ? X + 260 : X + 170 + (n - 1 - k) * 200, vw = sec.wide ? 390 : 190;
         if (sec.cols) sec.cols.forEach((c, i) => exportTextWrap2(ctx, c, vx(sec.cols.length, i), y + HEAD / 2, { size: 26, weight: 800, color: B.ivory, maxW: vw, min: 16 }));
@@ -8483,7 +8526,7 @@ function buildLeagueStandingsCanvas() {
         sec.rows.forEach((r, i) => {
           if (i > 0) cuts.push(y - 4);
           drawRoundedRect(ctx, IM, y, ICW, ROW - 8, 14); ctx.fillStyle = B.paper; ctx.fill(); ctx.strokeStyle = B.line; ctx.lineWidth = 1.2; ctx.stroke();
-          exportText(ctx, r[0], IM + ICW - 24, y + (ROW - 8) / 2, { size: 28, weight: 700, color: B.text, align: 'right', maxW: ICW * 0.42, min: 16 });
+          exportText(ctx, r[0], IM + ICW - 24, y + (ROW - 8) / 2, { size: 28, weight: 700, color: B.text, align: 'right', maxW: Math.max(ICW * 0.42, ICW - 40 - (sec.wide ? 455 : 265 + (r.length - 2) * 200)), min: 16 });   // المساحة الفعلية حتى أعمدة القيم
           r.slice(1).forEach((v, k, arr) => exportText(ctx, v, vx(arr.length, k), y + (ROW - 8) / 2, { size: 30, weight: 800, color: B.ink, maxW: vw, min: 16, dir: /[\u0600-\u06FF]/.test(String(v)) ? 'rtl' : 'ltr' }));
           y += ROW;
         });
@@ -8493,8 +8536,8 @@ function buildLeagueStandingsCanvas() {
       canvas.__cuts = cuts; canvas.__ctxOrig = context;
       await downloadCanvasAsPng(canvas, filename);
     }
-    const leagueCtx = () => { const p = getLeagueProgress(); return (p.completed ? 'الترتيب النهائي' : 'الدوري الجاري — الترتيب الحالي') + ` · ${p.done} من ${p.total} مباراة مكتملة`; };
-    const safeName = n => String(n).replace(/[\\/:*?"<>|\s]+/g, '-');
+    const leagueCtx = () => { const p = getLeagueProgress(); return (p.completed ? 'الترتيب النهائي' : 'الدوري الجاري — الترتيب الحالي') + ` · ${p.done} من ${p.total} ${arMatchW(p.total)} مكتملة`; };
+    const safeName = n => String(n).replace(/\s*\+\s*/g, ' و ').replace(/[\\/:*?"<>|\s]+/g, '-');   // «فلان + فلان» ← «فلان-و-فلان» في اسم الملف
 
     async function exportLeaguePlayerCard(name) {
       const r = leagueRow(name); if (!r) { alert('اللاعب غير موجود في الدوري الحالي.'); return; }
@@ -8531,7 +8574,7 @@ function buildLeagueStandingsCanvas() {
       const best = (key, label) => { const m = Math.max(...st.map(r => r[key])); return [label, st.filter(r => r[key] === m).map(r => r.name).join('، ') + ` (${m})`]; };
       const totalSets = st.reduce((x, r) => x + r.setsFor, 0);
       const secs = [{ heading: 'ملخص الدوري', rows: [['اللاعبون', String(st.length)], ['المباريات المكتملة', `${p.done} من ${p.total}`], ['المتبقية', String(p.remaining)], ['نسبة الإنجاز', Math.round(p.done / p.total * 100) + '%'], ['إجمالي الأشواط', String(totalSets)]] },
-        { heading: 'الأوائل', rows: [best('wins', 'الأكثر فوزًا'), best('points', 'الأعلى نقاطًا'), best('setDifference', 'أفضل فارق أشواط')] }];
+        { heading: 'الأوائل', wide: true, rows: [best('wins', 'الأكثر فوزًا'), best('points', 'الأعلى نقاطًا'), best('setDifference', 'أفضل فارق أشواط')] }];
       const show = exportParts('lgReport');
       const picked = secs.filter((sec, i) => i === 0 ? show.summary : show.leaders);
       await renderLeagueSheet('إحصائيات الدوري', leagueCtx(), 1, picked.length ? picked : secs.slice(0, 1), 'League-Report.png');
@@ -8671,7 +8714,7 @@ function buildLeagueStandingsCanvas() {
       }
       if (r.rows.length) secs.push({ heading: withLog ? `${label} — سجل المباريات` : 'آخر النتائج', cols: ['النتيجة', 'الحالة'], rows: withLog ? r.rows : r.rows.slice(-5).reverse() });
       else if (withLog) { alert('لا توجد مباريات مكتملة لهذا المشارك بعد.'); return; }
-      const ctxLine = `${tournamentName.textContent.trim() || 'البطولة الحالية'} · ${Object.values(bracketState).filter(m => m.winner).length} مباراة مكتملة`;
+      const ctxLine = `${tournamentName.textContent.trim() || 'البطولة الحالية'} · ${(n => n === 1 ? 'مباراة واحدة مكتملة' : n === 2 ? 'مباراتان مكتملتان' : n + (n >= 3 && n <= 10 ? ' مباريات مكتملة' : ' مباراة مكتملة'))(Object.values(bracketState).filter(m => m.winner).length)}`;
       await renderLeagueSheet(withLog ? 'سجل مباريات مشارك' : 'بطاقة مشارك', ctxLine, 2, secs, `${withLog ? 'Tournament-Log' : 'Tournament-Player'}-${safeName(name)}.png`);
     }
     const exportKnockoutSel = { n: '' };
@@ -8679,7 +8722,7 @@ function buildLeagueStandingsCanvas() {
 
     // ---------- صور الإقصائيات: ملخص البطولة / نتائج جولة / نتيجة مباراة (قراءة فقط) ----------
     const cleanRound = n => String(n).replace(/\u{1F3C6}/gu, '').trim();
-    const koCtx = () => { const all = Object.values(bracketState || {}); return `${tournamentName.textContent.trim() || 'البطولة الحالية'} · ${all.filter(m => m.winner).length} من ${all.length} مباراة مكتملة`; };
+    const koCtx = () => { const all = Object.values(bracketState || {}); return `${tournamentName.textContent.trim() || 'البطولة الحالية'} · ${all.filter(m => m.winner).length} من ${all.length} ${arMatchW(all.length)} مكتملة`; };
 
     async function exportKnockoutSummary() {
       const rounds = gatherExportData().roundsData, all = Object.values(bracketState || {});
@@ -8687,9 +8730,9 @@ function buildLeagueStandingsCanvas() {
       const done = all.filter(m => m.winner).length, v = getVerifiedTournamentChampion();
       const secs = [{ heading: 'ملخص البطولة', rows: [['المشاركون', String(knockoutParticipants().length)], ['المباريات المكتملة', `${done} من ${all.length}`], ['المتبقية', String(all.length - done)], ['نسبة التقدم', Math.round(done / all.length * 100) + '%']] },
         { heading: 'تقدم الأدوار', cols: ['المكتملة'], rows: rounds.map(r => [cleanRound(r.roundName), `${r.matches.filter(m => m.winner).length} / ${r.matches.length}`]) }];
-      secs.push(v ? { heading: 'نتيجة النهائي (معتمدة)', rows: [['البطل', getDisplayTeamName(v.champion)], ['الوصيف', getDisplayTeamName(v.runnerUp)], ['النتيجة', v.score]] }
+      secs.push(v ? { heading: 'نتيجة النهائي (معتمدة)', wide: true, rows: [['البطل', getDisplayTeamName(v.champion)], ['الوصيف', getDisplayTeamName(v.runnerUp)], ['النتيجة', v.score]] }
                   : { heading: 'حالة النهائي', rows: [['لم يُحسم النهائي بعد', '—']] });
-      setCaption('Tournament-Summary.png', `ملخص البطولة: ${done} من ${all.length} مباراة مكتملة.` + (v ? `\nبطل البطولة: ${getDisplayTeamName(v.champion)}، والوصيف: ${getDisplayTeamName(v.runnerUp)}، بنتيجة ${v.score}.` : ''));
+      setCaption('Tournament-Summary.png', `ملخص البطولة: ${done} من ${all.length} ${arMatchW(all.length)} مكتملة.` + (v ? `\nبطل البطولة: ${getDisplayTeamName(v.champion)}، والوصيف: ${getDisplayTeamName(v.runnerUp)}، بنتيجة ${v.score}.` : ''));
       await renderLeagueSheet('ملخص البطولة', koCtx(), 1, secs, 'Tournament-Summary.png');
     }
 
@@ -8749,7 +8792,7 @@ function buildLeagueStandingsCanvas() {
       if (!secs.length) { alert('لا توجد مباريات في الجولات المحددة.'); return; }
       const used = secs.map(x => x.r), total = secs.reduce((a, x) => a + x.total, 0), done = secs.reduce((a, x) => a + x.done, 0), file = `League-Round-${roundsFile(used)}.png`;
       setCaption(file, secs.map(x => `نتائج ${x.heading}:\n` + x.matches.map(it => itemLine(it) + (!it.bye && !it.done && !it.annul ? ' (لم تُلعب)' : '')).join('\n')).join('\n\n'));
-      await renderLeagueSheet('نتائج جولة', `${roundsLabel(used)} · ${done} من ${total} مباراة مكتملة`, 1, secs, file);
+      await renderLeagueSheet('نتائج جولة', `${roundsLabel(used)} · اكتملت ${done} من ${total} ${arMatchW(total)}`, 1, secs, file);
     }
 
     async function exportLeagueUpcoming(roundsIn) {
@@ -8758,7 +8801,7 @@ function buildLeagueStandingsCanvas() {
       if (!secs.length) { alert('الجولات المحددة مكتملة كلها، لا توجد مباريات قادمة.'); return; }
       const used = secs.map(x => x.r), count = secs.reduce((a, x) => a + x.count, 0), file = `League-Upcoming-Round-${roundsFile(used)}.png`;
       setCaption(file, secs.map(x => `${x.heading}:\n` + x.matches.map(itemLine).join('\n')).join('\n\n'));
-      await renderLeagueSheet('المباريات القادمة', `${roundsLabel(used)} من ${leagueExpectedTotals(leaguePlayers.length).rounds} · ${count} مباراة بانتظار اللعب`, 1, secs, file);
+      await renderLeagueSheet('المباريات القادمة', `${roundsLabel(used)} من ${leagueExpectedTotals(leaguePlayers.length).rounds} · بانتظار اللعب: ${count === 1 ? 'مباراة واحدة' : count === 2 ? 'مباراتان' : count + (count <= 10 ? ' مباريات' : ' مباراة')}`, 1, secs, file);
     }
 
     function knockoutUpcomingMatches() {
@@ -9863,7 +9906,7 @@ function buildLeagueStandingsCanvas() {
       function close(){panel.classList.remove('open');panel.setAttribute('aria-hidden','true');document.body.style.overflow='';openBtn.focus()}
       openBtn.addEventListener('click',open); closeBtn.addEventListener('click',close);
       panel.addEventListener('click',e=>{if(e.target===panel)close()});
-      document.addEventListener('keydown',e=>{if(e.key==='Escape'&&panel.classList.contains('open'))close()});
+      document.addEventListener('keydown',e=>{if(e.key!=='Escape'||!panel.classList.contains('open'))return;const xs=document.getElementById('xsRoot');if((xs&&xs.classList.contains('open'))||document.querySelector('.ui-backdrop.open'))return;close()});   // Esc في المعاينة أو حوار مفتوح يغلقه هو فقط
       // نفس محتوى النسخة وصيغتها لطريقتي الحفظ (تنزيل / مشاركة)
       function buildBackup(){
         const entries=allAppEntries();
@@ -9882,20 +9925,22 @@ function buildLeagueStandingsCanvas() {
       // بصمة النتائج المنشورة: إذا تغيّرت النتائج بعد آخر نشر يظهر تنبيه «لم تُنشر بعد» (بطاقة النشر + نقطة على زر لوحة التحكم)
       const PUB_SIG_KEY='__carrom_last_publish_sig_v1';
       function resultsSig(){const keys=['tournamentHistory','leagueMatches','leaguePlayers','bracketState','tournamentModeSnapshot_fixed','tournamentModeSnapshot_single'];let h=0;const str=keys.map(k=>{try{return localStorage.getItem(k)||''}catch(e){return ''}}).join('|');for(let i=0;i<str.length;i++)h=(h*31+str.charCodeAt(i))|0;return String(h);}
-      function markPublished(){try{localStorage.setItem(PUB_KEY,new Date().toISOString());localStorage.setItem(PUB_SIG_KEY,resultsSig())}catch(e){} paintPublish();}
-      function paintPublish(){const el=document.getElementById('cdLastPublish');if(!el)return;let v=null,sig=null;try{v=localStorage.getItem(PUB_KEY);sig=localStorage.getItem(PUB_SIG_KEY)}catch(e){}
+      // النشر اليدوي يجهّز الملف فقط ولا يرفعه؛ نسجّل نوع آخر نشر حتى لا يُعرض كأنه وصل للاعبين
+      const PUB_KIND_KEY='__carrom_last_publish_kind_v1';
+      function markPublished(kind){try{localStorage.setItem(PUB_KEY,new Date().toISOString());localStorage.setItem(PUB_SIG_KEY,resultsSig());localStorage.setItem(PUB_KIND_KEY,kind==='manual'?'manual':'live')}catch(e){} paintPublish();}
+      function paintPublish(){const el=document.getElementById('cdLastPublish');if(!el)return;let v=null,sig=null,kind=null;try{v=localStorage.getItem(PUB_KEY);sig=localStorage.getItem(PUB_SIG_KEY);kind=localStorage.getItem(PUB_KIND_KEY)}catch(e){}
         const stale=!!v&&sig!==resultsSig();
-        el.innerHTML='';el.append('آخر نشر: '+(v?formatDate(v):'لم يُنشر بعد'));
+        el.innerHTML='';el.append(v&&kind==='manual'?'آخر تجهيز يدوي لملف النشر: '+formatDate(v)+' (يظهر للاعبين بعد رفعه إلى GitHub)':'آخر نشر: '+(v?formatDate(v):'لم يُنشر بعد'));
         if(stale){const w=document.createElement('b');w.className='pub-stale';w.textContent=' · توجد نتائج جديدة لم تُنشر';el.appendChild(w);}
         const ob=document.getElementById('openControlDashboard');if(ob)ob.classList.toggle('has-dot',stale);}
       window.carromPaintPublish=paintPublish;
       // تحديث التنبيه تلقائيًا عند حفظ أي نتيجة (بعد لحظة، مرة واحدة لكل دفعة حفظ)
       { const watched=/^(tournamentHistory|leagueMatches|leaguePlayers|bracketState|tournamentModeSnapshot_)/; let t=null;
         try{ const _set=Storage.prototype.setItem; Storage.prototype.setItem=function(k){ const r=_set.apply(this,arguments); if(this===window.localStorage&&watched.test(String(k))){clearTimeout(t);t=setTimeout(paintPublish,400);} return r; }; }catch(e){} }
-      function downloadPublish(){const b=buildPublish();const url=URL.createObjectURL(b.blob);const a=document.createElement('a');a.href=url;a.download=b.name;document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(url),1500);markPublished();showFeedback('تم تجهيز data.json. ارفعه إلى GitHub ليظهر للاعبين.','ok');}
+      function downloadPublish(){const b=buildPublish();const url=URL.createObjectURL(b.blob);const a=document.createElement('a');a.href=url;a.download=b.name;document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(url),1500);markPublished('manual');showFeedback('تم تجهيز data.json. ارفعه إلى GitHub ليظهر للاعبين.','ok');}
       async function sharePublish(){const b=buildPublish();let f=null;try{f=new File([b.blob],b.name,{type:'application/json'})}catch(e){}
         if(!f||!navigator.canShare||!navigator.canShare({files:[f]})){downloadPublish();return;}
-        try{await navigator.share({files:[f],title:'نتائج المجلس — data.json'});markPublished();showFeedback('تم حفظ data.json. ارفعه إلى GitHub ليظهر للاعبين.','ok');}
+        try{await navigator.share({files:[f],title:'نتائج المجلس — data.json'});markPublished('manual');showFeedback('تم حفظ data.json. ارفعه إلى GitHub ليظهر للاعبين.','ok');}
         catch(err){if(err&&err.name==='AbortError'){showFeedback('أُلغيت المشاركة.','err');return;}console.error(err);showFeedback('تعذرت المشاركة. استخدم زر التنزيل بدلًا منها.','err');}}
       document.getElementById('cdPublishBtn').addEventListener('click',downloadPublish);
       { const sb=document.getElementById('cdSharePublishBtn'); try{ if(navigator.share&&navigator.canShare&&navigator.canShare({files:[new File(['{}'],'t.json',{type:'application/json'})]})) sb.hidden=false; }catch(e){} sb.addEventListener('click',sharePublish); }
@@ -9958,7 +10003,7 @@ function buildLeagueStandingsCanvas() {
             if(res.status===409||res.status===422){({sha}=await getSha());res=await put(sha);}   // تغيّر الملف في GitHub بين القراءة والكتابة: نعيد مرة واحدة
           }catch(err){res=err instanceof Response?err:null;}
           btn.removeAttribute('aria-busy');btn.disabled=false;
-          if(res&&res.ok){markPublished();say(st,'تم النشر ✓ تظهر للاعبين خلال دقيقة تقريبًا…','ok',true);watchLive(c,payload.publishedAt);}
+          if(res&&res.ok){markPublished('live');say(st,'تم النشر ✓ تظهر للاعبين خلال دقيقة تقريبًا…','ok',true);watchLive(c,payload.publishedAt);}
           else say(st,why(res,'put'),'err');}
         btn.addEventListener('click',publishNow);
         fill(); paint();
@@ -10029,9 +10074,16 @@ function buildLeagueStandingsCanvas() {
           if(!keys.length) throw new Error('الملف لا يحتوي على بيانات قابلة للاستعادة.');
           for(const key of keys){if(typeof key!=='string'||!key||typeof entries[key]!=='string')throw new Error('الملف يحتوي على بيانات غير صالحة. لم يتم تغيير شيء.');}
           if(keys.length>5000)throw new Error('عدد عناصر الملف غير منطقي، لذلك أُوقفت الاستعادة للحماية.');
+          // حماية من استعادة ملف لا علاقة له بالتطبيق: يجب أن يحتوي على بيانات بطولة معروفة، وإلا لا يُمسح شيء
+          const APP_DATA_KEY=/^(tournamentHistory|tournamentTeams|tournamentMode|tournamentModeSnapshot_\w+|bracketState|fixedPlayersData|manualPlayersPool|league(Players|Matches|State|CurrentRound)|exportCenterMatchLog)$/;
+          if(!keys.some(k=>APP_DATA_KEY.test(k))) throw new Error('هذا الملف ليس نسخة احتياطية لهذا التطبيق (لا يحتوي على لاعبين أو بطولات أو دوري). لم يتغير شيء في بياناتك.');
+          const isViewData=!!(parsed&&parsed.format==='carrom-view-data');
+          const count=(k,f)=>{try{const v=JSON.parse(entries[k]);return f(v)}catch(e){return 0}};
+          const hist=count('tournamentHistory',v=>Array.isArray(v)?v.length:0), lgP=count('leaguePlayers',v=>Array.isArray(v)?v.length:0), lgM=count('leagueMatches',v=>Array.isArray(v)?v.filter(m=>m&&m.status==='completed').length:0);
+          const contents=[hist?'سجل '+(hist===1?'بطولة واحدة':hist===2?'بطولتين':hist+(hist<=10?' بطولات':' بطولة')):'',lgP?'دوري: '+lgP+' '+arCountW(lgP,'لاعب','لاعبان','لاعبين','لاعبًا')+' و'+lgM+' '+arCountW(lgM,'نتيجة','نتيجتان','نتائج','نتيجة'):''].filter(Boolean).join('، ')||'بيانات اللاعبين والإعدادات';
           const approx=new Blob([JSON.stringify(entries)]).size;
           const dateLabel=formatDate(createdAt);
-          const summary='ملخص الملف:\n• عدد عناصر البيانات: '+keys.length+'\n• الحجم التقريبي: '+formatBytes(approx)+'\n• تاريخ إنشاء النسخة: '+dateLabel+'\n\nستُستبدل بيانات التطبيق الحالية ببيانات هذا الملف. يُنصح بإلغاء العملية إذا لم تكن متأكداً.\n\nهل تريد المتابعة؟';
+          const summary=(isViewData?'تنبيه: هذا ملف نشر للاعبين (data.json) وليس نسخة احتياطية كاملة؛ ستبقى إعدادات التصدير والقوالب والمظهر الحالية كما هي.\n\n':'')+'ملخص الملف:\n• المحتوى: '+contents+'\n• عدد عناصر البيانات: '+keys.length+'\n• الحجم التقريبي: '+formatBytes(approx)+'\n• تاريخ إنشاء النسخة: '+dateLabel+'\n\nستُستبدل بيانات التطبيق الحالية ببيانات هذا الملف. يُنصح بإلغاء العملية إذا لم تكن متأكداً.\n\nهل تريد المتابعة؟';
           if(!(await uiConfirm(summary,{title:'استعادة نسخة احتياطية',okText:'استبدال البيانات',danger:true})))return;
           // الاحتفاظ بالحالة الحالية في الذاكرة أثناء التنفيذ؛ لا نبدأ المسح قبل اجتياز كل التحققات.
           const previous={};for(let i=0;i<localStorage.length;i++){const k=localStorage.key(i);previous[k]=localStorage.getItem(k)}
@@ -10039,6 +10091,7 @@ function buildLeagueStandingsCanvas() {
             localStorage.clear();
             for(const key of keys)localStorage.setItem(key,entries[key]);
             if(previous['__carrom_gh_publish_v1'])localStorage.setItem('__carrom_gh_publish_v1',previous['__carrom_gh_publish_v1']);   // مفتاح النشر يخص الجهاز: يبقى بعد الاستعادة
+            if(isViewData)['exportCenterSettings','exportCenterTemplates','theme'].forEach(k=>{if(!(k in entries)&&previous[k]!=null)localStorage.setItem(k,previous[k]);});   // ملف النشر لا يحملها: نُبقي الحالية
             localStorage.setItem(META_KEY,JSON.stringify({lastExportAt:null,lastImportedAt:new Date().toISOString(),importedFile:file.name}));
             localStorage.removeItem(CHANGE_KEY);
           }catch(applyError){
@@ -10874,7 +10927,7 @@ function buildLeagueStandingsCanvas() {
     // ===================================
     // 🧭 سلوك التطبيق: إعادة الوضع للأعلى، تعديل العنوان بالضغط المطوّل، تنبيه التحديث، رقم الإصدار
     // ===================================
-    const APP_VERSION = '1.7';   // ترقيم الاعتماد: 1 ثم 1.1 … 1.9 ثم 2 — ويُرفع معه رقم الإصدار في sw.js
+    const APP_VERSION = '1.8';   // ترقيم الاعتماد: 1 ثم 1.1 … 1.9 ثم 2 — ويُرفع معه رقم الإصدار في sw.js
     (function setupAppBehaviors() {
       const root = document.documentElement;
 
@@ -11148,7 +11201,7 @@ function buildLeagueStandingsCanvas() {
             const nf = x.excluded ? 0 : leagueForfeitCount(x.name), dlt = x.excluded ? 0 : (moves[x.name] || 0);
             const pill = x.excluded ? '<span class="lgc-pill ex">مستبعد</span>' : nf ? `<span class="lgc-pill">انسحاب ${nf}</span>` : '';
             return `<button type="button" class="lgc-row${top && !x.excluded ? ' rank-' + x.rank : ''}${x.excluded ? ' excluded' : ''}" data-player="${leagueEscape(x.name)}" aria-label="${leagueEscape(x.name)}: ${x.excluded ? 'مستبعد' : 'المركز ' + x.rank}، ${x.points} نقطة">
-              <span class="r">${x.excluded ? '—' : top ? `<span class="rank-badge rb-${x.rank}">${x.rank}</span>` : x.rank}</span><span class="mv${dlt > 0 ? ' up' : dlt < 0 ? ' down' : ''}"${dlt ? ` aria-label="${dlt > 0 ? 'تقدّم' : 'تراجع'} ${Math.abs(dlt)}"` : ''}>${dlt ? `<i aria-hidden="true"></i><b>${Math.abs(dlt)}</b>` : ''}</span>
+              <span class="r">${x.excluded ? '—' : top ? `<span class="rank-badge rb-${x.rank}"><span class="tx">${x.rank}</span></span>` : x.rank}</span><span class="mv${dlt > 0 ? ' up' : dlt < 0 ? ' down' : ''}"${dlt ? ` aria-label="${dlt > 0 ? 'تقدّم' : 'تراجع'} ${Math.abs(dlt)}"` : ''}>${dlt ? `<i aria-hidden="true"></i><b>${Math.abs(dlt)}</b>` : ''}</span>
               <span class="n"><b>${leagueEscape(x.name)}${pill}</b><small>ف ${x.wins}\u2009·\u2009ت ${x.draws}\u2009·\u2009خ ${x.losses} <i class="sep"></i> له ${x.setsFor}\u2009·\u2009عليه ${x.setsAgainst}</small></span>
               <span class="c">${x.played}</span><span class="c sd ${sd > 0 ? 'up' : sd < 0 ? 'down' : ''}"><bdi dir="ltr">${sd > 0 ? '+' + sd : sd}</bdi></span><span class="pts">${x.points}</span></button>`; }).join('');
         box.addEventListener('click', e => { const b = e.target.closest('.lgc-row'); if (b) openLeaguePlayerHistory(b.dataset.player); });
@@ -11195,7 +11248,16 @@ function buildLeagueStandingsCanvas() {
       const nav = document.querySelector('.mode-nav'), bar = document.createElement('div'); bar.className = 'view-bar';
       const when = info.publishedAt ? `${fmtDayDate(info.publishedAt)} · ${fmtTimeNum(info.publishedAt)}` : '';
       // سطر رفيع واحد بدل صندوق كبير: لا يغطي على المحتوى
-      bar.innerHTML = `<div class="stamp${info.ok ? '' : ' none'}">${info.ok ? `آخر تحديث · <b>${esc(when)}</b>` : '<b>لم تُنشر النتائج بعد</b>'}</div>`;
+      if (info.ok) bar.innerHTML = `<div class="stamp">آخر تحديث · <b>${esc(when)}</b></div>`;
+      else {   // سبب واضح لغياب النتائج بدل رسالة واحدة لكل الأعطال، مع إعادة المحاولة
+        const R = { notfound: ['لم تُنشر النتائج بعد', 'تظهر هنا بعد أول نشر من لوحة التحكم.'],
+          offline: ['تعذّر الاتصال', 'تحقق من الإنترنت ثم أعد المحاولة.'],
+          invalid: ['ملف النتائج غير صالح', 'الملف المنشور تالف أو بصيغة غير متوافقة. أعد النشر من لوحة التحكم.'],
+          error: ['تعذّر تحميل النتائج', 'حدث خطأ في الخادم. أعد المحاولة بعد قليل.'] }[info.reason] || ['تعذّر تحميل النتائج', 'أعد المحاولة بعد قليل.'];
+        document.documentElement.classList.add('view-nodata');
+        bar.innerHTML = `<div class="vfail" role="status"><span class="vfail-ic" aria-hidden="true"><span class="ic ic-${info.reason === 'notfound' ? 'info' : 'alert'}"></span></span><span class="vfail-t"><b>${R[0]}</b><small>${R[1]}</small></span>${info.reason === 'notfound' ? '' : '<button type="button" class="btn vfail-retry">إعادة المحاولة</button>'}</div>`;
+        const rb = bar.querySelector('.vfail-retry'); if (rb) rb.addEventListener('click', () => { rb.disabled = true; rb.textContent = 'جارٍ التحميل…'; location.reload(); });
+      }
       if (nav) nav.after(bar);
       // زر «اللاعبون والإحصائيات» في زاوية الهيدر (مكان زر لوحة التحكم المخفي في صفحة المشاهدة)
       const adminBtn = document.getElementById('openControlDashboard');
@@ -11457,7 +11519,7 @@ function buildLeagueStandingsCanvas() {
         const box = document.createElement('section'); box.className = 'vday' + (latest === todayKey ? ' open' : ''); box.id = 'viewPlayDay';
         box.innerHTML = `<button type="button" class="vday-h" aria-expanded="${latest === todayKey}"><span class="ttl"><b></b><small></small></span><span class="meta"></span>
             <svg class="chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m6 9 6 6 6-6"/></svg></button>
-          <div class="vday-b"><div class="in">${keys.length > 1 ? `<div class="vday-days" role="tablist" aria-label="أيام اللعب">${keys.map(k => `<button type="button" role="tab" class="vday-d${hasNew(k) ? ' has-new' : ''}" data-k="${k}" aria-label="${esc(nightLabel(k))}">${short(k)}</button>`).join('')}</div>` : ''}<div class="vday-list"></div></div></div>`;
+          <div class="vday-b"><div class="in">${keys.length > 1 ? `<div class="vday-days" role="tablist" aria-label="أيام اللعب">${keys.map(k => `<button type="button" role="tab" class="vday-d${hasNew(k) ? ' has-new' : ''}" data-k="${k}" aria-label="${esc(nightLabel(k))}"><span class="tx">${short(k)}</span></button>`).join('')}</div>` : ''}<div class="vday-list"></div></div></div>`;
         host.prepend(box);
         const h = box.querySelector('.vday-h'), list = box.querySelector('.vday-list'), strip = box.querySelector('.vday-days');
         const reduce = () => window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches;
