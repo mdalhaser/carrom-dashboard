@@ -8397,10 +8397,13 @@ function buildLeagueStandingsCanvas() {
 
   const headerH = exportBrandHeaderHeight(meta);
   const champRow = leagueCompleted ? standings.find(r => !r.excluded && r.rank === 1 && r.played > 0) : null;
-  const champBlock = champRow ? exportChampionBlock(champRow.name) : null, sealH = 58;   // نفس بطاقة البطل المعتمدة + شارة «اكتمل الدوري» تحتها
-  const bannerH = champRow ? champBlock.height + 22 + sealH : 0;
+  const champBlock = champRow ? exportChampionBlock(champRow.name) : null;   // نفس بطاقة البطل المعتمدة
+  const bannerH = champRow ? champBlock.height : 0;
   const headH = 70, rowH = 92, rowGap = 12;
-  let y = M + headerH + 34;
+  // سطر الشرح تحت الهيدر (مثل بقية الصور): «اكتمل الدوري · 6 جولات · 12 مباراة» — يُعدَّل أو يُخفى من «تخصيص»
+  const ctxOrig = leagueCompleted ? `اكتمل الدوري · ${arRounds(progress.totalRounds)} · ${progress.total} مباراة` : '';
+  const ctxRes = exportContextResolve(ctxOrig);
+  let y = M + headerH + 34 + (ctxRes.shown ? 50 : 0);
   const bannerY = y;
   if (champRow) y += bannerH + 30;
   const tableY = y;
@@ -8422,24 +8425,8 @@ function buildLeagueStandingsCanvas() {
 
   exportBrandHeader(ctx, M, M, CW, title, 'ترتيب الدوري', meta);
 
-  if (champRow) {
-    champBlock.draw(ctx, M, bannerY, CW);
-    // شارة اكتمال الدوري: كبسولة متمركزة تحت بطاقة البطل — علامة صح ثم «اكتمل الدوري» ثم عدد الجولات والمباريات بفواصل نقطية موحدة
-    const sy = bannerY + champBlock.height + 22, my = sy + sealH / 2;
-    const segs = [['اكتمل الدوري', 28, 800], [arRounds(progress.totalRounds), 24, 700], [`${progress.total} مباراة`, 24, 700]];
-    ctx.save(); segs.forEach(sg => { ctx.font = `${sg[2]} ${sg[1]}px ${EXPORT_FONT}`; sg.push(ctx.measureText(sg[0]).width); }); ctx.restore();
-    const PAD = 26, ICON = 34, GAP = 14, SEP = 30;
-    const pw = PAD + ICON + GAP + segs.reduce((a, sg) => a + sg[3], 0) + SEP * (segs.length - 1) + PAD, px = M + (CW - pw) / 2;
-    ctx.save(); drawRoundedRect(ctx, px, sy, pw, sealH, sealH / 2); ctx.fillStyle = B.okBg; ctx.fill(); ctx.strokeStyle = B.okLine; ctx.lineWidth = 2; ctx.stroke(); ctx.restore();
-    let cx = px + pw - PAD - ICON / 2;
-    ctx.save(); ctx.beginPath(); ctx.arc(cx, my, ICON / 2, 0, Math.PI * 2); ctx.fillStyle = B.ok; ctx.fill(); ctx.restore();
-    exportIcon(ctx, 'check', cx, my, 22, '#FFFFFF', 3);   // داخل دائرة: تتمركز الدائرة نفسها على الكلمة (أدناه)
-    cx -= ICON / 2 + GAP;
-    segs.forEach((sg, k) => {
-      if (k) { ctx.save(); ctx.fillStyle = B.ok; ctx.globalAlpha = 0.45; ctx.beginPath(); ctx.arc(cx - SEP / 2, my, 3.5, 0, Math.PI * 2); ctx.fill(); ctx.restore(); cx -= SEP; }
-      exportText(ctx, sg[0], cx, my - exportOptDy(sg[1]), { size: sg[1], weight: sg[2], color: B.ok, align: 'right' }); cx -= sg[3];
-    });
-  }
+  if (ctxRes.shown) exportDrawContext(ctx, ctxRes.text, M + CW / 2, M + headerH + 34 + 4, CW, 27);
+  if (champRow) champBlock.draw(ctx, M, bannerY, CW);
 
   // أعمدة الجدول من اليمين إلى اليسار؛ الأعمدة المخفية من «تخصيص» يتوزع عرضها على الباقي
   const show = exportParts('lgStandings');
@@ -8507,7 +8494,7 @@ function buildLeagueStandingsCanvas() {
   const legend = [show.wdl && 'ف = فوز  |  ت = تعادل  |  خ = خسارة', show.sets && 'له/عليه = الأشواط', show.diff && 'الفارق = فارق الأشواط'].filter(Boolean).join('  |  ');
   if (show.legend && legend) exportText(ctx, legend, W / 2, tableY + tableH + 38, { size: 25, weight: 600, color: B.muted, maxW: CW, min: 16 });
   exportFooterDivider(ctx, M, H - 46, CW);
-  canvas.__cuts = cuts;
+  canvas.__cuts = cuts; canvas.__ctxOrig = ctxOrig || undefined;
   return canvas;
 }
 
@@ -11279,7 +11266,7 @@ function buildLeagueStandingsCanvas() {
     // ===================================
     // 🧭 سلوك التطبيق: إعادة الوضع للأعلى، تعديل العنوان بالضغط المطوّل، تنبيه التحديث، رقم الإصدار
     // ===================================
-    const APP_VERSION = '2.6';   // ترقيم الاعتماد: 1 ثم 1.1 … 1.9 ثم 2 — ويُرفع معه رقم الإصدار في sw.js
+    const APP_VERSION = '2.7';   // ترقيم الاعتماد: 1 ثم 1.1 … 1.9 ثم 2 — ويُرفع معه رقم الإصدار في sw.js
     (function setupAppBehaviors() {
       const root = document.documentElement;
 
