@@ -6326,6 +6326,8 @@ currentScoreWinnerName = null;
       #xsRoot #xsTemplateRow .xs-btns button{font-size:13px}
       #xsRoot .xs-row input{font-size:16px}
       #xsRoot .xs-btns .xs-primary{background:#CFA963;border-color:#CFA963;color:#30251F}
+      #xsRoot .xs-chipbar button{display:inline-flex;align-items:center;gap:7px}
+      #xsRoot .xs-ord{display:inline-grid;place-items:center;width:22px;height:22px;border-radius:50%;background:#30251F;color:#E3CCA0;font-size:12.5px;font-weight:800;flex:none}
       @media (min-width:900px){
         #xsRoot .xs-side{position:static;transform:none;visibility:visible;width:360px;flex:0 0 360px;max-height:none;border-radius:0;border-top:0;border-right:0;border-left:1px solid rgba(207,169,99,.3);padding:16px 16px 24px;gap:22px}
         #xsRoot .xs-sheet-head,#xsRoot .xs-scrim{display:none}
@@ -6633,6 +6635,7 @@ currentScoreWinnerName = null;
         EXPORT_CHIP_ORDER.forEach(id => {
           if (!defs[id]) return;
           const b = document.createElement('button'); b.type = 'button'; b.textContent = defs[id].name; b.setAttribute('aria-pressed', String(cur.includes(id)));
+          const pos = cur.indexOf(id); if (pos >= 0) { const o = document.createElement('span'); o.className = 'xs-ord'; o.textContent = pos + 1; o.setAttribute('aria-hidden', 'true'); b.prepend(o); b.setAttribute('aria-label', `${defs[id].name} — الترتيب ${pos + 1} في الهيدر`); }   // رقم ترتيب البطاقة في الهيدر
           b.onclick = () => toggleChip(id); bar.appendChild(b);
         });
         const customVal = typeof it.hdrCustomOverride === 'string' ? it.hdrCustomOverride : (exportSettings.hdrCustom || '');
@@ -6643,7 +6646,7 @@ currentScoreWinnerName = null;
         const it = state.items[0]; let cur = (it.chips || []).slice();
         if (cur.includes(id)) cur = cur.filter(x => x !== id);
         else { if (cur.length >= 4) { msg('الحد الأقصى 4 بطاقات في الهيدر.'); return; } cur.push(id); }
-        cur.sort((a, b) => EXPORT_CHIP_ORDER.indexOf(a) - EXPORT_CHIP_ORDER.indexOf(b));
+        // ترتيب الإضافة هو ترتيب الظهور: الأولى يمين الهيدر ثم التي تليها (لا ترتيب تلقائي)
         if (Array.isArray(it.chipsOverride)) it.chipsOverride = cur;
         else { exportSettings.hdrChips = cur; exportSettings.hideDate = false; exportSettings.hideCount = false; saveExportSettings(); }
         const customText = typeof it.hdrCustomOverride === 'string' ? it.hdrCustomOverride : exportSettings.hdrCustom;
