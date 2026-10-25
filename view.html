@@ -8397,12 +8397,16 @@ function buildLeagueStandingsCanvas() {
   const title = tournamentName.textContent.trim() || 'بطولة المجلس للكيرم';
 
   const headerH = exportBrandHeaderHeight(meta);
-  const champRow = leagueCompleted ? standings.find(r => !r.excluded && r.rank === 1 && r.played > 0) : null;
+  // البطل: عند اكتمال الدوري، أو عند حسم اللقب مبكرًا (لا أحد يلحقه حسابيًا) — نفس منطق بقية التطبيق
+  const clinch = !leagueCompleted ? (() => { try { return leagueClinch(); } catch (e) { return null; } })() : null;
+  const champRow = leagueCompleted ? standings.find(r => !r.excluded && r.rank === 1 && r.played > 0)
+    : (clinch ? standings.find(r => r.name === clinch.name) || null : null);
   const champBlock = champRow ? exportChampionBlock(champRow.name) : null;   // نفس بطاقة البطل المعتمدة
   const bannerH = champRow ? champBlock.height : 0;
   const headH = 70, rowH = 92, rowGap = 12;
   // سطر الشرح تحت الهيدر (مثل بقية الصور): «اكتمل الدوري · 6 جولات · 12 مباراة» — يُعدَّل أو يُخفى من «تخصيص»
-  const ctxOrig = leagueCompleted ? `اكتمل الدوري · ${arRounds(progress.totalRounds)} · ${progress.total} مباراة` : '';
+  const ctxOrig = leagueCompleted ? `اكتمل الدوري · ${arRounds(progress.totalRounds)} · ${progress.total} مباراة`
+    : champRow ? `حُسم اللقب قبل ${arRounds(clinch.roundsLeft)} من النهاية` : '';
   const ctxRes = exportContextResolve(ctxOrig);
   let y = M + headerH + 34 + (ctxRes.shown ? 50 : 0);
   const bannerY = y;
@@ -8518,7 +8522,8 @@ function buildLeagueStandingsCanvas() {
         }
         const canvas = buildLeagueStandingsCanvas();
         { const st = calculateLeagueStandings(), pr = getLeagueProgress(), top = st.slice(0, 3).map(r => `${r.rank}- ${r.name} (${exportPointsLabel(r.points)})`).join('، ');
-          setCaption('League-Standings.png', pr.completed ? `بطل الدوري: ${(st.find(r => !r.excluded && r.rank === 1) || {}).name || '—'}\nالترتيب النهائي للدوري: ${top}.` : `ترتيب الدوري بعد ${pr.done} من ${pr.total} مباراة: ${top}.`); }
+          const cl = !pr.completed ? leagueClinch() : null;
+          setCaption('League-Standings.png', pr.completed ? `بطل الدوري: ${(st.find(r => !r.excluded && r.rank === 1) || {}).name || '—'}\nالترتيب النهائي للدوري: ${top}.` : (cl ? `حسم اللقب: ${cl.name} (قبل ${arRounds(cl.roundsLeft)} من النهاية)\n` : '') + `ترتيب الدوري بعد ${pr.done} من ${pr.total} مباراة: ${top}.`); }
         await downloadCanvasAsPng(canvas, 'League-Standings.png');
       } catch (err) {
         console.error(err);
@@ -11266,7 +11271,7 @@ function buildLeagueStandingsCanvas() {
     // ===================================
     // 🧭 سلوك التطبيق: إعادة الوضع للأعلى، تعديل العنوان بالضغط المطوّل، تنبيه التحديث، رقم الإصدار
     // ===================================
-    const APP_VERSION = '2.8';   // ترقيم الاعتماد: 1 ثم 1.1 … 1.9 ثم 2 — ويُرفع معه رقم الإصدار في sw.js
+    const APP_VERSION = '2.9';   // ترقيم الاعتماد: 1 ثم 1.1 … 1.9 ثم 2 — ويُرفع معه رقم الإصدار في sw.js
     (function setupAppBehaviors() {
       const root = document.documentElement;
 
