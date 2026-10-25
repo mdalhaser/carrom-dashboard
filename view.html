@@ -822,6 +822,8 @@
     .league-round-title { text-align: center; font-weight: 800; font-size: var(--fs-lg); line-height: 1.25; }
     .league-round-title small { display: block; font-size: var(--fs-xs); font-weight: 600; color: var(--text-2); margin-top: 2px; }
     .league-round-dots { display: flex; flex-wrap: wrap; justify-content: center; gap: 6px; margin-top: var(--s3); }
+    .league-round-nav .btn { display: inline-flex; align-items: center; justify-content: center; gap: 4px; }
+    .league-round-nav .btn .ic { width: 16px; height: 16px; flex: none; }
     .league-dot {
       min-width: 36px; height: 36px; padding: 0 6px; border-radius: 50%;
       border: 1px solid var(--line-strong); background: var(--surface); color: var(--text-2);
@@ -1921,6 +1923,10 @@
       mask-image: linear-gradient(to left, transparent, #000 18px, #000 calc(100% - 18px), transparent); }
     body.lg-focus .league-round-dots::-webkit-scrollbar { display: none; }
     body.lg-focus .league-dot { flex: 0 0 auto; scroll-snap-align: center; }
+    /* بالفأرة (كمبيوتر): لا سحب أفقي، فكل الجولات تظهر في أسطر ملتفة ومتمركزة بدل صف مخفي الأطراف */
+    @media (hover: hover) and (pointer: fine) {
+      body.lg-focus .league-round-dots { flex-wrap: wrap; justify-content: center; overflow: visible; scroll-snap-type: none; margin-inline: 0; padding: 4px 0 6px; -webkit-mask-image: none; mask-image: none; }
+    }
     .lg-done-sep { grid-column: 1 / -1; display: flex; align-items: center; gap: 10px; margin: 6px 0 0; color: var(--text-3); font-size: 12px; font-weight: 800; }
     .lg-done-sep::before, .lg-done-sep::after { content: ""; flex: 1; height: 1px; background: var(--line); }
     body.lg-focus .lg-match.done { opacity: .82; transition: opacity .2s ease; }
@@ -4871,7 +4877,8 @@ async function exportStatsImage() {
     const showParts = exportPartsRead('stats'), byOn = showParts.titlesBy;   // الألقاب حسب النوع: خلية مركبة بأيقونات + دليل أسفل الجدول
     const sectionH = 96, headH = 72, rowH = byOn ? 100 : 92, rowGap = 12, legendH = byOn ? 64 : 0;
     const tableTop = M + headerH + 34 + sectionH;
-    const H = Math.ceil(tableTop + headH + 12 + players.length * rowH + (players.length - 1) * rowGap + legendH + 40 + 60);
+    const TP = EXPORT_TABLE_PAD, frameH = headH + TP + players.length * rowH + (players.length - 1) * rowGap + TP;
+    const H = Math.ceil(tableTop - 6 + frameH + 12 + legendH + 40 + 60);
 
     let scale = exportScale();
     while (W * scale * H * scale > 16000000 && scale > 1) scale -= 0.25;
@@ -4897,13 +4904,9 @@ async function exportStatsImage() {
 
     const show = exportParts('stats');
     const keys = ['rank', 'name', 'rating', show.titlesBy ? 'titles' : 'championships', 'runnerUps', 'tournaments', 'wins', 'losses', 'winRate'].filter(k => show[k] !== false);
-    const c = getStatsColumnCenters(M, CW, keys);
+    const c = getStatsColumnCenters(M + TP, CW - 2 * TP, keys);
     const labels = { titles: 'الألقاب', rank: 'الترتيب', name: 'اللاعب', rating: 'التقييم', championships: 'ألقاب', runnerUps: 'وصافة', tournaments: 'مشاركات', wins: 'فوز', losses: 'خسارة', winRate: 'نسبة الفوز' };
-    ctx.save();
-    drawRoundedRect(ctx, M, tableTop - 6, CW, headH, 22);
-    ctx.fillStyle = B.surface3;
-    ctx.fill();
-    ctx.restore();
+    exportTableFrame(ctx, M, tableTop - 6, CW, frameH, headH, B.surface3, 26);
     keys.forEach(k => k === 'name'
       ? exportText(ctx, labels[k], c.nameCenter + c.nameW / 2 - 10, tableTop - 6 + headH / 2, { size: 25, weight: 800, color: B.muted, align: 'right', maxW: c.nameW - 20, min: 16 })   // بمحاذاة الأسماء
       : exportTextWrap2(ctx, labels[k], c[k + 'Center'], tableTop - 6 + headH / 2, { size: 25, weight: 800, color: B.muted, maxW: c[k + 'W'] - 8, min: 16 }));   // العناوين الطويلة (ألقاب فردي) على سطرين
@@ -4914,7 +4917,7 @@ async function exportStatsImage() {
       const rank = i + 1;
       const m = rankIdentity(rank);
       ctx.save();
-      drawRoundedRect(ctx, M, y, CW, rowH, 24);
+      drawRoundedRect(ctx, M + TP, y, CW - 2 * TP, rowH, 20);
       ctx.fillStyle = m ? rankHexToRgba(m.main, 0.16) : B.paper;
       ctx.fill();
       ctx.strokeStyle = m ? m.main : B.line;
@@ -4941,7 +4944,7 @@ async function exportStatsImage() {
       val('winRate', `${p.winRate ?? 0}%`, { color: Number(p.winRate) >= 60 ? B.ok : B.text });
       y += rowH + rowGap;
     });
-    if (keys.includes('titles')) { cuts.push(y - rowGap / 2); drawTitlesLegend(ctx, W / 2, y + 24); }   // دليل أيقونات الألقاب
+    if (keys.includes('titles')) { cuts.push(y - rowGap / 2 + TP); drawTitlesLegend(ctx, W / 2, y + TP + 24); }   // دليل أيقونات الألقاب
     exportFooterDivider(ctx, M, H - 40, CW);
     canvas.__cuts = cuts;
 
@@ -7664,7 +7667,8 @@ function changeScore(inputId, amount){
       const prev = document.createElement('button');
       prev.type = 'button';
       prev.className = 'btn';
-      prev.textContent = '› السابقة';
+      // أيقونات SVG لا تنعكس مع اتجاه النص (حرف › كان يُعكس تلقائيًا في العربية): السابقة يمينًا وسهمها لليمين، والتالية يسارًا وسهمها لليسار
+      prev.innerHTML = '<span class="ic ic-chev-r" aria-hidden="true"></span><span>السابقة</span>';
       prev.disabled = round <= 1;
       prev.addEventListener('click', () => goToLeagueRound(round - 1));
 
@@ -7675,7 +7679,7 @@ function changeScore(inputId, amount){
       const next = document.createElement('button');
       next.type = 'button';
       next.className = 'btn';
-      next.textContent = 'التالية ‹';
+      next.innerHTML = '<span>التالية</span><span class="ic ic-chev-l" aria-hidden="true"></span>';
       next.disabled = round >= totalRounds;
       next.addEventListener('click', () => goToLeagueRound(round + 1));
 
@@ -8049,13 +8053,15 @@ function buildLeagueStandingsCanvas() {
   const title = tournamentName.textContent.trim() || 'بطولة المجلس للكيرم';
 
   const headerH = exportBrandHeaderHeight(meta);
-  const bannerH = leagueCompleted ? 92 : 0;
+  const champRow = leagueCompleted ? standings.find(r => !r.excluded && r.rank === 1 && r.played > 0) : null;
+  const champBlock = champRow ? exportChampionBlock(champRow.name) : null, sealH = 58;   // نفس بطاقة البطل المعتمدة + شارة «اكتمل الدوري» تحتها
+  const bannerH = champRow ? champBlock.height + 22 + sealH : 0;
   const headH = 70, rowH = 92, rowGap = 12;
   let y = M + headerH + 34;
   const bannerY = y;
-  if (leagueCompleted) y += bannerH + 30;
+  if (champRow) y += bannerH + 30;
   const tableY = y;
-  const tableH = headH + 12 + standings.length * rowH + Math.max(0, standings.length - 1) * rowGap;
+  const TP = EXPORT_TABLE_PAD, tableH = headH + TP + standings.length * rowH + Math.max(0, standings.length - 1) * rowGap + TP;
   const sh0 = exportPartsRead('lgStandings'), legendH = sh0.legend && (sh0.wdl || sh0.sets || sh0.diff) ? 84 : 20;
   const H = Math.ceil(tableY + tableH + 30 + legendH + 40);
 
@@ -8073,17 +8079,23 @@ function buildLeagueStandingsCanvas() {
 
   exportBrandHeader(ctx, M, M, CW, title, 'ترتيب الدوري', meta);
 
-  if (leagueCompleted) {
-    ctx.save();
-    drawRoundedRect(ctx, M, bannerY, CW, bannerH, 28);
-    ctx.fillStyle = 'rgba(207,169,99,0.16)';
-    ctx.fill();
-    ctx.strokeStyle = B.gold;
-    ctx.lineWidth = 2.5;
-    ctx.stroke();
-    ctx.restore();
-    const t = exportText(ctx, 'اكتمل الدوري', M + CW / 2 - 30, bannerY + bannerH / 2, { size: 44, weight: 800, color: B.goldDeep });
-    exportIcon(ctx, 'check', M + CW / 2 - 30 + t.width / 2 + 38, bannerY + bannerH / 2, 46, B.goldDeep, 2.4);
+  if (champRow) {
+    champBlock.draw(ctx, M, bannerY, CW);
+    // شارة اكتمال الدوري: كبسولة متمركزة تحت بطاقة البطل — علامة صح ثم «اكتمل الدوري» ثم عدد الجولات والمباريات بفواصل نقطية موحدة
+    const sy = bannerY + champBlock.height + 22, my = sy + sealH / 2;
+    const segs = [['اكتمل الدوري', 28, 800], [arRounds(progress.totalRounds), 24, 700], [`${progress.total} مباراة`, 24, 700]];
+    ctx.save(); segs.forEach(sg => { ctx.font = `${sg[2]} ${sg[1]}px ${EXPORT_FONT}`; sg.push(ctx.measureText(sg[0]).width); }); ctx.restore();
+    const PAD = 26, ICON = 34, GAP = 14, SEP = 30;
+    const pw = PAD + ICON + GAP + segs.reduce((a, sg) => a + sg[3], 0) + SEP * (segs.length - 1) + PAD, px = M + (CW - pw) / 2;
+    ctx.save(); drawRoundedRect(ctx, px, sy, pw, sealH, sealH / 2); ctx.fillStyle = B.okBg; ctx.fill(); ctx.strokeStyle = B.okLine; ctx.lineWidth = 2; ctx.stroke(); ctx.restore();
+    let cx = px + pw - PAD - ICON / 2;
+    ctx.save(); ctx.beginPath(); ctx.arc(cx, my, ICON / 2, 0, Math.PI * 2); ctx.fillStyle = B.ok; ctx.fill(); ctx.restore();
+    exportIcon(ctx, 'check', cx, my, 22, '#FFFFFF', 3);
+    cx -= ICON / 2 + GAP;
+    segs.forEach((sg, k) => {
+      if (k) { ctx.save(); ctx.fillStyle = B.ok; ctx.globalAlpha = 0.45; ctx.beginPath(); ctx.arc(cx - SEP / 2, my, 3.5, 0, Math.PI * 2); ctx.fill(); ctx.restore(); cx -= SEP; }
+      exportText(ctx, sg[0], cx, my, { size: sg[1], weight: sg[2], color: B.ok, align: 'right' }); cx -= sg[3];
+    });
   }
 
   // أعمدة الجدول من اليمين إلى اليسار؛ الأعمدة المخفية من «تخصيص» يتوزع عرضها على الباقي
@@ -8094,28 +8106,24 @@ function buildLeagueStandingsCanvas() {
     ['losses', 'خ', 66], ['setsFor', 'له', 78], ['setsAgainst', 'عليه', 84], ['diff', 'الفارق', 92], ['points', 'النقاط', 96]
   ].filter(([k]) => !group[k] || show[group[k]]);
   const sumW = cols.reduce((s, c) => s + c[2], 0);
-  const f = CW / sumW;
-  let cursor = M + CW;
+  const f = (CW - 2 * TP) / sumW;
+  let cursor = M + CW - TP;
   const pos = {};
   cols.forEach(([k, label, w]) => { const ww = w * f; pos[k] = { c: cursor - ww / 2, w: ww, label }; cursor -= ww; });
 
-  ctx.save();
-  drawRoundedRect(ctx, M, tableY, CW, headH, 22);
-  ctx.fillStyle = B.surface3;
-  ctx.fill();
-  ctx.restore();
+  exportTableFrame(ctx, M, tableY, CW, tableH, headH, B.surface3, 26);
   cols.forEach(([k]) => {
     if (k === 'name') exportText(ctx, pos[k].label, pos[k].c + pos[k].w / 2 - 8, tableY + headH / 2, { size: 26, weight: 800, color: B.muted, align: 'right', maxW: pos[k].w - 16, min: 18 });   // بمحاذاة الأسماء
     else exportText(ctx, pos[k].label, pos[k].c, tableY + headH / 2, { size: 26, weight: 800, color: B.muted, maxW: pos[k].w - 8, min: 18 });
   });
 
-  let ry = tableY + headH + 12;
+  let ry = tableY + headH + TP;
   const cuts = [];
   standings.forEach((r, ri) => {
     if (ri > 0) cuts.push(ry - rowGap / 2);
     const m = isMedalRow(r) ? rankIdentity(r.rank) : null;
     ctx.save();
-    drawRoundedRect(ctx, M, ry, CW, rowH, 24);
+    drawRoundedRect(ctx, M + TP, ry, CW - 2 * TP, rowH, 20);
     ctx.fillStyle = m ? rankHexToRgba(m.main, 0.16) : B.paper;
     ctx.fill();
     ctx.strokeStyle = m ? m.main : B.line;
@@ -8178,7 +8186,7 @@ function buildLeagueStandingsCanvas() {
         }
         const canvas = buildLeagueStandingsCanvas();
         { const st = calculateLeagueStandings(), pr = getLeagueProgress(), top = st.slice(0, 3).map(r => `${r.rank}- ${r.name} (${exportPointsLabel(r.points)})`).join('، ');
-          setCaption('League-Standings.png', pr.completed ? `الترتيب النهائي للدوري: ${top}.` : `ترتيب الدوري بعد ${pr.done} من ${pr.total} مباراة: ${top}.`); }
+          setCaption('League-Standings.png', pr.completed ? `بطل الدوري: ${(st.find(r => !r.excluded && r.rank === 1) || {}).name || '—'}\nالترتيب النهائي للدوري: ${top}.` : `ترتيب الدوري بعد ${pr.done} من ${pr.total} مباراة: ${top}.`); }
         await downloadCanvasAsPng(canvas, 'League-Standings.png');
       } catch (err) {
         console.error(err);
@@ -8475,7 +8483,8 @@ function buildLeagueStandingsCanvas() {
       const ctxRes = exportContextResolve(context), gapC = ctxRes.shown ? 50 : 8;
       const itemH = it => it.bye ? 72 : 100;
       const rowsH = sections.reduce((a, sec) => a + (sec.honor ? sec.honor.length * 96 + (sec.legend ? 56 : 0) : sec.matches ? sec.matches.reduce((b, it) => b + itemH(it), 0) : sec.rows.length * ROW), 0);
-      const H = Math.ceil(top + gapC + sections.length * (HEAD + 14) + rowsH + 90);
+      const TP = EXPORT_TABLE_PAD, IM = M + TP, ICW = CW - 2 * TP;   // أقسام الصفوف داخل إطار جدول (العناوين أعلى الإطار نفسه)
+      const H = Math.ceil(top + gapC + sections.length * (HEAD + 14) + rowsH + sections.reduce((a, sec) => a + (sec.rows ? 2 * TP - 8 : sec.matches ? 2 * TP - 12 : sec.honor ? 2 * TP - 12 : 0), 0) + 90);
       let scale = exportScale(); while (W * scale * H * scale > 16000000 && scale > 1) scale -= 0.25;
       const canvas = document.createElement('canvas'); canvas.width = Math.ceil(W * scale); canvas.height = Math.ceil(H * scale);
       const ctx = canvas.getContext('2d'); if (!ctx) throw new Error('Canvas 2D context unavailable');
@@ -8485,21 +8494,26 @@ function buildLeagueStandingsCanvas() {
       let y = top + gapC; const cuts = [];
       sections.forEach(sec => {
         cuts.push(y - 7);
-        drawRoundedRect(ctx, M, y, CW, HEAD, 18); ctx.fillStyle = B.wood; ctx.fill();
-        exportText(ctx, sec.heading, M + CW - 24, y + HEAD / 2, { size: 30, weight: 800, color: B.goldSoft, align: 'right', maxW: CW * 0.5, min: 20 });
+        // كل قسم إطار واحد: العنوان أعلاه والمحتوى (صفوف/مباريات/ألقاب) داخله
+        const bodyH = sec.rows ? sec.rows.length * ROW - 8 : sec.matches ? sec.matches.reduce((b, it) => b + itemH(it), 0) - 12 : sec.honor ? sec.honor.length * 96 - 12 : 0;
+        const framed = bodyH > 0, X = framed ? IM : M, XW = framed ? ICW : CW;
+        if (framed) exportTableFrame(ctx, M, y, CW, HEAD + TP + bodyH + TP, HEAD, B.wood, 22);
+        else { drawRoundedRect(ctx, M, y, CW, HEAD, 18); ctx.fillStyle = B.wood; ctx.fill(); }
+        exportText(ctx, sec.heading, X + XW - 24, y + HEAD / 2, { size: 30, weight: 800, color: B.goldSoft, align: 'right', maxW: XW * 0.5, min: 20 });
         // wide: قسم بعمود قيم واحد يأخذ مساحة عمودين (مثل سجل البطولات بلا عمود الوصيف)
-        const vx = (n, k) => sec.wide ? M + 260 : M + 170 + (n - 1 - k) * 200, vw = sec.wide ? 390 : 190;
+        const vx = (n, k) => sec.wide ? X + 260 : X + 170 + (n - 1 - k) * 200, vw = sec.wide ? 390 : 190;
         if (sec.cols) sec.cols.forEach((c, i) => exportTextWrap2(ctx, c, vx(sec.cols.length, i), y + HEAD / 2, { size: 26, weight: 800, color: B.ivory, maxW: vw, min: 16 }));
-        y += HEAD + 14;
-        if (sec.matches) { y = drawMatchCards(ctx, sec.matches, M, y, CW, cuts); return; }
-        if (sec.honor) { y = drawHonorRows(ctx, sec.honor, M, y, CW, cuts); if (sec.legend) { cuts.push(y - 6); drawTitlesLegend(ctx, M + CW / 2, y + 20); y += 56; } return; }
+        y += HEAD + (framed ? TP : 14);
+        if (sec.matches) { y = drawMatchCards(ctx, sec.matches, IM, y, ICW, cuts) + TP - 12 + 14; return; }
+        if (sec.honor) { y = drawHonorRows(ctx, sec.honor, IM, y, ICW, cuts) + TP - 12 + 14; if (sec.legend) { cuts.push(y - 6); drawTitlesLegend(ctx, M + CW / 2, y + 6); y += 56 - 14; } return; }
         sec.rows.forEach((r, i) => {
           if (i > 0) cuts.push(y - 4);
-          drawRoundedRect(ctx, M, y, CW, ROW - 8, 14); ctx.fillStyle = i % 2 ? B.surface2 : B.paper; ctx.fill(); ctx.strokeStyle = B.line; ctx.lineWidth = 1.2; ctx.stroke();
-          exportText(ctx, r[0], M + CW - 24, y + (ROW - 8) / 2, { size: 28, weight: 700, color: B.text, align: 'right', maxW: CW * 0.42, min: 16 });
+          drawRoundedRect(ctx, IM, y, ICW, ROW - 8, 14); ctx.fillStyle = B.paper; ctx.fill(); ctx.strokeStyle = B.line; ctx.lineWidth = 1.2; ctx.stroke();
+          exportText(ctx, r[0], IM + ICW - 24, y + (ROW - 8) / 2, { size: 28, weight: 700, color: B.text, align: 'right', maxW: ICW * 0.42, min: 16 });
           r.slice(1).forEach((v, k, arr) => exportText(ctx, v, vx(arr.length, k), y + (ROW - 8) / 2, { size: 30, weight: 800, color: B.ink, maxW: vw, min: 16, dir: /[\u0600-\u06FF]/.test(String(v)) ? 'rtl' : 'ltr' }));
           y += ROW;
         });
+        y += TP - 8 + 14;   // نهاية إطار الجدول + مسافة قبل القسم التالي
       });
       exportFooterDivider(ctx, M, H - 40, CW);
       canvas.__cuts = cuts; canvas.__ctxOrig = context;
@@ -8881,19 +8895,21 @@ function buildLeagueStandingsCanvas() {
       const meta = [{ icon: 'calendar', label: exportTodayLabel() }];
       const top = M + exportBrandHeaderHeight(meta) + 30, ctxOrig = arCount(recs.length, 'بطولة مكتملة واحدة', 'بطولتان مكتملتان', 'بطولات مكتملة'), ctxRes = exportContextResolve(ctxOrig), gapC = ctxRes.shown ? 50 : 8;
       // الأعمدة من اليمين
-      const wInfo = 372, wChamp = show.ru ? 300 : CW - wInfo, xInfo = M + CW - 26, cChamp = M + CW - wInfo - wChamp / 2, cRu = M + (CW - wInfo - wChamp) / 2;
+      const TP = EXPORT_TABLE_PAD, IM = M + TP, ICW = CW - 2 * TP;   // داخل إطار الجدول
+      const wInfo = 372, wChamp = show.ru ? 300 : ICW - wInfo, xInfo = IM + ICW - 26, cChamp = IM + ICW - wInfo - wChamp / 2, cRu = IM + (ICW - wInfo - wChamp) / 2;
       const infoLines = (show.name ? 1 : 0) + (show.date ? 1 : 0) + (show.type ? 1 : 0);
       const rowH = t => Math.max(26 + infoLines * 36 + 4, (Math.max(members(t, t.champion).length, show.ru ? members(t, t.runnerUp).length : 1) > 1 ? 120 : 84));
-      const HEAD = 64, GAP = 10, H = Math.ceil(top + gapC + HEAD + 12 + recs.reduce((a, t) => a + rowH(t) + GAP, 0) + 90);
+      const HEAD = 64, GAP = 10, frameH = HEAD + TP + recs.reduce((a, t) => a + rowH(t), 0) + Math.max(0, recs.length - 1) * GAP + TP;
+      const H = Math.ceil(top + gapC + frameH + 90);
       const { canvas, ctx } = exportNewCanvas(W, H);
       exportBrandHeader(ctx, M, M, CW, tournamentName.textContent.trim() || 'بطولة المجلس للكيرم', 'سجل البطولات السابقة', meta);
       if (ctxRes.shown) exportText(ctx, ctxRes.text, W / 2, top + 4, { size: 28, weight: 700, color: B.muted, maxW: CW - 30, min: 18 });
       let y = top + gapC; const cuts = [];
-      drawRoundedRect(ctx, M, y, CW, HEAD, 18); ctx.fillStyle = B.wood; ctx.fill();
+      exportTableFrame(ctx, M, y, CW, frameH, HEAD, B.wood, 24);
       exportText(ctx, 'البطولات المكتملة', xInfo, y + HEAD / 2, { size: 27, weight: 800, color: B.goldSoft, align: 'right' });
       exportText(ctx, 'البطل', cChamp, y + HEAD / 2, { size: 25, weight: 800, color: B.ivory });
       if (show.ru) exportText(ctx, 'الوصيف', cRu, y + HEAD / 2, { size: 25, weight: 800, color: B.ivory });
-      y += HEAD + 12;
+      y += HEAD + TP;
       // أسماء طرف: سطر لكل لاعب، وبين لاعبي الفريق علامة «+» في دائرة ذهبية رفيعة
       const side = (ms, cx, cy, maxW, color, size) => {
         if (ms.length < 2) { exportText(ctx, ms[0] || '—', cx, cy, { size, weight: 800, color, maxW, min: 15 }); return; }
@@ -8904,9 +8920,9 @@ function buildLeagueStandingsCanvas() {
       recs.forEach((t, i) => {
         if (i) cuts.push(y - GAP / 2);
         const h = rowH(t), cy = y + h / 2;
-        drawRoundedRect(ctx, M, y, CW, h, 20); ctx.fillStyle = i % 2 ? B.surface2 : B.paper; ctx.fill(); ctx.strokeStyle = B.line; ctx.lineWidth = 1.3; ctx.stroke();
+        drawRoundedRect(ctx, IM, y, ICW, h, 18); ctx.fillStyle = B.paper; ctx.fill(); ctx.strokeStyle = B.line; ctx.lineWidth = 1.3; ctx.stroke();
         // خط فاصل رفيع بين عمود البطولة والأسماء
-        ctx.save(); ctx.strokeStyle = B.line; ctx.lineWidth = 1.5; ctx.beginPath(); ctx.moveTo(M + CW - wInfo, y + 16); ctx.lineTo(M + CW - wInfo, y + h - 16); ctx.stroke(); ctx.restore();
+        ctx.save(); ctx.strokeStyle = B.line; ctx.lineWidth = 1.5; ctx.beginPath(); ctx.moveTo(IM + ICW - wInfo, y + 16); ctx.lineTo(IM + ICW - wInfo, y + h - 16); ctx.stroke(); ctx.restore();
         const lines = []; if (show.name) lines.push([t.name || 'بطولة', 26, 800, B.ink]); if (show.date) lines.push([fmtDayDate(t.date), 22, 700, B.muted]);
         let ly = cy - ((lines.length + (show.type ? 1 : 0)) - 1) * 18;
         lines.forEach(([tx, sz, wt, col]) => { exportText(ctx, tx, xInfo, ly, { size: sz, weight: wt, color: col, align: 'right', maxW: wInfo - 40, min: 15 }); ly += 36; });
@@ -8917,7 +8933,7 @@ function buildLeagueStandingsCanvas() {
         const champ = members(t, t.champion);
         exportIcon(ctx, 'trophy', cChamp + wChamp / 2 - 30, cy, 24, B.gold, 2);
         side(champ, cChamp, cy, wChamp - 80, B.ink, 27);
-        if (show.ru) side(members(t, t.runnerUp), cRu, cy, CW - wInfo - wChamp - 40, B.text, 25);
+        if (show.ru) side(members(t, t.runnerUp), cRu, cy, ICW - wInfo - wChamp - 40, B.text, 25);
         y += h + GAP;
       });
       exportFooterDivider(ctx, M, H - 40, CW);
@@ -8996,7 +9012,8 @@ function buildLeagueStandingsCanvas() {
       const R = [...(show.rating ? [] : [['التقييم', st.A.rating, st.B.rating, x => x.toLocaleString('en-US')]]), ['الألقاب', st.A.titles, st.B.titles, String], ['نسبة الفوز', st.A.winRate, st.B.winRate, x => x + '%']];   // التقييم ظاهر تحت الأسماء: لا يتكرر هنا
       if (!teams) R.push(['انتصارات آخر 5', st.A.form ? st.A.form.filter(x => x === 'w').length : null, st.B.form ? st.B.form.filter(x => x === 'w').length : null, x => `${x} من 5`]);
       else R.push(['انتصارات معًا', st.A.together ? st.A.together.w : 0, st.B.together ? st.B.together.w : 0, String]);
-      const tapeH = show.tape ? 70 + 14 + 48 + R.length * 70 - 8 : 0, h2hH = show.h2h ? 70 + 14 + 170 : 0;
+      const TP = EXPORT_TABLE_PAD;   // الأقسام إطارات: العنوان أعلى الإطار والمحتوى داخله
+      const tapeH = show.tape ? 70 + TP + 48 + R.length * 70 - 8 + TP : 0, h2hH = show.h2h ? 70 + TP + 170 + TP : 0;
       const H = Math.ceil(top + gapC + mainH + (probH ? G + probH : 0) + (tapeH ? G + tapeH : 0) + (h2hH ? G + h2hH : 0) + 90);
       const { canvas, ctx } = exportNewCanvas(W, H);
       exportBrandHeader(ctx, M, M, CW, tournamentName.textContent.trim() || 'بطولة المجلس للكيرم', 'مواجهة قادمة', meta);
@@ -9046,7 +9063,7 @@ function buildLeagueStandingsCanvas() {
       }
       // ===== وجهًا لوجه =====
       if (show.tape) {
-        y += G; cuts.push(y - G / 2); y += exportSectionBar(ctx, M, y, CW, 'وجهًا لوجه', 'chart') + 14;
+        y += G; cuts.push(y - G / 2); y += exportSectionBar(ctx, M, y, CW, 'وجهًا لوجه', 'chart', null, 48 + R.length * 70 - 8) + TP;
         // صف الأسماء فوق الأعمدة حتى يُعرف لمن كل رقم دون الرجوع للأعلى
         const nm = S => S.single ? S.label : S.members.join(' + ');
         exportText(ctx, nm(st.A), xA, y + 20, { size: 22, weight: 800, color: B.muted, maxW: CW * 0.36, min: 14 });
@@ -9054,7 +9071,7 @@ function buildLeagueStandingsCanvas() {
         y += 48;
         R.forEach(([lab, a, b, fmt], i) => {
           if (i) cuts.push(y - 4);
-          drawRoundedRect(ctx, M, y, CW, 62, 16); ctx.fillStyle = i % 2 ? B.surface2 : B.paper; ctx.fill(); ctx.strokeStyle = B.line; ctx.lineWidth = 1.2; ctx.stroke();
+          drawRoundedRect(ctx, M + TP, y, CW - 2 * TP, 62, 14); ctx.fillStyle = B.paper; ctx.fill(); ctx.strokeStyle = B.line; ctx.lineWidth = 1.2; ctx.stroke();
           const c = y + 31, lead = a != null && b != null && a !== b ? (a > b ? 'A' : 'B') : null, ar = v => /[؀-ۿ]/.test(v) ? 'rtl' : 'ltr';
           exportText(ctx, lab, W / 2, c, { size: 26, weight: 700, color: B.muted });
           const va = a == null ? '—' : fmt(a), vb = b == null ? '—' : fmt(b);
@@ -9062,12 +9079,12 @@ function buildLeagueStandingsCanvas() {
           exportText(ctx, vb, xB, c, { size: 30, weight: 800, color: B.ink, dir: ar(vb) });
           y += 70;
         });
-        y -= 8;
+        y += TP - 8;
       }
       // ===== المواجهات السابقة =====
       if (show.h2h) {
-        y += G; cuts.push(y - G / 2); y += exportSectionBar(ctx, M, y, CW, 'المواجهات السابقة', 'users') + 14;
-        ctx.save(); drawRoundedRect(ctx, M, y, CW, 170, 22); ctx.fillStyle = B.paper; ctx.fill(); ctx.strokeStyle = B.line; ctx.lineWidth = 1.4; ctx.stroke(); ctx.restore();
+        y += G; cuts.push(y - G / 2); y += exportSectionBar(ctx, M, y, CW, 'المواجهات السابقة', 'users', null, 170) + TP;
+        ctx.save(); drawRoundedRect(ctx, M + TP, y, CW - 2 * TP, 170, 18); ctx.fillStyle = B.paper; ctx.fill(); ctx.strokeStyle = B.line; ctx.lineWidth = 1.4; ctx.stroke(); ctx.restore();
         const h = st.h, nm2 = S => S.single ? S.label : S.members.join(' + ');
         if (h.total) {
           exportText(ctx, String(h.a), xA, y + 54, { size: 56, weight: 800, color: B.ink, dir: 'ltr' });
@@ -9081,7 +9098,7 @@ function buildLeagueStandingsCanvas() {
           exportText(ctx, 'اللقاء الأول بينهما', W / 2, y + 66, { size: 36, weight: 800, color: B.goldDeep });
           exportText(ctx, 'لا توجد مواجهة سابقة في سجل المجلس', W / 2, y + 116, { size: 24, weight: 700, color: B.muted });
         }
-        y += 170;
+        y += 170 + TP;
       }
       exportFooterDivider(ctx, M, H - 40, CW);
       canvas.__ctxOrig = ctxOrig;   // بلا حدود قطع: بطاقة المواجهة صفحة واحدة دائمًا (تُصغَّر إن لزم ولا تُقسَّم)
@@ -9239,9 +9256,21 @@ function buildLeagueStandingsCanvas() {
       ctx.closePath(); ctx.fillStyle = color; ctx.fill(); ctx.restore();
       exportText(ctx, txt, left + a + gap, cy, { size, weight: 800, color, align: 'left', dir: 'ltr' });
     }
-    function exportSectionBar(ctx, M, y, CW, text, icon, note) {
+    // إطار جدول موحّد: شريط العناوين هو أعلى البطاقة نفسها والصفوف داخلها (لا شريط عناوين عائم منفصل عن البيانات)
+    const EXPORT_TABLE_PAD = 12;
+    function exportTableFrame(ctx, x, y, w, h, headH, headFill, radius) {
+      const B = EXPORT_BRAND, r = radius || 24;
+      ctx.save();
+      drawRoundedRect(ctx, x, y, w, h, r); ctx.fillStyle = B.surface2; ctx.fill();
+      ctx.save(); drawRoundedRect(ctx, x, y, w, h, r); ctx.clip(); ctx.fillStyle = headFill || B.surface3; ctx.fillRect(x, y, w, headH); ctx.restore();
+      drawRoundedRect(ctx, x, y, w, h, r); ctx.strokeStyle = B.lineStrong; ctx.lineWidth = 2; ctx.stroke();
+      ctx.restore();
+    }
+    // bodyH: ارتفاع محتوى القسم تحته — يُرسم القسم كإطار واحد (العنوان أعلاه والمحتوى داخله)
+    function exportSectionBar(ctx, M, y, CW, text, icon, note, bodyH) {
       const B = EXPORT_BRAND, H = 70;
-      drawRoundedRect(ctx, M, y, CW, H, 18); ctx.fillStyle = B.wood; ctx.fill();
+      if (bodyH) exportTableFrame(ctx, M, y, CW, H + EXPORT_TABLE_PAD + bodyH + EXPORT_TABLE_PAD, H, B.wood, 22);
+      else { drawRoundedRect(ctx, M, y, CW, H, 18); ctx.fillStyle = B.wood; ctx.fill(); }
       if (note) exportText(ctx, note, M + 24, y + H / 2, { size: 21, weight: 700, color: 'rgba(247,243,234,0.7)', align: 'left', maxW: CW * 0.4, min: 14 });
       const t = exportText(ctx, text, M + CW - 24 - (icon ? 44 : 0), y + H / 2, { size: 30, weight: 800, color: B.goldSoft, align: 'right', maxW: CW * 0.7, min: 20 });
       if (icon) exportIcon(ctx, icon, M + CW - 24 - 16, y + H / 2, 30, B.gold, 2);
@@ -9290,22 +9319,23 @@ function buildLeagueStandingsCanvas() {
       const ctxRes = exportContextResolve(ctxOrig);
       const show = exportParts('rating');
       const gapC = ctxRes.shown ? 52 : 6, HEAD = 66, ROW = 88, GAP = 12, LEG = show.legend ? 150 : 0;
-      const H = Math.ceil(top + gapC + HEAD + 12 + list.length * (ROW + GAP) + (LEG ? 24 + LEG : 0) + 80);
+      const TP = EXPORT_TABLE_PAD, frameH = HEAD + TP + list.length * ROW + Math.max(0, list.length - 1) * GAP + TP;
+      const H = Math.ceil(top + gapC + frameH + GAP + (LEG ? 24 + LEG : 0) + 80);
       const { canvas, ctx } = exportNewCanvas(W, H);
       exportBrandHeader(ctx, M, M, CW, tournamentName.textContent.trim() || 'بطولة المجلس للكيرم', 'تقييم المجلس', meta);
       if (ctxRes.shown) exportText(ctx, ctxRes.text, M + CW / 2, top + 4, { size: 26, weight: 700, color: B.muted, maxW: CW - 30, min: 17 });
       // الأعمدة من اليمين
       const cols = [['rank', 'المركز', 84], ['name', 'اللاعب', 250], ['rating', 'التقييم', 136], ['tier', 'المستوى', 176], ['delta', 'آخر بطولة', 116], ['games', 'مباريات', 94], ['rate', 'نسبة الفوز', 112]].filter(([k]) => show[k] !== false);
-      const sum = cols.reduce((s, c) => s + c[2], 0), C = {}; let cur = M + CW;
-      cols.forEach(([k, , w]) => { const ww = w * CW / sum; C[k] = { c: cur - ww / 2, w: ww, r: cur }; cur -= ww; });
+      const sum = cols.reduce((s, c) => s + c[2], 0), C = {}; let cur = M + CW - TP;
+      cols.forEach(([k, , w]) => { const ww = w * (CW - 2 * TP) / sum; C[k] = { c: cur - ww / 2, w: ww, r: cur }; cur -= ww; });
       let y = top + gapC;
-      drawRoundedRect(ctx, M, y, CW, HEAD, 20); ctx.fillStyle = B.surface3; ctx.fill();
+      exportTableFrame(ctx, M, y, CW, frameH, HEAD, B.surface3, 26);
       cols.forEach(([k, l]) => exportText(ctx, l, k === 'name' ? C[k].r - 14 : C[k].c, y + HEAD / 2, { size: 23, weight: 800, color: B.muted, align: k === 'name' ? 'right' : 'center', maxW: C[k].w - 8, min: 15 }));
       y += HEAD + 12; const cuts = [];
       list.forEach((p, i) => {
         if (i > 0) cuts.push(y - GAP / 2);
         const rid = rankIdentity(p.rank), cy = y + ROW / 2;
-        drawRoundedRect(ctx, M, y, CW, ROW, 22); ctx.fillStyle = rid ? rankHexToRgba(rid.main, 0.16) : B.paper; ctx.fill();
+        drawRoundedRect(ctx, M + TP, y, CW - 2 * TP, ROW, 20); ctx.fillStyle = rid ? rankHexToRgba(rid.main, 0.16) : B.paper; ctx.fill();
         ctx.strokeStyle = rid ? rid.main : B.line; ctx.lineWidth = rid ? 2.5 : 1.6; ctx.stroke();
         if (rid) { drawRankBadge(ctx, C.rank.c, cy, 26, p.rank); exportText(ctx, String(p.rank), C.rank.c, cy, { size: 28, weight: 800, color: rid.badgeText, dir: 'ltr' }); }
         else exportText(ctx, String(p.rank), C.rank.c, cy, { size: 30, weight: 800, color: B.faint, dir: 'ltr' });
@@ -9350,7 +9380,7 @@ function buildLeagueStandingsCanvas() {
       const H2H = show.h2h ? d.h2h.slice(0, 8) : [], PARTS = show.partners ? d.parts.slice(0, 5) : [], RH = 84;
       const HERO = 318, CHART = 380, TILE = 152, FORM = 150, SEC = 70 + 14, EXC = playerExclusions(name), EXH = 64;
       const H = Math.ceil(top + HERO + GAPS + (EXC.length ? EXC.length * (EXH + 12) + GAPS - 12 : 0) + (hasChart ? CHART + GAPS : 0) + (show.tiles ? TILE * 2 + 16 + GAPS : 0) + (show.form ? FORM + GAPS : 0) +
-        (H2H.length ? SEC + H2H.length * RH + GAPS : 0) + (PARTS.length ? SEC + PARTS.length * RH + GAPS : 0) + 70);
+        (H2H.length ? SEC + H2H.length * RH + GAPS + 10 : 0) + (PARTS.length ? SEC + PARTS.length * RH + GAPS + 10 : 0) + 70);   // +10: حواف إطار الجدول
       const { canvas, ctx } = exportNewCanvas(W, H);
       exportBrandHeader(ctx, M, M, CW, tournamentName.textContent.trim() || 'بطولة المجلس للكيرم', 'ملف لاعب', meta);
       const cuts = []; let y = top;
@@ -9450,34 +9480,36 @@ function buildLeagueStandingsCanvas() {
       }
 
       // صف بنسبة (مواجهة أو شراكة)
+      // الصفوف داخل إطار القسم (العنوان أعلى الإطار نفسه): إزاحة بمقدار حافة الإطار
+      const TP = EXPORT_TABLE_PAD, RX = M + TP, RW = CW - 2 * TP;
       const listRow = (i, label, tag, rec, ratio) => {
         if (i > 0) cuts.push(y - 5);
-        drawRoundedRect(ctx, M, y, CW, RH - 10, 18); ctx.fillStyle = i % 2 ? B.surface2 : B.paper; ctx.fill(); ctx.strokeStyle = B.line; ctx.lineWidth = 1.2; ctx.stroke();
+        drawRoundedRect(ctx, RX, y, RW, RH - 10, 16); ctx.fillStyle = B.paper; ctx.fill(); ctx.strokeStyle = B.line; ctx.lineWidth = 1.2; ctx.stroke();
         const cy = y + (RH - 10) / 2;
-        const t = exportText(ctx, label, M + CW - 26, cy, { size: 29, weight: 800, color: B.ink, align: 'right', maxW: 330, min: 17 });
+        const t = exportText(ctx, label, RX + RW - 24, cy, { size: 29, weight: 800, color: B.ink, align: 'right', maxW: 330, min: 17 });
         if (tag) {
           const st = tag.kind === 'nem' ? { bg: '#FBEAE6', fg: '#B3402F', line: '#EBC3BA' } : { bg: B.okBg, fg: B.ok, line: B.okLine };
           ctx.save(); ctx.font = `800 20px ${EXPORT_FONT}`; const w = ctx.measureText(tag.text).width + 30; ctx.restore();
-          const x1 = M + CW - 26 - t.width - 16;
+          const x1 = RX + RW - 24 - t.width - 16;
           drawRoundedRect(ctx, x1 - w, cy - 19, w, 38, 19); ctx.fillStyle = st.bg; ctx.fill(); ctx.strokeStyle = st.line; ctx.lineWidth = 1.2; ctx.stroke();
           exportText(ctx, tag.text, x1 - w / 2, cy, { size: 20, weight: 800, color: st.fg });
         }
-        const bx = M + 26, bw = 140, bh = 12;
+        const bx = RX + 24, bw = 140, bh = 12;
         exportText(ctx, rec, bx + bw + 24, cy, { size: 25, weight: 800, color: B.text, align: 'left', maxW: 250, min: 15 });
         drawRoundedRect(ctx, bx, cy - bh / 2, bw, bh, bh / 2); ctx.fillStyle = '#F0D9D3'; ctx.fill();
         if (ratio > 0) { drawRoundedRect(ctx, bx + bw * (1 - ratio), cy - bh / 2, bw * ratio, bh, bh / 2); ctx.fillStyle = B.ok; ctx.fill(); }
         y += RH;
       };
       if (H2H.length) {
-        cuts.push(y - GAPS / 2); y += exportSectionBar(ctx, M, y, CW, 'المواجهات المباشرة', 'users', 'نتيجته أمام كل منافس') + 14;
+        cuts.push(y - GAPS / 2); y += exportSectionBar(ctx, M, y, CW, 'المواجهات المباشرة', 'users', 'نتيجته أمام كل منافس', H2H.length * RH - 10) + TP;
         H2H.forEach((x, i) => listRow(i, x.o, x.o === d.nem ? { kind: 'nem', text: 'غريمه' } : x.o === d.vic ? { kind: 'vic', text: 'يتفوق عليه' } : null,
           `فاز ${x.w} · خسر ${x.l}` + (x.d ? ` · تعادل ${x.d}` : ''), x.g ? x.w / x.g : 0));
-        y += GAPS - 10;
+        y += TP - 10 + GAPS;
       }
       if (PARTS.length) {
-        cuts.push(y - GAPS / 2); y += exportSectionBar(ctx, M, y, CW, 'الشركاء في الفرق', 'trophy', 'نتيجته مع كل شريك') + 14;
+        cuts.push(y - GAPS / 2); y += exportSectionBar(ctx, M, y, CW, 'الشركاء في الفرق', 'trophy', 'نتيجته مع كل شريك', PARTS.length * RH - 10) + TP;
         PARTS.forEach((x, i) => listRow(i, x.o, x.o === d.best ? { kind: 'vic', text: 'أفضل شريك' } : null, `فاز ${x.w} من ${x.games} · ${Math.round(x.w / x.games * 100)}%`, x.w / x.games));
-        y += GAPS - 10;
+        y += TP - 10 + GAPS;
       }
       exportFooterDivider(ctx, M, H - 40, CW);
       canvas.__cuts = cuts;
@@ -10868,7 +10900,7 @@ function buildLeagueStandingsCanvas() {
     // ===================================
     // 🧭 سلوك التطبيق: إعادة الوضع للأعلى، تعديل العنوان بالضغط المطوّل، تنبيه التحديث، رقم الإصدار
     // ===================================
-    const APP_VERSION = '1.5';   // ترقيم الاعتماد: 1 ثم 1.1 … 1.9 ثم 2 — ويُرفع معه رقم الإصدار في sw.js
+    const APP_VERSION = '1.7';   // ترقيم الاعتماد: 1 ثم 1.1 … 1.9 ثم 2 — ويُرفع معه رقم الإصدار في sw.js
     (function setupAppBehaviors() {
       const root = document.documentElement;
 
@@ -11081,6 +11113,19 @@ function buildLeagueStandingsCanvas() {
         sum.querySelector('.d').textContent = `${leaguePlayers.length - nx} لاعبًا · ${nx ? getLeagueProgress().total : exp.totalMatches} مباراة · ${exp.rounds} جولة`;
       };
       // 4) الجولة: المنتظرة أولًا ثم فاصل «المباريات المكتملة»، وصف الجولات يتمركز على الجولة الحالية
+      // بالفأرة تلتف دوائر الجولات في أسطر متساوية (مثلًا 11 + 11 بدل 15 + 7)
+      const finePointer = () => window.matchMedia && matchMedia('(hover: hover) and (pointer: fine)').matches;
+      const balanceDots = dots => {
+        dots.style.maxWidth = '';
+        if (!finePointer()) return;
+        const items = dots.querySelectorAll('.league-dot'), n = items.length; if (!n) return;
+        const w = items[0].getBoundingClientRect().width, gap = parseFloat(getComputedStyle(dots).columnGap) || 6, W = dots.clientWidth;
+        if (!w || !W) return;
+        const per = Math.max(1, Math.floor((W + gap) / (w + gap))), rows = Math.ceil(n / per), each = Math.ceil(n / rows);
+        if (rows > 1) { dots.style.maxWidth = (each * (w + gap) - gap + 1) + 'px'; dots.style.marginInline = 'auto'; }
+      };
+      let dotsRT = null;
+      window.addEventListener('resize', () => { clearTimeout(dotsRT); dotsRT = setTimeout(() => { const d = leagueRoundsEl.querySelector('.league-round-dots'); if (d) { d.style.maxWidth = ''; requestAnimationFrame(() => balanceDots(d)); } }, 150); });
       let roundDir = 0, firstPaint = true;
       const _renderRounds = renderLeagueRounds;
       renderLeagueRounds = function () {
@@ -11094,6 +11139,7 @@ function buildLeagueStandingsCanvas() {
             if (roundDir) animate(grid, roundDir > 0 ? -22 : 22);
           }
           const dots = leagueRoundsEl.querySelector('.league-round-dots'), act = dots && dots.querySelector('.league-dot.active');
+          if (dots) balanceDots(dots);
           if (dots && act) requestAnimationFrame(() => {
             const left = act.offsetLeft - (dots.clientWidth - act.offsetWidth) / 2;
             dots.scrollTo({ left, behavior: firstPaint || reduce() ? 'auto' : 'smooth' }); firstPaint = false;
