@@ -4496,11 +4496,21 @@ return teamName.replace('غير محدد', replacement);
 
     // صيغة مباريات الإقصائيات في السجل — مشتركة بين التسجيل عند الاكتمال والبطولة الجارية في الإحصائيات
     function knockoutHistoryMatches(bs) {
-      return Object.values(bs || {}).filter(m => m.winner).map(m => ({
+      // وقت اللعب الفعلي من سجل المباريات (إن وُجد) — مثل الدوري — ليُرتَّب «آخر النتائج» بتوقيت اللعب لا برقم المباراة
+      const at = {}; try { readMatchLog().forEach(e => { const m = e.k === 'ko' && bs && bs[e.id]; if (m && m.team1 === e.a && m.team2 === e.b && m.winner === e.w) at[e.id] = e.at; }); } catch (e) {}
+      return Object.values(bs || {}).filter(m => m.winner).map(m => ({ ...(at[m.id] ? { at: at[m.id] } : {}),
         id: m.id, roundName: m.roundName, matchNumber: m.matchNumber, team1: m.team1, team2: m.team2,
         winner: m.winner, winnerScore: m.winnerScore, loserScore: m.loserScore
       }));
     }
+    // ترتيب زمني فعلي: ما له وقت لعب مسجّل يُرتَّب بوقته (فالمباراة المؤجلة تأتي حين لُعبت)،
+    // وما لا وقت له (نتائج أقدم من ميزة التوقيت) يبقى بعد سابقه في الترتيب الأصلي
+    function sortByPlayedTime(list, atOf) {
+      let carry = -Infinity;
+      return list.map((x, i) => { const t = Number(atOf(x)); const k = Number.isFinite(t) && t > 0 ? (carry = t) : carry; return { x, k, i }; })
+        .sort((a, b) => a.k - b.k || a.i - b.i).map(o => o.x);
+    }
+    function leagueMatchTimes() { const at = {}; try { readMatchLog().forEach(e => { if (e.k === 'lg' && matchLogStillValid(e)) at[e.id] = e.at; }); } catch (e) {} return at; }
     function knockoutParticipantsOf(bs) {
       const participants = new Set();
       Object.values(bs || {}).forEach(m => [m.team1, m.team2].forEach(name => {
@@ -7311,7 +7321,7 @@ function changeScore(inputId, amount){
           const points = isA ? d.pointsA : d.pointsB;
           const outcome = d.result === 'draw' ? 'draw' : ((d.result === 'A') === isA ? 'win' : 'loss');
           const ff = m.forfeit ? ((m.forfeit === 'A') === isA ? 'self' : 'opp') : null;   // من انسحب: اللاعب نفسه أو خصمه
-          rows.push({ round: m.round, opponent, completed: true, own, opp, outcome, points, ff, auto: !!m.auto, annul: isLeagueMatchAnnulled(m) });
+          rows.push({ id: m.id, round: m.round, opponent, completed: true, own, opp, outcome, points, ff, auto: !!m.auto, annul: isLeagueMatchAnnulled(m) });
         } else {
           rows.push({ round: m.round, opponent, completed: false, annul: isLeagueMatchAnnulled(m) });
         }
@@ -8571,7 +8581,7 @@ function buildLeagueStandingsCanvas() {
 
     async function exportLeaguePlayerCard(name) {
       const r = leagueRow(name); if (!r) { alert('اللاعب غير موجود في الدوري الحالي.'); return; }
-      const done = getLeaguePlayerHistory(name).filter(h => h.completed && !h.annul);
+      const lgT = leagueMatchTimes(), done = sortByPlayedTime(getLeaguePlayerHistory(name).filter(h => h.completed && !h.annul), h => lgT[h.id]);   // بتوقيت اللعب الفعلي
       const last = done.slice(-5).reverse().map(h => [`ج${h.round}: ${h.opponent}` + (h.ff ? (h.auto ? ' · استبعاد' : ' · انسحاب') : ''), `${h.own} – ${h.opp}`, h.outcome === 'win' ? 'فوز' : h.outcome === 'draw' ? 'تعادل' : 'خسارة']);
       const show = exportParts('lgCard');
       const secs = [{ heading: `${name} — ${getLeagueProgress().completed ? 'المركز النهائي' : 'المركز الحالي'} ${r.rank}`, rows: [
@@ -10551,7 +10561,7 @@ function buildLeagueStandingsCanvas() {
       const tours = statsSourceRecords().filter(t => t && Array.isArray(t.matches)).slice().sort((a, b) => new Date(a.date) - new Date(b.date));
       tours.forEach(t => {
         const played = new Set();
-        const startOf = {};
+        const startOf = {}, loc = {};   // نتائج كل لاعب في هذه البطولة، تُرتَّب بوقت اللعب الفعلي بعد حساب التقييم
         t.matches.slice().sort((a, b) => historyMatchOrder(a) - historyMatchOrder(b)).forEach(m => {
           const A = historyMembers(t, m.team1), B = historyMembers(t, m.team2);
           if (!A.length || !B.length || A.some(x => B.includes(x))) return;
@@ -10568,12 +10578,13 @@ function buildLeagueStandingsCanvas() {
           const res = sa === 1 ? 'w' : sa === 0 ? 'l' : 'd';
           const opp = { w: 'l', l: 'w', d: 'd' };
           const apply = (L, delta, r, others) => L.forEach(n => {
-            const p = st(n); p.rating += delta; p.games++; p[r]++; p.seq.push(r);
+            const p = st(n); p.rating += delta; p.games++; p[r]++; (loc[n] || (loc[n] = [])).push({ r, at: m.at });
             others.forEach(o => { const h = p.h2h[o] || (p.h2h[o] = { w: 0, l: 0, d: 0 }); h[r]++; });
             if (L.length === 2) { const mate = L.find(x => x !== n); const q = p.partners[mate] || (p.partners[mate] = { games: 0, w: 0 }); q.games++; if (r === 'w') q.w++; }
           });
           apply(A, dA, res, B); apply(B, -dA, opp[res], A);
         });
+        Object.keys(loc).forEach(n => { const p = st(n); sortByPlayedTime(loc[n], e => e.at).forEach(e => p.seq.push(e.r)); });   // آخر النتائج والسلاسل بتوقيت اللعب
         played.forEach(n => { const p = st(n); p.beforeLast = startOf[n]; p.lastDelta = Math.round(p.rating) - Math.round(startOf[n]); p.points.push({ date: t.date, r: Math.round(p.rating), name: t.name }); });
       });
       Object.values(P).forEach(p => {
@@ -10957,7 +10968,7 @@ function buildLeagueStandingsCanvas() {
     // ===================================
     // 🧭 سلوك التطبيق: إعادة الوضع للأعلى، تعديل العنوان بالضغط المطوّل، تنبيه التحديث، رقم الإصدار
     // ===================================
-    const APP_VERSION = '1.8';   // ترقيم الاعتماد: 1 ثم 1.1 … 1.9 ثم 2 — ويُرفع معه رقم الإصدار في sw.js
+    const APP_VERSION = '1.9';   // ترقيم الاعتماد: 1 ثم 1.1 … 1.9 ثم 2 — ويُرفع معه رقم الإصدار في sw.js
     (function setupAppBehaviors() {
       const root = document.documentElement;
 
@@ -11391,9 +11402,10 @@ function buildLeagueStandingsCanvas() {
         }
 
         // 2) تمييز البطاقات: «جديد» على النتائج الجديدة، واسمي باللون الذهبي
-        const leagueFormOf = name => (Array.isArray(leagueMatches) ? leagueMatches : [])
+        const lgTimes = leagueMatchTimes();
+        const leagueFormOf = name => sortByPlayedTime((Array.isArray(leagueMatches) ? leagueMatches : [])
           .filter(m => isLeagueMatchCompleted(m) && !isLeagueMatchAnnulled(m) && (m.playerA === name || m.playerB === name))
-          .sort((a, b) => a.round - b.round || String(a.id).localeCompare(String(b.id), 'en', { numeric: true }))
+          .sort((a, b) => a.round - b.round || String(a.id).localeCompare(String(b.id), 'en', { numeric: true })), m => lgTimes[m.id])   // بتوقيت اللعب الفعلي: المؤجلة تُحسب حين لُعبت
           .slice(-5).map(m => { const d = deriveLeagueResult(m.scoreA, m.scoreB); return d.result === 'draw' ? 'd' : (d.result === 'A') === (m.playerA === name) ? 'w' : 'l'; });
         const isMine = name => !!me && String(name || '').split(' + ').map(x => x.trim()).includes(me);
         let busy = false;
