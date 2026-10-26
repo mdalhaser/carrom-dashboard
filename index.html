@@ -1136,9 +1136,19 @@
     .t-caps { display: flex; justify-content: center; gap: 3px; margin-top: 4px; direction: rtl; }
     .t-cap { display: inline-flex; align-items: center; gap: 2px; padding: 1px 6px 1px 5px; border-radius: 999px; font-size: 11px; font-weight: 800; line-height: 1.5;
       font-variant-numeric: tabular-nums; color: var(--text-3); background: var(--surface-3); border: 1px solid var(--line); }
-    .t-cap.on { color: var(--gold-deep); background: color-mix(in srgb, var(--gold) 16%, transparent); border-color: color-mix(in srgb, var(--gold) 50%, transparent); }
-    .t-cap .ic { width: 11px; height: 11px; margin: 0; }
-    .stats-table td .t-cap .ic { width: 11px; height: 11px; margin: 0; color: currentColor; }
+    /* كبسولات الألقاب الثلاث بأسلوب واحد حتى لو العدد صفر (مثل صور التصدير): خلفية ذهبية خفيفة، أيقونة بلون الجوز، ورقم بلون النص */
+    .t-cap, .t-cap.on { color: var(--text); background: color-mix(in srgb, var(--gold) 12%, transparent); border-color: color-mix(in srgb, var(--gold) 45%, transparent); }
+    .t-cap .ic { width: 11px; height: 11px; margin: 0; color: var(--gold-deep); }
+    /* خانة الألقاب في جدول الإحصائيات بنفس ترتيب صورة التصدير: الكبسولات الثلاث في الأعلى، والمجموع تحتها برقم أكبر بلا كأس */
+    .st-titles .t-caps { margin-top: 0; }
+    .st-titles .t-tot { display: block; margin-top: 4px; font-size: var(--fs-md); font-weight: 800; line-height: 1.2; text-align: center; color: var(--text); font-variant-numeric: tabular-nums; }
+    @media (max-width: 639px) {   /* الجوال (بطاقة بأعمدة ضيقة): المجموع على سطر القيم بمحاذاة بقية الأرقام، والكبسولات تحته في المساحة الفارغة دون أن تزاحم الخانة المجاورة */
+      .stats-table td.st-titles { display: flex; flex-direction: column; align-items: center; }
+      .stats-table td.st-titles::before { order: 0; align-self: stretch; }
+      .st-titles .t-tot { order: 1; margin-top: 0; font-size: var(--fs-base); line-height: inherit; }
+      .st-titles .t-caps { order: 2; margin-top: 6px; white-space: nowrap; }
+    }
+    .stats-table td .t-cap .ic { width: 11px; height: 11px; margin: 0; color: var(--gold-deep); }
     .pf-titles { display: flex; align-items: center; justify-content: space-between; gap: 8px; margin: -4px 0 var(--s3); padding: 8px 12px; border-radius: var(--r-md); background: var(--surface-2); }
     .pf-titles .lbl { font-size: var(--fs-xs); font-weight: 800; color: var(--text-2); }
     .pf-titles .t-caps { margin: 0; gap: 5px; }
@@ -2213,8 +2223,8 @@
     /* سهم تغيّر المركز بجانب رقم المركز، في خانة ثابتة العرض (تبقى الأسماء على خط واحد) */
     /* عمود المركز وحدة واحدة: الرقم وتحته حركة المركز (▲/▼ أو «–»)، والاسم يبدأ بعده مباشرة بمسافة ثابتة في كل الصفوف */
     .lgc-head, .lgc-row { grid-template-columns: 34px minmax(0, 1fr) 24px 36px 38px !important; column-gap: 3px; }
-    .lgc-row .r { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 4px; line-height: 1; color: var(--text-2); }
-    .lgc-row .r .rk { font-size: 16px; font-weight: 800; }
+    .lgc-row .r { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 4px; line-height: 1; color: var(--text); }   /* رقم المركز بلون نص واضح */
+    .lgc-row .r .rk { font-size: 17px; font-weight: 800; }
     .lgc-row .r .mv.same { color: var(--text-3); font-size: 12px; }
     .lgc-row .n { padding-inline-start: 6px; }
     .lgc-head > .n { padding-inline-start: 6px; }
@@ -2305,7 +2315,7 @@
     .league-table tr.rank-1 .rank-badge, .league-table tr.rank-2 .rank-badge, .league-table tr.rank-3 .rank-badge, .lgc-row .r .rank-badge {
       width: auto; height: auto; border-radius: 0; background: none; box-shadow: none; color: inherit; font-size: inherit; font-weight: inherit; }
     .rank-badge.rb-1, .league-table tr.rank-1 .rank-badge, .lgc-row.rank-1 .r, .lgc-row.rank-1 .r .rank-badge { color: var(--rk1); font-weight: 900; }
-    .rank-number { color: var(--text-3); }
+    .rank-number { color: var(--text); font-size: var(--fs-md); }   /* أرقام المراكز أكبر قليلًا وبلون نص واضح (كل الشاشات) */
     .league-table tr.rank-1, .league-table tr.rank-2, .league-table tr.rank-3 { background: transparent; }
     .league-table tr.rank-1 td:first-child, .league-table tr.rank-2 td:first-child, .league-table tr.rank-3 td:first-child { box-shadow: none; }
     body .league-table tr.rank-1 td.lt-points, body .league-table tr.rank-2 td.lt-points, body .league-table tr.rank-3 td.lt-points,
@@ -4820,7 +4830,7 @@ return teamName.replace('غير محدد', replacement);
       const lastHist = tournamentHistory[tournamentHistory.length - 1];
       const lastChamp = lastHist ? (lastHist.teamMap?.[lastHist.champion] || (lastHist.mode === 'single' || lastHist.mode === 'league' ? [lastHist.champion] : String(lastHist.champion || '').split(' + '))).join(' + ') : '';
 
-      const playerRows = players.map((p,i) => `<tr class="st-player${i < 3 ? ` rk-${i+1}` : ''}" data-player="${escHTML(p.name)}" tabindex="0" title="عرض ملف اللاعب"><td class="rank-number" data-l="#">${i < 3 ? `<span class="rank-badge rb-${i+1}"><span class="tx">${i+1}</span></span>` : i+1}</td><td data-l="اللاعب">${escHTML(p.name)}</td><td data-l="التقييم" class="rt-cell">${ratingCell(p.name)}</td><td data-l="ألقاب"><span class="ic ic-trophy" aria-hidden="true"></span>${p.championships}${p.championships ? titlesCapsHTML(p) : ''}</td><td data-l="وصافة">${p.runnerUps}</td><td data-l="نصف النهائي">${p.semifinals}</td><td data-l="مشاركات">${p.tournaments}</td><td data-l="فوز">${p.wins}</td><td data-l="خسارة">${p.losses}</td><td data-l="نسبة الفوز">${p.winRate}%</td></tr>`).join('');
+      const playerRows = players.map((p,i) => `<tr class="st-player${i < 3 ? ` rk-${i+1}` : ''}" data-player="${escHTML(p.name)}" tabindex="0" title="عرض ملف اللاعب"><td class="rank-number" data-l="#">${i < 3 ? `<span class="rank-badge rb-${i+1}"><span class="tx">${i+1}</span></span>` : i+1}</td><td data-l="اللاعب">${escHTML(p.name)}</td><td data-l="التقييم" class="rt-cell">${ratingCell(p.name)}</td><td data-l="ألقاب" class="st-titles">${titlesCapsHTML(p)}<b class="t-tot">${p.championships}</b></td><td data-l="وصافة">${p.runnerUps}</td><td data-l="نصف النهائي">${p.semifinals}</td><td data-l="مشاركات">${p.tournaments}</td><td data-l="فوز">${p.wins}</td><td data-l="خسارة">${p.losses}</td><td data-l="نسبة الفوز">${p.winRate}%</td></tr>`).join('');
       const pairRows = partnerships.map((p,i) => `<tr class="pair-row${i >= STATS_FOLD_PEEK ? ' st-extra' : ''}${i < 3 ? ` rk-${i+1}` : ''}"><td class="rank-number" data-l="#">${i < 3 ? `<span class="rank-badge rb-${i+1}"><span class="tx">${i+1}</span></span>` : i+1}</td><td data-l="الثنائي">${escHTML(p.name)}</td><td data-l="ألقاب"><span class="ic ic-trophy" aria-hidden="true"></span>${p.championships}</td><td data-l="وصافة">${p.runnerUps}</td><td data-l="مشاركات">${p.tournaments}</td><td data-l="فوز">${p.wins}</td><td data-l="خسارة">${p.losses}</td><td data-l="نسبة الفوز">${p.winRate}%</td></tr>`).join('');
       // الفريق: كل لاعب في سطر وبينهما علامة «+» صغيرة
       const teamHTML = (t, side) => { const ms = t.teamMap?.[side] || (t.mode === 'single' || t.mode === 'league' ? [side] : String(side || '').split(' + '));
@@ -11316,7 +11326,7 @@ function buildLeagueStandingsCanvas() {
     // ===================================
     // 🧭 سلوك التطبيق: إعادة الوضع للأعلى، تعديل العنوان بالضغط المطوّل، تنبيه التحديث، رقم الإصدار
     // ===================================
-    const APP_VERSION = '3.3';   // ترقيم الاعتماد: 1 ثم 1.1 … 1.9 ثم 2 — ويُرفع معه رقم الإصدار في sw.js
+    const APP_VERSION = '3.5';   // ترقيم الاعتماد: 1 ثم 1.1 … 1.9 ثم 2 — ويُرفع معه رقم الإصدار في sw.js
     (function setupAppBehaviors() {
       const root = document.documentElement;
 
