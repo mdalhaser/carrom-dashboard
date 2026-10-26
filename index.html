@@ -125,6 +125,11 @@
       --ic-user: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='1.9' stroke-linecap='round' stroke-linejoin='round'><circle cx='12' cy='8' r='3.6'/><path d='M5 20c0-3.9 3.1-7 7-7s7 3.1 7 7'/></svg>");
       --ic-star: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='1.9' stroke-linejoin='round'><path d='M12 3.8l2.5 5.1 5.6.8-4.05 3.95.95 5.6L12 16.6l-5 2.65.95-5.6L3.9 9.7l5.6-.8z'/></svg>");
       --ic-rank: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='1.9' stroke-linecap='round' stroke-linejoin='round'><path d='M3.5 19.5h17M5 19.5v-7h4.5v7M9.5 19.5V4.5h5v15M14.5 19.5v-10H19v10'/></svg>");
+      --ic-clock: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='1.9' stroke-linecap='round' stroke-linejoin='round'><path d='M20.5 12a8.5 8.5 0 1 1-17 0 8.5 8.5 0 0 1 17 0zM12 7.5V12l3 2'/></svg>");
+      --ic-quote: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='1.9' stroke-linecap='round' stroke-linejoin='round'><path d='M5 4h14a2 2 0 0 1 2 2v9a2 2 0 0 1-2 2h-6l-4.5 3.5V17H5a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2zM10.4 11.6a1.4 1.4 0 1 1-2.8 0 1.4 1.4 0 0 1 2.8 0zM7.6 11.6c0-1.9.9-3.1 2.6-3.5M16.4 11.6a1.4 1.4 0 1 1-2.8 0 1.4 1.4 0 0 1 2.8 0zM13.6 11.6c0-1.9.9-3.1 2.6-3.5'/></svg>");
+      --ic-league: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='1.9' stroke-linecap='round' stroke-linejoin='round'><path d='M20.5 6a1.5 1.5 0 1 1-3 0 1.5 1.5 0 0 1 3 0zM20.5 12a1.5 1.5 0 1 1-3 0 1.5 1.5 0 0 1 3 0zM20.5 18a1.5 1.5 0 1 1-3 0 1.5 1.5 0 0 1 3 0zM14.5 6H3.5M14.5 12H6M14.5 18H8.5'/></svg>");
+      --ic-flag: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='1.9' stroke-linecap='round' stroke-linejoin='round'><path d='M18.5 21V3.5M18.5 4h-12l2.6 4.25L6.5 12.5h12'/></svg>");
+      --ic-medal: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='1.9' stroke-linecap='round' stroke-linejoin='round'><path d='M17.5 15a5.5 5.5 0 1 1-11 0 5.5 5.5 0 0 1 11 0zM8 3l2.7 6.7M16 3l-2.7 6.7M8 3h8'/></svg>");
       --ic-trophy: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='1.9' stroke-linecap='round' stroke-linejoin='round'><path d='M8 21h8M12 17v4M7 4h10v5a5 5 0 0 1-10 0z'/><path d='M7 6H4v1a4 4 0 0 0 3.5 4M17 6h3v1a4 4 0 0 1-3.5 4'/></svg>");
       --ic-table: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='1.9' stroke-linecap='round' stroke-linejoin='round'><rect x='3.5' y='4' width='17' height='16' rx='3'/><path d='M3.5 10h17M9 10v10'/></svg>");
       --ic-dice: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='1.9' stroke-linecap='round' stroke-linejoin='round'><rect x='4' y='4' width='16' height='16' rx='4'/><circle cx='9' cy='9' r='1' fill='black'/><circle cx='15' cy='9' r='1' fill='black'/><circle cx='9' cy='15' r='1' fill='black'/><circle cx='15' cy='15' r='1' fill='black'/></svg>");
@@ -223,6 +228,7 @@
     .cycle-info { align-items: flex-start !important; }
     .cycle-info > .ic { margin-top: calc((1lh - 1.2em) / 2); --ic-y: -.27em; }   /* سطران: الأيقونة مع السطر الأول */
     .ic-star { --ic: var(--ic-star); } .ic-rank { --ic: var(--ic-rank); }
+    .ic-clock { --ic: var(--ic-clock); } .ic-quote { --ic: var(--ic-quote); } .ic-league { --ic: var(--ic-league); } .ic-flag { --ic: var(--ic-flag); } .ic-medal { --ic: var(--ic-medal); }
     .ic-moon { --ic: var(--ic-moon); } .ic-sun { --ic: var(--ic-sun); } .ic-sliders { --ic: var(--ic-sliders); }
     .ic-shield { --ic: var(--ic-shield); } .ic-users { --ic: var(--ic-users); } .ic-user { --ic: var(--ic-user); }
     .ic-trophy { --ic: var(--ic-trophy); } .ic-table { --ic: var(--ic-table); } .ic-dice { --ic: var(--ic-dice); }
@@ -263,6 +269,7 @@
     [data-ic="download"]::before { --ic: var(--ic-download); } [data-ic="restore"]::before { --ic: var(--ic-restore); }
     [data-ic="chev-r"]::before { --ic: var(--ic-chev-r); } [data-ic="chev-l"]::before { --ic: var(--ic-chev-l); }
     [data-ic="swap"]::before { --ic: var(--ic-swap); } [data-ic="calendar"]::before { --ic: var(--ic-calendar); }
+    [data-ic="star"]::before { --ic: var(--ic-star); } [data-ic="rank"]::before { --ic: var(--ic-rank); } [data-ic="clock"]::before { --ic: var(--ic-clock); } [data-ic="quote"]::before { --ic: var(--ic-quote); } [data-ic="league"]::before { --ic: var(--ic-league); } [data-ic="flag"]::before { --ic: var(--ic-flag); } [data-ic="medal"]::before { --ic: var(--ic-medal); }
 
     /* ---------- 3) الهيكل ---------- */
     .container {
@@ -2287,6 +2294,27 @@
     .vm-h2h b { font-size: 28px; font-weight: 800; color: var(--text); font-variant-numeric: tabular-nums; }
     .vm-h2h span { font-size: var(--fs-xs); font-weight: 700; color: var(--text-2); }
     .vm-last { margin-top: 8px; text-align: center; font-size: var(--fs-xs); font-weight: 700; color: var(--text-2); }
+    /* ===== المراكز: كل الصفوف بنفس التصميم (بلا دوائر ولا خلفيات أو إطارات ملونة)، والتمييز الوحيد رقم «1» بذهبي مميز ===== */
+    :root { --rk1: #B8892E; }
+    body.dark-mode { --rk1: #E0B85C; }
+    .rank-badge, .rank-badge.rb-1, .rank-badge.rb-2, .rank-badge.rb-3,
+    .league-table tr.rank-1 .rank-badge, .league-table tr.rank-2 .rank-badge, .league-table tr.rank-3 .rank-badge, .lgc-row .r .rank-badge {
+      width: auto; height: auto; border-radius: 0; background: none; box-shadow: none; color: inherit; font-size: inherit; font-weight: inherit; }
+    .rank-badge.rb-1, .league-table tr.rank-1 .rank-badge, .lgc-row.rank-1 .r, .lgc-row.rank-1 .r .rank-badge { color: var(--rk1); font-weight: 900; }
+    .rank-number { color: var(--text-3); }
+    .league-table tr.rank-1, .league-table tr.rank-2, .league-table tr.rank-3 { background: transparent; }
+    .league-table tr.rank-1 td:first-child, .league-table tr.rank-2 td:first-child, .league-table tr.rank-3 td:first-child { box-shadow: none; }
+    body .league-table tr.rank-1 td.lt-points, body .league-table tr.rank-2 td.lt-points, body .league-table tr.rank-3 td.lt-points,
+    body.dark-mode .league-table tr.rank-1 td.lt-points, body.dark-mode .league-table tr.rank-2 td.lt-points, body.dark-mode .league-table tr.rank-3 td.lt-points { color: var(--text); }
+    .lgc-row.rank-1, .lgc-row.rank-2, .lgc-row.rank-3 { border-color: var(--line); background: var(--surface); box-shadow: none; }
+    @media (max-width: 639px) {
+      .league-table tr.rank-1, .league-table tr.rank-2, .league-table tr.rank-3 { border-color: var(--line); box-shadow: none; }
+    }
+    /* منصة نهاية الدوري (على الخشب): البطاقات الثلاث بنفس التصميم، ورقم الأول بذهبي فاتح يناسب الخشب */
+    .podium-card.p1, .podium-card.p2, .podium-card.p3 { background: rgba(255, 255, 255, .07); border-color: rgba(255, 255, 255, .12); box-shadow: none; }
+    .podium-medal, .podium-card.p1 .podium-medal, .podium-card.p2 .podium-medal, .podium-card.p3 .podium-medal {
+      width: auto; min-width: 30px; height: auto; border-radius: 0; background: none; font-size: 26px; font-weight: 800; line-height: 1; color: var(--on-wood-2); }
+    .podium-card.p1 .podium-medal { color: #E3BF6E; font-weight: 900; }
   </style>
 </head>
 <body>
@@ -2302,7 +2330,7 @@
             <h2 id="tournamentName" spellcheck="false">بطولة المجلس للكيرم</h2>
             <h1 id="tournamentTitle">إدارة القرعة</h1>
           </div>
-          <button type="button" id="openControlDashboard" class="control-open-btn" aria-label="فتح لوحة التحكم" data-ic="shield"><span>لوحة التحكم</span></button>
+          <button type="button" id="openControlDashboard" class="control-open-btn" aria-label="فتح لوحة التحكم" data-ic="sliders"><span>لوحة التحكم</span></button>
         </div>
       </header>
     </div>
@@ -2310,7 +2338,7 @@
     <nav class="mode-nav" aria-label="أوضاع البطولة">
       <div id="modeSelection" role="group" aria-label="اختيار وضع البطولة">
         <button id="modeFixedBtn" class="btn mode-switch active" data-mode="fixed" data-ic="users">منافسات الفرق</button>
-        <button id="modeLeagueBtn" class="btn mode-switch" data-mode="league" data-ic="table">منافسات الدوري</button>
+        <button id="modeLeagueBtn" class="btn mode-switch" data-mode="league" data-ic="league">منافسات الدوري</button>
         <button id="modeSingleBtn" class="btn mode-switch" data-mode="single" data-ic="user">منافسات فردية</button>
       </div>
     </nav>
@@ -2718,6 +2746,16 @@
       ctx.lineWidth = 2; ctx.strokeStyle = id.frame; ctx.globalAlpha = 0.55; ctx.stroke();
       ctx.restore();
       return id;
+    }
+    // صفوف الترتيب (أسلوب مسطح حديث): كل الصفوف بنفس التصميم، والتمييز الوحيد رقم «1» بذهبي مميز
+    function exportRankRow(ctx, x, y, w, h, r, rank) {
+      const B = EXPORT_BRAND;
+      ctx.save(); drawRoundedRect(ctx, x, y, w, h, r); ctx.fillStyle = B.paper; ctx.fill();
+      drawRoundedRect(ctx, x, y, w, h, r); ctx.strokeStyle = B.line; ctx.lineWidth = 1.6; ctx.stroke(); ctx.restore();
+    }
+    function exportRankNum(ctx, cx, cy, rank, label) {
+      const one = rankOf(rank) === 1;   // التمييز الوحيد: رقم «1» بذهبي مميز
+      exportText(ctx, label != null ? String(label) : String(rank), cx, cy, { size: one ? 32 : 30, weight: 800, color: one ? '#B8892E' : EXPORT_BRAND.faint, dir: 'ltr' });
     }
     // ميدالية مرسومة بمسارات SVG (Path2D) داخل Canvas: شريطان + قرص معدني + حلقة داخلية + رقم المركز.
     // لا تعتمد على صور خارجية أو إيموجي، فلا تختفي ولا يتغير لونها أو حجمها عند التحويل إلى PNG.
@@ -4626,9 +4664,14 @@ return teamName.replace('غير محدد', replacement);
     // تفصيل الألقاب حسب نوع البطولة، مثل «فردي 10 · فرق 6» (الأنواع بلا ألقاب لا تُذكر)
     // كبسولات الألقاب بالأيقونات داخل التطبيق (نفس شكل صور التصدير): فردي · فرق · دوري
     function titlesCapsHTML(p) {
-      const b = (p && p.titlesBy) || {}, kinds = [['single', 'user', 'فردي'], ['team', 'users', 'فرق'], ['league', 'table', 'دوري']];
+      const b = (p && p.titlesBy) || {}, kinds = [['single', 'user', 'فردي'], ['team', 'users', 'فرق'], ['league', 'league', 'دوري']];
       return `<span class="t-caps" role="img" aria-label="${kinds.map(([k, , l]) => `${l} ${b[k] || 0}`).join('، ')}">` +
         kinds.map(([k, ic, l]) => `<span class="t-cap${b[k] ? ' on' : ''}" title="ألقاب ${l}"><span class="ic ic-${ic}" aria-hidden="true"></span>${b[k] || 0}</span>`).join('') + '</span>';
+    }
+    // ترتيب اللاعبين الموحد (شاشة الإحصائيات وصورتها): الألقاب ← الوصافة ← نسبة الفوز ← الانتصارات
+    function statsTitleCmp(a, b) {
+      return (Number(b.championships) || 0) - (Number(a.championships) || 0) || (Number(b.runnerUps) || 0) - (Number(a.runnerUps) || 0) ||
+        (Number(b.winRate) || 0) - (Number(a.winRate) || 0) || (Number(b.wins) || 0) - (Number(a.wins) || 0) || String(a.name).localeCompare(String(b.name), 'ar');
     }
     function titlesBreakdown(p) { const b = p && p.titlesBy; if (!b) return ''; return [['فردي', b.single], ['فرق', b.team], ['دوري', b.league]].filter(([, n]) => n > 0).map(([k, n]) => `${k} ${n}`).join(' · '); }
 
@@ -4765,16 +4808,16 @@ return teamName.replace('غير محدد', replacement);
       const ratingOf = n => elo.players[n] ? elo.players[n].rating : null;
       const byRating = statsSortMode === 'rating';
       const players = Object.values(d.players).sort((a,b) => byRating
-        ? ((ratingOf(b.name) ?? -1) - (ratingOf(a.name) ?? -1)) || b.championships-a.championships
-        : b.championships-a.championships || b.runnerUps-a.runnerUps || b.wins-a.wins);
+        ? ((ratingOf(b.name) ?? -1) - (ratingOf(a.name) ?? -1)) || statsTitleCmp(a, b)
+        : statsTitleCmp(a, b));
       const ratingCell = n => { const e = elo.players[n]; if (!e) return '—'; const dl = e.lastDelta; const tag = dl ? `<small class="rt-delta ${dl > 0 ? 'up' : 'down'}">${dl > 0 ? '▲' : '▼'}${Math.abs(dl)}</small>` : ''; return `<b class="rt-val">${e.rating.toLocaleString('en-US')}</b>${tag}`; };
       const partnerships = Object.values(d.partnerships).sort((a,b) => b.championships-a.championships || b.wins-a.wins);
       const fmtDate = iso => fmtDayDate(iso);
       const lastHist = tournamentHistory[tournamentHistory.length - 1];
       const lastChamp = lastHist ? (lastHist.teamMap?.[lastHist.champion] || (lastHist.mode === 'single' || lastHist.mode === 'league' ? [lastHist.champion] : String(lastHist.champion || '').split(' + '))).join(' + ') : '';
 
-      const playerRows = players.map((p,i) => `<tr class="st-player" data-player="${escHTML(p.name)}" tabindex="0" title="عرض ملف اللاعب"><td class="rank-number" data-l="#">${i < 3 ? `<span class="rank-badge rb-${i+1}"><span class="tx">${i+1}</span></span>` : i+1}</td><td data-l="اللاعب">${escHTML(p.name)}</td><td data-l="التقييم" class="rt-cell">${ratingCell(p.name)}</td><td data-l="ألقاب"><span class="ic ic-trophy" aria-hidden="true"></span>${p.championships}${p.championships ? titlesCapsHTML(p) : ''}</td><td data-l="وصافة">${p.runnerUps}</td><td data-l="نصف النهائي">${p.semifinals}</td><td data-l="مشاركات">${p.tournaments}</td><td data-l="فوز">${p.wins}</td><td data-l="خسارة">${p.losses}</td><td data-l="نسبة الفوز">${p.winRate}%</td></tr>`).join('');
-      const pairRows = partnerships.map((p,i) => `<tr class="pair-row${i >= STATS_FOLD_PEEK ? ' st-extra' : ''}"><td class="rank-number" data-l="#">${i < 3 ? `<span class="rank-badge rb-${i+1}"><span class="tx">${i+1}</span></span>` : i+1}</td><td data-l="الثنائي">${escHTML(p.name)}</td><td data-l="ألقاب"><span class="ic ic-trophy" aria-hidden="true"></span>${p.championships}</td><td data-l="وصافة">${p.runnerUps}</td><td data-l="مشاركات">${p.tournaments}</td><td data-l="فوز">${p.wins}</td><td data-l="خسارة">${p.losses}</td><td data-l="نسبة الفوز">${p.winRate}%</td></tr>`).join('');
+      const playerRows = players.map((p,i) => `<tr class="st-player${i < 3 ? ` rk-${i+1}` : ''}" data-player="${escHTML(p.name)}" tabindex="0" title="عرض ملف اللاعب"><td class="rank-number" data-l="#">${i < 3 ? `<span class="rank-badge rb-${i+1}"><span class="tx">${i+1}</span></span>` : i+1}</td><td data-l="اللاعب">${escHTML(p.name)}</td><td data-l="التقييم" class="rt-cell">${ratingCell(p.name)}</td><td data-l="ألقاب"><span class="ic ic-trophy" aria-hidden="true"></span>${p.championships}${p.championships ? titlesCapsHTML(p) : ''}</td><td data-l="وصافة">${p.runnerUps}</td><td data-l="نصف النهائي">${p.semifinals}</td><td data-l="مشاركات">${p.tournaments}</td><td data-l="فوز">${p.wins}</td><td data-l="خسارة">${p.losses}</td><td data-l="نسبة الفوز">${p.winRate}%</td></tr>`).join('');
+      const pairRows = partnerships.map((p,i) => `<tr class="pair-row${i >= STATS_FOLD_PEEK ? ' st-extra' : ''}${i < 3 ? ` rk-${i+1}` : ''}"><td class="rank-number" data-l="#">${i < 3 ? `<span class="rank-badge rb-${i+1}"><span class="tx">${i+1}</span></span>` : i+1}</td><td data-l="الثنائي">${escHTML(p.name)}</td><td data-l="ألقاب"><span class="ic ic-trophy" aria-hidden="true"></span>${p.championships}</td><td data-l="وصافة">${p.runnerUps}</td><td data-l="مشاركات">${p.tournaments}</td><td data-l="فوز">${p.wins}</td><td data-l="خسارة">${p.losses}</td><td data-l="نسبة الفوز">${p.winRate}%</td></tr>`).join('');
       // الفريق: كل لاعب في سطر وبينهما علامة «+» صغيرة
       const teamHTML = (t, side) => { const ms = t.teamMap?.[side] || (t.mode === 'single' || t.mode === 'league' ? [side] : String(side || '').split(' + '));
         return ms.length > 1 ? `<span class="hist-team">${ms.map(escHTML).join('<span class="hist-plus" aria-hidden="true">+</span>')}</span>` : escHTML(ms[0] || '—'); };
@@ -4916,96 +4959,62 @@ async function exportStatsImage() {
     const byRating = statsSortMode === 'rating';   // نفس الترتيب المختار في شاشة الإحصائيات
     const players = Object.values(d.players)
       .filter(p => p && p.name && p.name !== 'غير محدد')
-      .sort((a, b) =>
-        (byRating ? ((ratingOf(b.name) ?? -1) - (ratingOf(a.name) ?? -1)) : 0) ||
-        (Number(b.championships) - Number(a.championships)) ||
-        (Number(b.runnerUps) - Number(a.runnerUps)) ||
-        (Number(b.tournaments) - Number(a.tournaments)) ||
-        (Number(b.wins) - Number(a.wins)) ||
-        (Number(b.losses) - Number(a.losses)) ||
-        (Number(b.winRate) - Number(a.winRate)));
+      .sort((a, b) => (byRating ? ((ratingOf(b.name) ?? -1) - (ratingOf(a.name) ?? -1)) : 0) || statsTitleCmp(a, b));   // نفس ترتيب شاشة الإحصائيات
     if (!players.length) {
       alert('لا توجد بيانات لاعبين قابلة للتصدير.');
       return;
     }
 
     const W = 1080, M = 56, CW = W - M * 2;
-    const dateStr = fmtDayDate(new Date());
     const title = tournamentName.textContent.trim() || 'إحصائيات اللاعبين';
-    const meta = [{ icon: 'calendar', label: dateStr }];
-    const headerH = exportBrandHeaderHeight(meta);
-    const showParts = exportPartsRead('stats'), byOn = showParts.titlesBy;   // الألقاب حسب النوع: خلية مركبة بأيقونات + دليل أسفل الجدول
-    const sectionH = 96, headH = 72, rowH = byOn ? 100 : 92, rowGap = 12, legendH = byOn ? 64 : 0;
-    const tableTop = M + headerH + 34 + sectionH;
-    const TP = EXPORT_TABLE_PAD, frameH = headH + TP + players.length * rowH + (players.length - 1) * rowGap + TP;
-    const H = Math.ceil(tableTop - 6 + frameH + 12 + legendH + 40 + 60);
-
-    let scale = exportScale();
-    while (W * scale * H * scale > 16000000 && scale > 1) scale -= 0.25;
-    const canvas = document.createElement('canvas');
-    canvas.width = Math.ceil(W * scale);
-    canvas.height = Math.ceil(H * scale);
-    const ctx = canvas.getContext('2d');
-    if (!ctx) throw new Error('Canvas 2D context unavailable');
-    ctx.scale(scale, scale);
-    ctx.textRendering = 'optimizeLegibility';
-    ctx.fillStyle = B.ivory;
-    ctx.fillRect(0, 0, W, H);
-
+    const meta = [{ icon: 'calendar', label: fmtDayDate(new Date()) }];
+    const top = M + exportBrandHeaderHeight(meta) + 34;
+    const show = exportParts('stats'), byOn = !!show.titlesBy;   // الألقاب حسب النوع: المجموع + أيقونات الأنواع المحققة فقط
+    const nT = Number(d.completedTournaments) || 0, lm = Number(d.liveMatches) || 0;
+    const ctxOrig = `حسب ${byRating ? 'التقييم' : 'الألقاب'} · ${nT ? `من ${arCount(nT, 'بطولة مكتملة', 'بطولتين مكتملتين', 'بطولات مكتملة')}` : 'من البطولة الجارية'}${nT && lm ? ` و${arCount(lm, 'مباراة', 'مباراتين', 'مباريات')} جارية` : ''}`;
+    const ctxRes = exportContextResolve(ctxOrig);
+    // الأعمدة من اليمين: عناوين قصيرة بحجم واحد وسطر واحد
+    const cols = [['rank', 'المركز', 84], ['name', 'اللاعب', byOn ? 214 : 236], ['rating', 'التقييم', byOn ? 110 : 120], [byOn ? 'titles' : 'championships', 'الألقاب', byOn ? 206 : 100],
+      ['runnerUps', 'وصافة', 92], ['tournaments', 'مشاركات', 108], ['wins', 'فوز', 80], ['losses', 'خسارة', 86], ['winRate', 'الفوز %', 104]].filter(([k]) => show[k] !== false);
+    const anyTitles = byOn;   // دليل أيقونات الكبسولات أسفل الجدول
+    const gapC = ctxRes.shown ? 52 : 6, HEAD = 66, ROW = byOn ? 100 : 88, GAP = 12, LEG = anyTitles ? 60 : 0;
+    const TP = EXPORT_TABLE_PAD, frameH = HEAD + TP + players.length * ROW + (players.length - 1) * GAP + TP;
+    const H = Math.ceil(top + gapC + frameH + (LEG ? 22 + LEG : 0) + 80);
+    const { canvas, ctx } = exportNewCanvas(W, H);
     exportBrandHeader(ctx, M, M, CW, title, 'إحصائيات اللاعبين', meta);
-
-    const secY = M + headerH + 34 + 34;
-    const t = exportText(ctx, byRating ? 'الترتيب حسب التقييم' : 'سجل الأبطال', M + CW - 4, secY, { size: 42, weight: 800, color: B.ink, align: 'right' });
-    exportIcon(ctx, byRating ? 'chart' : 'trophy', M + CW - 4 - t.width - 28, secY + exportOptDy(t.size), 38, B.goldDeep, 2);
-    ctx.save();
-    ctx.strokeStyle = B.line; ctx.lineWidth = 2;
-    ctx.beginPath(); ctx.moveTo(M, secY); ctx.lineTo(M + CW - t.width - 76, secY); ctx.stroke();
-    ctx.restore();
-
-    const show = exportParts('stats');
-    const keys = ['rank', 'name', 'rating', show.titlesBy ? 'titles' : 'championships', 'runnerUps', 'tournaments', 'wins', 'losses', 'winRate'].filter(k => show[k] !== false);
-    const c = getStatsColumnCenters(M + TP, CW - 2 * TP, keys);
-    const labels = { titles: 'الألقاب', rank: 'الترتيب', name: 'اللاعب', rating: 'التقييم', championships: 'ألقاب', runnerUps: 'وصافة', tournaments: 'مشاركات', wins: 'فوز', losses: 'خسارة', winRate: 'نسبة الفوز' };
-    exportTableFrame(ctx, M, tableTop - 6, CW, frameH, headH, B.surface3, 26);
-    keys.forEach(k => k === 'name'
-      ? exportText(ctx, labels[k], c.nameCenter + c.nameW / 2 - 10, tableTop - 6 + headH / 2, { size: 25, weight: 800, color: B.muted, align: 'right', maxW: c.nameW - 20, min: 16 })   // بمحاذاة الأسماء
-      : exportTextWrap2(ctx, labels[k], c[k + 'Center'], tableTop - 6 + headH / 2, { size: 25, weight: 800, color: B.muted, maxW: c[k + 'W'] - 8, min: 16 }));   // العناوين الطويلة (ألقاب فردي) على سطرين
-
-    let y = tableTop + headH + 6; const cuts = [];
+    if (ctxRes.shown) exportDrawContext(ctx, ctxRes.text, M + CW / 2, top + 4, CW, 26);
+    const sum = cols.reduce((t, c) => t + c[2], 0), C = {}; let cur = M + CW - TP;
+    cols.forEach(([k, , w]) => { const ww = w * (CW - 2 * TP) / sum; C[k] = { c: cur - ww / 2, w: ww, r: cur }; cur -= ww; });
+    // حجم واحد للعناوين ولأسماء اللاعبين: أكبر حجم يتسع فيه الأطول
+    const fitAll = (texts, w, max, min, weight) => { let sz = max; ctx.save(); while (sz > min) { ctx.font = `${weight} ${sz}px ${EXPORT_FONT}`; if (texts.every(([t, ww]) => ctx.measureText(t).width <= ww)) break; sz -= 1; } ctx.restore(); return sz; };
+    const headSz = fitAll(cols.map(([k, l]) => [l, C[k].w - 8]), 0, 23, 15, 800);
+    const nameSz = C.name ? fitAll(players.map(p => [p.name || 'غير محدد', C.name.w - 24]), 0, 32, 20, 800) : 32;
+    let y = top + gapC;
+    exportTableFrame(ctx, M, y, CW, frameH, HEAD, B.surface3, 26);
+    cols.forEach(([k, l]) => exportText(ctx, l, k === 'name' ? C[k].r - 14 : C[k].c, y + HEAD / 2, { size: headSz, weight: 800, color: B.muted, align: k === 'name' ? 'right' : 'center' }));
+    y += HEAD + TP; const cuts = [];
     players.forEach((p, i) => {
-      if (i > 0) cuts.push(y - rowGap / 2);
-      const rank = i + 1;
-      const m = rankIdentity(rank);
-      ctx.save();
-      drawRoundedRect(ctx, M + TP, y, CW - 2 * TP, rowH, 20);
-      ctx.fillStyle = m ? rankHexToRgba(m.main, 0.16) : B.paper;
-      ctx.fill();
-      ctx.strokeStyle = m ? m.main : B.line;
-      ctx.lineWidth = m ? 3 : 2;
-      ctx.stroke();
-      ctx.restore();
-      const cy = y + rowH / 2;
-      if (m) {
-        drawRankBadge(ctx, c.rankCenter, cy, 28, rank);
-        exportText(ctx, String(rank), c.rankCenter, cy, { size: 32, weight: 800, color: m.badgeText, dir: 'ltr' });
-      } else {
-        exportText(ctx, String(rank), c.rankCenter, cy, { size: 34, weight: 800, color: B.faint, dir: 'ltr' });
-      }
-      exportText(ctx, p.name || 'غير محدد', c.nameCenter + c.nameW / 2 - 10, cy, { size: 36, weight: 800, color: B.ink, align: 'right', maxW: c.nameW - 20, min: 18 });
-      const val = (k, v, o) => { if (!keys.includes(k)) return; exportText(ctx, String(v), c[k + 'Center'], cy, Object.assign({ size: 34, weight: 700, color: B.text, dir: 'ltr', maxW: c[k + 'W'] - 8 }, o || {})); };
-      const rt = ratingOf(p.name);
-      val('rating', rt == null ? '—' : rt.toLocaleString('en-US'), { weight: 800, color: rt == null ? B.faint : B.ink });
-      val('championships', p.championships ?? 0, { weight: 800, color: Number(p.championships) > 0 ? B.goldDeep : B.text });
-      if (keys.includes('titles')) drawTitlesCell(ctx, c.titlesCenter, cy, p.titlesBy, Number(p.championships) || 0, c.titlesW);
-      val('runnerUps', p.runnerUps ?? 0);
-      val('tournaments', p.tournaments ?? 0);
-      val('wins', p.wins ?? 0);
-      val('losses', p.losses ?? 0);
-      val('winRate', `${p.winRate ?? 0}%`, { color: Number(p.winRate) >= 60 ? B.ok : B.text });
-      y += rowH + rowGap;
+      if (i > 0) cuts.push(y - GAP / 2);
+      const rank = i + 1, cy = y + ROW / 2;
+      exportRankRow(ctx, M + TP, y, CW - 2 * TP, ROW, 20, rank);
+      if (C.rank) exportRankNum(ctx, C.rank.c, cy, rank);
+      if (C.name) exportText(ctx, p.name || 'غير محدد', C.name.r - 14, cy, { size: nameSz, weight: 800, color: B.ink, align: 'right', maxW: C.name.w - 24, min: 16 });
+      const num = (k, v, o) => { if (C[k]) exportText(ctx, String(v), C[k].c, cy, Object.assign({ size: 30, weight: 700, color: B.text, dir: 'ltr', maxW: C[k].w - 10 }, o || {})); };
+      const rt = ratingOf(p.name), tot = Number(p.championships) || 0;
+      num('rating', rt == null ? '—' : rt.toLocaleString('en-US'), { size: 32, weight: 800, color: rt == null ? B.faint : B.ink });
+      num('championships', tot, { size: 32, weight: 800, color: tot ? B.goldDeep : B.text });
+      if (C.titles) drawTitlesCell(ctx, C.titles.c, cy, p.titlesBy, tot, C.titles.w);   // كبسولات الأنواع الثلاثة بأسلوب واحد، وتحتها المجموع
+      num('runnerUps', p.runnerUps ?? 0);
+      num('tournaments', p.tournaments ?? 0);
+      num('wins', p.wins ?? 0);
+      num('losses', p.losses ?? 0);
+      num('winRate', `${p.winRate ?? 0}%`, { color: Number(p.winRate) >= 60 ? B.ok : B.text });
+      y += ROW + GAP;
     });
-    if (keys.includes('titles')) { cuts.push(y - rowGap / 2 + TP); drawTitlesLegend(ctx, W / 2, y + TP + 24); }   // دليل أيقونات الألقاب
+    y += TP - GAP;
+    if (LEG) { y += 22; cuts.push(y - 11); drawTitlesLegend(ctx, W / 2, y + LEG / 2); }   // دليل أيقونات الألقاب
     exportFooterDivider(ctx, M, H - 40, CW);
+    canvas.__ctxOrig = ctxOrig;
     canvas.__cuts = cuts;
 
     await downloadCanvasAsPng(canvas, 'Tournament-Statistics-Story.png');
@@ -5654,10 +5663,10 @@ currentScoreWinnerName = null;
           if (p.total) {
             d.done = { name: 'المباريات المكتملة', icon: 'chart', label: `${p.done} من ${p.total} ${arMatchW(p.total)}` };
             d.pct = { name: 'نسبة الإنجاز', icon: 'chart', label: `إنجاز ${Math.round(p.done / p.total * 100)}%` };
-            d.state = { name: 'حالة المنافسة', icon: 'check', label: p.completed ? 'الدوري مكتمل' : 'الدوري جارٍ' };
-            d.round = { name: 'الجولة الحالية', icon: 'table', label: `الجولة ${getLeagueActiveRound()}` + (p.totalRounds ? ` من ${p.totalRounds}` : '') };
+            d.state = { name: 'حالة المنافسة', icon: p.completed ? 'check' : 'clock', label: p.completed ? 'الدوري مكتمل' : 'الدوري جارٍ' };
+            d.round = { name: 'الجولة الحالية', icon: 'flag', label: `الجولة ${getLeagueActiveRound()}` + (p.totalRounds ? ` من ${p.totalRounds}` : '') };
           }
-          d.kind = { name: 'نوع المنافسة', icon: 'table', label: 'دوري' };
+          d.kind = { name: 'نوع المنافسة', icon: 'league', label: 'دوري' };
         } else {
           const ms = Object.values(bracketState || {}), n = knockoutParticipants().length;
           if (n) d.count = { name: currentMode === 'single' ? 'عدد اللاعبين' : 'عدد الفرق', icon: 'users', label: currentMode === 'single' ? cnt(n, 'لاعب', 'لاعبين') : cnt(n, 'فريق', 'فرق') };
@@ -5665,14 +5674,14 @@ currentScoreWinnerName = null;
             const done = ms.filter(m => m.winner).length, r = gatherExportData().roundsData.find(x => x.matches.some(m => !m.winner));
             d.done = { name: 'المباريات المكتملة', icon: 'chart', label: `${done} من ${ms.length} ${arMatchW(ms.length)}` };
             d.pct = { name: 'نسبة الإنجاز', icon: 'chart', label: `إنجاز ${Math.round(done / ms.length * 100)}%` };
-            d.state = { name: 'حالة المنافسة', icon: 'check', label: getVerifiedTournamentChampion() ? 'حُسم النهائي' : 'قيد اللعب' };
-            if (r) d.round = { name: 'الدور الحالي', icon: 'table', label: `الدور: ${cleanRound(r.roundName)}` };
+            d.state = { name: 'حالة المنافسة', icon: getVerifiedTournamentChampion() ? 'check' : 'clock', label: getVerifiedTournamentChampion() ? 'حُسم النهائي' : 'قيد اللعب' };
+            if (r) d.round = { name: 'الدور الحالي', icon: 'flag', label: `الدور: ${cleanRound(r.roundName)}` };
           }
-          d.kind = { name: 'نوع المنافسة', icon: 'table', label: currentMode === 'single' ? 'بطولة فردية' : 'بطولة فرق' };
+          d.kind = { name: 'نوع المنافسة', icon: currentMode === 'single' ? 'user' : 'users', label: currentMode === 'single' ? 'بطولة فردية' : 'بطولة فرق' };
         }
       } catch (e) { /* بيانات ناقصة: تُحذف البطاقات غير المتاحة */ }
-      d.time = { name: 'وقت التصدير', icon: 'calendar', label: 'الساعة ' + new Intl.DateTimeFormat(EXPORT_LOCALE, { hour: 'numeric', minute: '2-digit' }).format(new Date()) };
-      d.custom = { name: 'نص حر', icon: 'table', label: String(exportSettings.hdrCustom || '').trim() };
+      d.time = { name: 'وقت التصدير', icon: 'clock', label: 'الساعة ' + new Intl.DateTimeFormat(EXPORT_LOCALE, { hour: 'numeric', minute: '2-digit' }).format(new Date()) };
+      d.custom = { name: 'نص حر', icon: 'quote', label: String(exportSettings.hdrCustom || '').trim() };
       const cx = exportCtxChips(); if (cx) Object.assign(d, cx.defs);   // بطاقات هذه الصورة
       return d;
     }
@@ -5701,7 +5710,7 @@ currentScoreWinnerName = null;
         add('leader', 'المتصدر', won ? 'trophy' : 'rank', `${lgP && lgP.completed ? 'البطل' : won ? 'حسم اللقب' : 'المتصدر'}: ${L.name}`);
         add('leaderPts', 'نقاط المتصدر', 'chart', `${L.name}: ${chipPts(L.points)}`);
         if (S) add('gap', 'الفارق بين الأول والثاني', 'chart', L.points === S.points ? 'تساوي الأول والثاني' : `الفارق عن الثاني: ${chipPts(L.points - S.points)}`); };
-      const lgRoundChips = () => { if (!lgP) return; add('lround', 'الجولة الحالية', 'table', lgP.completed ? `${lgP.totalRounds} جولة مكتملة` : `الجولة ${getLeagueActiveRound()} من ${lgP.totalRounds}`);
+      const lgRoundChips = () => { if (!lgP) return; add('lround', 'الجولة الحالية', 'flag', lgP.completed ? `${lgP.totalRounds} جولة مكتملة` : `الجولة ${getLeagueActiveRound()} من ${lgP.totalRounds}`);
         add('ldone', 'المباريات المكتملة', 'chart', `${lgP.done} من ${lgP.total} ${arMatchW(lgP.total)}`);
         if (!lgP.completed) add('lleft', 'المتبقية', 'table', `متبقية: ${chipMatches(lgP.remaining)}`); };
       const lastNight = kind => safe(() => { const ns = nightsList(kind); return ns && ns.length ? ns.slice().sort((x, y) => x.key < y.key ? 1 : -1)[0] : null; });
@@ -5730,7 +5739,7 @@ currentScoreWinnerName = null;
       switch (k) {
         case 'lg-standings': lgRoundChips(); leaderChips(); { const ln = lastNight('lg'); if (ln) add('lastDay', 'آخر يوم لعب', 'calendar', `آخر يوم لعب: ${safe(() => nightLabel(ln.key).split('،')[0])} ${chipShortDate(new Date(ln.key + 'T12:00:00'))}`); }
           dflt = ['lround', 'ldone', 'leader']; break;
-        case 'lg-rounds': case 'lg-upcoming': { const rs = (a.rounds || []).slice().sort((x, y) => x - y); if (rs.length) add('rounds', 'الجولات المختارة', 'table', rs.length === 1 ? `الجولة ${rs[0]}` : (rs[rs.length - 1] - rs[0] === rs.length - 1 ? `الجولات ${rs[0]}–${rs[rs.length - 1]}` : `${rs.length} جولات`));
+        case 'lg-rounds': case 'lg-upcoming': { const rs = (a.rounds || []).slice().sort((x, y) => x - y); if (rs.length) add('rounds', 'الجولات المختارة', 'flag', rs.length === 1 ? `الجولة ${rs[0]}` : (rs[rs.length - 1] - rs[0] === rs.length - 1 ? `الجولات ${rs[0]}–${rs[rs.length - 1]}` : `${rs.length} جولات`));
           const ms = rs.flatMap(r => safe(() => getLeagueRoundMatches(r)) || []), done = ms.filter(m => isLeagueMatchCompleted(m)).length, pend = ms.filter(m => !isLeagueMatchSettled(m)).length;
           if (k === 'lg-rounds') add('rdone', 'المكتمل منها', 'check', ms.length ? `اكتملت ${done} من ${ms.length}` : ''); else add('rpend', 'المباريات القادمة', 'users', pend ? `قادمة: ${chipMatches(pend)}` : '');
           if (rs.length === 1) { const bye = safe(() => getLeagueRoundBye(rs[0])); if (bye) add('rest', 'المستريح', 'user', `راحة: ${bye}`); }
@@ -5743,12 +5752,12 @@ currentScoreWinnerName = null;
           const top = Object.entries(wins).sort((x, y) => y[1] - x[1]); if (top[0] && top[0][1] >= 2 && (!top[1] || top[1][1] < top[0][1])) add('nstar', 'نجم اليوم', 'star', `نجم اليوم: ${kind === 'lg' ? top[0][0] : (safe(() => getDisplayTeamName(top[0][0])) || top[0][0])} · ${top[0][1]} انتصارات`);
           dflt = ['night', 'nmatches', 'nstar']; break; }
         case 'lg-versus': case 'ko-versus': { const v = safe(() => versusCandidates().find(x => x.id === a.id)); if (v) { const s = safe(() => versusStory(v));
-            add('vround', 'الجولة / الدور', 'table', v.label);
+            add('vround', 'الجولة / الدور', 'flag', v.label);
             if (s) { const pa = Math.round(s.pA * 100); add('vchance', 'فرص الفوز', 'chart', `فرص الفوز ${pa}% – ${100 - pa}%`); add('vh2h', 'المواجهات السابقة', 'users', s.h.total ? `التقيا ${chipN(s.h.total, 'مرة واحدة', 'مرتين', 'مرات', 'مرة')}` : 'اللقاء الأول بينهما'); } }
-          if (String(a.time || '').trim()) add('vtime', 'موعد المباراة', 'calendar', String(a.time).trim());
+          if (String(a.time || '').trim()) add('vtime', 'موعد المباراة', 'clock', String(a.time).trim());
           dflt = ['vround', 'vh2h', String(a.time || '').trim() ? 'vtime' : 'date']; break; }
         case 'lg-top3': case 'lg-top5': case 'lg-champion': case 'lg-runner': case 'lg-final3': case 'lg-final5': case 'lg-podium': lgRoundChips(); leaderChips();
-          if (lgP && lgP.completed) { add('lrounds', 'عدد الجولات', 'table', `${lgP.totalRounds} جولة · ${chipMatches(lgP.total)}`); add('lplayers', 'عدد اللاعبين', 'users', chipN(lgSt.length, 'لاعب واحد', 'لاعبان', 'لاعبين', 'لاعبًا')); }
+          if (lgP && lgP.completed) { add('lrounds', 'عدد الجولات', 'flag', `${lgP.totalRounds} جولة · ${chipMatches(lgP.total)}`); add('lplayers', 'عدد اللاعبين', 'users', chipN(lgSt.length, 'لاعب واحد', 'لاعبان', 'لاعبين', 'لاعبًا')); }
           dflt = lgP && lgP.completed ? ['lrounds', 'lplayers', 'date'] : (k === 'lg-champion' ? ['lround', 'gap', 'date'] : ['lround', 'ldone', 'gap']); break;
         case 'lg-card': case 'lg-log': { const r = safe(() => leagueRow(a.name)), hist = safe(() => getLeaguePlayerHistory(a.name)) || [];
           if (r) { add('prank', 'المركز في الدوري', 'rank', `المركز ${r.rank} من ${lgSt.length}`); add('ppts', 'النقاط', 'chart', chipPts(r.points)); add('precord', 'فوز / تعادل / خسارة', 'table', `${r.wins} فوز · ${r.draws} تعادل · ${r.losses} خسارة`); add('pwin', 'نسبة الفوز', 'chart', r.played ? `نسبة الفوز ${Math.round(r.wins / r.played * 100)}%` : ''); }
@@ -5761,24 +5770,24 @@ currentScoreWinnerName = null;
           dflt = ['cranks', 'cpts', 'ch2h']; break; }
         case 'lg-report': lgRoundChips(); leaderChips(); add('lplayers', 'عدد اللاعبين', 'users', lgSt.length ? chipN(lgSt.length, 'لاعب واحد', 'لاعبان', 'لاعبين', 'لاعبًا') : '');
           if (lgP) add('lpct', 'نسبة الإنجاز', 'chart', `إنجاز ${Math.round(lgP.done / Math.max(1, lgP.total) * 100)}%`); dflt = ['lplayers', 'ldone', 'lpct']; break;
-        case 'lg-match': { const m = safe(() => leagueMatches.find(x => x.id === a.id)); if (m) { add('mround', 'الجولة', 'table', `الجولة ${m.round}`); const at = safe(() => leagueMatchTimes()[m.id]); if (at) add('mwhen', 'وقت تسجيل النتيجة', 'calendar', `${fmtDayDate(at)} · ${fmtTimeNum(at)}`); }
+        case 'lg-match': { const m = safe(() => leagueMatches.find(x => x.id === a.id)); if (m) { add('mround', 'الجولة', 'flag', `الجولة ${m.round}`); const at = safe(() => leagueMatchTimes()[m.id]); if (at) add('mwhen', 'وقت تسجيل النتيجة', 'clock', `${fmtDayDate(at)} · ${fmtTimeNum(at)}`); }
           lgRoundChips(); leaderChips(); dflt = ['mround', 'mwhen', 'leader']; break; }
         case 'ko-bracket': case 'ko-summary': { const all = koAll(), done = all.filter(m => m.winner).length, fin = koFin(), cur = koCur();
           add('kcount', currentMode === 'single' ? 'عدد اللاعبين' : 'عدد الفرق', 'users', koCount()); add('kdone', 'المباريات المكتملة', 'chart', all.length ? `${done} من ${all.length} ${arMatchW(all.length)}` : '');
-          if (fin) add('kchamp', 'البطل', 'trophy', `البطل: ${safe(() => getDisplayTeamName(fin.champion)) || fin.champion}`); else if (cur) add('kround', 'الدور الحالي', 'table', `الدور الحالي: ${cur}`);
-          add('kkind', 'نوع المنافسة', 'table', koKind); dflt = fin ? ['kcount', 'kchamp', 'date'] : ['kcount', 'kdone', 'kround']; break; }
-        case 'ko-upcoming': { const up = safe(() => knockoutUpcomingMatches()) || [], cur = koCur(); if (cur) add('kround', 'الدور الحالي', 'table', cur); add('kpend', 'الجاهزة للعب', 'users', up.length ? `جاهزة للعب: ${chipMatches(up.length)}` : '');
+          if (fin) add('kchamp', 'البطل', 'trophy', `البطل: ${safe(() => getDisplayTeamName(fin.champion)) || fin.champion}`); else if (cur) add('kround', 'الدور الحالي', 'flag', `الدور الحالي: ${cur}`);
+          add('kkind', 'نوع المنافسة', currentMode === 'single' ? 'user' : 'users', koKind); dflt = fin ? ['kcount', 'kchamp', 'date'] : ['kcount', 'kdone', 'kround']; break; }
+        case 'ko-upcoming': { const up = safe(() => knockoutUpcomingMatches()) || [], cur = koCur(); if (cur) add('kround', 'الدور الحالي', 'flag', cur); add('kpend', 'الجاهزة للعب', 'users', up.length ? `جاهزة للعب: ${chipMatches(up.length)}` : '');
           add('kcount', currentMode === 'single' ? 'عدد اللاعبين' : 'عدد الفرق', 'users', koCount()); dflt = ['kround', 'kpend', 'date']; break; }
-        case 'ko-round': { const r = safe(() => gatherExportData().roundsData.find(x => x.roundName === a.round)); if (r) { add('rname', 'الدور', 'table', cleanRound(r.roundName)); add('rdone', 'المكتمل منه', 'check', `اكتملت ${r.matches.filter(m => m.winner).length} من ${r.matches.length}`); }
+        case 'ko-round': { const r = safe(() => gatherExportData().roundsData.find(x => x.roundName === a.round)); if (r) { add('rname', 'الدور', 'flag', cleanRound(r.roundName)); add('rdone', 'المكتمل منه', 'check', `اكتملت ${r.matches.filter(m => m.winner).length} من ${r.matches.length}`); }
           add('kcount', currentMode === 'single' ? 'عدد اللاعبين' : 'عدد الفرق', 'users', koCount()); dflt = ['rname', 'rdone', 'date']; break; }
-        case 'ko-match': { const m = bracketState[a.id]; if (m) { add('mround', 'الدور والمباراة', 'table', `${cleanRound(m.roundName)} · مباراة ${m.matchNumber}`);
-            const e = safe(() => readMatchLog().filter(x => x.k === 'ko' && x.id === m.id && x.a === m.team1 && x.b === m.team2 && x.w === m.winner).pop()); if (e) add('mwhen', 'وقت تسجيل النتيجة', 'calendar', `${fmtDayDate(e.at)} · ${fmtTimeNum(e.at)}`); }
-          add('kkind', 'نوع المنافسة', 'table', koKind); dflt = ['mround', 'mwhen', 'kkind']; break; }
+        case 'ko-match': { const m = bracketState[a.id]; if (m) { add('mround', 'الدور والمباراة', 'flag', `${cleanRound(m.roundName)} · مباراة ${m.matchNumber}`);
+            const e = safe(() => readMatchLog().filter(x => x.k === 'ko' && x.id === m.id && x.a === m.team1 && x.b === m.team2 && x.w === m.winner).pop()); if (e) add('mwhen', 'وقت تسجيل النتيجة', 'clock', `${fmtDayDate(e.at)} · ${fmtTimeNum(e.at)}`); }
+          add('kkind', 'نوع المنافسة', currentMode === 'single' ? 'user' : 'users', koKind); dflt = ['mround', 'mwhen', 'kkind']; break; }
         case 'ko-card': case 'ko-log': { const r = safe(() => knockoutRecord(a.name)); if (r) { add('pstatus', 'الحالة', /بطل/.test(r.status) ? 'trophy' : 'rank', r.status !== '—' ? r.status : ''); add('precord', 'الفوز والخسارة', 'table', `${r.wins} فوز · ${r.losses} خسارة`); add('ppts', 'نقاط له / عليه', 'chart', r.played ? `له ${r.pf} · عليه ${r.pa}` : ''); }
           const mem = currentMode === 'single' ? [a.name] : String(a.name || '').split(' + ').map(x => x.trim()); if (mem.length === 1) { const p = playerElo(mem[0]); if (p && p.games) add('prating', 'تقييم المجلس', 'chart', `التقييم ${p.rating.toLocaleString('en-US')}`); }
-          add('kkind', 'نوع المنافسة', 'table', koKind); dflt = k === 'ko-card' ? ['pstatus', 'precord', 'kkind'] : ['pstatus', 'precord', 'date']; break; }
+          add('kkind', 'نوع المنافسة', currentMode === 'single' ? 'user' : 'users', koKind); dflt = k === 'ko-card' ? ['pstatus', 'precord', 'kkind'] : ['pstatus', 'precord', 'date']; break; }
         case 'ko-champion': case 'ko-runner': case 'ko-both': case 'ko-podium': { const fin = koFin(); if (fin && fin.score) add('kfinal', 'نتيجة النهائي', 'trophy', `النهائي ${fin.score}`);
-          add('kcount', currentMode === 'single' ? 'عدد اللاعبين' : 'عدد الفرق', 'users', koCount()); add('kkind', 'نوع المنافسة', 'table', koKind); const all = koAll(); add('kdone', 'مباريات البطولة', 'chart', all.length ? chipMatches(all.length) : '');
+          add('kcount', currentMode === 'single' ? 'عدد اللاعبين' : 'عدد الفرق', 'users', koCount()); add('kkind', 'نوع المنافسة', currentMode === 'single' ? 'user' : 'users', koKind); const all = koAll(); add('kdone', 'مباريات البطولة', 'chart', all.length ? chipMatches(all.length) : '');
           dflt = ['kkind', 'kfinal', 'date']; break; }
         case 'history': histChips(); dflt = ['ntours', 'byType', 'lastChamp']; break;
         case 'honor': { const all = safe(() => honorPlayers()) || [], tot = all.reduce((s, p) => s + (p.titles || 0), 0); add('ntitles', 'مجموع الألقاب', 'trophy', tot ? chipN(tot, 'لقب واحد', 'لقبان', 'ألقاب', 'لقبًا') : '');
@@ -5838,7 +5847,12 @@ currentScoreWinnerName = null;
       star: 'M12 3.8l2.5 5.1 5.6.8-4.05 3.95.95 5.6L12 16.6l-5 2.65.95-5.6L3.9 9.7l5.6-.8z',   // تميّز (نجم اليوم، الأعلى) — ليس لقبًا
       rank: 'M3.5 19.5h17M5 19.5v-7h4.5v7M9.5 19.5V4.5h5v15M14.5 19.5v-10H19v10',   // منصة: مركز/ترتيب — ليس لقبًا
       chart: 'M5 20v-9M12 20V4M19 20v-6',
-      table: 'M5.5 4h13a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2h-13a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2zM3.5 10h17M9 10v10'
+      table: 'M5.5 4h13a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2h-13a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2zM3.5 10h17M9 10v10',
+      clock: 'M20.5 12a8.5 8.5 0 1 1-17 0 8.5 8.5 0 0 1 17 0zM12 7.5V12l3 2',   // وقت، أو منافسة جارية
+      quote: 'M5 4h14a2 2 0 0 1 2 2v9a2 2 0 0 1-2 2h-6l-4.5 3.5V17H5a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2zM10.4 11.6a1.4 1.4 0 1 1-2.8 0 1.4 1.4 0 0 1 2.8 0zM7.6 11.6c0-1.9.9-3.1 2.6-3.5M16.4 11.6a1.4 1.4 0 1 1-2.8 0 1.4 1.4 0 0 1 2.8 0zM13.6 11.6c0-1.9.9-3.1 2.6-3.5',   // نص حر يكتبه المستخدم (عبارة مقتبسة)
+      league: 'M20.5 6a1.5 1.5 0 1 1-3 0 1.5 1.5 0 0 1 3 0zM20.5 12a1.5 1.5 0 1 1-3 0 1.5 1.5 0 0 1 3 0zM20.5 18a1.5 1.5 0 1 1-3 0 1.5 1.5 0 0 1 3 0zM14.5 6H3.5M14.5 12H6M14.5 18H8.5',   // الدوري: قائمة ترتيب
+      flag: 'M18.5 21V3.5M18.5 4h-12l2.6 4.25L6.5 12.5h12',   // جولة / دور (مرحلة) — الراية باتجاه القراءة العربية
+      medal: 'M17.5 15a5.5 5.5 0 1 1-11 0 5.5 5.5 0 0 1 11 0zM8 3l2.7 6.7M16 3l-2.7 6.7M8 3h8'   // الوصيف
     };
 
     function drawRoundedRect(ctx, x, y, w, h, r) {
@@ -6019,6 +6033,7 @@ currentScoreWinnerName = null;
           else if (exportSubtitleOverride && typeof exportSubtitleOverride.text === 'string') subtitle = exportSubtitleOverride.text.trim();   // أو استبدال
           else if (exportSettings.subtitle.trim()) subtitle = exportSettings.subtitle.trim();            // وإلا الإعداد العام ثم الأصلي
           meta = exportApplyMeta(meta);
+          exportFrameLog = [];
           const L = exportHeaderLayout(meta, !exportSubtitleHidden()), h = L.woodH;   // h هنا ارتفاع اللوحة الخشبية؛ البطاقات تحتها
           exportWoodPanel(ctx, x, y, w, h, 34);
           ctx.save(); ctx.shadowColor = 'rgba(12,6,2,0.5)'; ctx.shadowBlur = 12; ctx.shadowOffsetY = 3;   // نفس لون العنوان الفرعي (كريمي) بظل ناعم
@@ -6082,6 +6097,7 @@ currentScoreWinnerName = null;
               });
             });
           }
+          exportHdrInfo = { bottom: y + L.h, title, subtitle };
           return L.h;
         }
 
@@ -6434,6 +6450,7 @@ currentScoreWinnerName = null;
       exportPendingCaption = null;
       canvas.__chipCtx = exportCtxChips(); canvas.__chipKey = exportChipCtxKind; exportChipCtx(null);   // بطاقات هذه الصورة ونوعها (للتخصيص)
       canvas.__rerun = exportCurrentRun; canvas.__chips = exportLastHeaderIds.slice(); canvas.__subOrig = exportLastSubOrig; canvas.__titleOrig = exportLastTitleOrig;
+      canvas.__frames = exportFrameLog.slice(); canvas.__hdr = exportHdrInfo; exportFrameLog = []; exportHdrInfo = null;
       canvas.__parts = exportLastParts; exportLastParts = null; canvas.__partsResolved = exportLastPartsResolved; exportLastPartsResolved = null; canvas.__texts = exportLastTexts; exportLastTexts = null;
       if (exportCapture) { exportCapture.push({ src: canvas, filename: exportFileName(filename), caption: canvas.__caption || '', rerun: canvas.__rerun, ctxOrig: canvas.__ctxOrig, chips: canvas.__chips, subOrig: canvas.__subOrig, titleOrig: canvas.__titleOrig, partsKey: canvas.__parts, partsResolved: canvas.__partsResolved, texts: canvas.__texts, chipCtx: canvas.__chipCtx, chipKey: canvas.__chipKey }); return Promise.resolve(); }
       return openExportStudio(canvas, exportFileName(filename));
@@ -6483,58 +6500,106 @@ currentScoreWinnerName = null;
     function composeFormat(src, fmtKey, split) {
       const F = EXPORT_FORMATS[fmtKey]; if (!F || !F.W) return [src];
       const B = EXPORT_BRAND, ks = src.width / 1080, srcH = src.height / ks;           // وحدات منطقية (عرض = 1080)
-      const f = (F.W - F.pad * 2) / 1080;                                                // مقياس ملاءمة العرض
       const kk = Math.min(ks, Math.sqrt(16000000 / (F.W * F.H)));   // كل المقاسات بدقة الجودة المختارة مع سقف ذاكرة للصفحة
-      const labelRoom = 46;
-      // أول حساب: هل تكفي صفحة واحدة؟
-      let pageH = (F.H - F.top - F.bottom) / f;
-      const ranges = [];
-      if (srcH <= pageH || !split) ranges.push([0, srcH]);   // التقسيم اختياري: الافتراضي صفحة واحدة
-      else {
-        pageH = (F.H - F.top - F.bottom - labelRoom) / f;                                // مساحة لرقم الصفحة
-        // حدود القطع مسجلة بوحدات الصورة المنطقية؛ الصورة قد لا يكون عرضها 1080 (جدول البطولة 1156)
-        const cutK = 1080 / (Number(src.__lw) > 0 ? Number(src.__lw) : 1080);
-        const cuts = (src.__cuts || []).map(c => c * cutK).sort((a, b) => a - b);
-        let start = 0;
-        while (start < srcH - 1) {
-          let end = start + pageH;
-          if (end >= srcH) end = srcH;
-          else {
-            const ok = cuts.filter(c => c > start + pageH * 0.45 && c <= end);
-            if (ok.length) end = ok[ok.length - 1];                                      // أقرب حد آمن من الأسفل
-            else if (!cuts.length) { // بلا حدود معروفة: لا نقطع النص، نصغّر الصورة لتناسب صفحة واحدة
-              ranges.length = 0; ranges.push([0, srcH]); break;
+      const BZ = 10, PILL = 54;                                     // إطار البطاقة الأبيض، ومساحة كبسولة رقم الصفحة
+      const lw = Number(src.__lw) > 0 ? Number(src.__lw) : 1080, cutK = 1080 / lw;
+      const f = (F.W - F.pad * 2 - BZ * 2) / 1080;                                       // مقياس ملاءمة العرض (نفسه في كل الصفحات)
+      const availFor = paged => F.H - F.top - F.bottom - BZ * 2 - (paged ? PILL : 0);
+      const frames = (src.__frames || []).map(r => ({ y: r.y * cutK, h: r.h * cutK, headH: r.headH * cutK, x: r.x * cutK, w: r.w * cutK, r: r.r * cutK }));
+      // حدود القطع: بين الصفوف (من الصورة) + قبل بداية كل جدول (فيبدأ الجدول كاملًا في صفحة جديدة بدل صف واحد معزول)
+      const cuts = [...(src.__cuts || []).map(c => c * cutK), ...frames.map(fr => fr.y - 10)].filter(c => c > 0).sort((a, b) => a - b);
+      const hdr = src.__hdr || null, TP = EXPORT_TABLE_PAD, GAPH = 6, MINI = 112;   // MINI: ارتفاع الهيدر المختصر في صفحات المتابعة
+      const frameAt = y => frames.find(fr => y > fr.y + fr.headH + 1 && y < fr.y + fr.h - 1) || null;
+      // لا صفوف معزولة: حد القطع داخل جدول يترك 3 صفوف على الأقل قبله وبعده في نفس الجدول
+      const rowsOk = c => { const fr = frameAt(c); if (!fr) return true; const inF = cuts.filter(x => x > fr.y + fr.headH && x < fr.y + fr.h);
+        return inF.filter(x => x < c).length + 1 >= 3 && inF.filter(x => x > c).length + 1 >= 3; };
+      // ارتفاع صفحة المحتوى [a, b] بعد إضافة: الهيدر المختصر (للمتابعة) + صف عناوين الإطار + حافة الإطار السفلية
+      const pageCost = (a, b) => { let h = b - a; if (a > 0) { h += MINI; const fa = frameAt(a); if (fa) h += fa.headH + TP - GAPH; } const fb = frameAt(b); if (b < srcH && fb) h += TP - GAPH; if (b < srcH) h += 36; return h; };   // 36: هامش سفلي داخل البطاقة قبل حافتها
+      const fitsOne = srcH * f <= availFor(false) * 1.15;   // يتسع بتصغير بسيط (حتى 15%): صفحة واحدة
+      let ranges = [[0, srcH]];
+      if (split && !fitsOne && cuts.length) {
+        const cap = availFor(true) / f;
+        // عدد الصفحات الأدنى (أخذ أبعد حد آمن في كل صفحة)، ثم توزيع متوازن على هذا العدد
+        let strict = true; const okCut = c => !strict || rowsOk(c);   // نفضّل منع الصف اليتيم، وإن تعذّر نسمح به بدل التصغير الشديد
+        const greedy = () => { const out = []; let a = 0, guard = 0; while (a < srcH - 1 && guard++ < 40) { const ok = cuts.filter(c => c > a + cap * 0.3 && okCut(c) && pageCost(a, c) <= cap); const e = pageCost(a, srcH) <= cap ? srcH : (ok.length ? ok[ok.length - 1] : null); if (e == null) return null; out.push([a, e]); a = e; } return out; };
+        let g = greedy(); if (!g) { strict = false; g = greedy(); }
+        if (g && g.length > 1) {
+          // توزيع حسب امتلاء الصفحات فعليًا: أقل «أطول صفحة» ممكنة على نفس عدد الصفحات، ثم أقرب تساوٍ بينها
+          const n = g.length, P = [0, ...cuts.filter(c => c < srcH - 1 && okCut(c)), srcH], m = P.length;
+          const better = (x, y) => !y || x[0] < y[0] - 0.5 || (Math.abs(x[0] - y[0]) <= 0.5 && x[1] < y[1]);
+          let D = P.map((_, j) => j === 0 ? [0, 0, -1] : null); const back = [];
+          for (let k = 1; k <= n; k++) {
+            const N = P.map(() => null), bk = P.map(() => -1);
+            for (let j = 1; j < m; j++) for (let i2 = 0; i2 < j; i2++) {
+              if (!D[i2] || P[j] - P[i2] <= cap * 0.3) continue;
+              const c = pageCost(P[i2], P[j]); if (c > cap) continue;
+              const v = [Math.max(D[i2][0], c), D[i2][1] + c * c];
+              if (better(v, N[j])) { N[j] = v; bk[j] = i2; }
             }
+            back.push(bk); D = N;
           }
-          ranges.push([start, end]); start = end;
-        }
+          if (D[m - 1]) { const out = []; let j = m - 1; for (let k = n - 1; k >= 0; k--) { const i2 = back[k][j]; out.unshift([P[i2], P[j]]); j = i2; } ranges = out; }
+          else ranges = g;
+        } else if (g) ranges = g;
       }
-      const single = ranges.length === 1;
+      const total = ranges.length, single = total === 1;
+      // بطاقة موحّدة في كل الصفحات: نفس الارتفاع والمكان، والمحتوى يبدأ من الأعلى (تمرير ثابت بين الصفحات)
+      const uniH = single ? 0 : Math.min(availFor(true), Math.max(...ranges.map(([a, b]) => pageCost(a, b) * f)));
       const pages = ranges.map(([a, b], i) => {
         const c = document.createElement('canvas'); c.width = Math.ceil(F.W * kk); c.height = Math.ceil(F.H * kk);
         const ctx = c.getContext('2d'); if (!ctx) throw new Error('Canvas 2D context unavailable');
         ctx.scale(kk, kk); ctx.textRendering = 'optimizeLegibility';
-        // خلفية المقاسات: سطح فاتح دافئ بتدرّج ناعم (إضاءة من الأعلى) — البطاقة هي البطل، والخلفية هادئة
+        // خلفية المقاسات: سطح رملي دافئ بتدرّج ناعم وإضاءة خلف البطاقة
         { const g = ctx.createLinearGradient(0, 0, 0, F.H); g.addColorStop(0, '#EEE4D6'); g.addColorStop(1, '#DDCDB8'); ctx.fillStyle = g; ctx.fillRect(0, 0, F.W, F.H);
           const r = ctx.createRadialGradient(F.W / 2, F.H * 0.38, 0, F.W / 2, F.H * 0.38, Math.max(F.W, F.H) * 0.7);
           r.addColorStop(0, 'rgba(255,250,242,0.55)'); r.addColorStop(1, 'rgba(255,250,242,0)'); ctx.fillStyle = r; ctx.fillRect(0, 0, F.W, F.H); }
-        const avail = F.H - F.top - F.bottom - (single ? 0 : labelRoom);
-        const BZ = 10;   // إطار البطاقة الأبيض (مثل حافة الجهاز) حول الصورة
-        let sliceH = (b - a) * f, ff = f;
-        if (sliceH > avail - BZ * 2) { ff = (avail - BZ * 2) / (b - a); sliceH = avail - BZ * 2; }
-        let cardW = 1080 * ff;
-        if (cardW > F.W - F.pad * 2 - BZ * 2) { const k2 = (F.W - F.pad * 2 - BZ * 2) / cardW; cardW *= k2; sliceH *= k2; }
-        const cardX = (F.W - cardW) / 2, cardY = F.top + (avail - sliceH) / 2;
-        const ox = cardX - BZ, oy = cardY - BZ, ow = cardW + BZ * 2, oh = sliceH + BZ * 2, OR = 40, IR = 28;
-        // ظل ناعم واسع ينتشر للأسفل + ظل قريب رقيق
+        const avail = availFor(!single);
+        let ff = f, contentH = (single ? (b - a) : pageCost(a, b)) * f;
+        if (contentH > avail) { ff = f * avail / contentH; contentH = avail; }        // صفحة واحدة بتصغير بسيط، أو صورة بلا حدود قطع
+        if (!single) contentH = Math.max(contentH, uniH);
+        const cardW = 1080 * ff, cardX = (F.W - cardW) / 2, cardY = F.top + BZ + (avail - contentH) / 2;
+        const ox = cardX - BZ, oy = cardY - BZ, ow = cardW + BZ * 2, oh = contentH + BZ * 2, OR = 40, IR = 28;
         ctx.save(); ctx.shadowColor = 'rgba(70,42,20,0.30)'; ctx.shadowBlur = 100; ctx.shadowOffsetY = 56;
         drawRoundedRect(ctx, ox + 30, oy + 30, ow - 60, oh - 40, OR); ctx.fillStyle = '#FFFDF9'; ctx.fill(); ctx.restore();
         ctx.save(); ctx.shadowColor = 'rgba(70,42,20,0.18)'; ctx.shadowBlur = 18; ctx.shadowOffsetY = 7;
         drawRoundedRect(ctx, ox, oy, ow, oh, OR); ctx.fillStyle = '#FFFDF9'; ctx.fill(); ctx.restore();
         ctx.save(); drawRoundedRect(ctx, ox + 0.75, oy + 0.75, ow - 1.5, oh - 1.5, OR); ctx.strokeStyle = 'rgba(120,90,60,0.10)'; ctx.lineWidth = 1.5; ctx.stroke(); ctx.restore();
-        ctx.save(); drawRoundedRect(ctx, cardX, cardY, cardW, sliceH, IR); ctx.clip();
-        ctx.drawImage(src, 0, a * ks, src.width, (b - a) * ks, cardX, cardY, cardW, sliceH); ctx.restore();
-        if (!single) exportText(ctx, `الصفحة ${i + 1} من ${ranges.length}`, F.W / 2, oy + oh + 34, { size: 26, weight: 700, color: B.muted, maxW: F.W - 80, min: 16 });
+        ctx.save(); drawRoundedRect(ctx, cardX, cardY, cardW, contentH, IR); ctx.clip();
+        ctx.fillStyle = B.ivory; ctx.fillRect(cardX, cardY, cardW, contentH);
+        let y = cardY;
+        const put = (y0, y1) => { if (y1 <= y0) return; const h = (y1 - y0) * ff; ctx.drawImage(src, 0, y0 * ks, src.width, (y1 - y0) * ks, cardX, y, cardW, h); y += h; };   // y بوحدات منطقية (عرض 1080)
+        if (single) put(a, b);
+        else {
+          if (a > 0) {   // صفحة متابعة: هيدر مختصر بخشب الهيدر + اسم البطولة ونوع الصورة
+            const M = 56 * ff, hx = cardX + M, hw = cardW - 2 * M, hy = y + 26 * ff, hh = 70 * ff;
+            ctx.save(); ctx.shadowColor = 'rgba(58,35,20,0.25)'; ctx.shadowBlur = 18 * ff; ctx.shadowOffsetY = 8 * ff; drawRoundedRect(ctx, hx, hy, hw, hh, 22 * ff); ctx.fillStyle = B.wood; ctx.fill(); ctx.restore();
+            ctx.save(); drawRoundedRect(ctx, hx, hy, hw, hh, 22 * ff); ctx.clip(); exportWalnut(ctx, hx, hy, hw, hh); ctx.restore();
+            ctx.save(); drawRoundedRect(ctx, hx, hy, hw, hh, 22 * ff); ctx.strokeStyle = 'rgba(207,169,99,0.55)'; ctx.lineWidth = 1.6; ctx.stroke(); ctx.restore();
+            const t1 = (hdr && hdr.title) || '', t2 = (hdr && hdr.subtitle) || '';
+            exportText(ctx, t1, hx + hw - 26 * ff, hy + hh / 2 - exportOptDy(30 * ff), { size: 30 * ff, weight: 800, color: '#F7EAD3', align: 'right', maxW: hw * 0.6, min: 14 });
+            if (t2) exportText(ctx, `${t2} · تابع`, hx + 26 * ff, hy + hh / 2 - exportOptDy(24 * ff), { size: 24 * ff, weight: 700, color: 'rgba(247,234,211,0.75)', align: 'left', maxW: hw * 0.36, min: 12 });
+            y += MINI * ff;
+            const fa = frameAt(a); if (fa) put(fa.y, fa.y + fa.headH + TP - GAPH);   // رأس الجدول (عناوين الأعمدة) يتكرر
+          }
+          put(a, b);
+          const fb = frameAt(b);
+          if (b < srcH && fb) {   // إغلاق الإطار من الأسفل: حافة سفلية بزوايا دائرية مثل نهاية الجدول الأصلية
+            const X = cardX + fb.x * ff, W = fb.w * ff, R = Math.min(fb.r, 26) * ff, top = y - GAPH * ff, bot = y + (TP - GAPH) * ff;
+            ctx.save(); ctx.beginPath(); ctx.moveTo(X, top); ctx.lineTo(X, bot - R); ctx.arcTo(X, bot, X + R, bot, R); ctx.lineTo(X + W - R, bot); ctx.arcTo(X + W, bot, X + W, bot - R, R); ctx.lineTo(X + W, top); ctx.closePath();
+            ctx.fillStyle = B.surface2; ctx.fill(); ctx.restore();
+            ctx.save(); ctx.beginPath(); ctx.moveTo(X + 1, top); ctx.lineTo(X + 1, bot - R); ctx.arcTo(X + 1, bot - 1, X + R, bot - 1, R - 1); ctx.lineTo(X + W - R, bot - 1); ctx.arcTo(X + W - 1, bot - 1, X + W - 1, bot - R, R - 1); ctx.lineTo(X + W - 1, top);
+            ctx.strokeStyle = B.lineStrong; ctx.lineWidth = 2 * ff; ctx.stroke(); ctx.restore();
+            y = bot;
+          }
+        }
+        ctx.restore();
+        if (!single) {   // كبسولة رقم الصفحة بنفس أسلوب بطاقات الهيدر
+          const label = `${i + 1} / ${total}`, ph = 40, py = oy + oh + 18;
+          ctx.save(); ctx.font = `800 22px ${EXPORT_FONT}`; const tw = ctx.measureText(label).width; ctx.restore();
+          const pw = tw + 44, px = (F.W - pw) / 2;
+          ctx.save(); drawRoundedRect(ctx, px, py, pw, ph, ph / 2); ctx.fillStyle = '#FFFDF9'; ctx.fill(); ctx.strokeStyle = B.walnutLine; ctx.lineWidth = 1.5; ctx.stroke(); ctx.restore();
+          exportText(ctx, label, F.W / 2, py + ph / 2 - exportOptDy(22) + 1, { size: 22, weight: 800, color: B.walnut, dir: 'ltr' });
+        }
         return c;
       });
       return pages;
@@ -8430,22 +8495,9 @@ function buildLeagueStandingsCanvas() {
   standings.forEach((r, ri) => {
     if (ri > 0) cuts.push(ry - rowGap / 2);
     const m = isMedalRow(r) ? rankIdentity(r.rank) : null;
-    ctx.save();
-    drawRoundedRect(ctx, M + TP, ry, CW - 2 * TP, rowH, 20);
-    ctx.fillStyle = m ? rankHexToRgba(m.main, 0.16) : B.paper;
-    ctx.fill();
-    ctx.strokeStyle = m ? m.main : B.line;
-    ctx.lineWidth = m ? 3 : 2;
-    ctx.stroke();
-    ctx.restore();
+    exportRankRow(ctx, M + TP, ry, CW - 2 * TP, rowH, 20, m ? r.rank : 0);
     const cy = ry + rowH / 2;
-
-    if (m) {
-      drawRankBadge(ctx, pos.rank.c, cy, 28, r.rank);
-      exportText(ctx, String(r.rank), pos.rank.c, cy, { size: 32, weight: 800, color: m.badgeText, dir: 'ltr' });
-    } else {
-      exportText(ctx, r.excluded ? '—' : String(r.rank), pos.rank.c, cy, { size: 34, weight: 800, color: B.faint, dir: 'ltr' });
-    }
+    exportRankNum(ctx, pos.rank.c, cy, m ? r.rank : 0, r.excluded ? '—' : r.rank);
     { const dlt = r.excluded ? 0 : (exMoves[r.name] || 0), slotX = pos.name.c + pos.name.w / 2 - 8;
       if (dlt) {   // سهم تغيّر المركز منذ يوم اللعب السابق: مثلث + رقم في خانة ثابتة عند بداية عمود الاسم
         const up = dlt > 0, col = up ? '#2E7D4F' : '#B3402F', tx = slotX - 12, ty = cy;
@@ -8465,7 +8517,7 @@ function buildLeagueStandingsCanvas() {
     num('setsFor', r.setsFor); num('setsAgainst', r.setsAgainst);
     const sd = r.setDifference > 0 ? `+${r.setDifference}` : `${r.setDifference}`;
     num('diff', sd, { color: r.setDifference > 0 ? B.ok : (r.setDifference < 0 ? '#B3402F' : B.muted) });
-    num('points', r.points, { size: 42, weight: 800, color: m ? m.deep : B.ink });
+    num('points', r.points, { size: 42, weight: 800, color: B.ink });
     ry += rowH + rowGap;
   });
 
@@ -8586,7 +8638,7 @@ function buildLeagueStandingsCanvas() {
       const I = o => Object.assign({ ok: true, why: '', ctl: [], quick: false, final: false, icon: 'image' }, o);
       const shared = [
         I({ id: 'history', cat: 'honors', title: 'سجل البطولات السابقة', desc: 'كل بطولة مكتملة مع بطلها ووصيفها', icon: 'table', ok: historyRecords().length > 0, why: 'يظهر بعد اكتمال بطولة وتسجيلها', run: exportHistoryImage }),
-        I({ id: 'honor', cat: 'honors', title: 'لوحة الشرف', desc: 'الأكثر ألقابًا من البطولات المكتملة', icon: 'users', ok: honorPlayers().length > 0, why: 'يظهر بعد تسجيل بطل في سجل البطولات', run: exportHonorBoard }),
+        I({ id: 'honor', cat: 'honors', title: 'لوحة الشرف', desc: 'الأكثر ألقابًا من البطولات المكتملة', icon: 'trophy', ok: honorPlayers().length > 0, why: 'يظهر بعد تسجيل بطل في سجل البطولات', run: exportHonorBoard }),
         I({ id: 'stats', cat: 'honors', title: 'إحصائيات اللاعبين', desc: 'إحصائيات تراكمية من سجل البطولات مع التقييم', icon: 'chart', ok: hasStats, why: 'تظهر بعد تسجيل بطولة مكتملة', run: exportStatsImage }),
         I({ id: 'rating', cat: 'honors', title: 'ترتيب التقييم', desc: 'تقييم المجلس والمستوى وتغيّر آخر بطولة لكل لاعب', icon: 'chart', ok: hasRatings, why: 'يظهر بعد تسجيل بطولة مكتملة', run: exportRatingBoard }),
         I({ id: 'profile', cat: 'players', title: 'ملف لاعب كامل', desc: 'التقييم وتطوره والإنجازات والمواجهات من كل البطولات', icon: 'users', ok: hasRatings, why: 'يظهر بعد تسجيل بطولة مكتملة', ctl: [{ t: 'hplayer' }], run: () => exportPlayerProfile(exportProfileSel.n) })
@@ -8600,17 +8652,17 @@ function buildLeagueStandingsCanvas() {
           I({ id: 'lg-upcoming', cat: 'live', title: 'إعلان المباريات القادمة', desc: 'مباريات الجولات المختارة قبل لعبها', icon: 'users', ok: st && pendingAny, why: st ? 'اكتملت كل المباريات' : 'ابدأ الدوري أولًا', ctl: [{ t: 'rounds' }], quick: true, run: () => exportLeagueUpcoming(exportCenterSel.rounds) }),
           I({ id: 'lg-today', cat: 'live', title: 'نتائج اليوم', desc: 'مباريات يوم لعب محدد (اليوم أو يوم سابق)', icon: 'table', ok: nightsList('lg').length > 0, why: 'يظهر بعد حفظ نتيجة مباراة', ctl: [{ t: 'night' }], quick: true, run: exportTodaySummary }),
           I({ id: 'lg-versus', cat: 'live', title: 'مواجهة قادمة', desc: 'بطاقة مواجهة منتظرة: المستوى والتقييم وتاريخ المواجهات', icon: 'users', ok: st && pendingAny, why: st ? 'اكتملت كل المباريات' : 'ابدأ الدوري أولًا', ctl: [{ t: 'versus' }, { t: 'vstime' }], run: () => exportVersusImage(exportVsSel.id, exportVsSel.time) }),
-          I({ id: 'lg-top3', cat: 'live', title: 'أفضل 3 حاليًا', desc: 'المراكز الثلاثة الأولى الآن', icon: 'shield', ok: st && done, why: 'يظهر بعد أول نتيجة', run: () => exportLeagueAchievementImage('top3', snap.standings, false) }),
-          I({ id: 'lg-top5', cat: 'live', title: 'أفضل 5 حاليًا', desc: 'المراكز الخمسة الأولى الآن', icon: 'shield', ok: st && done && snap.standings.length >= 5, why: 'يحتاج 5 لاعبين وأول نتيجة', run: () => exportLeagueAchievementImage('top5', snap.standings, false) }),
+          I({ id: 'lg-top3', cat: 'live', title: 'أفضل 3 حاليًا', desc: 'المراكز الثلاثة الأولى الآن', icon: 'rank', ok: st && done, why: 'يظهر بعد أول نتيجة', run: () => exportLeagueAchievementImage('top3', snap.standings, false) }),
+          I({ id: 'lg-top5', cat: 'live', title: 'أفضل 5 حاليًا', desc: 'المراكز الخمسة الأولى الآن', icon: 'rank', ok: st && done && snap.standings.length >= 5, why: 'يحتاج 5 لاعبين وأول نتيجة', run: () => exportLeagueAchievementImage('top5', snap.standings, false) }),
           I({ id: 'lg-card', cat: 'players', title: 'بطاقة لاعب', desc: 'المركز والنقاط وآخر النتائج والإنجازات', icon: 'users', ok: st, why: 'ابدأ الدوري أولًا', ctl: [{ t: 'player', key: 'a', label: 'اللاعب' }], run: () => exportLeaguePlayerCard(exportCenterSel.a) }),
           I({ id: 'lg-log', cat: 'players', title: 'سجل مباريات لاعب', desc: 'كل مباريات اللاعب المكتملة والمتبقية', icon: 'table', ok: st, why: 'ابدأ الدوري أولًا', ctl: [{ t: 'player', key: 'a', label: 'اللاعب' }], run: () => exportLeaguePlayerLog(exportCenterSel.a) }),
           I({ id: 'lg-compare', cat: 'players', title: 'مقارنة لاعبين', desc: 'إحصائيات متقابلة والمواجهات المباشرة', icon: 'chart', ok: st && many, why: 'يحتاج لاعبين اثنين على الأقل', ctl: [{ t: 'player', key: 'a', label: 'اللاعب الأول' }, { t: 'player', key: 'b', label: 'اللاعب الثاني' }], run: () => exportLeagueCompare(exportCenterSel.a, exportCenterSel.b) }),
           I({ id: 'lg-report', cat: 'honors', title: 'إحصائيات الدوري الشاملة', desc: 'ملخص الدوري والأوائل ونسبة الإنجاز', icon: 'chart', ok: st && done, why: 'يظهر بعد أول نتيجة', run: exportLeagueReport }),
           I({ id: 'lg-champion', cat: 'honors', title: 'بطل الدوري', desc: 'بطاقة البطل النهائي', icon: 'trophy', final: true, ok: (snap.completed || !!leagueClinch()) && snap.standings.length > 0, why: 'تظهر بعد حسم اللقب أو اكتمال جميع المباريات', run: () => exportLeagueAchievementImage('champion', snap.standings, true) }),
-          I({ id: 'lg-runner', cat: 'honors', title: 'الوصيف', desc: 'بطاقة وصيف الدوري', icon: 'shield', final: true, ok: snap.completed && many, why: 'تظهر بعد اكتمال جميع المباريات', run: () => exportLeagueAchievementImage('runnerUp', snap.standings, true) }),
-          I({ id: 'lg-final3', cat: 'honors', title: 'أول 3 مراكز', desc: 'المراكز النهائية الثلاثة', icon: 'shield', final: true, ok: snap.completed && snap.standings.length > 0, why: 'تظهر بعد اكتمال جميع المباريات', run: () => exportLeagueAchievementImage('top3', snap.standings, true) }),
+          I({ id: 'lg-runner', cat: 'honors', title: 'الوصيف', desc: 'بطاقة وصيف الدوري', icon: 'medal', final: true, ok: snap.completed && many, why: 'تظهر بعد اكتمال جميع المباريات', run: () => exportLeagueAchievementImage('runnerUp', snap.standings, true) }),
+          I({ id: 'lg-final3', cat: 'honors', title: 'أول 3 مراكز', desc: 'المراكز النهائية الثلاثة', icon: 'rank', final: true, ok: snap.completed && snap.standings.length > 0, why: 'تظهر بعد اكتمال جميع المباريات', run: () => exportLeagueAchievementImage('top3', snap.standings, true) }),
           I({ id: 'lg-podium', cat: 'honors', title: 'منصة التتويج', desc: 'المراكز الثلاثة الأولى على منصة واحدة', icon: 'trophy', final: true, ok: snap.completed && many, why: 'تظهر بعد اكتمال جميع المباريات', run: () => exportPodiumImage() }),
-          I({ id: 'lg-final5', cat: 'honors', title: 'أول 5 مراكز', desc: 'المراكز النهائية الخمسة', icon: 'shield', final: true, ok: snap.completed && snap.standings.length >= 5, why: 'تظهر بعد اكتمال جميع المباريات', run: () => exportLeagueAchievementImage('top5', snap.standings, true) })
+          I({ id: 'lg-final5', cat: 'honors', title: 'أول 5 مراكز', desc: 'المراكز النهائية الخمسة', icon: 'rank', final: true, ok: snap.completed && snap.standings.length >= 5, why: 'تظهر بعد اكتمال جميع المباريات', run: () => exportLeagueAchievementImage('top5', snap.standings, true) })
         ].concat(shared);
       }
       const st = snap.started, rounds = st ? gatherExportData().roundsData : [], doneMatches = rounds.flatMap(r => r.matches.filter(m => m.winner));
@@ -8626,8 +8678,8 @@ function buildLeagueStandingsCanvas() {
         I({ id: 'ko-card', cat: 'players', title: snap.mode === 'single' ? 'بطاقة لاعب' : 'بطاقة فريق', desc: 'الحالة والنتائج والإنجازات', icon: 'users', ok: st, why: 'أنشئ جدول البطولة أولًا', ctl: [{ t: 'kopart' }], run: () => exportKnockoutPlayerCard(exportKnockoutSel.n, false) }),
         I({ id: 'ko-log', cat: 'players', title: 'سجل المباريات', desc: 'كل مباريات المشارك المكتملة', icon: 'table', ok: st, why: 'أنشئ جدول البطولة أولًا', ctl: [{ t: 'kopart' }], run: () => exportKnockoutPlayerCard(exportKnockoutSel.n, true) }),
         I({ id: 'ko-champion', cat: 'honors', title: snap.mode === 'single' ? 'بطل الفردي' : 'بطل البطولة', desc: 'بطاقة البطل مع مسار وصوله', icon: 'trophy', final: true, ok: !!fin, why: 'تظهر بعد اعتماد نتيجة النهائي', ctl: [{ t: 'path' }], run: () => exportTournamentAchievementImage('champion', fin) }),
-        I({ id: 'ko-runner', cat: 'honors', title: 'الوصيف', desc: 'بطاقة الوصيف مع مسار وصوله', icon: 'shield', final: true, ok: !!fin, why: 'تظهر بعد اعتماد نتيجة النهائي', ctl: [{ t: 'path' }], run: () => exportTournamentAchievementImage('runnerUp', fin) }),
-        I({ id: 'ko-both', cat: 'honors', title: 'البطل والوصيف', desc: 'بطاقة واحدة تجمع الاثنين', icon: 'shield', final: true, ok: !!fin, why: 'تظهر بعد اعتماد نتيجة النهائي', ctl: [{ t: 'path' }], run: () => exportTournamentAchievementImage('both', fin) }),
+        I({ id: 'ko-runner', cat: 'honors', title: 'الوصيف', desc: 'بطاقة الوصيف مع مسار وصوله', icon: 'medal', final: true, ok: !!fin, why: 'تظهر بعد اعتماد نتيجة النهائي', ctl: [{ t: 'path' }], run: () => exportTournamentAchievementImage('runnerUp', fin) }),
+        I({ id: 'ko-both', cat: 'honors', title: 'البطل والوصيف', desc: 'بطاقة واحدة تجمع الاثنين', icon: 'trophy', final: true, ok: !!fin, why: 'تظهر بعد اعتماد نتيجة النهائي', ctl: [{ t: 'path' }], run: () => exportTournamentAchievementImage('both', fin) }),
         I({ id: 'ko-podium', cat: 'honors', title: 'منصة التتويج', desc: 'البطل والوصيف على منصة التتويج', icon: 'trophy', final: true, ok: !!fin, why: 'تظهر بعد اعتماد نتيجة النهائي', run: () => exportPodiumImage() })
       ].concat(shared);
     }
@@ -8792,7 +8844,7 @@ function buildLeagueStandingsCanvas() {
       const top = M + exportBrandHeaderHeight(meta) + 40;
       const ctxRes = exportContextResolve(context), gapC = ctxRes.shown ? 50 : 8;
       const itemH = it => it.bye ? 72 : 100;
-      const rowsH = sections.reduce((a, sec) => a + (sec.honor ? sec.honor.length * 96 + (sec.legend ? 56 : 0) : sec.matches ? sec.matches.reduce((b, it) => b + itemH(it), 0) : sec.rows.length * ROW), 0);
+      const rowsH = sections.reduce((a, sec) => a + (sec.honor ? sec.honor.length * 96 + (sec.legend ? 82 : 0) : sec.matches ? sec.matches.reduce((b, it) => b + itemH(it), 0) : sec.rows.length * ROW), 0);
       const TP = EXPORT_TABLE_PAD, IM = M + TP, ICW = CW - 2 * TP;   // أقسام الصفوف داخل إطار جدول (العناوين أعلى الإطار نفسه)
       const H = Math.ceil(top + gapC + sections.length * (HEAD + 14) + rowsH + sections.reduce((a, sec) => a + (sec.rows ? 2 * TP - 8 : sec.matches ? 2 * TP - 12 : sec.honor ? 2 * TP - 12 : 0), 0) + 90);
       let scale = exportScale(); while (W * scale * H * scale > 16000000 && scale > 1) scale -= 0.25;
@@ -8815,7 +8867,7 @@ function buildLeagueStandingsCanvas() {
         if (sec.cols) sec.cols.forEach((c, i) => exportTextWrap2(ctx, c, vx(sec.cols.length, i), y + HEAD / 2, { size: 26, weight: 800, color: B.ivory, maxW: vw, min: 16 }));
         y += HEAD + (framed ? TP : 14);
         if (sec.matches) { y = drawMatchCards(ctx, sec.matches, IM, y, ICW, cuts) + TP - 12 + 14; return; }
-        if (sec.honor) { y = drawHonorRows(ctx, sec.honor, IM, y, ICW, cuts) + TP - 12 + 14; if (sec.legend) { cuts.push(y - 6); drawTitlesLegend(ctx, M + CW / 2, y + 6); y += 56 - 14; } return; }
+        if (sec.honor) { y = drawHonorRows(ctx, sec.honor, IM, y, ICW, cuts) + TP - 12 + 14; if (sec.legend) { cuts.push(y - 6); drawTitlesLegend(ctx, M + CW / 2, y + 30); y += 82 - 14; } return; }
         sec.rows.forEach((r, i) => {
           if (i > 0) cuts.push(y - 4);
           drawRoundedRect(ctx, IM, y, ICW, ROW - 8, 14); ctx.fillStyle = B.paper; ctx.fill(); ctx.strokeStyle = B.line; ctx.lineWidth = 1.2; ctx.stroke();
@@ -8900,25 +8952,32 @@ function buildLeagueStandingsCanvas() {
       exportText(ctx, 'ضد', x, y, { size: Math.round(26 * k), weight: 800, color: B.goldDeep });
     }
     // الألقاب حسب النوع بأيقونات: سطر علوي (فردي · فرق · دوري) بعدد كل نوع، وتحته المجموع
-    const TITLE_KINDS = [['single', 'user', 'فردي'], ['team', 'users', 'فرق'], ['league', 'table', 'دوري']];
-    function drawTitlesCell(ctx, cx, cy, by, total, w, word) {
-      const B = EXPORT_BRAND, gap = 5, pw = Math.min(58, (w - 6 - gap * 2) / 3), ph = 30, py = cy - 17;
-      TITLE_KINDS.forEach(([k, ic], i) => {   // كبسولة لكل نوع: أيقونة + العدد، من اليمين: فردي ثم فرق ثم دوري
+    const TITLE_KINDS = [['single', 'user', 'فردي'], ['team', 'users', 'فرق'], ['league', 'league', 'دوري']];
+    function drawTitlesCell(ctx, cx, cy, by, total, w, word) {   // ثلاث كبسولات صغيرة بأسلوب واحد (حتى الصفر) وتحتها المجموع بخط أكبر
+      const B = EXPORT_BRAND, gap = 6, pw = Math.min(60, (w - 8 - gap * 2) / 3), ph = 30, py = cy - 18, IC = 17;
+      TITLE_KINDS.forEach(([k, ic], i) => {   // من اليمين: فردي ثم فرق ثم دوري
         const n = (by && by[k]) || 0, x = cx + (pw + gap) - i * (pw + gap);
         ctx.save(); drawRoundedRect(ctx, x - pw / 2, py - ph / 2, pw, ph, ph / 2);
-        ctx.fillStyle = n ? 'rgba(207,169,99,0.16)' : 'rgba(234,226,211,0.55)'; ctx.fill();
-        ctx.strokeStyle = n ? 'rgba(207,169,99,0.55)' : 'rgba(217,205,185,0.7)'; ctx.lineWidth = 1.2; ctx.stroke(); ctx.restore();
-        exportIcon(ctx, ic, x + pw / 2 - 15, py, 17, n ? B.goldDeep : B.lineStrong, 2);
-        exportText(ctx, String(n), x - 8, py - exportOptDy(20), { size: 20, weight: 800, color: n ? B.goldDeep : B.faint, dir: 'ltr', maxW: pw - 26 });
+        ctx.fillStyle = 'rgba(207,169,99,0.12)'; ctx.fill(); ctx.strokeStyle = B.walnutLine; ctx.lineWidth = 1.2; ctx.stroke(); ctx.restore();
+        ctx.save(); ctx.font = `800 21px ${EXPORT_FONT}`; const nw = Math.min(ctx.measureText(String(n)).width, pw - IC - 16); ctx.restore();
+        const gw = IC + 5 + nw, gr = x + gw / 2;   // الأيقونة والرقم كمجموعة واحدة في منتصف الكبسولة
+        exportIcon(ctx, ic, gr - IC / 2, py, IC, B.walnut, 2);
+        exportText(ctx, String(n), gr - IC - 5 - nw / 2, py - exportOptDy(21), { size: 21, weight: 800, color: B.ink, dir: 'ltr', maxW: pw - IC - 16 });
       });
       const t = word ? `${total} ${total === 1 ? 'لقب' : total === 2 ? 'لقبان' : total <= 10 ? 'ألقاب' : 'لقبًا'}` : String(total);
-      exportText(ctx, t, cx, cy + 22, { size: word ? 25 : 30, weight: 800, color: total ? B.goldDeep : B.text, dir: word ? 'rtl' : 'ltr', maxW: w - 8 });
+      exportText(ctx, t, cx, cy + 23, { size: word ? 25 : 32, weight: 800, color: B.ink, dir: word ? 'rtl' : 'ltr', maxW: w - 8 });
     }
-    function drawTitlesLegend(ctx, cx, cy) {
-      const B = EXPORT_BRAND, items = TITLE_KINDS.map(([, ic, l]) => [ic, 'ألقاب ' + l]); ctx.save(); ctx.font = `700 21px ${EXPORT_FONT}`;
-      const ws = items.map(([, l]) => ctx.measureText(l).width + 30); ctx.restore(); const gap = 34, total = ws.reduce((a, b) => a + b, 0) + gap * (items.length - 1);
-      let x = cx + total / 2;
-      items.forEach(([ic, l], i) => { exportIcon(ctx, ic, x - 10, cy + exportOptDy(21), 19, B.gold, 2); exportText(ctx, l, x - 26, cy, { size: 21, weight: 700, color: B.muted, align: 'right' }); x -= ws[i] + gap; });
+    function drawTitlesLegend(ctx, cx, cy) {   // دليل أيقونات الألقاب: كبسولات بنفس هوية بطاقات الهيدر (عاجي + إطار وأيقونة بلون الجوز)
+      const B = EXPORT_BRAND, items = TITLE_KINDS.map(([, ic, l]) => [ic, 'ألقاب ' + l]), PH = 44, PAD = 16, IC = 22, GI = 8, G = 12, FS = 21;
+      ctx.save(); ctx.font = `700 ${FS}px ${EXPORT_FONT}`; const ws = items.map(([, l]) => ctx.measureText(l).width + PAD * 2 + IC + GI); ctx.restore();
+      let x = cx + (ws.reduce((a, b) => a + b, 0) + G * (items.length - 1)) / 2;
+      items.forEach(([ic, l], i) => {
+        const px = x - ws[i], py = cy - PH / 2;
+        ctx.save(); drawRoundedRect(ctx, px, py, ws[i], PH, PH / 2); ctx.fillStyle = B.paper; ctx.fill(); ctx.strokeStyle = B.walnutLine; ctx.lineWidth = 1.4; ctx.stroke(); ctx.restore();
+        exportIcon(ctx, ic, x - PAD - IC / 2, cy, IC, B.walnut, 2);
+        exportText(ctx, l, x - PAD - IC - GI, cy - exportOptDy(FS), { size: FS, weight: 700, color: B.ink, align: 'right' });
+        x -= ws[i] + G;
+      });
     }
     function drawMatchCards(ctx, items, M, y, CW, cuts) {
       const B = EXPORT_BRAND, mid = M + CW / 2, half = CW / 2, nameW = half - 58 - 24 - 14;
@@ -9514,12 +9573,9 @@ function buildLeagueStandingsCanvas() {
       items.forEach((it, i) => {
         if (i > 0) cuts.push(y - 6);
         const cy = y + H / 2;
-        const rid = rankIdentity(it.rank);
-        drawRoundedRect(ctx, M, y, CW, H, 20); ctx.fillStyle = rid ? rankHexToRgba(rid.main, 0.16) : B.paper; ctx.fill(); ctx.strokeStyle = rid ? rid.main : B.line; ctx.lineWidth = rid ? 2 : 1.4; ctx.stroke();
+        exportRankRow(ctx, M, y, CW, H, 20, it.rank);
         const cx = M + CW - 24 - 28;
-        if (rid) drawRankBadge(ctx, cx, cy, 28, it.rank);
-        else { ctx.save(); ctx.beginPath(); ctx.arc(cx, cy, 28, 0, Math.PI * 2); ctx.fillStyle = B.surface3; ctx.fill(); ctx.restore(); }
-        exportText(ctx, String(it.rank), cx, cy, { size: 28, weight: 800, color: rid ? rid.badgeText : B.muted, dir: 'ltr' });
+        exportRankNum(ctx, cx, cy, it.rank);
         const by = it.byObj && !it.hideBy;   // الألقاب حسب النوع بأيقونات بدل سطر نصي تحت الاسم
         exportText(ctx, it.name, cx - 28 - 18, cy, { size: 32, weight: 800, color: B.ink, align: 'right', maxW: by ? 420 : 500, min: 18 });
         if (by) drawTitlesCell(ctx, M + 290, cy, it.byObj, it.titles, 210, true);
@@ -9582,8 +9638,11 @@ function buildLeagueStandingsCanvas() {
     }
     // إطار جدول موحّد: شريط العناوين هو أعلى البطاقة نفسها والصفوف داخلها (لا شريط عناوين عائم منفصل عن البيانات)
     const EXPORT_TABLE_PAD = 12;
+    // سجل إطارات الجداول في الصورة الحالية (للتقسيم على صفحات: تكرار صف العناوين وإغلاق الإطار في كل صفحة)
+    let exportFrameLog = [], exportHdrInfo = null;
     function exportTableFrame(ctx, x, y, w, h, headH, headFill, radius) {
       const B = EXPORT_BRAND, r = radius || 24;
+      exportFrameLog.push({ x, y, w, h, headH, r });
       ctx.save();
       drawRoundedRect(ctx, x, y, w, h, r); ctx.fillStyle = B.surface2; ctx.fill();
       ctx.save(); drawRoundedRect(ctx, x, y, w, h, r); ctx.clip(); if (headFill === B.wood) exportWalnut(ctx, x, y, w, headH); else { ctx.fillStyle = headFill || B.surface3; ctx.fillRect(x, y, w, headH); } ctx.restore();
@@ -9659,11 +9718,9 @@ function buildLeagueStandingsCanvas() {
       y += HEAD + 12; const cuts = [];
       list.forEach((p, i) => {
         if (i > 0) cuts.push(y - GAP / 2);
-        const rid = rankIdentity(p.rank), cy = y + ROW / 2;
-        drawRoundedRect(ctx, M + TP, y, CW - 2 * TP, ROW, 20); ctx.fillStyle = rid ? rankHexToRgba(rid.main, 0.16) : B.paper; ctx.fill();
-        ctx.strokeStyle = rid ? rid.main : B.line; ctx.lineWidth = rid ? 2.5 : 1.6; ctx.stroke();
-        if (rid) { drawRankBadge(ctx, C.rank.c, cy, 26, p.rank); exportText(ctx, String(p.rank), C.rank.c, cy, { size: 28, weight: 800, color: rid.badgeText, dir: 'ltr' }); }
-        else exportText(ctx, String(p.rank), C.rank.c, cy, { size: 30, weight: 800, color: B.faint, dir: 'ltr' });
+        const cy = y + ROW / 2;
+        exportRankRow(ctx, M + TP, y, CW - 2 * TP, ROW, 20, p.rank);
+        exportRankNum(ctx, C.rank.c, cy, p.rank);
         exportText(ctx, p.name, C.name.r - 14, cy, { size: 32, weight: 800, color: B.ink, align: 'right', maxW: C.name.w - 22, min: 17 });
         if (C.rating) exportText(ctx, p.rating.toLocaleString('en-US'), C.rating.c, cy, { size: 38, weight: 800, color: B.ink, dir: 'ltr', maxW: C.rating.w - 10 });
         if (C.tier) exportTierPill(ctx, p.tier.level, p.tier.name, C.tier.c, cy, 22, 'center');
@@ -11244,7 +11301,7 @@ function buildLeagueStandingsCanvas() {
     // ===================================
     // 🧭 سلوك التطبيق: إعادة الوضع للأعلى، تعديل العنوان بالضغط المطوّل، تنبيه التحديث، رقم الإصدار
     // ===================================
-    const APP_VERSION = '2.9';   // ترقيم الاعتماد: 1 ثم 1.1 … 1.9 ثم 2 — ويُرفع معه رقم الإصدار في sw.js
+    const APP_VERSION = '3.2';   // ترقيم الاعتماد: 1 ثم 1.1 … 1.9 ثم 2 — ويُرفع معه رقم الإصدار في sw.js
     (function setupAppBehaviors() {
       const root = document.documentElement;
 
