@@ -2238,16 +2238,20 @@
     body.dark-mode .vday-d.active.has-new::after { background: #1A140F; }
     .vday-list { display: flex; flex-direction: column; }
     /* سهم تغيّر المركز بجانب رقم المركز، في خانة ثابتة العرض (تبقى الأسماء على خط واحد) */
-    .lgc-head, .lgc-row { grid-template-columns: 28px 22px minmax(0, 1fr) 24px 36px 38px !important; column-gap: 3px; }
-    .lgc-row .n { padding-inline-start: 6px; }   /* مسافة تنفّس بين السهم والاسم */
+    /* عمود المركز وحدة واحدة: الرقم وتحته حركة المركز (▲/▼ أو «–»)، والاسم يبدأ بعده مباشرة بمسافة ثابتة في كل الصفوف */
+    .lgc-head, .lgc-row { grid-template-columns: 34px minmax(0, 1fr) 24px 36px 38px !important; column-gap: 3px; }
+    .lgc-row .r { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 4px; line-height: 1; color: var(--text-2); }
+    .lgc-row .r .rk { font-size: 16px; font-weight: 800; }
+    .lgc-row .r .mv.same { color: var(--text-3); font-size: 12px; }
+    .lgc-row .n { padding-inline-start: 6px; }
     .lgc-head > .n { padding-inline-start: 6px; }
     @media (max-width: 389px) { .lgc-row { padding-inline: 8px; } }
     /* سطر ف·ت·خ | له·عليه: يبقى في سطر واحد حتى مع الأرقام المزدوجة آخر الموسم */
     .lgc-row .n small { font-size: 10.5px; }
     .lgc-row .n small .sep { margin: 0 4px; }
     @media (min-width: 371px) { .lgc-row .n small { white-space: nowrap; } }
-    .lgc-head > .n { grid-column: 3; }
-    .lgc-row .mv { display: flex; align-items: center; justify-content: center; gap: 2px; font-size: 13px; font-weight: 800; font-variant-numeric: tabular-nums; line-height: 1; }
+    .lgc-head > .n { grid-column: 2; }
+    .lgc-row .mv { display: flex; align-items: center; justify-content: center; gap: 2px; font-size: 11px; font-weight: 800; font-variant-numeric: tabular-nums; line-height: 1; }
     .lgc-row .mv i { width: 0; height: 0; border-inline: 4.5px solid transparent; }
     .lgc-row .mv.up { color: var(--ok); } .lgc-row .mv.up i { border-bottom: 6px solid currentColor; }
     .lgc-row .mv.down { color: var(--danger, #B3402F); } .lgc-row .mv.down i { border-top: 6px solid currentColor; }
@@ -5015,17 +5019,17 @@ async function exportStatsImage() {
     // حجم واحد للعناوين ولأسماء اللاعبين: أكبر حجم يتسع فيه الأطول
     const fitAll = (texts, w, max, min, weight) => { let sz = max; ctx.save(); while (sz > min) { ctx.font = `${weight} ${sz}px ${EXPORT_FONT}`; if (texts.every(([t, ww]) => ctx.measureText(t).width <= ww)) break; sz -= 1; } ctx.restore(); return sz; };
     const headSz = fitAll(cols.map(([k, l]) => [l, C[k].w - 8]), 0, 23, 15, 800);
-    const nameSz = C.name ? fitAll(players.map(p => [p.name || 'غير محدد', C.name.w - 24]), 0, 32, 20, 800) : 32;
+    const nameSz = C.name ? fitAll(players.map(p => [p.name || 'غير محدد', C.name.w - 34]), 0, 32, 20, 800) : 32;
     let y = top + gapC;
     exportTableFrame(ctx, M, y, CW, frameH, HEAD, B.surface3, 26);
-    cols.forEach(([k, l]) => exportText(ctx, l, k === 'name' ? C[k].r - 14 : C[k].c, y + HEAD / 2, { size: headSz, weight: 800, color: B.muted, align: k === 'name' ? 'right' : 'center' }));
+    cols.forEach(([k, l]) => exportText(ctx, l, k === 'name' ? C[k].r - 24 : C[k].c, y + HEAD / 2, { size: headSz, weight: 800, color: B.muted, align: k === 'name' ? 'right' : 'center' }));
     y += HEAD + TP; const cuts = [];
     players.forEach((p, i) => {
       if (i > 0) cuts.push(y - GAP / 2);
       const rank = i + 1, cy = y + ROW / 2;
       exportRankRow(ctx, M + TP, y, CW - 2 * TP, ROW, 20, rank);
       if (C.rank) exportRankNum(ctx, C.rank.c, cy, rank);
-      if (C.name) exportText(ctx, p.name || 'غير محدد', C.name.r - 14, cy, { size: nameSz, weight: 800, color: B.ink, align: 'right', maxW: C.name.w - 24, min: 16 });
+      if (C.name) exportText(ctx, p.name || 'غير محدد', C.name.r - 24, cy, { size: nameSz, weight: 800, color: B.ink, align: 'right', maxW: C.name.w - 34, min: 16 });
       const num = (k, v, o) => { if (C[k]) exportText(ctx, String(v), C[k].c, cy, Object.assign({ size: 30, weight: 700, color: B.text, dir: 'ltr', maxW: C[k].w - 10 }, o || {})); };
       const rt = ratingOf(p.name), tot = Number(p.championships) || 0;
       num('rating', rt == null ? '—' : rt.toLocaleString('en-US'), { size: 32, weight: 800, color: rt == null ? B.faint : B.ink });
@@ -8446,7 +8450,7 @@ function buildLeagueStandingsCanvas() {
   const B = EXPORT_BRAND;
   const W = 1080, M = 56, CW = W - M * 2;
   const standings = calculateLeagueStandings();
-  const exMoves = leagueRankMoves(), exHasMoves = Object.values(exMoves).some(v => v), MV_SLOT = 50;   // أسهم تغيّر المركز (نفس التطبيق)
+  const exMoves = leagueRankMoves(), exHasMoves = Object.values(exMoves).some(v => v);   // أسهم تغيّر المركز (نفس التطبيق)
   const progress = getLeagueProgress();
   const activeRound = getLeagueActiveRound();
   const hasResults = progress.done > 0;
@@ -8502,7 +8506,7 @@ function buildLeagueStandingsCanvas() {
   const show = exportParts('lgStandings');
   const group = { played: 'played', wins: 'wdl', draws: 'wdl', losses: 'wdl', setsFor: 'sets', setsAgainst: 'sets', diff: 'diff' };
   const cols = [
-    ['rank', 'المركز', 96], ['name', 'اللاعب', exHasMoves ? 340 : 262], ['played', 'لعب', 78], ['wins', 'ف', 66], ['draws', 'ت', 66],
+    ['rank', 'المركز', 104], ['name', 'اللاعب', 300], ['played', 'لعب', 78], ['wins', 'ف', 66], ['draws', 'ت', 66],
     ['losses', 'خ', 66], ['setsFor', 'له', 78], ['setsAgainst', 'عليه', 84], ['diff', 'الفارق', 92], ['points', 'النقاط', 96]
   ].filter(([k]) => !group[k] || show[group[k]]);
   const sumW = cols.reduce((s, c) => s + c[2], 0);
@@ -8511,9 +8515,12 @@ function buildLeagueStandingsCanvas() {
   const pos = {};
   cols.forEach(([k, label, w]) => { const ww = w * f; pos[k] = { c: cursor - ww / 2, w: ww, label }; cursor -= ww; });
 
+  // عمود الاسم: كل الأسماء تبدأ من نفس النقطة (بعد عمود المركز بمسافة ثابتة)، وبحجم خط واحد يتسع فيه أطولها
+  const NAME_X = pos.name.c + pos.name.w / 2 - 22, NAME_W = pos.name.w - 34;   // 22: مسافة واضحة بين عنواني «المركز» و«اللاعب»
+  const nameSz = (() => { let sz = 36; ctx.save(); while (sz > 24) { ctx.font = `800 ${sz}px ${EXPORT_FONT}`; if (standings.every(r => ctx.measureText(r.excluded ? `${r.name} · مستبعد` : r.name).width <= NAME_W)) break; sz -= 1; } ctx.restore(); return sz; })();
   exportTableFrame(ctx, M, tableY, CW, tableH, headH, B.surface3, 26);
   cols.forEach(([k]) => {
-    if (k === 'name') exportText(ctx, pos[k].label, pos[k].c + pos[k].w / 2 - 8, tableY + headH / 2, { size: 26, weight: 800, color: B.muted, align: 'right', maxW: pos[k].w - 16, min: 18 });   // بمحاذاة الأسماء
+    if (k === 'name') exportText(ctx, pos[k].label, NAME_X, tableY + headH / 2, { size: 26, weight: 800, color: B.muted, align: 'right', maxW: pos[k].w - 16, min: 18 });   // بمحاذاة بداية الأسماء تمامًا
     else exportText(ctx, pos[k].label, pos[k].c, tableY + headH / 2, { size: 26, weight: 800, color: B.muted, maxW: pos[k].w - 8, min: 18 });
   });
 
@@ -8524,20 +8531,28 @@ function buildLeagueStandingsCanvas() {
     const m = isMedalRow(r) ? rankIdentity(r.rank) : null;
     exportRankRow(ctx, M + TP, ry, CW - 2 * TP, rowH, 20, m ? r.rank : 0);
     const cy = ry + rowH / 2;
-    exportRankNum(ctx, pos.rank.c, cy, m ? r.rank : 0, r.excluded ? '—' : r.rank);
-    { const dlt = r.excluded ? 0 : (exMoves[r.name] || 0), slotX = pos.name.c + pos.name.w / 2 - 8;
-      if (dlt) {   // سهم تغيّر المركز منذ يوم اللعب السابق: مثلث + رقم في خانة ثابتة عند بداية عمود الاسم
-        const up = dlt > 0, col = up ? '#2E7D4F' : '#B3402F', tx = slotX - 12, ty = cy;
-        ctx.save(); ctx.fillStyle = col; ctx.beginPath();
-        if (up) { ctx.moveTo(tx - 9, ty + 6); ctx.lineTo(tx + 9, ty + 6); ctx.lineTo(tx, ty - 7); } else { ctx.moveTo(tx - 9, ty - 6); ctx.lineTo(tx + 9, ty - 6); ctx.lineTo(tx, ty + 7); }
-        ctx.closePath(); ctx.fill(); ctx.restore();
-        exportText(ctx, String(Math.abs(dlt)), slotX - 26, cy, { size: 26, weight: 800, color: col, align: 'right', dir: 'ltr' });
+    // عمود المركز وحدة واحدة: الرقم، وتحته حركة المركز منذ يوم اللعب السابق (▲/▼ وعددها، أو «–» بلا تغيير)
+    { const dlt = r.excluded ? 0 : (exMoves[r.name] || 0), one = m && r.rank === 1, rx = pos.rank.c;
+      const ny = exHasMoves && !r.excluded ? cy - 13 : cy;
+      exportText(ctx, r.excluded ? '—' : String(r.rank), rx, ny, { size: 34, weight: 800, color: r.excluded ? B.faint : one ? '#B8892E' : B.text, dir: 'ltr' });
+      if (exHasMoves && !r.excluded) {
+        const my = cy + 22;
+        if (dlt) {
+          const up = dlt > 0, col = up ? '#2E7D4F' : '#B3402F', txt = String(Math.abs(dlt));
+          ctx.save(); ctx.font = `800 20px ${EXPORT_FONT}`; const tw = ctx.measureText(txt).width; ctx.restore();
+          const gw = 12 + 4 + tw, tx = rx + gw / 2 - 6;   // المثلث يمين الرقم، والمجموعة متوسطة تحت رقم المركز
+          ctx.save(); ctx.fillStyle = col; ctx.beginPath();
+          if (up) { ctx.moveTo(tx - 6, my + 4.5); ctx.lineTo(tx + 6, my + 4.5); ctx.lineTo(tx, my - 5); } else { ctx.moveTo(tx - 6, my - 4.5); ctx.lineTo(tx + 6, my - 4.5); ctx.lineTo(tx, my + 5); }
+          ctx.closePath(); ctx.fill(); ctx.restore();
+          exportText(ctx, txt, rx - gw / 2 + tw / 2, my - exportOptDy(20), { size: 20, weight: 800, color: col, dir: 'ltr' });
+        } else exportText(ctx, '–', rx, my - exportOptDy(20), { size: 20, weight: 800, color: B.faint, dir: 'ltr' });
       }
-      const nx = slotX - (exHasMoves ? MV_SLOT : 0), nf = r.excluded ? 0 : leagueForfeitCount(r.name);
-      if (nf) {   // عدد الانسحابات: سطر صغير تحت الاسم بنفس محاذاته (لا يُصغَّر الاسم ولا يتزاحم)
-        exportText(ctx, r.name, nx, cy - 13, { size: 32, weight: 800, color: B.ink, align: 'right', maxW: pos.name.w - 16 - (exHasMoves ? MV_SLOT : 0), min: 20 });
-        exportText(ctx, `انسحاب ${nf}`, nx, cy + 24, { size: 21, weight: 800, color: B.muted, align: 'right' });
-      } else exportText(ctx, r.excluded ? `${r.name} · مستبعد` : r.name, nx, cy, { size: 36, weight: 800, color: r.excluded ? B.faint : B.ink, align: 'right', maxW: pos.name.w - 16 - (exHasMoves ? MV_SLOT : 0), min: 20 }); }
+      const nf = r.excluded ? 0 : leagueForfeitCount(r.name);
+      if (nf) {   // عدد الانسحابات: سطر صغير تحت الاسم بنفس محاذاته
+        exportText(ctx, r.name, NAME_X, cy - 13, { size: Math.min(nameSz, 32), weight: 800, color: B.ink, align: 'right', maxW: NAME_W, min: 20 });
+        exportText(ctx, `انسحاب ${nf}`, NAME_X, cy + 24, { size: 21, weight: 800, color: B.muted, align: 'right' });
+      } else exportText(ctx, r.excluded ? `${r.name} · مستبعد` : r.name, NAME_X, cy, { size: nameSz, weight: 800, color: r.excluded ? B.faint : B.ink, align: 'right', maxW: NAME_W, min: 20 });
+    }
 
     const num = (key, val, o) => { if (!pos[key]) return; exportText(ctx, String(val), pos[key].c, cy, Object.assign({ size: 34, weight: 700, color: B.text, dir: 'ltr', maxW: pos[key].w - 6 }, o || {})); };
     num('played', r.played); num('wins', r.wins); num('draws', r.draws); num('losses', r.losses);
@@ -9741,14 +9756,14 @@ function buildLeagueStandingsCanvas() {
       cols.forEach(([k, , w]) => { const ww = w * (CW - 2 * TP) / sum; C[k] = { c: cur - ww / 2, w: ww, r: cur }; cur -= ww; });
       let y = top + gapC;
       exportTableFrame(ctx, M, y, CW, frameH, HEAD, B.surface3, 26);
-      cols.forEach(([k, l]) => exportText(ctx, l, k === 'name' ? C[k].r - 14 : C[k].c, y + HEAD / 2, { size: 23, weight: 800, color: B.muted, align: k === 'name' ? 'right' : 'center', maxW: C[k].w - 8, min: 15 }));
+      cols.forEach(([k, l]) => exportText(ctx, l, k === 'name' ? C[k].r - 24 : C[k].c, y + HEAD / 2, { size: 23, weight: 800, color: B.muted, align: k === 'name' ? 'right' : 'center', maxW: C[k].w - 8, min: 15 }));
       y += HEAD + 12; const cuts = [];
       list.forEach((p, i) => {
         if (i > 0) cuts.push(y - GAP / 2);
         const cy = y + ROW / 2;
         exportRankRow(ctx, M + TP, y, CW - 2 * TP, ROW, 20, p.rank);
         exportRankNum(ctx, C.rank.c, cy, p.rank);
-        exportText(ctx, p.name, C.name.r - 14, cy, { size: 32, weight: 800, color: B.ink, align: 'right', maxW: C.name.w - 22, min: 17 });
+        exportText(ctx, p.name, C.name.r - 24, cy, { size: 32, weight: 800, color: B.ink, align: 'right', maxW: C.name.w - 32, min: 17 });
         if (C.rating) exportText(ctx, p.rating.toLocaleString('en-US'), C.rating.c, cy, { size: 38, weight: 800, color: B.ink, dir: 'ltr', maxW: C.rating.w - 10 });
         if (C.tier) exportTierPill(ctx, p.tier.level, p.tier.name, C.tier.c, cy, 22, 'center');
         if (C.delta) exportDelta(ctx, p.lastDelta, C.delta.c, cy, 26);
@@ -11328,7 +11343,7 @@ function buildLeagueStandingsCanvas() {
     // ===================================
     // 🧭 سلوك التطبيق: إعادة الوضع للأعلى، تعديل العنوان بالضغط المطوّل، تنبيه التحديث، رقم الإصدار
     // ===================================
-    const APP_VERSION = '3.2';   // ترقيم الاعتماد: 1 ثم 1.1 … 1.9 ثم 2 — ويُرفع معه رقم الإصدار في sw.js
+    const APP_VERSION = '3.3';   // ترقيم الاعتماد: 1 ثم 1.1 … 1.9 ثم 2 — ويُرفع معه رقم الإصدار في sw.js
     (function setupAppBehaviors() {
       const root = document.documentElement;
 
@@ -11596,13 +11611,13 @@ function buildLeagueStandingsCanvas() {
       renderLeagueStandings = function () {
         const r = _renderStandings.apply(this, arguments), el = leagueStandingsEl;
         if (!leaguePlayers.length) return r;
-        const any = leagueStandings.some(x => x.played > 0), box = document.createElement('div'); box.className = 'lgc', moves = leagueRankMoves();
-        box.innerHTML = '<div class="lgc-head" aria-hidden="true"><span>#</span><span></span><span class="n">اللاعب</span><span>لعب</span><span>الفارق</span><span>النقاط</span></div>' +
+        const any = leagueStandings.some(x => x.played > 0), box = document.createElement('div'); box.className = 'lgc', moves = leagueRankMoves(), hasMv = Object.values(moves).some(v => v);
+        box.innerHTML = '<div class="lgc-head" aria-hidden="true"><span>#</span><span class="n">اللاعب</span><span>لعب</span><span>الفارق</span><span>النقاط</span></div>' +
           leagueStandings.map(x => { const top = any && x.played > 0 && x.rank <= 3, sd = x.setDifference;
             const nf = x.excluded ? 0 : leagueForfeitCount(x.name), dlt = x.excluded ? 0 : (moves[x.name] || 0);
             const pill = x.excluded ? '<span class="lgc-pill ex">مستبعد</span>' : nf ? `<span class="lgc-pill">انسحاب ${nf}</span>` : '';
             return `<button type="button" class="lgc-row${top && !x.excluded ? ' rank-' + x.rank : ''}${x.excluded ? ' excluded' : ''}" data-player="${leagueEscape(x.name)}" aria-label="${leagueEscape(x.name)}: ${x.excluded ? 'مستبعد' : 'المركز ' + x.rank}، ${x.points} نقطة">
-              <span class="r">${x.excluded ? '—' : top ? `<span class="rank-badge rb-${x.rank}"><span class="tx">${x.rank}</span></span>` : x.rank}</span><span class="mv${dlt > 0 ? ' up' : dlt < 0 ? ' down' : ''}"${dlt ? ` aria-label="${dlt > 0 ? 'تقدّم' : 'تراجع'} ${Math.abs(dlt)}"` : ''}>${dlt ? `<i aria-hidden="true"></i><b>${Math.abs(dlt)}</b>` : ''}</span>
+              <span class="r"><span class="rk">${x.excluded ? '—' : top ? `<span class="rank-badge rb-${x.rank}"><span class="tx">${x.rank}</span></span>` : x.rank}</span>${hasMv && !x.excluded ? `<span class="mv${dlt > 0 ? ' up' : dlt < 0 ? ' down' : ' same'}"${dlt ? ` aria-label="${dlt > 0 ? 'تقدّم' : 'تراجع'} ${Math.abs(dlt)}"` : ''}>${dlt ? `<i aria-hidden="true"></i><b>${Math.abs(dlt)}</b>` : '–'}</span>` : ''}</span>
               <span class="n"><b>${leagueEscape(x.name)}${pill}</b><small>ف ${x.wins}\u2009·\u2009ت ${x.draws}\u2009·\u2009خ ${x.losses} <i class="sep"></i> له ${x.setsFor}\u2009·\u2009عليه ${x.setsAgainst}</small></span>
               <span class="c">${x.played}</span><span class="c sd ${sd > 0 ? 'up' : sd < 0 ? 'down' : ''}"><bdi dir="ltr">${sd > 0 ? '+' + sd : sd}</bdi></span><span class="pts">${x.points}</span></button>`; }).join('');
         box.addEventListener('click', e => { const b = e.target.closest('.lgc-row'); if (b) openLeaguePlayerHistory(b.dataset.player); });
