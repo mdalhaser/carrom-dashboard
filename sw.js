@@ -1,13 +1,15 @@
 /* عامل الخدمة: يجعل التطبيق يفتح دون إنترنت.
    - الصفحة: من الشبكة أولًا (لتصلك التحديثات)، ومن النسخة المخزنة إذا لم يتوفر اتصال أو تأخر.
-   - خط Tajawal: يُحفظ بعد أول فتح متصل، ثم يُقرأ من الجهاز دائمًا.
+   - خط Tajawal: ملفاته داخل التطبيق (assets/fonts) ضمن ملفات التثبيت منذ v3.6. منطق Google Fonts أدناه باقٍ للنسخ القديمة ولا يضر.
    - لا يلمس بيانات البطولات (التخزين المحلي) إطلاقًا.
    - data.json (صفحة المشاهدة للاعبين): من الشبكة دائمًا، والمخزن عند انقطاع الإنترنت.
    عند تعديل الملفات مستقبلًا: غيّر رقم الإصدار أدناه ليُحدَّث المخزون القديم. */
-const VERSION = 'carrom-v3.5';
+const VERSION = 'carrom-v3.6';
 const SHELL = VERSION + '-shell';
 const FONTS = 'carrom-fonts';
-const SHELL_FILES = ['./', './index.html', './manifest.webmanifest', './view.html', './view.webmanifest', './icons/apple-touch-icon.png', './icons/icon-192.png', './icons/icon-512.png', './icons/icon-maskable-512.png', './assets/wood.webp'];
+const SHELL_FILES = ['./', './index.html', './manifest.webmanifest', './view.html', './view.webmanifest', './icons/apple-touch-icon.png', './icons/icon-192.png', './icons/icon-512.png', './icons/icon-maskable-512.png', './assets/wood.webp',
+  // v3.6: خط Tajawal محفوظ مع التطبيق (يعمل دون إنترنت من أول تثبيت)
+  './assets/fonts/Tajawal-Regular.woff', './assets/fonts/Tajawal-Medium.woff', './assets/fonts/Tajawal-Bold.woff', './assets/fonts/Tajawal-ExtraBold.woff', './assets/fonts/Tajawal-Black.woff'];
 
 // نفس رابط الخط في index.html حرفيًا (بعد فك &amp;)
 const FONT_CSS = 'https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700;800;900&display=swap';
