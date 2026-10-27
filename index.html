@@ -2335,7 +2335,8 @@
       width: auto; min-width: 30px; height: auto; border-radius: 0; background: none; font-size: 26px; font-weight: 800; line-height: 1; color: var(--on-wood-2); }
     .podium-card.p1 .podium-medal { color: #E3BF6E; font-weight: 900; }
     /* ==========================================================================
-       📊 مركز الإحصائيات وملف اللاعب (v3.6) — أنماط محصورة في #statsContent و#profileModal و#sxSidePf
+       📊 مركز الإحصائيات وملف اللاعب (v3.7) — أنماط محصورة في #statsModal و#profileModal و#sxSidePf
+       أسلوب iOS بهوية المشروع: ورقة بارتفاع الشاشة، شريط تبويبات سفلي ثابت، قوائم مجمّعة، حركة سريعة وهادئة
        المنهج الموحد: الهوية ← المقياس الأساسي ← الأداء ← الإنجازات ← الثانوي (من اليمين لليسار)
        ========================================================================== */
     /* زر الإحصائيات في الهيدر للصفحتين؛ الزر القديم في بطاقة الأدوات مخفي (يبقى في الصفحة دون استخدام) */
@@ -2343,216 +2344,229 @@
     html:not(.view-mode) .app-bar { grid-template-columns: 44px minmax(0, 1fr) 44px 44px; }
     @media (min-width: 640px) { html:not(.view-mode) .app-bar { grid-template-columns: 48px minmax(0, 1fr) auto auto; } }
     @media (max-width: 639px) { .hdr-stats-btn::before { margin-inline-end: 0; } }
-    /* الجوال: زران في جهة واحدة — أزرار 40px وفراغ أضيق حتى يبقى عنوان المشروع في سطر واحد كما كان */
     @media (max-width: 639px) {
       html:not(.view-mode) .app-bar { grid-template-columns: 40px minmax(0, 1fr) 40px 40px; column-gap: 6px; }
       html:not(.view-mode) .app-header .theme-switch, html:not(.view-mode) .app-header .control-open-btn { width: 40px; height: 40px; font-size: 19px; }
     }
     @media (max-width: 380px) { html:not(.view-mode) .header-title h2 { font-size: 21px; } }
-    #statsModal .stats-modal-content { max-width: 640px; }
+    :root { --sx-ease: cubic-bezier(.2, .8, .2, 1); --sx-press: scale(.985); }
     .sx-ltr { direction: ltr; unicode-bidi: isolate; display: inline-block; }
     #statsContent, #profileModal, #sxSidePf { font-variant-numeric: tabular-nums; }
-    /* التبويبات */
-    .sx-tabs { position: sticky; top: calc(var(--s5) * -1); z-index: 3; display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 2px; padding: 3px;
-      margin: calc(var(--s2) * -1) 0 var(--s4); border-radius: 14px; background: var(--surface-3); box-shadow: 0 -12px 0 var(--surface), 0 8px 14px -12px rgba(25, 18, 12, .25); }
-    .sx-tabs button { min-height: 40px; border: 0; border-radius: 11px; background: transparent; color: var(--text-2); font: inherit; font-size: 14px; font-weight: 800; cursor: pointer; white-space: nowrap; padding: 0 4px; }
-    .sx-tabs button[aria-selected="true"] { background: var(--surface); color: var(--text); box-shadow: var(--sh-1); }
-    .sx-body { display: flex; flex-direction: column; gap: var(--s4); }
+
+    /* ---------- الإطار: ورقة بارتفاع الشاشة، رأس ثابت، محتوى يتمرر، وشريط تبويبات سفلي ثابت ---------- */
+    #statsModal .stats-modal-content.sx-shell { display: flex; flex-direction: column; overflow: hidden; padding-bottom: 0; max-width: 640px;
+      height: calc(100dvh - var(--safe-top) - 10px); max-height: none; }
+    #statsModal .sx-shell .stats-header { flex: none; margin-bottom: var(--s3); flex-wrap: nowrap; }
+    #statsModal .sx-shell .stats-header h3 { font-size: 22px; font-weight: 900; min-width: 0; }
+    #statsModal .sx-shell #statsContent { flex: 1 1 auto; min-height: 0; overflow-y: auto; overscroll-behavior: contain; -webkit-overflow-scrolling: touch;
+      margin: 0 calc(var(--s5) * -1); padding: var(--s3) var(--s5) calc(var(--s6) + var(--safe-bottom)); scroll-padding-top: 8px; }
+    .sx-tabbar { flex: none; position: relative; z-index: 2; display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 2px; padding: 3px; margin: 0 0 var(--s2);
+      border-radius: 13px; background: var(--surface-3); }
+    .sx-tabbar[hidden] { display: none; }
+    .sx-tabbar button { min-height: 38px; padding: 0 4px; border: 0; border-radius: 10px; background: none; color: var(--text-2); font: inherit; font-size: 14.5px; font-weight: 800;
+      white-space: nowrap; cursor: pointer; -webkit-tap-highlight-color: transparent; transition: background .2s ease, color .2s ease, box-shadow .2s ease, transform .18s var(--sx-ease); }
+    .sx-tabbar button:active { transform: scale(.96); }
+    .sx-tabbar button[aria-selected="true"] { background: var(--surface); color: var(--text); box-shadow: 0 1px 3px rgba(25, 18, 12, .16), 0 0 0 .5px rgba(25, 18, 12, .05); }
+    /* خط فاصل رفيع يظهر تحت المفتاح عند التمرير فقط */
+    #statsModal .sx-shell .sx-tabbar::after { content: ""; position: absolute; inset: auto calc(var(--s5) * -1) calc(var(--s2) * -1 - 1px); height: 1px; background: var(--line); opacity: 0; transition: opacity .2s ease; }
+    #statsModal .sx-shell.sx-scrolled .sx-tabbar::after { opacity: 1; }
+    /* العنوان الكبير ينكمش عند التمرير */
+    #statsModal .sx-shell .stats-header h3 { transition: font-size .22s var(--sx-ease); }
+    #statsModal .sx-shell .stats-header { transition: margin .22s var(--sx-ease); }
+    #statsModal .sx-shell.sx-scrolled .stats-header { margin-bottom: var(--s2); }
+    #statsModal .sx-shell.sx-scrolled .stats-header h3 { font-size: 18px; }
+    @media (min-width: 640px) {
+      #statsModal .stats-modal-content.sx-shell { height: min(880px, 92dvh); }
+      .sx-tabbar { width: 100%; max-width: 560px; margin-inline: auto; }
+    }
+    @media (orientation: landscape) and (max-height: 520px) { #statsModal .stats-modal-content.sx-shell { height: 94dvh; } .sx-tabbar button { min-height: 32px; } }
+
+    /* ---------- المحتوى ---------- */
+    .sx-body { display: flex; flex-direction: column; gap: var(--s5); }
+    .sx-enter { animation: sxIn .26s var(--sx-ease) both; }
+    @keyframes sxIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: none; } }
     .sx-body > .stats-live-note { margin: 0; }
-    .sx-sec { display: flex; align-items: center; justify-content: space-between; gap: 8px; margin-top: var(--s1); }
-    .sx-sec h4 { display: flex; align-items: center; gap: 7px; font-size: var(--fs-md); font-weight: 800; }
-    .sx-sec h4 .ic { color: var(--gold-deep); width: 18px; height: 18px; }
-    .sx-link { border: 0; background: none; font: inherit; font-size: 13.5px; font-weight: 800; color: var(--gold-deep); cursor: pointer; padding: 6px 2px; }
+    .sx-group { display: flex; flex-direction: column; gap: 8px; }
+    .sx-sec { display: flex; align-items: baseline; justify-content: space-between; gap: 8px; padding: 0 4px; }
+    .sx-sec h4 { font-size: 19px; font-weight: 900; color: var(--text); }
+    .sx-link { border: 0; background: none; font: inherit; font-size: 14px; font-weight: 800; color: var(--gold-deep); cursor: pointer; padding: 6px 2px; -webkit-tap-highlight-color: transparent; }
     .sx-link::after { content: " ←"; }
-    .sx-hint { margin: 0; font-size: 13px; font-weight: 700; color: var(--text-3); }
-    .sx-card { background: var(--surface); border: 1px solid var(--line); border-radius: var(--r-md); }
-    .sx-chips { display: flex; gap: 6px; overflow-x: auto; scrollbar-width: none; padding-bottom: 2px; }
-    .sx-chips::-webkit-scrollbar { display: none; }
-    .sx-chip { flex: none; min-height: 36px; padding: 0 14px; border-radius: 999px; border: 1px solid var(--line); background: var(--surface); color: var(--text-2); font: inherit; font-size: 14px; font-weight: 800; cursor: pointer; }
-    .sx-chip[aria-pressed="true"] { background: var(--text); color: var(--surface); border-color: var(--text); }
-    .sx-seg { display: grid; grid-template-columns: 1fr 1fr; gap: 2px; padding: 3px; border-radius: 12px; background: var(--surface-3); }
-    .sx-seg button { min-height: 36px; border: 0; border-radius: 9px; background: none; color: var(--text-2); font: inherit; font-size: 13.5px; font-weight: 800; cursor: pointer; }
-    .sx-seg button[aria-pressed="true"] { background: var(--surface); color: var(--text); box-shadow: var(--sh-1); }
+    .sx-link:active { opacity: .6; }
+    .sx-note { margin: -6px 4px 0; font-size: 12.5px; font-weight: 700; color: var(--text-3); }
+    .sx-foot { margin: 0 4px; font-size: 12px; font-weight: 700; color: var(--text-3); }
+    .sx-card { background: var(--surface); border: 1px solid var(--line); border-radius: 16px; overflow: hidden; }
+    /* مفاتيح التحويل (بنمط iOS) */
+    .sx-seg { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 2px; padding: 3px; border-radius: 12px; background: var(--surface-3); }
+    .sx-seg.sx-seg3 { grid-template-columns: repeat(3, minmax(0, 1fr)); padding: 2px; border-radius: 10px; background: transparent; border: 1px solid var(--line); }
+    .sx-seg.sx-seg3 button { min-height: 30px; font-size: 13px; border-radius: 8px; }
+    .sx-seg.sx-seg3 button[aria-pressed="true"] { background: var(--surface-3); box-shadow: none; }
+    .sx-seg.sx-seg4 { display: flex; }
+    .sx-seg.sx-seg4 button { flex: 1 1 auto; padding: 0 8px; }
+    .sx-seg button { min-height: 34px; padding: 0 4px; border: 0; border-radius: 9px; background: none; color: var(--text-2); font: inherit; font-size: 13.5px; font-weight: 800; cursor: pointer; white-space: nowrap;
+      -webkit-tap-highlight-color: transparent; transition: background .2s ease, color .2s ease, box-shadow .2s ease; }
+    .sx-seg button .c { font-weight: 700; color: var(--text-3); }
+    .sx-seg button[aria-pressed="true"] { background: var(--surface); color: var(--text); box-shadow: 0 1px 3px rgba(25, 18, 12, .14), 0 0 0 .5px rgba(25, 18, 12, .04); }
     .sx-seg button:disabled { opacity: .45; cursor: default; }
-    /* صفوف اللاعبين والثنائيات */
-    .sx-list { display: flex; flex-direction: column; gap: 6px; }
-    .sx-row { display: grid; grid-template-columns: 32px minmax(0, 1fr) auto; align-items: center; gap: 10px; min-height: 64px; padding: 10px 12px;
-      background: var(--surface); border: 1px solid var(--line); border-radius: 14px; cursor: pointer; -webkit-tap-highlight-color: transparent; transition: background var(--t-fast) ease; }
-    .sx-row:active { background: var(--surface-2); }
-    .sx-row.rk-1 { border-color: color-mix(in srgb, var(--rank-1-main, var(--gold)) 70%, transparent); background: linear-gradient(rgba(207, 169, 99, .10), rgba(207, 169, 99, .10)), var(--surface); }
+    .sx-more { display: flex; align-items: center; justify-content: center; width: 100%; min-height: 46px; border: 1px solid var(--line); border-radius: 14px; background: var(--surface);
+      color: var(--gold-deep); font: inherit; font-size: 14px; font-weight: 800; cursor: pointer; }
+    .sx-more:active { background: var(--surface-2); }
+
+    /* ---------- صفوف الترتيب بأسلوب ترتيب الدوري: المركز (وتحته الحركة) ← الاسم ← رقم واحد ---------- */
+    .sx-head, .sx-row { display: grid; grid-template-columns: 34px minmax(0, 1fr) auto; align-items: center; column-gap: 6px; }
+    .sx-head { padding: 0 12px 2px; font-size: 11.5px; font-weight: 800; color: var(--text-3); text-align: center; }
+    .sx-head .n { text-align: start; padding-inline-start: 6px; }
+    .sx-head .v, .sx-row .v { min-width: 56px; text-align: center; }
+    .sx-list { display: flex; flex-direction: column; gap: 4px; }
+    .sx-row { width: 100%; min-height: 54px; padding: 6px 12px; border: 1px solid var(--line); border-radius: 14px; background: var(--surface); color: var(--text);
+      font: inherit; text-align: start; cursor: pointer; -webkit-tap-highlight-color: transparent; transition: transform .18s var(--sx-ease), background .2s ease; }
+    button.sx-row:active { transform: var(--sx-press); background: var(--surface-2); }
     .sx-prow { cursor: default; }
-    .sx-badge { width: 30px; height: 30px; border-radius: 50%; display: grid; place-items: center; font-size: 14px; font-weight: 800; color: var(--text-2); background: var(--surface-2); }
-    .sx-badge.b1 { background: var(--rank-1-badge, #CFA963); color: var(--rank-1-badge-text, #3A2A0C); }
-    .sx-badge.b2 { background: var(--rank-2-badge, #B5BDC5); color: var(--rank-2-badge-text, #2A3036); }
-    .sx-badge.b3 { background: var(--rank-3-badge, #C08A5E); color: var(--rank-3-badge-text, #3A2414); }
-    .sx-who { min-width: 0; }
-    .sx-n { font-size: 17px; font-weight: 800; line-height: 1.3; overflow-wrap: anywhere; }
-    .sx-m { display: flex; flex-wrap: wrap; align-items: center; gap: 2px 10px; margin-top: 3px; font-size: 14px; font-weight: 700; color: var(--text-2); }
-    .sx-m b { color: var(--text); font-weight: 800; }
-    .sx-m .on, .sx-ach.on > b { color: var(--gold-deep); }
-    .sx-m .on b { color: var(--gold-deep); }
-    .sx-d { font-size: 12.5px; font-weight: 800; margin-inline-start: 4px; }
-    .sx-d.up, #profileModal .up, #sxSidePf .up { color: var(--ok); } .sx-d.down, #profileModal .down, #sxSidePf .down { color: var(--danger); }
-    .sx-ach { display: flex; flex-direction: column; align-items: center; gap: 4px; min-width: 66px; }
-    .sx-ach > b { font-size: 22px; font-weight: 800; line-height: 1; }
-    .sx-ach .t-caps { margin: 0; }
-    .sx-ach .lbl { font-size: 11.5px; font-weight: 700; color: var(--text-3); }
-    .sx-you { display: inline-flex; margin-inline-start: 6px; padding: 1px 8px; border-radius: 999px; background: var(--gold); color: #3A2A0C; font-size: 11px; font-weight: 800; vertical-align: 3px; }
-    .sx-row.is-me, .sx-table tr.is-me td { background: linear-gradient(rgba(207, 169, 99, .12), rgba(207, 169, 99, .12)), var(--surface); }
+    .sx-row .r { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 4px; line-height: 1; color: var(--text); }
+    .sx-row .r .rk, .sx-tr .r .rk { font-size: 17px; font-weight: 800; font-variant-numeric: tabular-nums; }
+    .sx-row .r.first .rk, .sx-tr .r.first .rk { color: var(--rk1, #B8892E); font-weight: 900; }
+    .sx-row .mv, .sx-tr .mv { display: flex; align-items: center; justify-content: center; gap: 2px; font-size: 11px; font-weight: 800; line-height: 1; font-variant-numeric: tabular-nums; }
+    .sx-row .mv i, .sx-tr .mv i { width: 0; height: 0; border-inline: 4.5px solid transparent; }
+    .sx-row .mv.up, .sx-tr .mv.up { color: var(--ok); } .sx-row .mv.up i, .sx-tr .mv.up i { border-bottom: 6px solid currentColor; }
+    .sx-row .mv.down, .sx-tr .mv.down { color: var(--danger, #B3402F); } .sx-row .mv.down i, .sx-tr .mv.down i { border-top: 6px solid currentColor; }
+    .sx-row .mv.same, .sx-tr .mv.same { color: var(--text-3); font-size: 10.5px; }
+    .sx-row .n { min-width: 0; padding-inline-start: 6px; }
+    .sx-row .n b { display: block; font-size: 16px; font-weight: 800; line-height: 1.3; overflow-wrap: anywhere; }
+    .sx-row .n small { display: block; margin-top: 1px; font-size: 12px; font-weight: 700; color: var(--text-3); }
+    .sx-row .v { font-size: 20px; font-weight: 800; color: var(--text); }
     .sx-row.is-me { border-color: var(--gold); box-shadow: 0 0 0 1px var(--gold) inset; }
-    .sx-tier { display: inline-flex; padding: 1px 9px; border-radius: 999px; font-size: 12px; font-weight: 800; background: var(--warn-bg); color: var(--warn); }
-    .sx-tier.t4 { background: linear-gradient(135deg, #F3DFAE, #CFA963); color: #3A2A0C; }
-    .sx-keyrow { display: flex; align-items: center; justify-content: space-between; gap: 6px 10px; flex-wrap: wrap; font-size: 13px; font-weight: 700; color: var(--text-3); }
-    .sx-capkey { display: inline-flex; gap: 4px; }
-    .sx-capkey .t-cap { font-size: 11.5px; }
-    .sx-pin { position: sticky; bottom: calc(var(--s5) * -1 - var(--safe-bottom)); z-index: 2; margin: 0 calc(var(--s5) * -1); padding: 18px var(--s5) calc(var(--s3) + var(--safe-bottom)); background: linear-gradient(rgba(0, 0, 0, 0), var(--surface) 16px); }
+    .sx-you { display: inline-flex; margin-inline-start: 6px; padding: 1px 8px; border-radius: 999px; background: var(--gold); color: #3A2A0C; font-size: 11px; font-weight: 800; vertical-align: 2px; }
+    .sx-plus { display: inline-block; margin: 0 5px; color: var(--gold-deep); font-weight: 800; }
+    .sx-pin { position: sticky; bottom: calc((var(--s6) + var(--safe-bottom)) * -1); z-index: 2; margin: 0 calc(var(--s5) * -1); padding: 18px var(--s5) calc(var(--s3) + var(--safe-bottom)); background: linear-gradient(rgba(0, 0, 0, 0), var(--surface) 16px); }
     .sx-pin .cap { margin: 0 4px 4px; font-size: 12px; font-weight: 800; color: var(--gold-deep); }
-    .sx-pair { display: flex; align-items: center; flex-wrap: wrap; gap: 4px 6px; font-size: 16.5px; font-weight: 800; line-height: 1.3; }
-    .sx-plus { width: 18px; height: 18px; display: inline-grid; place-items: center; border-radius: 50%; border: 1.5px solid var(--gold); color: var(--gold-deep); font-size: 12px; line-height: 1; }
-    /* نظرة عامة */
-    .sx-hero { position: relative; overflow: hidden; padding: 16px; border-radius: 20px; color: var(--on-wood); box-shadow: var(--sh-2);
+
+    /* ---------- نظرة عامة ---------- */
+    .sx-hero { position: relative; overflow: hidden; padding: 16px 18px; border-radius: 20px; color: var(--on-wood); box-shadow: var(--sh-2);
       background: linear-gradient(160deg, rgba(74, 56, 44, .25), rgba(20, 14, 10, .62)), url("assets/wood.webp") center / cover, linear-gradient(180deg, var(--wood-2), var(--wood)); }
     .sx-hero::after { content: ""; position: absolute; inset: auto 10% 0; height: 1px; background: linear-gradient(90deg, transparent, var(--gold), transparent); }
     .sx-eb { display: flex; align-items: center; gap: 6px; font-size: 13px; font-weight: 700; color: var(--on-wood-2); }
     .sx-eb .ic { flex: none; width: 15px; height: 15px; color: var(--gold); }
-    .sx-fin { display: grid; grid-template-columns: minmax(0, 1fr) auto; align-items: center; gap: 4px 12px; margin-top: 10px; }
-    .sx-fin .nm { font-size: 23px; font-weight: 900; line-height: 1.25; overflow-wrap: anywhere; }
-    .sx-fin .nm.lose { font-size: 16px; font-weight: 700; color: var(--on-wood-2); }
-    .sx-fin .sc { min-width: 40px; text-align: center; font-size: 28px; font-weight: 900; line-height: 1; }
-    .sx-fin .sc.lose { font-size: 18px; color: var(--on-wood-2); }
+    .sx-fin { display: grid; grid-template-columns: minmax(0, 1fr) auto; align-items: center; gap: 2px 12px; margin-top: 8px; }
+    .sx-fin .nm { font-size: 24px; font-weight: 900; line-height: 1.25; overflow-wrap: anywhere; }
+    .sx-fin .nm.lose { font-size: 15px; font-weight: 700; color: var(--on-wood-2); }
+    .sx-fin .sc { min-width: 40px; text-align: center; font-size: 28px; font-weight: 900; line-height: 1; color: var(--gold-soft); }
+    .sx-fin .sc.lose { font-size: 17px; color: var(--on-wood-2); }
     .sx-fin .sc small { display: block; margin-top: 4px; font-size: 11px; font-weight: 700; color: var(--on-wood-2); }
-    .sx-ctag { display: inline-flex; margin-inline-start: 8px; padding: 1px 8px; border-radius: 999px; background: var(--gold); color: #3A2A0C; font-size: 11px; font-weight: 800; vertical-align: 5px; }
-    .sx-unit { margin-top: 6px; text-align: end; font-size: 11.5px; font-weight: 700; color: var(--on-wood-2); }
-    .sx-pills { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 12px; }
-    .sx-pill { display: inline-flex; padding: 3px 10px; border-radius: 999px; border: 1px solid rgba(207, 169, 99, .4); background: rgba(247, 243, 234, .1); font-size: 12.5px; font-weight: 800; white-space: nowrap; }
-    .sx-kpis { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 6px; }
-    .sx-kpi { padding: 10px 2px 8px; text-align: center; border-radius: 14px; background: var(--surface-2); border: 1px solid var(--line); }
-    .sx-kpi b { display: block; font-size: 21px; font-weight: 800; line-height: 1.15; }
-    .sx-kpi span { font-size: 12px; font-weight: 700; color: var(--text-2); }
-    .sx-split { display: flex; gap: 2px; height: 8px; margin-top: 8px; border-radius: 9px; overflow: hidden; }
-    .sx-legend { display: flex; flex-wrap: wrap; gap: 4px 12px; margin-top: 6px; font-size: 13px; font-weight: 700; color: var(--text-2); }
-    .sx-legend span { display: inline-flex; align-items: center; gap: 5px; }
-    .sx-legend i { display: inline-block; width: 9px; height: 9px; border-radius: 3px; }
-    .k-single { background: var(--gold-deep); } .k-team { background: var(--gold); } .k-league { background: var(--line-strong); }
+    .sx-unit { margin-top: 10px; font-size: 12.5px; font-weight: 700; color: var(--on-wood-2); }
+    .sx-kpis { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; }
+    .sx-kpi { padding: 12px 4px 10px; text-align: center; border-radius: 16px; background: var(--surface-2); }
+    .sx-kpi b { display: block; font-size: 24px; font-weight: 900; line-height: 1.1; color: var(--text); }
+    .sx-kpi span { font-size: 12.5px; font-weight: 700; color: var(--text-2); }
     .sx-mlist { display: flex; flex-direction: column; }
-    .sx-mline { padding: 10px 12px; border-bottom: 1px solid var(--line); }
+    .sx-mline { padding: 10px 14px; border-bottom: 1px solid var(--line); }
     .sx-mline:last-child { border-bottom: 0; }
-    .sx-mline .ctx { display: flex; align-items: center; gap: 6px; margin-bottom: 4px; font-size: 12.5px; font-weight: 700; color: var(--text-3); }
+    .sx-mline .ctx { display: flex; align-items: center; gap: 6px; margin-bottom: 4px; font-size: 12px; font-weight: 700; color: var(--text-3); }
     .sx-livedot { width: 7px; height: 7px; border-radius: 50%; background: var(--ok); flex: none; }
     .sx-side { display: grid; grid-template-columns: minmax(0, 1fr) auto; align-items: center; gap: 8px; min-height: 28px; font-size: 15px; font-weight: 700; color: var(--text-2); }
-    .sx-side + .sx-side { margin-top: 3px; }
+    .sx-side + .sx-side { margin-top: 2px; }
     .sx-side .t { display: flex; align-items: center; gap: 6px; min-width: 0; overflow-wrap: anywhere; }
     .sx-side .t .ic { flex: none; width: 15px; height: 15px; color: var(--gold-deep); }
-    .sx-side .s { min-width: 30px; text-align: center; padding: 1px 6px; border-radius: 7px; background: var(--surface-2); font-size: 16px; font-weight: 800; }
-    .sx-side .s:empty { background: none; }
+    .sx-side .s { min-width: 30px; text-align: center; font-size: 17px; font-weight: 800; color: var(--text-3); }
     .sx-side.w { color: var(--text); font-weight: 800; }
-    .sx-side.w .s { background: var(--ok-bg); color: var(--ok); }
-    .sx-side .s.sx-wtag { font-size: 12px; }
-    .sx-spots { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; }
-    .sx-spot { display: flex; flex-direction: column; gap: 2px; min-width: 0; padding: 12px; border-radius: 14px; background: var(--surface); border: 1px solid var(--line); }
-    .sx-spot[data-player] { cursor: pointer; }
-    .sx-spot .l { display: flex; align-items: center; gap: 5px; font-size: 13px; font-weight: 800; color: var(--gold-deep); }
-    .sx-spot .l .ic { width: 14px; height: 14px; flex: none; }
-    .sx-spot b { font-size: 23px; font-weight: 800; line-height: 1.2; }
-    .sx-spot .p { font-size: 15px; font-weight: 800; overflow-wrap: anywhere; }
-    .sx-spot .x { font-size: 12px; font-weight: 700; color: var(--text-3); }
-    .sx-me { display: flex; flex-direction: column; gap: 10px; padding: 14px; border-radius: 18px; border: 1.5px solid var(--gold); cursor: pointer;
-      background: linear-gradient(rgba(207, 169, 99, .12), rgba(207, 169, 99, .12)), var(--surface); }
-    .sx-me-top { display: flex; align-items: center; gap: 12px; }
-    .sx-me-top > .ic { color: var(--gold-deep); width: 20px; height: 20px; }
-    .sx-me-top .sx-n { font-size: 18px; font-weight: 900; }
-    .sx-me-nums { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 6px; }
-    .sx-me-nums > div { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 2px; padding: 7px 2px; border-radius: 12px; background: var(--surface); }
-    .sx-me-nums b { font-size: 19px; font-weight: 800; }
-    .sx-me-nums > div > span:last-child { font-size: 12px; font-weight: 700; color: var(--text-2); }
+    .sx-side.w .s { color: var(--ok); }
+    .sx-side .s.sx-wtag { font-size: 12.5px; }
+    /* قائمة مجمّعة (أرقام بارزة) */
+    .sx-ilist { display: flex; flex-direction: column; }
+    .sx-li { display: grid; grid-template-columns: minmax(0, 1.1fr) minmax(0, 1fr) auto; align-items: center; gap: 10px; min-height: 52px; padding: 8px 14px; border: 0; border-bottom: 1px solid var(--line);
+      background: none; color: var(--text); font: inherit; text-align: start; cursor: pointer; -webkit-tap-highlight-color: transparent; transition: background .2s ease; }
+    .sx-li:last-child { border-bottom: 0; }
+    .sx-li:active:not(:disabled) { background: var(--surface-2); }
+    .sx-li:disabled { cursor: default; }
+    .sx-li .l { font-size: 14px; font-weight: 700; color: var(--text-2); }
+    .sx-li .who { font-size: 15.5px; font-weight: 800; overflow-wrap: anywhere; }
+    .sx-li .v { font-size: 17px; font-weight: 800; white-space: nowrap; }
+    .sx-li .v small { font-size: 12px; font-weight: 700; color: var(--text-3); }
     .sx-av { flex: none; width: 44px; height: 44px; border-radius: 50%; display: grid; place-items: center; background: var(--wood); color: var(--gold-soft); font-size: 18px; font-weight: 900; }
-    .sx-av.lg { width: 52px; height: 52px; font-size: 22px; }
+    .sx-av.lg { width: 56px; height: 56px; font-size: 23px; }
     .sx-form { display: inline-flex; gap: 4px; direction: rtl; }
     .sx-fc { width: 24px; height: 24px; border-radius: 7px; display: grid; place-items: center; font-size: 12.5px; font-weight: 800; font-style: normal; }
     .sx-fc.w { background: var(--ok-bg); color: var(--ok); } .sx-fc.l { background: var(--danger-bg); color: var(--danger); } .sx-fc.d { background: var(--surface-3); color: var(--text-2); }
-    /* السجل */
-    .sx-month { margin: var(--s1) 2px calc(var(--s2) * -1); font-size: 14px; font-weight: 800; color: var(--text-3); }
-    .sx-hcard { padding: 12px 14px; }
+    .sx-d { font-size: 13px; font-weight: 800; margin-inline-start: 6px; }
+    .sx-d.up, #profileModal .up, #sxSidePf .up { color: var(--ok); } .sx-d.down, #profileModal .down, #sxSidePf .down { color: var(--danger); }
+
+    /* ---------- السجل: بطاقة لكل شهر، والبطولات صفوف داخلها ---------- */
+    .sx-month { margin: var(--s1) 4px -6px; font-size: 14px; font-weight: 900; color: var(--text-2); }
+    .sx-hgroup { display: flex; flex-direction: column; }
+    .sx-hcard { padding: 12px 14px; border-bottom: 1px solid var(--line); }
+    .sx-hcard:last-child { border-bottom: 0; }
     .sx-hcard .tt { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
     .sx-hcard .tt b { font-size: 16px; font-weight: 800; min-width: 0; overflow-wrap: anywhere; }
-    .sx-mode { flex: none; padding: 2px 9px; border-radius: 999px; background: var(--surface-3); color: var(--text-2); font-size: 12px; font-weight: 800; }
-    .sx-hmeta { margin-top: 2px; font-size: 13px; font-weight: 700; color: var(--text-3); }
+    .sx-mode { flex: none; padding: 1px 9px; border-radius: 999px; background: var(--surface-3); color: var(--text-2); font-size: 12px; font-weight: 800; }
+    .sx-hmeta { margin-top: 1px; font-size: 12.5px; font-weight: 700; color: var(--text-3); }
     .sx-sides { margin-top: 8px; }
     .sx-sides .sx-side:not(.w) .t .ic { color: var(--silver); }
-    /* الجدول الكامل + اللوحة الجانبية (الشاشات الواسعة فقط) */
+
+    /* ---------- الجدول الكامل + اللوحة الجانبية (الشاشات الواسعة فقط) ---------- */
     .sx-table, .sx-side-pf { display: none; }
     .sx-rank-main { display: flex; flex-direction: column; gap: var(--s3); min-width: 0; }
     @media (min-width: 1024px) {
-      #statsModal .stats-modal-content { max-width: 760px; transition: max-width .25s var(--ease); }
-      #statsModal .stats-modal-content.sx-wide { max-width: 1240px; }   /* العرض الكامل لتبويب الترتيب فقط (الجدول + الملف) */
+      #statsModal .stats-modal-content.sx-shell { max-width: 760px; transition: max-width .25s var(--sx-ease); }
+      #statsModal .stats-modal-content.sx-shell.sx-wide { max-width: 1240px; }
       .sx-only-narrow { display: none !important; }
       .sx-rank-grid { display: grid; grid-template-columns: minmax(0, 1fr) 390px; gap: var(--s5); align-items: start; }
-      .sx-table { display: block; overflow-x: auto; border: 1px solid var(--line); border-radius: var(--r-md); background: var(--surface); }
+      .sx-table { display: block; overflow-x: auto; border: 1px solid var(--line); border-radius: 16px; background: var(--surface); }
       .sx-table table { width: 100%; border-collapse: collapse; font-size: 14.5px; }
       .sx-table th { padding: 10px 8px; background: var(--surface-2); border-bottom: 1px solid var(--line); color: var(--text-2); font-size: 12.5px; font-weight: 800; white-space: nowrap; text-align: center; }
       .sx-table th.on { color: var(--gold-deep); }
-      .sx-table td { padding: 9px 8px; border-bottom: 1px solid var(--line); text-align: center; font-weight: 700; }
+      .sx-table td { padding: 8px; border-bottom: 1px solid var(--line); text-align: center; font-weight: 700; }
       .sx-table tr:last-child td { border-bottom: 0; }
       .sx-table .nm { text-align: start; }
       .sx-table td.nm b { font-size: 15.5px; font-weight: 800; }
-      .sx-table tbody tr { cursor: pointer; }
+      .sx-table td.rkc { width: 44px; }
+      .sx-tr .r { display: flex; flex-direction: column; align-items: center; gap: 4px; line-height: 1; }
+      .sx-table tbody tr { cursor: pointer; transition: background .15s ease; }
       .sx-table tbody tr:hover td { background: var(--surface-2); }
       .sx-table tr.sel td { background: linear-gradient(rgba(207, 169, 99, .14), rgba(207, 169, 99, .14)), var(--surface); }
       .sx-table tr.sel td:first-child { box-shadow: inset -3px 0 0 var(--gold); }
-      .sx-tt { display: inline-flex; align-items: center; gap: 8px; }
-      .sx-tt > b { font-size: 16px; }
-      .sx-tt .t-caps { margin: 0; }
-      .sx-side-pf { display: block; position: sticky; top: 52px; max-height: calc(92dvh - 120px); overflow-y: auto; overscroll-behavior: contain; padding: 14px; border: 1px solid var(--line); border-radius: var(--r-lg); background: var(--surface); }
+      .sx-side-pf { display: block; position: sticky; top: 0; max-height: calc(min(880px, 92dvh) - 150px); overflow-y: auto; overscroll-behavior: contain; padding: 16px; border: 1px solid var(--line); border-radius: var(--r-lg); background: var(--surface); }
     }
-    /* ملف اللاعب */
-    .px-back { display: inline-flex; align-items: center; gap: 2px; margin: calc(var(--s2) * -1) 0 var(--s2); padding: 6px 0; border: 0; background: none; font: inherit; font-size: 15px; font-weight: 800; color: var(--gold-deep); cursor: pointer; }
+
+    /* ---------- ملف اللاعب ---------- */
+    /* من الإحصائيات: يُدفع فوق نفس الورقة بانتقال جانبي (من اليسار في الواجهة العربية)، والرجوع يعكسه */
+    #profileModal.px-over { z-index: 10001; background: transparent; animation: none; }
+    #profileModal.px-over .modal-content { animation: pxPush .3s var(--sx-ease) both; box-shadow: -12px 0 40px rgba(25, 18, 12, .18); }
+    #profileModal.px-over.px-pop .modal-content { animation: pxPop .22s ease-in both; }
+    @keyframes pxPush { from { transform: translateX(-34%); opacity: 0; } to { transform: none; opacity: 1; } }
+    @keyframes pxPop { to { transform: translateX(-30%); opacity: 0; } }
+    @media (max-width: 639px) { #profileModal.px-over .modal-content { height: calc(100dvh - var(--safe-top) - 10px); max-height: none; } }
+    @media (min-width: 640px) { #profileModal.px-over { background: rgba(25, 18, 12, .18); } #profileModal.px-over .modal-content { max-height: min(880px, 92dvh); } }
+    .px-back { display: inline-flex; align-items: center; gap: 2px; margin: calc(var(--s2) * -1) 0 var(--s2); padding: 6px 0; border: 0; background: none; font: inherit; font-size: 16px; font-weight: 800; color: var(--gold-deep); cursor: pointer; -webkit-tap-highlight-color: transparent; }
     .px-back .ic { width: 20px; height: 20px; }
-    .px-id { display: flex; align-items: center; gap: 12px; }
+    .px-back:active { opacity: .6; }
+    .px-id { display: flex; align-items: center; gap: 14px; }
     .px-idt { min-width: 0; }
-    .px-name { font-size: 26px; font-weight: 900; line-height: 1.2; overflow-wrap: anywhere; color: var(--text); }
-    .px-ctx { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 5px; }
-    .px-rank { display: inline-flex; padding: 1px 10px; border-radius: 999px; background: var(--rank-1-badge, #CFA963); color: var(--rank-1-badge-text, #3A2A0C); font-size: 12.5px; font-weight: 800; }
-    .px-tabs { position: sticky; top: calc(var(--s5) * -1); z-index: 3; display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); margin: var(--s3) 0 var(--s4); border-bottom: 1px solid var(--line); background: var(--surface); }
-    #sxSidePf .px-tabs { top: -14px; }
-    .px-tabs button { padding: 10px 0; margin-bottom: -1px; border: 0; border-bottom: 2.5px solid transparent; background: none; color: var(--text-3); font: inherit; font-size: 14.5px; font-weight: 800; cursor: pointer; white-space: nowrap; }
-    .px-tabs button[aria-selected="true"] { color: var(--text); border-bottom-color: var(--gold); }
-    .px-panel { display: flex; flex-direction: column; gap: var(--s3); }
-    .px-rate { padding: 14px 14px 6px; }
-    .px-rate-top { display: flex; align-items: flex-end; justify-content: space-between; gap: 8px; }
-    .px-rate .v { font-size: 38px; font-weight: 900; line-height: 1; color: var(--text); }
-    .px-rate .v small { margin-inline-start: 6px; font-size: 16px; font-weight: 800; }
-    .px-rate .c { margin-top: 4px; font-size: 13px; font-weight: 700; color: var(--text-3); }
-    .px-rate .c.end { text-align: end; margin: 0; }
-    .px-chart { display: block; width: 100%; height: auto; margin-top: 8px; direction: ltr; }
-    .px-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 6px; }
-    .px-st { padding: 10px 4px; border-radius: 14px; background: var(--surface-2); text-align: center; }
-    .px-st > b { display: block; font-size: 21px; font-weight: 800; color: var(--text); }
-    .px-st > span { font-size: 12.5px; font-weight: 700; color: var(--text-2); }
-    .px-st.hl { background: linear-gradient(rgba(207, 169, 99, .12), rgba(207, 169, 99, .12)), var(--surface); border: 1px solid color-mix(in srgb, var(--gold) 50%, transparent); }
-    .px-box { display: flex; flex-direction: column; gap: 10px; padding: 12px 14px; }
-    .px-kv { display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 6px 10px; font-size: 14px; font-weight: 700; color: var(--text-2); }
-    .px-kv b { color: var(--text); font-weight: 800; }
-    .px-kv .t-caps { margin: 0; gap: 5px; }
-    .px-dim { color: var(--text-3); }
-    .px-wdl { display: flex; gap: 2px; height: 10px; border-radius: 9px; overflow: hidden; }
-    .px-wdl .w { background: var(--ok); } .px-wdl .d { background: var(--line-strong); } .px-wdl .l { background: var(--danger); }
-    .px-note { font-size: 12.5px; font-weight: 700; color: var(--text-3); }
-    .px-list { display: flex; flex-direction: column; }
-    .px-li { display: flex; align-items: center; gap: 10px; padding: 11px 2px; border-bottom: 1px solid var(--line); }
+    .px-name { font-size: 28px; font-weight: 900; line-height: 1.2; overflow-wrap: anywhere; color: var(--text); }
+    .px-ctx { margin-top: 4px; font-size: 13.5px; font-weight: 700; color: var(--text-2); }
+    .px-tier { color: var(--gold-deep); font-weight: 800; }
+    .px-tabs { margin: var(--s4) 0 var(--s4); }
+    .px-panel { display: flex; flex-direction: column; gap: 8px; }
+    .px-rate { padding: 14px 16px 8px; }
+    .px-rate-top { display: flex; align-items: flex-start; justify-content: space-between; gap: 8px; }
+    .px-rate .v { font-size: 40px; font-weight: 900; line-height: 1; color: var(--text); }
+    .px-rate .v small { font-size: 16px; font-weight: 800; }
+    .px-rate .c { text-align: end; font-size: 12.5px; font-weight: 700; color: var(--text-3); line-height: 1.5; }
+    .px-chart { display: block; width: 100%; height: auto; margin-top: 10px; direction: ltr; }
+    .px-gt { margin: 10px 6px 0; font-size: 13px; font-weight: 800; color: var(--text-3); }
+    .px-group { display: flex; flex-direction: column; }
+    .px-li { display: flex; align-items: center; justify-content: space-between; gap: 10px; min-height: 48px; padding: 9px 16px; border-bottom: 1px solid var(--line); }
     .px-li:last-child { border-bottom: 0; }
-    .px-li .t { flex: 1; min-width: 0; }
-    .px-li .t b { display: block; font-size: 15.5px; font-weight: 800; color: var(--text); overflow-wrap: anywhere; }
-    .px-li .t span { font-size: 13px; font-weight: 700; color: var(--text-3); }
-    .px-rec { display: inline-flex; gap: 8px; font-size: 14px; font-weight: 800; color: var(--text-2); white-space: nowrap; }
-    .px-plc { flex: none; display: inline-flex; align-items: center; gap: 4px; min-width: 76px; justify-content: center; padding: 3px 9px; border-radius: 999px; font-size: 12.5px; font-weight: 800; }
-    .px-plc .ic { width: 13px; height: 13px; }
-    .px-plc.champ { background: var(--rank-1-badge, #CFA963); color: var(--rank-1-badge-text, #3A2A0C); }
-    .px-plc.runner { background: var(--rank-2-badge, #B5BDC5); color: var(--rank-2-badge-text, #2A3036); }
-    .px-plc.semi { background: var(--rank-3-badge, #C08A5E); color: var(--rank-3-badge-text, #3A2414); }
-    .px-plc.part { background: var(--surface-3); color: var(--text-2); }
-    #profileModal .px-panel .sx-chips, #sxSidePf .px-panel .sx-chips { margin-bottom: 2px; }
-    #sxSidePf .pf-note { margin-top: var(--s3); }
-    @media (prefers-reduced-motion: reduce) { .sx-row { transition: none; } }
+    .px-li .l { min-width: 0; font-size: 15px; font-weight: 700; color: var(--text); overflow-wrap: anywhere; }
+    .px-li .l small { display: block; margin-top: 1px; font-size: 12px; font-weight: 700; color: var(--text-3); }
+    .px-li .v { flex: none; font-size: 16.5px; font-weight: 800; color: var(--text); white-space: nowrap; }
+    .px-li .v .gold { color: var(--rk1, #B8892E); font-weight: 900; }
+    .px-li .pf-tag { margin-inline-start: 4px; vertical-align: 1px; }
+    .px-plc { font-size: 13px; font-weight: 800; color: var(--text-3); }
+    .px-plc.champ { color: var(--rk1, #B8892E); } .px-plc.runner { color: var(--text-2); }
+    #profileModal .pf-note, #sxSidePf .pf-note { margin-top: var(--s3); }
+    #sxSidePf .px-name { font-size: 24px; }
+    @media (prefers-reduced-motion: reduce) {
+      .sx-enter, #profileModal.px-over .modal-content, #profileModal.px-over.px-pop .modal-content { animation: none; }
+      .sx-row, .sx-tabbar button, .sx-seg button, #statsModal .sx-shell .stats-header h3 { transition: none; }
+    }
   </style>
 </head>
 <body>
@@ -2771,7 +2785,7 @@
   <div id="statsModal">
     <div class="stats-modal-content">
       <div class="stats-header">
-        <h3>إحصائيات البطولات</h3>
+        <h3>الإحصائيات</h3>
         <div class="stats-header-actions">
           <button id="exportStatsBtn" class="btn primary" data-ic="image">تصدير كصورة</button>
           <button class="stats-close" id="closeStatsBtn" aria-label="إغلاق">×</button>
@@ -5036,43 +5050,41 @@ return teamName.replace('غير محدد', replacement);
       if (!all) { const h = sec.querySelector('.st-fold-head'), r = h.getBoundingClientRect(); if (r.top < 0 || r.top > innerHeight) h.scrollIntoView({ block: 'start', behavior: matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth' }); }
     }
     // ===================================
-    // 📊 مركز الإحصائيات (v3.6) — طبقة عرض فقط
+    // 📊 مركز الإحصائيات (v3.7) — طبقة عرض فقط
     // يقرأ مخرجات getStatsData و computePlayerRatings و tournamentHistory كما هي، ولا يغيّر أي حساب أو تخزين للبيانات.
     // المنهج الموحد لترتيب المعلومات (من اليمين لليسار، ومن الأعلى للأسفل):
-    //   1) الهوية: المركز ← الاسم ← السياق (النوع، الدور، التاريخ)
-    //   2) المقياس الأساسي للقسم (التقييم للاعبين، الألقاب للشراكات، النتيجة للمباراة)
-    //   3) الأداء: المشاركات ← المباريات ← فوز ← تعادل ← خسارة ← نسبة الفوز
-    //   4) الإنجازات: الألقاب ← الوصافة ← نصف النهائي، ثم الثانوي (آخر النتائج، السلاسل، الملاحظات)
+    //   1) الهوية: المركز ← الاسم ← السياق   2) المقياس الأساسي للقسم   3) الأداء   4) الإنجازات ثم الثانوي
     //   تسلسلات ثابتة: فردي ← فرق ← دوري · فوز ← تعادل ← خسارة · بطل ← وصيف ← نصف النهائي
-    //   ترتيب الحقول ثابت دائمًا؛ الذي يتغير مع البيانات هو ترتيب الصفوف فقط، ولا يُخفى حقل لأن قيمته صفر.
+    // v3.7: صف واحد بأسلوب ترتيب الدوري — رقم المركز فقط (الأول بالذهبي) وتحته حركة المركز، الاسم، ثم رقم واحد هو مقياس القسم.
+    //   رقم واحد لكل صف بدل تكرار التقييم والنسبة والألقاب في كل مكان؛ التفاصيل كاملة في ملف اللاعب.
     // ===================================
     const STATS_TAB_KEY = '__carrom_sttab_v1';   // تفضيل عرض خاص بالجهاز: خارج التراجع والنسخ الاحتياطي والنشر
     const STATS_MIN_DECIDED = 15;                 // حد أدنى للمباريات المحسومة في «أفضل نسبة فوز» وترتيب النسبة
     const STATS_STABLE_PAIR = 2;                  // الثنائي الثابت: بطولتان معًا فأكثر
     const STATS_PAGE = 12;                        // عدد العناصر قبل «عرض الكل»
     const STATS_MONTHS = ['يناير', 'فبراير', 'مارس', 'أبريل', 'مايو', 'يونيو', 'يوليو', 'أغسطس', 'سبتمبر', 'أكتوبر', 'نوفمبر', 'ديسمبر'];
+    const STATS_TABS = [['overview', 'نظرة عامة', 'chart'], ['rank', 'الترتيب', 'rank'], ['pairs', 'الشراكات', 'users'], ['hist', 'السجل', 'calendar']];
+    const STATS_SORTS = [['titles', 'الألقاب'], ['rating', 'التقييم'], ['winrate', 'نسبة الفوز']];
     let statsTab = 'overview';
-    try { const t = localStorage.getItem(STATS_TAB_KEY); if (['overview', 'rank', 'pairs', 'hist'].includes(t)) statsTab = t; } catch (e) {}
+    try { const t = localStorage.getItem(STATS_TAB_KEY); if (STATS_TABS.some(([k]) => k === t)) statsTab = t; } catch (e) {}
     let statsPairsAll = null, statsHistKind = 'all', statsSel = null;
     const statsMore = {};
     const statsWide = () => !!(window.matchMedia && matchMedia('(min-width: 1024px)').matches);
+    const statsCalm = () => !!(window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches);
     const sxPct = n => `<span class="sx-ltr">${n}%</span>`;
     const sxNum = n => Number(n || 0).toLocaleString('en-US');
-    const sxDelta = d => d ? `<span class="sx-d ${d > 0 ? 'up' : 'down'}">${d > 0 ? '▲' : '▼'}${Math.abs(d)}</span>` : '';
-    const sxBadge = i => `<span class="sx-badge${i < 3 ? ' b' + (i + 1) : ''}">${i + 1}</span>`;
     const sxIc = n => `<span class="ic ic-${n}" aria-hidden="true"></span>`;
     const sxModeAr = m => m === 'single' ? 'فردي' : m === 'league' ? 'دوري' : 'فرق';
     const sxKindOf = m => m === 'single' ? 'single' : m === 'league' ? 'league' : 'team';
-    const sxCount = (n, one, two, few, many) => n === 1 ? `${one} واحدة` : n === 2 ? two : `${n} ${arCountW(n, one, two, few, many)}`;
-    const sxCountM = (n, one, two, few, many) => n === 1 ? `${one} واحد${one.endsWith('ة') ? 'ة' : ''}` : n === 2 ? two : `${n} ${arCountW(n, one, two, few, many)}`;   // المذكر والمؤنث: «لاعب واحد»، «مباراة واحدة»
+    const sxCountM = (n, one, two, few, many) => n === 1 ? `${one} واحد${one.endsWith('ة') ? 'ة' : ''}` : n === 2 ? two : `${n} ${arCountW(n, one, two, few, many)}`;
     const sxNames = list => list.map(escHTML).join(' + ');
     const sxRound = r => escHTML(String(r || '').replace(/🏆/g, '').trim());
     const sxWinRate = p => (p.wins + p.losses) ? sxPct(p.winRate) : '—';
+    const sxTitlesBy = b => [['فردي', b && b.single], ['فرق', b && b.team], ['دوري', b && b.league]].map(([l, n]) => `${l} ${n || 0}`).join(' · ');
     function statsMe() {
       if (!window.CARROM_VIEW) return null;
       try { const v = JSON.parse(localStorage.getItem('__carrom_me_v1') || 'null'); return v && typeof v === 'object' ? (v.name || null) : (v || null); } catch (e) { return null; }
     }
-    // نتيجة كل طرف بجانب اسمه (لا صيغة «2 – 0» التي ينقلب ترتيبها في النص العربي). السجلات القديمة بلا أرقام تُرجع null
     function sxMatchScores(m) {
       if (m.scoreA != null && m.scoreB != null && isFinite(+m.scoreA) && isFinite(+m.scoreB)) return [+m.scoreA, +m.scoreB];
       if (m.winnerScore != null && m.loserScore != null && isFinite(+m.winnerScore) && isFinite(+m.loserScore))
@@ -5083,33 +5095,59 @@ return teamName.replace('غير محدد', replacement);
       const s = score == null || score === '' ? (win ? '<span class="s sx-wtag">فاز</span>' : '<span class="s"></span>') : `<span class="s">${score}</span>`;
       return `<div class="sx-side${win ? ' w' : ''}"><span class="t">${icon ? sxIc(icon) : ''}<bdi>${sxNames(names)}</bdi></span>${s}</div>`;
     }
-    function statsSortPlayers(d, elo) {
-      const list = Object.values(d.players);
-      const ratingOf = n => elo.players[n] ? elo.players[n].rating : null;
-      if (statsSortMode === 'rating') return list.sort((a, b) => ((ratingOf(b.name) ?? -1) - (ratingOf(a.name) ?? -1)) || statsTitleCmp(a, b));
-      if (statsSortMode === 'winrate') {
+    function statsSortPlayers(d, elo, mode) {
+      const list = Object.values(d.players), m = mode || statsSortMode;
+      const ratingOf = n => elo.players[n] && elo.players[n].games ? elo.players[n].rating : null;
+      if (m === 'rating') return list.sort((a, b) => ((ratingOf(b.name) ?? -1) - (ratingOf(a.name) ?? -1)) || statsTitleCmp(a, b));
+      if (m === 'winrate') {
         const ok = p => (p.wins + p.losses) >= STATS_MIN_DECIDED, anyOk = list.some(ok);
         return list.sort((a, b) => (anyOk ? (ok(b) - ok(a)) : 0) || (b.winRate - a.winRate) || ((b.wins + b.losses) - (a.wins + a.losses)) || statsTitleCmp(a, b));
       }
       return list.sort(statsTitleCmp);
     }
-    // صف لاعب: الهوية (المركز، الاسم) ← المقياس الأساسي (التقييم) ← الأداء (نسبة الفوز) ← الإنجازات (الألقاب وتفصيلها)
-    function sxPlayerRow(p, i, elo, me, hl) {
-      const e = elo.players[p.name], on = k => (hl || statsSortMode) === k ? ' on' : '';
-      const mine = !!me && me === p.name;
-      return `<div class="sx-row${i < 3 ? ' rk-' + (i + 1) : ''}${mine ? ' is-me' : ''}" data-player="${escHTML(p.name)}" role="button" tabindex="0">
-        ${sxBadge(i)}
-        <div class="sx-who"><div class="sx-n">${escHTML(p.name)}${mine ? '<span class="sx-you">أنت</span>' : ''}</div>
-          <div class="sx-m"><span class="sx-rt${on('rating')}">${e && e.games ? `<b>${sxNum(e.rating)}</b>${sxDelta(e.lastDelta)}` : '<b>—</b>'}</span><span class="sx-wr${on('winrate')}">فوز ${sxWinRate(p)}</span></div></div>
-        <div class="sx-ach${on('titles')}"><b>${p.championships}</b>${titlesCapsHTML(p)}</div></div>`;
+    const statsSortPairs = d => Object.values(d.partnerships).sort((a, b) => b.championships - a.championships || b.wins - a.wins);
+    // حركة المركز منذ آخر بطولة مكتملة (نفس فكرة «حركة المراكز» في الدوري): نعيد الحساب بنفس الدوال على السجل بدون آخر بطولة،
+    // بتبديل مؤقت في الذاكرة فقط (try/finally) دون أي حفظ — بنفس أسلوب leagueRankMoves القائم.
+    function statsPrev() {
+      if (!Array.isArray(tournamentHistory) || tournamentHistory.length < 2) return null;
+      const saved = tournamentHistory;
+      try { tournamentHistory = saved.slice(0, -1); return { d: getStatsData(), elo: computePlayerRatings() }; }
+      catch (e) { return null; }
+      finally { tournamentHistory = saved; }
     }
-    // الجدول الكامل للشاشات الواسعة: نفس المنهج — الهوية ← التقييم ← الأداء ← الإنجازات
-    function sxPlayerTable(players, elo, me) {
+    function statsMoves(nowList, prevList, key) {
+      if (!prevList) return null;
+      const prevIdx = new Map(prevList.map((x, i) => [key(x), i])), out = new Map();
+      let any = false;
+      nowList.forEach((x, i) => { const j = prevIdx.get(key(x)); if (j == null) return; out.set(key(x), j - i); if (j !== i) any = true; });
+      return any ? out : null;
+    }
+    // خانة المركز بأسلوب ترتيب الدوري: الرقم فقط (الأول بالذهبي) وتحته ▲/▼ مع عدد المراكز، أو «–» بلا تغيير
+    function sxRankCell(i, mv, key) {
+      const dl = mv ? mv.get(key) : undefined;
+      const m = !mv ? '' : dl == null ? '<span class="mv same">جديد</span>' : `<span class="mv${dl > 0 ? ' up' : dl < 0 ? ' down' : ' same'}"${dl ? ` aria-label="${dl > 0 ? 'تقدّم' : 'تراجع'} ${Math.abs(dl)}"` : ''}>${dl ? `<i aria-hidden="true"></i><b>${Math.abs(dl)}</b>` : '–'}</span>`;
+      return `<span class="r${i === 0 ? ' first' : ''}"><span class="rk">${i + 1}</span>${m}</span>`;
+    }
+    // قيمة الصف حسب مقياس القسم + السطر الصغير تحت الاسم (تفصيل نفس المقياس فقط، بلا تكرار)
+    function sxMetric(p, elo, mode) {
+      const e = elo.players[p.name];
+      if (mode === 'rating') return { v: e && e.games ? sxNum(e.rating) : '—', sub: e && e.games ? e.tier.name : 'لا مباريات بعد' };
+      if (mode === 'winrate') return { v: sxWinRate(p), sub: `فوز ${p.wins} · خسارة ${p.losses}` };
+      return { v: String(p.championships), sub: p.championships ? sxTitlesBy(p.titlesBy) : (p.runnerUps ? `وصافة ${p.runnerUps}` : `${p.tournaments} ${p.tournaments >= 3 && p.tournaments <= 10 ? 'مشاركات' : 'مشاركة'}`) };
+    }
+    function sxHead(label) { return `<div class="sx-head" aria-hidden="true"><span>#</span><span class="n">اللاعب</span><span class="v">${label}</span></div>`; }
+    function sxPlayerRow(p, i, elo, me, mode, mv) {
+      const mt = sxMetric(p, elo, mode), mine = !!me && me === p.name;
+      return `<button type="button" class="sx-row${mine ? ' is-me' : ''}" data-player="${escHTML(p.name)}" aria-label="${escHTML(p.name)}: المركز ${i + 1}">
+        ${sxRankCell(i, mv, p.name)}<span class="n"><b>${escHTML(p.name)}${mine ? '<span class="sx-you">أنت</span>' : ''}</b><small>${mt.sub}</small></span><span class="v">${mt.v}</span></button>`;
+    }
+    // الجدول الكامل للشاشات الواسعة: الهوية ← التقييم ← الأداء ← الإنجازات
+    function sxPlayerTable(players, elo, me, mv) {
       const th = (l, k) => `<th${k && statsSortMode === k ? ' class="on"' : ''}>${l}</th>`;
       const rows = players.map((p, i) => { const e = elo.players[p.name], mine = !!me && me === p.name;
-        return `<tr class="sx-tr${statsSel === p.name ? ' sel' : ''}${mine ? ' is-me' : ''}" data-player="${escHTML(p.name)}" tabindex="0"><td>${sxBadge(i)}</td><td class="nm"><b>${escHTML(p.name)}</b>${mine ? '<span class="sx-you">أنت</span>' : ''}</td>
-          <td>${e && e.games ? `<b>${sxNum(e.rating)}</b> ${sxDelta(e.lastDelta)}` : '—'}</td><td>${p.tournaments}</td><td>${p.wins}</td><td>${p.losses}</td><td><b>${sxWinRate(p)}</b></td>
-          <td><span class="sx-tt"><b>${p.championships}</b>${titlesCapsHTML(p)}</span></td><td>${p.runnerUps}</td><td>${p.semifinals}</td></tr>`; }).join('');
+        return `<tr class="sx-tr${statsSel === p.name ? ' sel' : ''}${mine ? ' is-me' : ''}" data-player="${escHTML(p.name)}" tabindex="0"><td class="rkc">${sxRankCell(i, mv, p.name)}</td><td class="nm"><b>${escHTML(p.name)}</b>${mine ? '<span class="sx-you">أنت</span>' : ''}</td>
+          <td>${e && e.games ? `<b>${sxNum(e.rating)}</b>` : '—'}</td><td>${p.tournaments}</td><td>${p.wins}</td><td>${p.losses}</td><td><b>${sxWinRate(p)}</b></td>
+          <td><b>${p.championships}</b></td><td>${p.runnerUps}</td><td>${p.semifinals}</td></tr>`; }).join('');
       return `<div class="sx-table"><table><thead><tr><th>#</th><th class="nm">اللاعب</th>${th('التقييم', 'rating')}${th('مشاركات')}${th('فوز')}${th('خسارة')}${th('نسبة الفوز', 'winrate')}${th('الألقاب', 'titles')}${th('وصافة')}${th('نصف النهائي')}</tr></thead><tbody>${rows}</tbody></table></div>`;
     }
     function sxLastMatches(n) {
@@ -5120,24 +5158,18 @@ return teamName.replace('غير محدد', replacement);
     }
     function sxLiveNote(d) {
       if (!d.liveMatches) return '';
-      return `<div class="stats-live-note sx-live"><span class="dot" aria-hidden="true"></span>الأرقام والتقييم تشمل ${d.liveMatches} ${d.liveMatches === 1 ? 'مباراة' : d.liveMatches === 2 ? 'مباراتين' : d.liveMatches <= 10 ? 'مباريات' : 'مباراة'} من البطولة الجارية، وتتحدث بعد كل نتيجة. الألقاب والمشاركات تُضاف عند اكتمالها.</div>`;
+      return `<div class="stats-live-note sx-live"><span class="dot" aria-hidden="true"></span>تشمل الأرقام ${d.liveMatches} ${d.liveMatches === 1 ? 'مباراة' : d.liveMatches === 2 ? 'مباراتين' : d.liveMatches <= 10 ? 'مباريات' : 'مباراة'} من البطولة الجارية، والألقاب تُضاف عند اكتمالها.</div>`;
     }
 
-    // ---------- نظرة عامة ----------
-    function sxOverview(d, elo, me) {
+    // ---------- نظرة عامة: آخر بطل ← أرقام المجلس ← المتصدرون ← آخر النتائج ← أرقام بارزة ----------
+    function sxOverview(d, elo, me, prev) {
       let h = '';
-      const byTitles = Object.values(d.players).sort(statsTitleCmp);
-      // ملفك (صفحة المشاهدة فقط، بعد اختيار «من أنت؟»)
-      if (me && (d.players[me] || elo.players[me])) {
-        const p = d.players[me] || { name: me, championships: 0, winRate: 0, wins: 0, losses: 0, titlesBy: {} }, e = elo.players[me];
+      const byTitles = statsSortPlayers(d, elo, 'titles');
+      const mv = prev ? statsMoves(byTitles, statsSortPlayers(prev.d, prev.elo, 'titles'), p => p.name) : null;
+      if (me && d.players[me]) {
         const idx = byTitles.findIndex(x => x.name === me);
-        const form = e && e.seq.length ? e.seq.slice(-3).map(r => `<i class="sx-fc ${r}">${r === 'w' ? 'ف' : r === 'l' ? 'خ' : 'ت'}</i>`).join('') : '—';
-        h += `<div class="sx-me" data-player="${escHTML(me)}" role="button" tabindex="0">
-          <div class="sx-me-top"><span class="sx-av">${escHTML([...me][0] || '')}</span><div class="sx-who"><div class="sx-n">ملفك · ${escHTML(me)}</div>
-            <div class="sx-m">${idx >= 0 ? `<span>المركز ${idx + 1} من ${byTitles.length}</span>` : ''}${e && e.games ? `<span class="sx-rt"><b>${sxNum(e.rating)}</b>${sxDelta(e.lastDelta)}</span><span class="sx-tier t${e.tier.level}">${e.tier.name}</span>` : ''}</div></div>${sxIc('chev-l')}</div>
-          <div class="sx-me-nums"><div><b>${sxWinRate(p)}</b><span>نسبة الفوز</span></div><div><span class="sx-form">${form}</span><span>آخر النتائج</span></div><div><b>${p.championships}</b><span>الألقاب</span></div></div></div>`;
+        h += `<section class="sx-group"><div class="sx-sec"><h4>ملفك</h4></div><div class="sx-list">${sxPlayerRow(byTitles[idx], idx, elo, me, 'titles', mv)}</div></section>`;
       }
-      // آخر بطل: البطولة ← النوع ← التاريخ، ثم البطل ونتيجته، ثم الوصيف ونتيجته
       const last = tournamentHistory[tournamentHistory.length - 1];
       if (last && last.champion) {
         const champ = historyMembers(last, last.champion), ru = historyMembers(last, last.runnerUp);
@@ -5148,78 +5180,73 @@ return teamName.replace('غير محدد', replacement);
         } else if (last.finalScore && last.finalScore.winner != null && last.finalScore.loser != null && isFinite(+last.finalScore.winner) && isFinite(+last.finalScore.loser)) {
           sw = +last.finalScore.winner; sl = +last.finalScore.loser; unit = 'نتيجة النهائي';
         }
-        h += `<div class="sx-hero"><div class="sx-eb">${sxIc('trophy')}<span>آخر بطل · <bdi>${escHTML(last.name)}</bdi> · ${sxModeAr(last.mode)} · ${fmtDayDate(last.date)}</span></div>
-          <div class="sx-fin"><div class="nm"><bdi>${sxNames(champ)}</bdi><span class="sx-ctag">البطل</span></div><div class="sc">${sw ?? ''}</div>
-          ${ru.length ? `<div class="nm lose"><bdi>${sxNames(ru)}</bdi> · الوصيف</div><div class="sc lose">${sl ?? ''}</div>` : ''}</div>
-          ${unit ? `<div class="sx-unit">${unit}</div>` : ''}</div>`;
+        h += `<div class="sx-hero"><div class="sx-eb">${sxIc('trophy')}<span>آخر بطل · <bdi>${escHTML(last.name)}</bdi></span></div>
+          <div class="sx-fin"><div class="nm"><bdi>${sxNames(champ)}</bdi></div><div class="sc">${sw ?? ''}</div>
+          ${ru.length ? `<div class="nm lose">الوصيف · <bdi>${sxNames(ru)}</bdi></div><div class="sc lose">${sl ?? ''}</div>` : ''}</div>
+          <div class="sx-unit">${sxModeAr(last.mode)} · ${fmtDayDate(last.date)}${unit ? ` · ${unit}` : ''}</div></div>`;
       }
-      // الأرقام العامة: البطولات ← المباريات ← اللاعبون ← الثنائيات، وتوزيع البطولات بالتسلسل الثابت فردي ← فرق ← دوري
-      const kinds = [['single', d.singleTournaments, 'فردي'], ['team', d.teamTournaments, 'فرق'], ['league', d.leagueTournaments, 'دوري']];
-      const nP = Object.keys(d.players).length, nX = Object.keys(d.partnerships).length;
-      h += `<div class="sx-kpi-wrap"><div class="sx-kpis">
-          <div class="sx-kpi"><b>${d.completedTournaments}</b><span>${arCountW(d.completedTournaments, 'بطولة مكتملة', 'بطولتان مكتملتان', 'بطولات مكتملة', 'بطولة مكتملة')}</span></div><div class="sx-kpi"><b>${sxNum(d.totalMatches)}</b><span>${arCountW(d.totalMatches, 'مباراة', 'مباراتان', 'مباريات', 'مباراة')}</span></div>
-          <div class="sx-kpi"><b>${nP}</b><span>${arCountW(nP, 'لاعب', 'لاعبان', 'لاعبين', 'لاعبًا')}</span></div><div class="sx-kpi"><b>${nX}</b><span>${arCountW(nX, 'ثنائي', 'ثنائيان', 'ثنائيات', 'ثنائيًا')}</span></div></div>
-        ${d.completedTournaments ? `<div class="sx-split" aria-hidden="true">${kinds.map(([k, n]) => n ? `<i class="k-${k}" style="flex:${n}"></i>` : '').join('')}</div>` : ''}
-        <div class="sx-legend">${kinds.map(([k, n, l]) => `<span><i class="k-${k}"></i>${l} ${n}</span>`).join('')}</div></div>`;
-      // المتصدرون (بالألقاب دائمًا)
-      h += `<div class="sx-sec"><h4>${sxIc('rank')}المتصدرون</h4><button type="button" class="sx-link" data-sx-go="rank" data-sx-sort="titles">الترتيب الكامل</button></div>
-        <div class="sx-list">${byTitles.slice(0, 3).map((p, i) => sxPlayerRow(p, i, elo, me, 'titles')).join('')}</div>`;
-      // آخر النتائج: السياق ← الطرف الأول ونتيجته ← الطرف الثاني ونتيجته
-      const lm = sxLastMatches(4);
-      if (lm.length) h += `<div class="sx-sec"><h4>${sxIc('clock')}آخر النتائج</h4>${tournamentHistory.length ? '<button type="button" class="sx-link" data-sx-go="hist">السجل</button>' : ''}</div>
+      const nP = Object.keys(d.players).length;
+      h += `<div class="sx-kpis"><div class="sx-kpi"><b>${d.completedTournaments}</b><span>${arCountW(d.completedTournaments, 'بطولة', 'بطولتان', 'بطولات', 'بطولة')}</span></div>
+        <div class="sx-kpi"><b>${sxNum(d.totalMatches)}</b><span>${arCountW(d.totalMatches, 'مباراة', 'مباراتان', 'مباريات', 'مباراة')}</span></div>
+        <div class="sx-kpi"><b>${nP}</b><span>${arCountW(nP, 'لاعب', 'لاعبان', 'لاعبين', 'لاعبًا')}</span></div></div>`;
+      h += `<section class="sx-group"><div class="sx-sec"><h4>المتصدرون</h4><button type="button" class="sx-link" data-sx-go="rank" data-sx-sort="titles">الترتيب الكامل</button></div>
+        ${sxHead('الألقاب')}<div class="sx-list">${byTitles.slice(0, 3).map((p, i) => sxPlayerRow(p, i, elo, me, 'titles', mv)).join('')}</div></section>`;
+      const lm = sxLastMatches(3);
+      if (lm.length) h += `<section class="sx-group"><div class="sx-sec"><h4>آخر النتائج</h4>${tournamentHistory.length ? '<button type="button" class="sx-link" data-sx-go="hist">السجل</button>' : ''}</div>
         <div class="sx-card sx-mlist">${lm.map(({ t, m }) => { const sc = sxMatchScores(m), A = historyMembers(t, m.team1), B = historyMembers(t, m.team2);
-          return `<div class="sx-mline"><div class="ctx">${t.live ? '<span class="sx-livedot" aria-hidden="true"></span>' : ''}<bdi>${escHTML(t.name)}</bdi> · ${sxRound(m.roundName)}</div>${sxSide(A, sc ? sc[0] : null, m.winner != null && m.winner === m.team1)}${sxSide(B, sc ? sc[1] : null, m.winner != null && m.winner === m.team2)}</div>`; }).join('')}</div>`;
-      // أرقام بارزة بترتيب المنهج: التقييم ← المشاركة ← نسبة الفوز ← السلسلة
+          return `<div class="sx-mline"><div class="ctx">${t.live ? '<span class="sx-livedot" aria-hidden="true"></span>' : ''}<bdi>${escHTML(t.name)}</bdi> · ${sxRound(m.roundName)}</div>${sxSide(A, sc ? sc[0] : null, m.winner != null && m.winner === m.team1)}${sxSide(B, sc ? sc[1] : null, m.winner != null && m.winner === m.team2)}</div>`; }).join('')}</div></section>`;
       const topR = elo.ranked.filter(p => p.games > 0)[0];
       const most = Object.values(d.players).slice().sort((a, b) => b.tournaments - a.tournaments || statsTitleCmp(a, b))[0];
       const bestW = Object.values(d.players).filter(p => (p.wins + p.losses) >= STATS_MIN_DECIDED).sort((a, b) => b.winRate - a.winRate || (b.wins + b.losses) - (a.wins + a.losses))[0];
       const streak = Object.values(elo.players).filter(p => p.bestWin > 0).sort((a, b) => b.bestWin - a.bestWin || b.rating - a.rating)[0];
-      const spot = (ic, label, val, who, note) => `<div class="sx-spot"${who ? ` data-player="${escHTML(who)}" role="button" tabindex="0"` : ''}><span class="l">${sxIc(ic)}${label}</span><b>${val}</b><span class="p">${who ? escHTML(who) : '—'}</span><span class="x">${note}</span></div>`;
-      h += `<div class="sx-sec"><h4>${sxIc('star')}أرقام بارزة</h4></div><div class="sx-spots">
-        ${spot('chart', 'أعلى تقييم', topR ? sxNum(topR.rating) : '—', topR && topR.name, topR ? topR.tier.name : 'بعد أول نتيجة')}
-        ${spot('calendar', 'الأكثر مشاركة', most ? most.tournaments : '—', most && most.tournaments ? most.name : null, 'بطولة مكتملة')}
-        ${spot('check', 'أفضل نسبة فوز', bestW ? sxPct(bestW.winRate) : '—', bestW && bestW.name, `بحد أدنى ${STATS_MIN_DECIDED} مباراة محسومة`)}
-        ${spot('flag', 'أطول سلسلة انتصارات', streak ? streak.bestWin : '—', streak && streak.name, 'انتصارات متتالية')}</div>`;
+      const row = (label, who, val) => `<button type="button" class="sx-li"${who ? ` data-player="${escHTML(who)}"` : ' disabled'}><span class="l">${label}</span><span class="who">${who ? escHTML(who) : '—'}</span><span class="v">${val}</span></button>`;
+      h += `<section class="sx-group"><div class="sx-sec"><h4>أرقام بارزة</h4></div><div class="sx-card sx-ilist">
+        ${row('أعلى تقييم', topR && topR.name, topR ? sxNum(topR.rating) : '—')}
+        ${row('الأكثر مشاركة', most && most.tournaments ? most.name : null, most ? `${most.tournaments} <small>${arCountW(most.tournaments, 'بطولة', 'بطولتان', 'بطولات', 'بطولة')}</small>` : '—')}
+        ${row('أفضل نسبة فوز', bestW && bestW.name, bestW ? sxPct(bestW.winRate) : '—')}
+        ${row('أطول سلسلة انتصارات', streak && streak.name, streak ? `${streak.bestWin} <small>متتالية</small>` : '—')}</div>
+        <p class="sx-foot">أفضل نسبة فوز بحد أدنى ${STATS_MIN_DECIDED} مباراة محسومة</p></section>`;
       return h;
     }
 
     // ---------- الترتيب ----------
-    function sxRank(d, elo, me) {
+    function sxRank(d, elo, me, prev) {
       const players = statsSortPlayers(d, elo);
+      const mv = prev ? statsMoves(players, statsSortPlayers(prev.d, prev.elo), p => p.name) : null;
+      const label = (STATS_SORTS.find(([k]) => k === statsSortMode) || STATS_SORTS[0])[1];
       const anyOk = Object.values(d.players).some(p => (p.wins + p.losses) >= STATS_MIN_DECIDED);
-      const hint = statsSortMode === 'rating' ? 'تقييم المجلس · عند التساوي: الألقاب'
-        : statsSortMode === 'winrate' ? `من المباريات المحسومة (دون التعادل)${anyOk ? ` · من لعب أقل من ${STATS_MIN_DECIDED} مباراة في آخر القائمة` : ''}`
-        : 'الألقاب · عند التساوي: الوصافة ثم نسبة الفوز ثم الانتصارات';
-      const legend = `<span class="sx-capkey">${[['user', 'فردي'], ['users', 'فرق'], ['league', 'دوري']].map(([i, l]) => `<span class="t-cap on">${sxIc(i)}${l}</span>`).join('')}</span>`;
+      const note = statsSortMode === 'rating' ? 'تقييم المجلس، وعند التساوي الألقاب'
+        : statsSortMode === 'winrate' ? `من المباريات المحسومة${anyOk ? ` · أقل من ${STATS_MIN_DECIDED} مباراة في آخر القائمة` : ''}`
+        : 'عند التساوي: الوصافة ثم نسبة الفوز';   // سطر قصير، والأسهم في سطر ثانٍ
       const meIdx = me ? players.findIndex(p => p.name === me) : -1;
       return `<div class="sx-rank-grid"><div class="sx-rank-main">
-        <div class="sx-chips" role="group" aria-label="ترتيب اللاعبين حسب">${[['rating', 'التقييم'], ['winrate', 'نسبة الفوز'], ['titles', 'الألقاب']].map(([k, l]) => `<button type="button" class="sx-chip" data-sx-sort="${k}" aria-pressed="${statsSortMode === k}">${l}</button>`).join('')}</div>
-        <div class="sx-keyrow"><span>${hint}</span>${legend}</div>
-        <div class="sx-list sx-only-narrow">${players.map((p, i) => sxPlayerRow(p, i, elo, me)).join('')}</div>
-        ${sxPlayerTable(players, elo, me)}
-        ${meIdx >= 6 ? `<div class="sx-pin sx-only-narrow"><div class="cap">ترتيبك</div>${sxPlayerRow(players[meIdx], meIdx, elo, me)}</div>` : ''}
-        <p class="sx-hint">اضغط أي لاعب لعرض ملفه الكامل</p>
+        <div class="sx-seg sx-seg3" role="group" aria-label="ترتيب حسب">${STATS_SORTS.map(([k, l]) => `<button type="button" data-sx-sort="${k}" aria-pressed="${statsSortMode === k}">${l}</button>`).join('')}</div>
+        <p class="sx-note">${note}${mv ? '<br>الأسهم: التغيّر منذ آخر بطولة' : ''}</p>
+        <div class="sx-only-narrow">${sxHead(label)}<div class="sx-list">${players.map((p, i) => sxPlayerRow(p, i, elo, me, statsSortMode, mv)).join('')}</div></div>
+        ${sxPlayerTable(players, elo, me, mv)}
+        ${meIdx >= 6 ? `<div class="sx-pin sx-only-narrow"><div class="cap">ترتيبك</div>${sxPlayerRow(players[meIdx], meIdx, elo, me, statsSortMode, mv)}</div>` : ''}
       </div><aside class="sx-side-pf" id="sxSidePf" aria-label="ملف اللاعب"></aside></div>`;
     }
 
     // ---------- الشراكات ----------
-    function sxPairs(d) {
-      const all = Object.values(d.partnerships).sort((a, b) => b.championships - a.championships || b.wins - a.wins);
+    function sxPairs(d, prev) {
+      const all = statsSortPairs(d);
       if (!all.length) return emptyBox('users', 'لا توجد شراكات بعد', 'تظهر هنا الثنائيات بعد أول بطولة فرق مكتملة.');
       const stable = all.filter(p => p.tournaments >= STATS_STABLE_PAIR);
       const showAll = statsPairsAll ?? !stable.length, list = showAll ? all : stable;
+      const prevList = prev ? statsSortPairs(prev.d).filter(p => showAll || p.tournaments >= STATS_STABLE_PAIR) : null;
+      const mv = statsMoves(list, prevList, p => p.name);
       const names = p => String(p.name).split(' + ');
-      const pn = p => `<span class="sx-pair">${names(p).map(n => `<bdi>${escHTML(n)}</bdi>`).join('<span class="sx-plus" aria-hidden="true">+</span>')}</span>`;
-      const meta = p => `<span>${sxCount(p.tournaments, 'بطولة', 'بطولتان', 'بطولات', 'بطولة')}</span><span>فوز ${p.wins}</span><span>خسارة ${p.losses}</span><span>${sxWinRate(p)}</span>`;
-      const best = list[0], rest = list.slice(1), lim = statsMore.pairs ? rest.length : STATS_PAGE;
-      return `<div class="sx-seg" role="group" aria-label="عرض الشراكات"><button type="button" data-sx-pairs="stable" aria-pressed="${!showAll}"${stable.length ? '' : ' disabled'}>ثنائيات ثابتة (${stable.length})</button><button type="button" data-sx-pairs="all" aria-pressed="${showAll}">كل الثنائيات (${all.length})</button></div>
-        <p class="sx-hint">الثابتة: لعبا معًا ${STATS_STABLE_PAIR === 2 ? 'بطولتين' : STATS_STABLE_PAIR + ' بطولات'} أو أكثر · الترتيب بالألقاب ثم الانتصارات</p>
+      const tCount = n => sxCountM(n, 'بطولة', 'بطولتان', 'بطولات', 'بطولة');
+      const best = list[0], lim = statsMore.pairs ? list.length : STATS_PAGE;
+      return `<div class="sx-seg" role="group" aria-label="عرض الشراكات"><button type="button" data-sx-pairs="stable" aria-pressed="${!showAll}"${stable.length ? '' : ' disabled'}>الثابتة</button><button type="button" data-sx-pairs="all" aria-pressed="${showAll}">الكل</button></div>
+        <p class="sx-note">${showAll ? `كل الثنائيات (${all.length})` : `لعبا معًا ${STATS_STABLE_PAIR === 2 ? 'بطولتين' : STATS_STABLE_PAIR + ' بطولات'} أو أكثر (${stable.length})`}</p>
         <div class="sx-hero sx-hero-pair"><div class="sx-eb">${sxIc('users')}<span>أفضل شراكة</span></div>
-          <div class="sx-fin"><div class="nm">${names(best).map(n => `<bdi>${escHTML(n)}</bdi>`).join(' + ')}</div><div class="sc">${best.championships}<small>ألقاب</small></div></div>
-          <div class="sx-pills">${meta(best).replace(/<span>/g, '<span class="sx-pill">')}<span class="sx-pill">وصافة ${best.runnerUps}</span></div></div>
-        <div class="sx-list">${rest.slice(0, lim).map((p, i) => `<div class="sx-row sx-prow">${sxBadge(i + 1)}<div class="sx-who">${pn(p)}<div class="sx-m">${meta(p)}</div></div>
-          <div class="sx-ach"><b>${p.championships}</b><span class="lbl">ألقاب</span>${p.runnerUps ? `<span class="lbl">وصافة ${p.runnerUps}</span>` : ''}</div></div>`).join('')}</div>
-        ${rest.length > lim ? `<button type="button" class="st-fold-more" data-sx-more="pairs">عرض الكل (${list.length})</button>` : ''}`;
+          <div class="sx-fin"><div class="nm">${names(best).map(n => `<bdi>${escHTML(n)}</bdi>`).join(' + ')}</div><div class="sc">${best.championships}<small>${arCountW(best.championships, 'لقب', 'لقبان', 'ألقاب', 'لقبًا')}</small></div></div>
+          <div class="sx-unit">${tCount(best.tournaments)} معًا · فوز ${best.wins} · خسارة ${best.losses}</div></div>
+        ${sxHead('الألقاب').replace('اللاعب', 'الثنائي')}<div class="sx-list">${list.slice(0, lim).map((p, i) => `<div class="sx-row sx-prow">${sxRankCell(i, mv, p.name)}
+          <span class="n"><b>${names(p).map(n => `<bdi>${escHTML(n)}</bdi>`).join('<span class="sx-plus" aria-hidden="true">+</span>')}</b><small>${tCount(p.tournaments)} معًا</small></span><span class="v">${p.championships}</span></div>`).join('')}</div>
+        ${list.length > lim ? `<button type="button" class="sx-more" data-sx-more="pairs">عرض الكل (${list.length})</button>` : ''}`;
     }
 
     // ---------- السجل ----------
@@ -5231,34 +5258,63 @@ return teamName.replace('غير محدد', replacement);
       let out = '', cur = '';
       list.slice(0, lim).forEach(t => {
         const dt = new Date(t.date), key = isNaN(dt) ? '' : `${STATS_MONTHS[dt.getMonth()]} ${dt.getFullYear()}`;
-        if (key !== cur) { cur = key; if (key) out += `<div class="sx-month">${key}</div>`; }
+        if (key !== cur) { if (cur || out) out += '</div>'; cur = key; out += `${key ? `<div class="sx-month">${key}</div>` : ''}<div class="sx-card sx-hgroup">`; }
         const ko = t.mode !== 'league', champ = historyMembers(t, t.champion), ru = historyMembers(t, t.runnerUp);
         let sw = null, sl = null;
         if (ko && t.finalScore && t.finalScore.winner != null && t.finalScore.loser != null && isFinite(+t.finalScore.winner)) { sw = +t.finalScore.winner; sl = +t.finalScore.loser; }
         if (!ko && Array.isArray(t.leagueStandings)) { const a = t.leagueStandings.find(r => r.name === t.champion), b = t.leagueStandings.find(r => r.name === t.runnerUp); if (a && b) { sw = a.points; sl = b.points; } }
-        const n = (t.participants || []).length, mc = (t.matches || []).length;
-        out += `<div class="sx-card sx-hcard"><div class="tt"><b><bdi>${escHTML(t.name)}</bdi></b><span class="sx-mode">${sxModeAr(t.mode)}</span></div>
-          <div class="sx-hmeta">${fmtDayDate(t.date)}${n ? ` · ${t.mode === 'single' || t.mode === 'league' ? sxCountM(n, 'لاعب', 'لاعبان', 'لاعبين', 'لاعبًا') : sxCountM(n, 'فريق', 'فريقان', 'فرق', 'فريقًا')}` : ''}${mc ? ` · ${sxCountM(mc, 'مباراة', 'مباراتان', 'مباريات', 'مباراة')}` : ''}${!ko && sw != null ? ' · بالنقاط' : ''}</div>
+        const n = (t.participants || []).length;
+        out += `<div class="sx-hcard"><div class="tt"><b><bdi>${escHTML(t.name)}</bdi></b><span class="sx-mode">${sxModeAr(t.mode)}</span></div>
+          <div class="sx-hmeta">${fmtDayDate(t.date)}${n ? ` · ${t.mode === 'single' || t.mode === 'league' ? sxCountM(n, 'لاعب', 'لاعبان', 'لاعبين', 'لاعبًا') : sxCountM(n, 'فريق', 'فريقان', 'فرق', 'فريقًا')}` : ''}${!ko && sw != null ? ' · بالنقاط' : ''}</div>
           <div class="sx-sides">${sxSide(champ.length ? champ : ['—'], sw, true, 'trophy')}${ru.length ? sxSide(ru, sl, false, 'medal') : ''}</div></div>`;
       });
-      return `<div class="sx-chips" role="group" aria-label="تصفية السجل">${[['all', 'الكل', H.length], ['single', 'فردي', cnt('single')], ['team', 'فرق', cnt('team')], ['league', 'دوري', cnt('league')]].map(([k, l, c]) => `<button type="button" class="sx-chip" data-sx-hist="${k}" aria-pressed="${statsHistKind === k}">${l} ${c}</button>`).join('')}</div>
+      if (out) out += '</div>';
+      return `<div class="sx-seg sx-seg4" role="group" aria-label="تصفية السجل">${[['all', 'الكل', H.length], ['single', 'فردي', cnt('single')], ['team', 'فرق', cnt('team')], ['league', 'دوري', cnt('league')]].map(([k, l, c]) => `<button type="button" data-sx-hist="${k}" aria-pressed="${statsHistKind === k}">${l} <span class="c">${c}</span></button>`).join('')}</div>
         ${list.length ? out : '<div class="empty-stats">لا توجد بطولات من هذا النوع بعد.</div>'}
-        ${list.length > lim ? `<button type="button" class="st-fold-more" data-sx-more="hist">عرض الكل (${list.length})</button>` : ''}`;
+        ${list.length > lim ? `<button type="button" class="sx-more" data-sx-more="hist">عرض الكل (${list.length})</button>` : ''}`;
     }
 
-    function renderStats() {
+    // ---------- الإطار: مفتاح الأقسام أعلى المحتوى، ثابت فوق منطقة التمرير (نفس نمط تبويبات الدوري وملف اللاعب) ----------
+    const statsShell = statsContent.closest('.stats-modal-content');
+    const statsTabbar = document.createElement('nav');
+    statsTabbar.className = 'sx-tabbar'; statsTabbar.setAttribute('role', 'tablist'); statsTabbar.setAttribute('aria-label', 'أقسام الإحصائيات');
+    statsTabbar.innerHTML = STATS_TABS.map(([k, l]) => `<button type="button" role="tab" data-sx-tab="${k}" aria-selected="false">${l}</button>`).join('');
+    statsContent.before(statsTabbar);
+    if (statsShell) statsShell.classList.add('sx-shell');
+    // العنوان الكبير ينكمش عند التمرير (أسلوب iOS) فيكسب المحتوى مساحة أكبر
+    let statsScrolledRaf = 0;
+    statsContent.addEventListener('scroll', () => { if (statsScrolledRaf) return; statsScrolledRaf = requestAnimationFrame(() => { statsScrolledRaf = 0; if (statsShell) statsShell.classList.toggle('sx-scrolled', statsContent.scrollTop > 12); }); }, { passive: true });
+    function statsPaintTabbar(show) {
+      statsTabbar.hidden = !show;
+      statsTabbar.querySelectorAll('[data-sx-tab]').forEach(b => b.setAttribute('aria-selected', String(b.dataset.sxTab === statsTab)));
+    }
+    // حركة إعادة الترتيب (FLIP): عند تغيير معيار الترتيب ينزلق كل صف من مكانه السابق، بهدوء وسرعة
+    function statsFlipFrom(before) {
+      if (!before || statsCalm()) return;
+      statsContent.querySelectorAll('.sx-list [data-player]').forEach(el => {
+        const y0 = before.get(el.dataset.player); if (y0 == null) return;
+        const dy = y0 - el.getBoundingClientRect().top; if (Math.abs(dy) < 1) return;
+        el.animate([{ transform: `translateY(${dy}px)` }, { transform: 'none' }], { duration: 320, easing: 'cubic-bezier(.2,.8,.2,1)' });
+      });
+    }
+    function renderStats(opts) {
+      opts = opts || {};
       const d = getStatsData();
       exportStatsBtn.style.display = d.completedTournaments || d.liveMatches ? '' : 'none';
       if (!d.completedTournaments && !d.liveMatches) {
+        statsPaintTabbar(false);
         statsContent.innerHTML = emptyBox('trophy', 'لا توجد نتائج مسجلة بعد', 'بعد تسجيل أول نتيجة يظهر هنا ترتيب اللاعبين وتقييمهم، وتُضاف الألقاب وسجل البطولات بعد حسم أول نهائي أو اكتمال أول دوري.');
         return;
       }
-      const elo = computePlayerRatings(), me = statsMe();
-      const tabs = `<div class="sx-tabs" role="tablist" aria-label="أقسام الإحصائيات">${[['overview', 'نظرة عامة'], ['rank', 'الترتيب'], ['pairs', 'الشراكات'], ['hist', 'السجل']].map(([k, l]) => `<button type="button" role="tab" data-sx-tab="${k}" aria-selected="${statsTab === k}">${l}</button>`).join('')}</div>`;
-      const body = statsTab === 'rank' ? sxRank(d, elo, me) : statsTab === 'pairs' ? sxPairs(d) : statsTab === 'hist' ? sxHistory() : sxOverview(d, elo, me);
-      statsContent.innerHTML = `${tabs}<div class="sx-body" data-tab="${statsTab}">${statsTab === 'overview' || statsTab === 'rank' ? sxLiveNote(d) : ''}${body}</div>`;
-      const shell = statsContent.closest('.stats-modal-content'); if (shell) shell.classList.toggle('sx-wide', statsTab === 'rank');
+      let before = null;
+      if (opts.flip) { before = new Map(); statsContent.querySelectorAll('.sx-list [data-player]').forEach(el => before.set(el.dataset.player, el.getBoundingClientRect().top)); }
+      const elo = computePlayerRatings(), me = statsMe(), prev = statsTab === 'hist' ? null : statsPrev();
+      const body = statsTab === 'rank' ? sxRank(d, elo, me, prev) : statsTab === 'pairs' ? sxPairs(d, prev) : statsTab === 'hist' ? sxHistory() : sxOverview(d, elo, me, prev);
+      statsContent.innerHTML = `<div class="sx-body${opts.enter ? ' sx-enter' : ''}" data-tab="${statsTab}">${statsTab === 'overview' || statsTab === 'rank' ? sxLiveNote(d) : ''}${body}</div>`;
+      statsPaintTabbar(true);
+      if (statsShell) statsShell.classList.toggle('sx-wide', statsTab === 'rank');
       if (statsTab === 'rank') statsMountSide();
+      statsFlipFrom(before);
     }
     // الشاشات الواسعة: ملف اللاعب في لوحة جانبية بجانب الجدول بدل نافذة ثانية
     function statsMountSide() {
@@ -5269,27 +5325,28 @@ return teamName.replace('غير محدد', replacement);
       if (!statsSel || !rows.some(r => r.dataset.player === statsSel)) statsSel = rows[0].dataset.player;
       rows.forEach(r => r.classList.toggle('sel', r.dataset.player === statsSel));
       const idx = rows.findIndex(r => r.dataset.player === statsSel);
-      window.carromBuildProfile(statsSel, side, { inline: true, rank: idx + 1, rankLabel: { rating: 'التقييم', winrate: 'نسبة الفوز', titles: 'الألقاب' }[statsSortMode] || 'الألقاب' });
+      window.carromBuildProfile(statsSel, side, { inline: true, rank: idx + 1, rankLabel: (STATS_SORTS.find(([k]) => k === statsSortMode) || STATS_SORTS[0])[1] });
     }
     function statsSetTab(t) {
+      if (t === statsTab && statsContent.querySelector('.sx-body')) { statsContent.scrollTo({ top: 0, behavior: statsCalm() ? 'auto' : 'smooth' }); return; }   // لمس القسم النشط يعيد لأعلاه (مثل iOS)
       statsTab = t; try { localStorage.setItem(STATS_TAB_KEY, t); } catch (e) {}
-      renderStats();
-      const sc = document.querySelector('#statsModal .stats-modal-content'); if (sc) sc.scrollTop = 0;
+      statsContent.scrollTop = 0; if (statsShell) statsShell.classList.remove('sx-scrolled');
+      renderStats({ enter: true });
     }
-    // تبويبات وأزرار مركز الإحصائيات (فتح ملف اللاعب يُعالَج في setupPlayerProfiles)
+    statsTabbar.addEventListener('click', e => { const b = e.target.closest('[data-sx-tab]'); if (b) statsSetTab(b.dataset.sxTab); });
+    statsTabbar.addEventListener('keydown', e => {
+      if (e.key !== 'ArrowLeft' && e.key !== 'ArrowRight') return;
+      const b = e.target.closest('[data-sx-tab]'); if (!b) return;
+      const order = STATS_TABS.map(([k]) => k), i = order.indexOf(b.dataset.sxTab), n = order[(i + (e.key === 'ArrowLeft' ? 1 : order.length - 1)) % order.length];   // RTL: اليسار = التالي
+      statsSetTab(n); const nb = statsTabbar.querySelector(`[data-sx-tab="${n}"]`); if (nb) nb.focus();
+    });
+    // أزرار داخل المحتوى (فتح ملف اللاعب يُعالَج في setupPlayerProfiles)
     statsContent.addEventListener('click', e => {
-      const tb = e.target.closest('[data-sx-tab]'); if (tb) { if (tb.dataset.sxTab !== statsTab) statsSetTab(tb.dataset.sxTab); return; }
       const go = e.target.closest('[data-sx-go]'); if (go) { if (go.dataset.sxSort) statsSortMode = go.dataset.sxSort; statsSetTab(go.dataset.sxGo); return; }
-      const so = e.target.closest('[data-sx-sort]'); if (so) { statsSortMode = so.dataset.sxSort; renderStats(); return; }
+      const so = e.target.closest('[data-sx-sort]'); if (so) { if (so.dataset.sxSort !== statsSortMode) { statsSortMode = so.dataset.sxSort; renderStats({ flip: true }); } return; }
       const pr = e.target.closest('[data-sx-pairs]'); if (pr) { if (!pr.disabled) { statsPairsAll = pr.dataset.sxPairs === 'all'; statsMore.pairs = false; renderStats(); } return; }
       const hk = e.target.closest('[data-sx-hist]'); if (hk) { statsHistKind = hk.dataset.sxHist; statsMore.hist = false; renderStats(); return; }
       const mo = e.target.closest('[data-sx-more]'); if (mo) { statsMore[mo.dataset.sxMore] = true; renderStats(); return; }
-    });
-    statsContent.addEventListener('keydown', e => {
-      if (e.key !== 'ArrowLeft' && e.key !== 'ArrowRight') return;
-      const tb = e.target.closest && e.target.closest('[data-sx-tab]'); if (!tb) return;
-      const order = ['overview', 'rank', 'pairs', 'hist'], i = order.indexOf(tb.dataset.sxTab), n = order[(i + (e.key === 'ArrowLeft' ? 1 : 3)) % 4];   // RTL: اليسار = التالي
-      statsSetTab(n); const nb = statsContent.querySelector(`[data-sx-tab="${n}"]`); if (nb) nb.focus();
     });
 
 
@@ -11399,25 +11456,27 @@ function buildLeagueStandingsCanvas() {
       if (!modal || !body) return;
       const shareBtn = document.getElementById('profileShareBtn'); let shownName = '';
       const el = (tag, cls, text) => { const e = document.createElement(tag); if (cls) e.className = cls; if (text != null) e.textContent = text; return e; };
-      // v3.6: ملف اللاعب بالمنهج الموحد — الهوية ← التقييم ← الأداء ← الإنجازات ← الثانوي، بتبويبات في أعلاه.
+      // v3.7: ملف اللاعب بأسلوب قوائم iOS المجمّعة — الهوية ← التقييم ← الأداء ← الإنجازات ← المستوى الحالي.
       // نفس مصادر البيانات (computePlayerRatings و getStatsData و tournamentHistory) دون أي تعديل عليها.
       const pfEsc = s => escHTML(String(s == null ? '' : s));
       const pfIc = n => `<span class="ic ic-${n}" aria-hidden="true"></span>`;
       const pfPct = n => `<span class="sx-ltr">${n}%</span>`;
-      let returnToStats = false;
+      const pfCount = (n, one, two, few, many) => n === 2 ? two : `${n} ${arCountW(n, one, two, few, many)}`;
+      let fromStats = false, closing = 0;
       // رسم التقييم بمقياس واضح: الأحدث يسارًا (مثل «آخر النتائج»)، والخط المتقطع = بداية 1000
       function chart(points) {
         if (points.length < 2) return '';
-        const W = 330, H = 132, L = 38, R = 8, T = 12, B = 22, rs = points.map(p => p.r);
+        const W = 330, H = 128, L = 38, R = 8, T = 10, B = 22, rs = points.map(p => p.r);
         let mn = Math.floor(Math.min(...rs, ELO_START) / 20) * 20, mx = Math.ceil(Math.max(...rs, ELO_START) / 20) * 20; if (mx - mn < 40) { mn -= 20; mx += 20; }
         const xs = i => W - R - (W - L - R) * i / (points.length - 1), ys = v => T + (H - T - B) * (1 - (v - mn) / (mx - mn));
         const line = points.map((p, i) => `${xs(i).toFixed(1)},${ys(p.r).toFixed(1)}`).join(' ');
         const up = rs[rs.length - 1] >= rs[0], col = up ? 'var(--ok)' : 'var(--gold-deep)';
-        const ticks = [mn, Math.round((mn + mx) / 20) * 10, mx].map(v => `<line x1="${L}" x2="${W - R}" y1="${ys(v).toFixed(1)}" y2="${ys(v).toFixed(1)}" stroke="var(--line)"/><text x="${L - 6}" y="${(ys(v) + 4).toFixed(1)}" text-anchor="end" font-size="11" font-weight="700" fill="var(--text-3)">${v.toLocaleString('en-US')}</text>`).join('');
+        const ticks = [mn, mx].map(v => `<line x1="${L}" x2="${W - R}" y1="${ys(v).toFixed(1)}" y2="${ys(v).toFixed(1)}" stroke="var(--line)"/><text x="${L - 6}" y="${(ys(v) + 4).toFixed(1)}" text-anchor="end" font-size="11" font-weight="700" fill="var(--text-3)">${v.toLocaleString('en-US')}</text>`).join('');
         return `<svg class="px-chart" viewBox="0 0 ${W} ${H}" role="img" aria-label="تطور التقييم من ${rs[0]} إلى ${rs[rs.length - 1]}">${ticks}
-          <line x1="${L}" x2="${W - R}" y1="${ys(ELO_START).toFixed(1)}" y2="${ys(ELO_START).toFixed(1)}" stroke="var(--text-3)" stroke-dasharray="3 4" stroke-opacity=".6"/>
-          <polygon points="${xs(0).toFixed(1)},${H - B} ${line} ${xs(points.length - 1).toFixed(1)},${H - B}" fill="${col}" fill-opacity=".09"/>
-          <polyline points="${line}" fill="none" stroke="${col}" stroke-width="2.4" stroke-linejoin="round" stroke-linecap="round"/>
+          <line x1="${L}" x2="${W - R}" y1="${ys(ELO_START).toFixed(1)}" y2="${ys(ELO_START).toFixed(1)}" stroke="var(--text-3)" stroke-dasharray="3 4" stroke-opacity=".55"/>
+          <text x="${L - 6}" y="${(ys(ELO_START) + 4).toFixed(1)}" text-anchor="end" font-size="11" font-weight="700" fill="var(--text-3)">1,000</text>
+          <polygon points="${xs(0).toFixed(1)},${H - B} ${line} ${xs(points.length - 1).toFixed(1)},${H - B}" fill="${col}" fill-opacity=".08"/>
+          <polyline points="${line}" fill="none" stroke="${col}" stroke-width="2.2" stroke-linejoin="round" stroke-linecap="round"/>
           <circle cx="${xs(points.length - 1).toFixed(1)}" cy="${ys(rs[rs.length - 1]).toFixed(1)}" r="4" fill="${col}"/>
           <text x="${W - R}" y="${H - 5}" text-anchor="end" font-size="11" font-weight="700" fill="var(--text-3)">البداية</text>
           <text x="${L}" y="${H - 5}" text-anchor="start" font-size="11" font-weight="700" fill="var(--text-3)">الآن</text></svg>`;
@@ -11435,19 +11494,21 @@ function buildLeagueStandingsCanvas() {
           return { t, pl, mate: historyMembers(t, side).filter(x => x !== name).join(' + '), lgRank: st ? st.rank : null };
         }).filter(Boolean).reverse();
       }
-      const PL = { champ: ['trophy', 'بطل'], runner: ['medal', 'وصيف'], semi: ['star', 'نصف النهائي'], part: ['user', 'مشاركة'] };
+      const PL = { champ: 'بطل', runner: 'وصيف', semi: 'نصف النهائي', part: 'مشاركة' };
+      const li = (label, value, sub) => `<div class="px-li"><span class="l">${label}${sub ? `<small>${sub}</small>` : ''}</span><span class="v">${value}</span></div>`;
       // يبني الملف داخل host (النافذة أو اللوحة الجانبية). يعيد true إذا كان للاعب مباريات
       function build(name, host, opts) {
         opts = opts || {};
         const elo = computePlayerRatings(), p = elo.players[name];
-        const stats = (getStatsData().players || {})[name] || { championships: 0, runnerUps: 0, semifinals: 0, tournaments: 0, titlesBy: { single: 0, team: 0, league: 0 } };
+        const stats = (getStatsData().players || {})[name] || { championships: 0, runnerUps: 0, semifinals: 0, tournaments: 0, wins: 0, losses: 0, titlesBy: { single: 0, team: 0, league: 0 } };
         const st = { tab: 'sum', tour: 'all', more: false };
-        const rankPill = opts.rank ? `المركز ${opts.rank} · ${pfEsc(opts.rankLabel || 'الألقاب')}` : (p && p.games ? `المركز ${p.rank} من ${elo.ranked.length} · التقييم` : '');
+        const rankTxt = opts.rank ? `المركز ${opts.rank} · ${pfEsc(opts.rankLabel || 'الألقاب')}` : (p && p.games ? `المركز ${p.rank} من ${elo.ranked.length} · التقييم` : '');
         const head = `${opts.from === 'stats' && !opts.inline ? `<button type="button" class="px-back" data-px-back>${pfIc('chev-r')}الإحصائيات</button>` : ''}
           <div class="px-id"><span class="sx-av lg">${pfEsc([...name][0] || '')}</span><div class="px-idt"><div class="px-name"${opts.inline ? '' : ' id="pfName"'}>${pfEsc(name)}</div>
-          <div class="px-ctx">${rankPill ? `<span class="px-rank">${rankPill}</span>` : ''}${p && p.games ? `<span class="sx-tier t${p.tier.level}">${p.tier.name}</span>` : ''}</div></div></div>`;
+          <div class="px-ctx">${rankTxt}${p && p.games ? ` · <span class="px-tier">${p.tier.name}</span>` : ''}</div></div></div>`;
         if (!p || !p.games) {
           host.innerHTML = head + '<div class="pf-empty">لا توجد مباريات مكتملة لهذا اللاعب بعد. يظهر ملفه وتقييمه بعد أول نتيجة تُسجَّل له.</div>';
+          host.onclick = e => { if (e.target.closest('[data-px-back]')) close(); };
           return false;
         }
         const excl = playerExclusions(name).map(x => `<div class="pf-excl">${pfIc('alert')}<span>${pfEsc(`مستبعد من ${x.name}` + (x.date ? ` · ${fmtDayDate(x.date)}` : ''))}</span></div>`).join('');
@@ -11456,71 +11517,77 @@ function buildLeagueStandingsCanvas() {
         const parts = Object.entries(p.partners).map(([o, q]) => ({ o, ...q })).sort((a, b) => b.games - a.games);
         const decided = p.w + p.l;
         const lm = liveMatchesCount();
-        const note = lm ? `يشمل التقييم والأرقام ${lm} ${lm === 1 ? 'مباراة' : lm === 2 ? 'مباراتين' : lm <= 10 ? 'مباريات' : 'مباراة'} من البطولة الجارية ويتحدث بعد كل نتيجة. الألقاب والمشاركات تُحتسب عند اكتمال البطولة.` : 'يتحدث التقييم تلقائيًا بعد كل نتيجة تُسجَّل.';
+        const note = lm ? `يشمل ${lm} ${lm === 1 ? 'مباراة' : lm === 2 ? 'مباراتين' : lm <= 10 ? 'مباريات' : 'مباراة'} من البطولة الجارية. الألقاب والمشاركات تُحتسب عند اكتمال البطولة.` : '';
         const panels = {
           sum: () => {
             const pts = [{ r: ELO_START }].concat(p.points), peak = Math.max(...pts.map(x => x.r));
-            const tot = p.w + p.d + p.l || 1;
-            return `<div class="sx-card px-rate"><div class="px-rate-top"><div><div class="v">${p.rating.toLocaleString('en-US')}${p.lastDelta ? `<small class="sx-d ${p.lastDelta > 0 ? 'up' : 'down'}">${p.lastDelta > 0 ? '▲' : '▼'}${Math.abs(p.lastDelta)}</small>` : ''}</div><div class="c">تقييم المجلس · التغيّر في آخر بطولة</div></div>
-                <div class="c end">الأعلى ${peak.toLocaleString('en-US')}<br>عبر ${p.points.length} ${p.points.length === 1 ? 'بطولة' : p.points.length === 2 ? 'بطولتين' : p.points.length <= 10 ? 'بطولات' : 'بطولة'}</div></div>${chart(pts)}</div>
-              <div class="px-grid"><div class="px-st"><b>${stats.tournaments || 0}</b><span>مشاركة</span></div><div class="px-st"><b>${p.games}</b><span>مباراة</span></div><div class="px-st"><b>${decided ? pfPct(Math.round(p.w / decided * 100)) : '—'}</b><span>نسبة الفوز</span></div></div>
-              <div class="sx-card px-box"><div class="px-kv"><span>النتائج</span><b><span class="up">فوز ${p.w}</span> · تعادل ${p.d} · <span class="down">خسارة ${p.l}</span></b></div>
-                <div class="px-wdl" aria-hidden="true"><i class="w" style="flex:${p.w / tot}"></i><i class="d" style="flex:${p.d / tot}"></i><i class="l" style="flex:${p.l / tot}"></i></div>
-                <div class="px-note">نسبة الفوز من المباريات المحسومة فقط (دون التعادل)</div></div>
-              <div class="px-grid"><div class="px-st hl"><b>${stats.championships || 0}</b><span>ألقاب</span></div><div class="px-st"><b>${stats.runnerUps || 0}</b><span>وصافة</span></div><div class="px-st"><b>${stats.semifinals || 0}</b><span>نصف النهائي</span></div></div>
-              <div class="sx-card px-box"><div class="px-kv"><span>الألقاب حسب النوع</span>${titlesCapsHTML(stats)}</div>
-                <div class="px-kv"><span>آخر النتائج <span class="px-dim">· الأقدم ← الأحدث</span></span><span class="sx-form">${p.seq.slice(-5).map(r => `<i class="sx-fc ${r}">${r === 'w' ? 'ف' : r === 'l' ? 'خ' : 'ت'}</i>`).join('')}</span></div>
-                <div class="px-kv"><span>${pfEsc(profileStreakText(p))}</span><b>أطول سلسلة انتصارات: ${p.bestWin}</b></div></div>`;
+            const form = p.seq.slice(-5).map(r => `<i class="sx-fc ${r}">${r === 'w' ? 'ف' : r === 'l' ? 'خ' : 'ت'}</i>`).join('');
+            return `<div class="sx-card px-rate"><div class="px-rate-top"><div class="v">${p.rating.toLocaleString('en-US')}${p.lastDelta ? `<small class="sx-d ${p.lastDelta > 0 ? 'up' : 'down'}">${p.lastDelta > 0 ? '▲' : '▼'}${Math.abs(p.lastDelta)}</small>` : ''}</div>
+                <div class="c">تقييم المجلس<br>الأعلى ${peak.toLocaleString('en-US')}</div></div>${chart(pts)}</div>
+              <div class="px-gt">الأداء</div>
+              <div class="sx-card px-group">${li('المشاركات', stats.tournaments || 0)}${li('المباريات', p.games)}
+                ${li('النتائج', `<span class="up">${p.w}</span> · ${p.d} · <span class="down">${p.l}</span>`, 'فوز · تعادل · خسارة')}${li('نسبة الفوز', decided ? pfPct(Math.round(p.w / decided * 100)) : '—', 'من المباريات المحسومة')}</div>
+              <div class="px-gt">الإنجازات</div>
+              <div class="sx-card px-group">${li('الألقاب', `<b class="gold">${stats.championships || 0}</b>`, stats.championships ? [['فردي', stats.titlesBy.single], ['فرق', stats.titlesBy.team], ['دوري', stats.titlesBy.league]].map(([l, n]) => `${l} ${n || 0}`).join(' · ') : '')}
+                ${li('الوصافة', stats.runnerUps || 0)}${li('نصف النهائي', stats.semifinals || 0)}</div>
+              <div class="px-gt">المستوى الحالي</div>
+              <div class="sx-card px-group">${li('آخر النتائج', `<span class="sx-form">${form}</span>`, 'الأقدم ← الأحدث')}${p.streak && p.streak.type ? li('السلسلة الحالية', `${{ w: 'فوز', l: 'خسارة', d: 'تعادل' }[p.streak.type]} × ${p.streak.len}`) : ''}${li('أطول سلسلة انتصارات', p.bestWin)}</div>`;
           },
           h2h: () => {
             if (!h2h.length) return '<div class="empty-stats">لا توجد مواجهات بعد.</div>';
             const enough = h2h.filter(x => x.g >= 3);
             const nem = enough.slice().sort((a, b) => (b.l - b.w) - (a.l - a.w) || b.l - a.l)[0], vic = enough.slice().sort((a, b) => (b.w - b.l) - (a.w - a.l) || b.w - a.w)[0];
-            return `<p class="sx-hint">نتيجته أمام كل منافس · الأكثر مواجهة أولًا</p><div class="px-list">${h2h.map(x => {
+            return `<p class="sx-note">نتيجته أمام كل منافس، الأكثر مواجهة أولًا</p><div class="sx-card px-group">${h2h.map(x => {
               const tag = nem && x.o === nem.o && nem.l > nem.w ? '<span class="pf-tag nem">غريمه</span>' : vic && x.o === vic.o && vic.w > vic.l ? '<span class="pf-tag vic">يتفوق عليه</span>' : '';
-              return `<div class="px-li"><div class="t"><b>${pfEsc(x.o)}</b><span>${x.g} ${x.g <= 10 && x.g >= 3 ? 'مواجهات' : 'مواجهة'}</span></div><span class="px-rec"><span class="up">فاز ${x.w}</span>${x.d ? `<span>تعادل ${x.d}</span>` : ''}<span class="down">خسر ${x.l}</span></span>${tag}</div>`; }).join('')}</div>`;
+              return li(`${pfEsc(x.o)} ${tag}`, `<span class="up">${x.w}</span> · ${x.d ? `${x.d} · ` : ''}<span class="down">${x.l}</span>`, `${pfCount(x.g, 'مواجهة', 'مواجهتان', 'مواجهات', 'مواجهة')} · ${x.d ? 'فوز · تعادل · خسارة' : 'فوز · خسارة'}`); }).join('')}</div>`;
           },
           mates: () => {
             if (!parts.length) return '<div class="empty-stats">لم يلعب في بطولات الفرق بعد.</div>';
             const best = parts.filter(x => x.games >= 3 && x.w / x.games >= 0.5).sort((a, b) => b.w / b.games - a.w / a.games || b.games - a.games)[0];
-            return `<p class="sx-hint">نتيجته مع كل شريك · الأكثر لعبًا معًا أولًا</p><div class="px-list">${parts.map(x => `<div class="px-li"><div class="t"><b>${pfEsc(x.o)}</b><span>${x.games} ${x.games <= 10 && x.games >= 3 ? 'مباريات' : 'مباراة'} معًا</span></div><span class="px-rec"><span class="up">فاز ${x.w}</span><span>${pfPct(Math.round(x.w / x.games * 100))}</span></span>${best && x.o === best.o ? '<span class="pf-tag best">أفضل شريك</span>' : ''}</div>`).join('')}</div>`;
+            return `<p class="sx-note">نسبة الفوز مع كل شريك، الأكثر لعبًا معًا أولًا</p><div class="sx-card px-group">${parts.map(x => li(`${pfEsc(x.o)} ${best && x.o === best.o ? '<span class="pf-tag best">أفضل شريك</span>' : ''}`, pfPct(Math.round(x.w / x.games * 100)), `${pfCount(x.games, 'مباراة', 'مباراتان', 'مباريات', 'مباراة')} معًا · فوز ${x.w}`)).join('')}</div>`;
           },
           tour: () => {
             if (!tours.length) return '<div class="empty-stats">لا توجد بطولات مكتملة لهذا اللاعب بعد.</div>';
             const c = k => tours.filter(x => x.pl === k).length;
             const list = st.tour === 'all' ? tours : tours.filter(x => x.pl === st.tour), lim = st.more ? list.length : 12;
-            return `<div class="sx-chips">${[['all', 'الكل', tours.length], ['champ', 'بطل', c('champ')], ['runner', 'وصيف', c('runner')], ['semi', 'نصف النهائي', c('semi')]].map(([k, l, n]) => `<button type="button" class="sx-chip" data-px-tour="${k}" aria-pressed="${st.tour === k}">${l} ${n}</button>`).join('')}</div>
-              <div class="px-list">${list.slice(0, lim).map(x => `<div class="px-li"><div class="t"><b><bdi>${pfEsc(x.t.name)}</bdi></b><span>${sxModeAr(x.t.mode)} · ${fmtDayDate(x.t.date)}${x.mate ? ` · مع ${pfEsc(x.mate)}` : ''}${x.lgRank && x.pl === 'part' ? ` · المركز ${x.lgRank}` : ''}</span></div><span class="px-plc ${x.pl}">${pfIc(PL[x.pl][0])}${PL[x.pl][1]}</span></div>`).join('') || '<div class="empty-stats">لا توجد بطولات بهذه النتيجة.</div>'}</div>
-              ${list.length > lim ? `<button type="button" class="st-fold-more" data-px-more>عرض الكل (${list.length})</button>` : ''}`;
+            return `<div class="sx-seg sx-seg4">${[['all', 'الكل', tours.length], ['champ', 'بطل', c('champ')], ['runner', 'وصيف', c('runner')], ['semi', 'نصف النهائي', c('semi')]].map(([k, l, n]) => `<button type="button" data-px-tour="${k}" aria-pressed="${st.tour === k}">${l} <span class="c">${n}</span></button>`).join('')}</div>
+              <div class="sx-card px-group">${list.slice(0, lim).map(x => li(`<bdi>${pfEsc(x.t.name)}</bdi>`, `<span class="px-plc ${x.pl}">${PL[x.pl]}</span>`, `${sxModeAr(x.t.mode)} · ${fmtDayDate(x.t.date)}${x.mate ? ` · مع ${pfEsc(x.mate)}` : ''}${x.lgRank && x.pl === 'part' ? ` · المركز ${x.lgRank}` : ''}`)).join('') || '<div class="empty-stats">لا توجد بطولات بهذه النتيجة.</div>'}</div>
+              ${list.length > lim ? `<button type="button" class="sx-more" data-px-more>عرض الكل (${list.length})</button>` : ''}`;
           }
         };
         const TABS = [['sum', 'ملخص'], ['h2h', 'المواجهات'], ['mates', 'الشركاء'], ['tour', 'البطولات']];
-        const paint = () => {
-          host.innerHTML = `${head}${excl}<div class="px-tabs" role="tablist" aria-label="أقسام ملف اللاعب">${TABS.map(([k, l]) => `<button type="button" role="tab" data-px-tab="${k}" aria-selected="${st.tab === k}">${l}</button>`).join('')}</div>
-            <div class="px-panel">${panels[st.tab]()}</div><div class="pf-note">${note}</div>`;
+        const paint = enter => {
+          host.innerHTML = `${head}${excl}<div class="sx-seg sx-seg4 px-tabs" role="tablist" aria-label="أقسام ملف اللاعب">${TABS.map(([k, l]) => `<button type="button" role="tab" data-px-tab="${k}" aria-pressed="${st.tab === k}" aria-selected="${st.tab === k}">${l}</button>`).join('')}</div>
+            <div class="px-panel${enter ? ' sx-enter' : ''}">${panels[st.tab]()}</div>${note ? `<div class="pf-note">${note}</div>` : ''}`;
         };
         host.onclick = e => {
-          const t = e.target.closest('[data-px-tab]'); if (t) { st.tab = t.dataset.pxTab; paint(); const sc = host.closest('.modal-content') || host; if (sc && sc.scrollTop > 0 && !opts.inline) { const tb = host.querySelector('.px-tabs'); if (tb) sc.scrollTop = Math.min(sc.scrollTop, tb.offsetTop - 8); } return; }
+          const t = e.target.closest('[data-px-tab]'); if (t) { if (t.dataset.pxTab !== st.tab) { st.tab = t.dataset.pxTab; paint(true); } return; }
           const f = e.target.closest('[data-px-tour]'); if (f) { st.tour = f.dataset.pxTour; st.more = false; paint(); return; }
           if (e.target.closest('[data-px-more]')) { st.more = true; paint(); return; }
-          if (e.target.closest('[data-px-back]')) { close(); }
+          if (e.target.closest('[data-px-back]')) close();
         };
         paint();
         return true;
       }
+      const reduceMotion = () => !!(window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches);
       function open(name, opts) {
         opts = opts || {};
+        clearTimeout(closing); modal.classList.remove('px-pop');
         shownName = name;
         const ok = build(name, body, opts);
         shareBtn.hidden = !ok;
-        returnToStats = opts.from === 'stats' && statsModal.style.display === 'flex';
-        if (returnToStats) statsModal.style.display = 'none';   // ورقة واحدة بدل نافذة فوق نافذة؛ الرجوع يعيد الإحصائيات كما كانت
+        // من الإحصائيات: الملف يُدفع فوق نفس الورقة (انتقال جانبي مثل iOS) والإحصائيات تبقى تحته كما هي
+        fromStats = opts.from === 'stats' && statsModal.style.display === 'flex';
+        modal.classList.toggle('px-over', fromStats);
         modal.style.display = 'flex';
         modal.querySelector('.modal-content').scrollTop = 0;
       }
       function close() {
-        modal.style.display = 'none';
-        if (returnToStats) { returnToStats = false; statsModal.style.display = 'flex'; }
+        const panel = modal.querySelector('.modal-content');
+        const done = () => { modal.style.display = 'none'; modal.classList.remove('px-over', 'px-pop'); fromStats = false; };
+        // بعد السحب لأسفل تكون الورقة قد خرجت بالفعل: إغلاق فوري بلا حركة ثانية
+        if (!fromStats || reduceMotion() || panel.style.transform) { done(); return; }
+        modal.classList.add('px-pop'); clearTimeout(closing); closing = setTimeout(done, 220);
       }
       // مشاركة الملف المفتوح كصورة مباشرة (نفس صورة «ملف لاعب كامل» في مركز التصدير)
       shareBtn.addEventListener('click', () => { if (shownName) exportGuardedRun(() => exportPlayerProfile(shownName), shareBtn, 'جارٍ الإنشاء…'); });
@@ -11532,18 +11599,17 @@ function buildLeagueStandingsCanvas() {
       // نقاط الدخول: أي عنصر يحمل data-player في الإحصائيات، وزر «الملف الكامل» في سجل لاعب الدوري
       const openFromStats = (name, el) => {
         if (statsWide() && statsTab === 'rank' && document.getElementById('sxSidePf')) { statsSel = name; statsMountSide(); return; }
-        // المركز كما ظهر في القائمة التي فُتح منها الملف (المتصدرون بالألقاب، والترتيب حسب الاختيار)
-        const b = el && el.querySelector('.sx-badge'), rank = b ? Number(b.textContent) : null;
-        const rankLabel = statsTab === 'rank' ? ({ rating: 'التقييم', winrate: 'نسبة الفوز', titles: 'الألقاب' }[statsSortMode] || 'الألقاب') : 'الألقاب';
+        const rk = el && el.querySelector('.rk'), rank = rk ? Number(rk.textContent) : null;
+        const rankLabel = statsTab === 'rank' ? ((STATS_SORTS.find(([k]) => k === statsSortMode) || STATS_SORTS[0])[1]) : 'الألقاب';
         open(name, rank ? { from: 'stats', rank, rankLabel } : { from: 'stats' });
       };
       statsContent.addEventListener('click', e => {
-        if (e.target.closest('[data-sx-tab],[data-sx-go],[data-sx-sort],[data-sx-pairs],[data-sx-hist],[data-sx-more],#sxSidePf')) return;
+        if (e.target.closest('[data-sx-go],[data-sx-sort],[data-sx-pairs],[data-sx-hist],[data-sx-more],#sxSidePf')) return;
         const r = e.target.closest('[data-player]'); if (r) openFromStats(r.dataset.player, r);
       });
       statsContent.addEventListener('keydown', e => {
         if (e.key !== 'Enter' && e.key !== ' ') return;
-        const r = e.target.closest && e.target.closest('[data-player]'); if (!r || e.target.closest('#sxSidePf')) return;
+        const r = e.target.closest && e.target.closest('tr[data-player]'); if (!r || e.target.closest('#sxSidePf')) return;   // الأزرار تعمل بلوحة المفاتيح تلقائيًا
         e.preventDefault(); openFromStats(r.dataset.player, r);
       });
       const _openHist = openLeaguePlayerHistory;
@@ -11743,8 +11809,7 @@ function buildLeagueStandingsCanvas() {
       };
       document.addEventListener('touchmove', e => {
         if (!root.classList.contains('sheet-open') || drag) return;
-        const top = openSheets().pop(); if (!top) return;
-        if (!top.overlay.contains(e.target)) return;
+        const top = openSheets().find(d => d.overlay.contains(e.target)); if (!top) return;   // v3.7: النافذة التي يقع فيها اللمس (قد تكون ورقتان مفتوحتين: الإحصائيات وفوقها الملف)
         if (!scrollableAncestor(e.target, top.panel)) e.preventDefault();
       }, { passive: false });
 
