@@ -2764,6 +2764,7 @@
     .vme-row .l small { display: block; margin-top: 1px; font-size: 12px; font-weight: 700; color: var(--text-3); }
     .vme-row .l small.on { display: inline-flex; align-items: center; height: 20px; padding: 0 8px; border-radius: 999px; background: var(--ok-bg); color: var(--ok); font-size: 11.5px; font-weight: 800; }
     .vme-row .v { flex: none; text-align: end; font-size: 15px; font-weight: 800; white-space: nowrap; }
+    .vme-row .v bdi { font-size: 17px; font-variant-numeric: tabular-nums; }
     .vme-row .v small { display: block; font-size: 12px; font-weight: 700; color: var(--text-3); }
     .vme-row .res-w { color: var(--ok); } .vme-row .res-l { color: var(--danger, #B3402F); } .vme-row .res-d { color: var(--text-2); } .vme-row .mute { color: var(--text-3); font-weight: 700; }
     .vme-row .l b.res-w, .vme-row .l b.res-l, .vme-row .l b.res-d { color: var(--text); }
@@ -3312,7 +3313,9 @@
       return `${n} ${n >= 3 && n <= 10 ? 'نقاط' : 'نقطة'}`;
     }
     // v3.9: صيغ نتيجة لا تلتبس في الكتابة من اليمين (بدل «2 – 1» التي تنقلب)
-    function exportForAgainst(own, opp) { return `له ${own} · عليه ${opp}`; }
+    function exportForAgainst(own, opp) { return `له ${own} · عليه ${opp}`; }   // للمجاميع فقط (أشواط/نقاط)
+    // v4.3: نتيجة مباراة واحدة: الرقم الأكبر أولًا دائمًا («2–0»)، والحصيلة (فوز/خسارة/تعادل) هي التي تحدد الفائز
+    function exportScoreTxt(a, b) { const x = Number(a), y = Number(b); return `${Math.max(x, y)}–${Math.min(x, y)}`; }
     function exportFinalTxt(s) { const m = String(s == null ? '' : s).match(/(\d+)\s*[–-]\s*(\d+)/); return m ? `البطل ${m[1]} · الوصيف ${m[2]}` : String(s == null ? '' : s); }
     function exportPctTxt(n) { return `‎${n}%`; }   // علامة اتجاه قبل الرقم: تبقى «100%» بعد كلمات عربية ولا تنقلب إلى «%100»
     function exportOutcomeCell(o) { return o === 'win' || o === 'فوز' ? { t: 'فوز', c: EXPORT_BRAND.ok } : o === 'loss' || o === 'خسارة' ? { t: 'خسارة', c: '#B3402F' } : o === 'draw' || o === 'تعادل' ? { t: 'تعادل', c: EXPORT_BRAND.muted } : { t: String(o), c: EXPORT_BRAND.muted }; }
@@ -8979,7 +8982,7 @@ function changeScore(inputId, amount){
         if (r.annul) { played.push(li(opp, r.round, '<span class="mute">ملغاة</span>', 'لا تُحتسب', 'is-void')); return; }
         if (!r.completed) { upcoming.push(li(opp, r.round, '<span class="mute">لم تُلعب</span>', '', 'is-pending')); return; }
         const ff = r.ff ? ` · ${r.auto ? 'استبعاد' : 'انسحاب'}` : '';
-        played.push(li(opp, r.round, `<b class="res-${r.outcome}">${outcomeText[r.outcome]} · ${pointsLabel(r.points)}</b>`, `له ${r.own} · عليه ${r.opp}${ff}`, 'res-' + r.outcome));
+        played.push(li(opp, r.round, `<b class="res-${r.outcome}">${outcomeText[r.outcome]} · ${pointsLabel(r.points)}</b>`, `<bdi dir="ltr">${exportScoreTxt(r.own, r.opp)}</bdi>${ff}`, 'res-' + r.outcome));
       });
       const summary = st ? `
         <div class="lg-history-summary">
@@ -9654,7 +9657,7 @@ function buildLeagueStandingsCanvas() {
       const r = leagueRow(name); if (!r) { alert('اللاعب غير موجود في الدوري الحالي.'); return; }
       const lgT = leagueMatchTimes(), done = sortByPlayedTime(getLeaguePlayerHistory(name).filter(h => h.completed && !h.annul), h => lgT[h.id]);   // بتوقيت اللعب الفعلي
       // v3.9: الخصم ← الحصيلة ← «له · عليه» (لا «0 – 2» الملتبسة)
-      const last = done.slice(-5).reverse().map(h => [`ج${h.round}: ${h.opponent}` + (h.ff ? (h.auto ? ' · استبعاد' : ' · انسحاب') : ''), exportOutcomeCell(h.outcome), exportForAgainst(h.own, h.opp)]);
+      const last = done.slice(-5).reverse().map(h => [`ج${h.round}: ${h.opponent}` + (h.ff ? (h.auto ? ' · استبعاد' : ' · انسحاب') : ''), exportOutcomeCell(h.outcome), exportScoreTxt(h.own, h.opp)]);
       const show = exportParts('lgCard');
       // v3.9: النقاط أولًا (مقياس الدوري) ← المباريات ← فوز · تعادل · خسارة ← نسبة الفوز ← الأشواط ← الفارق
       const secs = [{ heading: `${name} — ${getLeagueProgress().completed ? 'المركز النهائي' : 'المركز الحالي'} ${r.rank}`, wide: true, rows: [
@@ -9809,7 +9812,7 @@ function buildLeagueStandingsCanvas() {
         if (h.bye) { (h.round <= lastPlayed ? played : upcoming).push([`ج${h.round}: راحة`, mute('—'), mute('—')]); return; }
         if (h.annul) { played.push([`ج${h.round}: ${h.opponent}`, mute('ملغاة'), mute('لا تُحتسب')]); return; }
         if (!h.completed) { upcoming.push([`ج${h.round}: ${h.opponent}`, mute('لم تُلعب'), mute('—')]); return; }
-        played.push([`ج${h.round}: ${h.opponent}` + (h.ff ? (h.auto ? ' · استبعاد' : ' · انسحاب') : ''), exportOutcomeCell(h.outcome), exportForAgainst(h.own, h.opp)]);
+        played.push([`ج${h.round}: ${h.opponent}` + (h.ff ? (h.auto ? ' · استبعاد' : ' · انسحاب') : ''), exportOutcomeCell(h.outcome), exportScoreTxt(h.own, h.opp)]);
       });
       const secs = [];
       if (played.length) secs.push({ heading: `${name} — لُعبت`, cols: ['الحصيلة', 'النتيجة'], rows: played });
@@ -9830,7 +9833,7 @@ function buildLeagueStandingsCanvas() {
       const rows = done.map(m => {
         const won = m.winner === name, own = won ? m.winnerScore : m.loserScore, opp = won ? m.loserScore : m.winnerScore;
         won ? wins++ : losses++; pf += Number(own) || 0; pa += Number(opp) || 0;
-        return [`${roundOf(m)}: ${getDisplayTeamName(m.team1 === name ? m.team2 : m.team1)}`, exportOutcomeCell(won ? 'win' : 'loss'), exportForAgainst(own, opp)];   // v3.9
+        return [`${roundOf(m)}: ${getDisplayTeamName(m.team1 === name ? m.team2 : m.team1)}`, exportOutcomeCell(won ? 'win' : 'loss'), exportScoreTxt(own, opp)];   // v4.3
       });
       const v = getVerifiedTournamentChampion(); // اللقب لا يُذكر إلا من النهائي المعتمد
       const lastLost = done.length && done[done.length - 1].winner !== name ? done[done.length - 1] : null;
@@ -10775,7 +10778,7 @@ function buildLeagueStandingsCanvas() {
         .sort((a, b) => a.matchNumber - b.matchNumber).map(m => {
           const opp = m.team1 === name ? m.team2 : m.team1; if (!opp || String(opp).includes('Bye')) return null;
           const won = m.winner === name;
-          return [`${cleanRound(m.roundName)}: ${getDisplayTeamName(opp)}`, won ? 'فوز' : 'خسارة', exportForAgainst(won ? m.winnerScore : m.loserScore, won ? m.loserScore : m.winnerScore)];   // v3.9: الحصيلة ثم «له · عليه»
+          return [`${cleanRound(m.roundName)}: ${getDisplayTeamName(opp)}`, won ? 'فوز' : 'خسارة', exportScoreTxt(m.winnerScore, m.loserScore)];   // v3.9: الحصيلة ثم «له · عليه»
         }).filter(Boolean);
     }
     async function exportTournamentAchievementImage(kind, finalData) {
@@ -10996,7 +10999,7 @@ function buildLeagueStandingsCanvas() {
         size: 26, weight: 800, color: r[1] === 'خسارة' ? '#B3402F' : B.ok, maxW: 150, min: 16   // نفس لون الفارق السالب في جدول الدوري
       });
       exportText(ctx, r[2], M + 150, y + (ER - 8) / 2, {
-        size: 27, weight: 800, color: B.ink, maxW: 240, min: 16
+        size: 28, weight: 800, color: B.ink, maxW: 240, min: 16, dir: 'ltr'
       });
 
       y += ER;
@@ -12344,7 +12347,7 @@ function buildLeagueStandingsCanvas() {
     // ===================================
     // 🧭 سلوك التطبيق: إعادة الوضع للأعلى، تعديل العنوان بالضغط المطوّل، تنبيه التحديث، رقم الإصدار
     // ===================================
-    const APP_VERSION = '4.2';   // ترقيم الاعتماد: 1 ثم 1.1 … 1.9 ثم 2 — ويُرفع معه رقم الإصدار في sw.js
+    const APP_VERSION = '4.3';   // ترقيم الاعتماد: 1 ثم 1.1 … 1.9 ثم 2 — ويُرفع معه رقم الإصدار في sw.js
     (function setupAppBehaviors() {
       const root = document.documentElement;
 
@@ -12887,9 +12890,11 @@ function buildLeagueStandingsCanvas() {
           const it = me ? mineItems() : { up: [], done: [] }, any = it.up.length + it.done.length > 0;
           mineWrap.dataset.any = any ? '1' : '';
           const row = x => {
-            const res = x.res === 'w' ? '<b class="res-w">فوز</b>' : x.res === 'l' ? '<b class="res-l">خسارة</b>' : x.res === 'd' ? '<b class="res-d">تعادل</b>' : x.res === 'void' ? '<b class="mute">ملغاة</b>' : '';   // القادمة: يكفي عنوان المجموعة
-            const sc = x.own != null && x.opp2 != null && x.res !== 'void' ? `<small>له ${x.own} · عليه ${x.opp2}${x.ff ? ' · انسحاب' : ''}</small>` : '';
-            return `<button type="button" class="vme-row vmine-li" data-k="${x.k}" data-id="${esc(x.id)}"><span class="l"><b>ضد ${esc(x.opp)}</b><small>${esc(x.sub)}</small></span><span class="v">${res}${sc}</span></button>`; };
+            // v4.3: «فوز على X · 2–0» — الحصيلة في أول السطر (مع نقطة اللون)، والنتيجة في الطرف المقابل والأكبر أولًا
+            const played = x.res === 'w' || x.res === 'l' || x.res === 'd';
+            const title = x.res === 'w' ? `فوز على ${esc(x.opp)}` : x.res === 'l' ? `خسارة أمام ${esc(x.opp)}` : x.res === 'd' ? `تعادل مع ${esc(x.opp)}` : `ضد ${esc(x.opp)}`;
+            const sc = played && x.own != null && x.opp2 != null ? `<bdi dir="ltr">${exportScoreTxt(x.own, x.opp2)}</bdi>` : x.res === 'void' ? '<span class="mute">ملغاة</span>' : '';
+            return `<button type="button" class="vme-row vmine-li" data-k="${x.k}" data-id="${esc(x.id)}"><span class="l"><b${played ? ` class="res-${x.res}"` : ''}>${title}${x.ff ? ' · بالانسحاب' : ''}</b><small>${esc(x.sub)}</small></span><span class="v">${sc}</span></button>`; };
           mineWrap.innerHTML = !me ? '<div class="vme-none">اختر اسمك من «صفحتي» لتظهر مبارياتك هنا</div>' : !any ? '<div class="vme-none">لا توجد لك مباريات في هذه المنافسة</div>'
             : `${it.up.length ? `<div class="vme-h">القادمة</div><div class="vme-card">${it.up.map(row).join('')}</div>` : ''}${it.done.length ? `<div class="vme-h">لُعبت</div><div class="vme-card">${it.done.map(row).join('')}</div>` : ''}`;
           return any;
@@ -12931,7 +12936,7 @@ function buildLeagueStandingsCanvas() {
           let lastHTML = '';
           if (L) {
             const word = L.r === 'w' ? `فوز على ${esc(L.opp)}` : L.r === 'l' ? `خسارة أمام ${esc(L.opp)}` : `تعادل مع ${esc(L.opp)}`;
-            const sc = L.own != null && L.opp2 != null ? `له ${L.own} · عليه ${L.opp2}` : '';
+            const sc = L.own != null && L.opp2 != null ? `<bdi dir="ltr">${exportScoreTxt(L.own, L.opp2)}</bdi>` : '';   // v4.3: الأكبر أولًا
             const when = L.at ? fmtDayDate(L.at) : (L.t.live ? '' : fmtDayDate(L.t.date));
             lastHTML = `<div class="vme-row"><span class="l"><b class="res-${L.r}">${word}${L.ff ? ' · بالانسحاب' : ''}</b><small><bdi>${esc(L.t.name || '')}</bdi>${when ? ' · ' + esc(when) : ''}</small></span>${sc ? `<span class="v">${sc}</span>` : ''}</div>`;
             if (L.at) { const k = nightKeyOf(L.at), day = last.filter(x => x.at && nightKeyOf(x.at) === k);
