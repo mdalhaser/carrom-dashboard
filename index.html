@@ -34,15 +34,15 @@
   <link rel="apple-touch-startup-image" href="splash/splash-1488x2266.png" media="(device-width: 744px) and (device-height: 1133px) and (-webkit-device-pixel-ratio: 2) and (orientation: portrait)">
   <link rel="preload" href="assets/wood.webp" as="image">
   <meta name="format-detection" content="telephone=no">
-  <!-- v3.6: خط Tajawal محفوظ داخل التطبيق (assets/fonts) بدل Google Fonts: يعمل دون إنترنت من أول فتح، وصور التصدير لا تقع على خط بديل -->
-  <link rel="preload" href="assets/fonts/Tajawal-Bold.woff" as="font" type="font/woff" crossorigin>
-  <link rel="preload" href="assets/fonts/Tajawal-ExtraBold.woff" as="font" type="font/woff" crossorigin>
+  <!-- v4.4: ملفات الخط في assets مباشرة (ومجلد assets/fonts احتياطًا)، وإن لم توجد يُحمَّل من Google Fonts تلقائيًا. v3.6: خط Tajawal محفوظ داخل التطبيق (assets/fonts) بدل Google Fonts: يعمل دون إنترنت من أول فتح، وصور التصدير لا تقع على خط بديل -->
+  <link rel="preload" href="assets/Tajawal-Bold.woff" as="font" type="font/woff" crossorigin>
+  <link rel="preload" href="assets/Tajawal-ExtraBold.woff" as="font" type="font/woff" crossorigin>
   <style>
-    @font-face { font-family: "Tajawal"; font-style: normal; font-weight: 400; font-display: swap; src: url("assets/fonts/Tajawal-Regular.woff") format("woff"); }
-    @font-face { font-family: "Tajawal"; font-style: normal; font-weight: 500; font-display: swap; src: url("assets/fonts/Tajawal-Medium.woff") format("woff"); }
-    @font-face { font-family: "Tajawal"; font-style: normal; font-weight: 700; font-display: swap; src: url("assets/fonts/Tajawal-Bold.woff") format("woff"); }
-    @font-face { font-family: "Tajawal"; font-style: normal; font-weight: 800; font-display: swap; src: url("assets/fonts/Tajawal-ExtraBold.woff") format("woff"); }
-    @font-face { font-family: "Tajawal"; font-style: normal; font-weight: 900; font-display: swap; src: url("assets/fonts/Tajawal-Black.woff") format("woff"); }
+    @font-face { font-family: "Tajawal"; font-style: normal; font-weight: 400; font-display: swap; src: url("assets/Tajawal-Regular.woff") format("woff"), url("assets/fonts/Tajawal-Regular.woff") format("woff"); }
+    @font-face { font-family: "Tajawal"; font-style: normal; font-weight: 500; font-display: swap; src: url("assets/Tajawal-Medium.woff") format("woff"), url("assets/fonts/Tajawal-Medium.woff") format("woff"); }
+    @font-face { font-family: "Tajawal"; font-style: normal; font-weight: 700; font-display: swap; src: url("assets/Tajawal-Bold.woff") format("woff"), url("assets/fonts/Tajawal-Bold.woff") format("woff"); }
+    @font-face { font-family: "Tajawal"; font-style: normal; font-weight: 800; font-display: swap; src: url("assets/Tajawal-ExtraBold.woff") format("woff"), url("assets/fonts/Tajawal-ExtraBold.woff") format("woff"); }
+    @font-face { font-family: "Tajawal"; font-style: normal; font-weight: 900; font-display: swap; src: url("assets/Tajawal-Black.woff") format("woff"), url("assets/fonts/Tajawal-Black.woff") format("woff"); }
     /* ==========================================================================
        نظام التصميم — إدارة بطولات الكيرم
        الاتجاه: Premium Minimal مستوحى من iOS، هوية خشب الكيرم والعاج والذهب.
@@ -2819,6 +2819,14 @@
     html.view-mode body.v-tabs .vday-r.latest { background: none; border-radius: 0; }
     html.view-mode body.v-tabs .vday-r.latest + .vday-r { border-top-color: var(--line); }
   </style>
+  <script>
+    /* v4.4: احتياط الخط — إن لم توجد ملفات Tajawal مع التطبيق يُحمَّل من Google Fonts (كما في 3.5) */
+    (function () {
+      function g() { if (document.getElementById('gfTajawal')) return; var l = document.createElement('link'); l.id = 'gfTajawal'; l.rel = 'stylesheet';
+        l.href = 'https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700;800;900&display=swap'; document.head.appendChild(l); }
+      try { document.fonts.load('700 16px Tajawal').then(function () { var ok = false; document.fonts.forEach(function (f) { if (/Tajawal/.test(f.family) && f.status === 'loaded') ok = true; }); if (!ok) g(); }, g); } catch (e) {}
+    })();
+  </script>
 </head>
 <body>
   <div id="launchScreen" aria-hidden="true"><img src="icons/icon-512.png" alt="" width="132" height="132"></div>
@@ -12347,7 +12355,7 @@ function buildLeagueStandingsCanvas() {
     // ===================================
     // 🧭 سلوك التطبيق: إعادة الوضع للأعلى، تعديل العنوان بالضغط المطوّل، تنبيه التحديث، رقم الإصدار
     // ===================================
-    const APP_VERSION = '4.3';   // ترقيم الاعتماد: 1 ثم 1.1 … 1.9 ثم 2 — ويُرفع معه رقم الإصدار في sw.js
+    const APP_VERSION = '4.4';   // ترقيم الاعتماد: 1 ثم 1.1 … 1.9 ثم 2 — ويُرفع معه رقم الإصدار في sw.js
     (function setupAppBehaviors() {
       const root = document.documentElement;
 
