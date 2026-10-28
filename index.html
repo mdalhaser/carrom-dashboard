@@ -67,10 +67,22 @@
          ألوان عاجية دافئة هادئة التشبّع (لا أبيض ناصع)، والذهبي والخشب يبقيان اللونين المميزين. */
       --bg: #EAE6DD;          /* الصفحة */
       --surface: #F6F4EE;     /* البطاقات والنوافذ */
-      --raised: #FFFEFB;      /* العنصر البارز داخل البطاقة: الخانات، الاختيار النشط في المفاتيح */
+      --raised: #FAF5EA;      /* العنصر البارز: عاجي دافئ (لا أبيض ناصع)، أفتح قليلًا من البطاقة — الخانات والأزرار والاختيار النشط */
       --tile: var(--raised);  /* مربعات الأرقام داخل البطاقات */
       --tile-ring: inset 0 0 0 1px var(--line);
       --sheet: #ECE8DF;       /* خلفية النوافذ والأوراق: أغمق من البطاقات داخلها */
+      /* لغة «العنصر المرفوع» الموحدة: البطاقات المميزة والأزرار والاختيار النشط — سطح فاتح، حافة رفيعة، ظل ناعم واسع */
+      --elev-bg: var(--raised);
+      --elev-line: rgba(124, 93, 36, .16);   /* حافة دافئة بلمسة ذهبية خفيفة */
+      --elev-shadow: 0 1px 2px rgba(48, 37, 31, .05), 0 12px 32px -14px rgba(48, 37, 31, .30);
+      --ctl-track: var(--surface-3);   /* مسار مفاتيح التبديل: غائر */
+      --ctl-on: var(--raised);         /* الاختيار النشط والأزرار: مرفوع */
+      --ctl-shadow: 0 1px 1px rgba(48, 37, 31, .06), 0 3px 10px -4px rgba(48, 37, 31, .28);
+      --ctl-press: #F2ECDF;            /* الزر المرفوع عند المرور/اللمس */
+      /* صفّك (أنت): بطاقة مرفوعة فوق القائمة بلمسة ذهبية */
+      --me-bg: color-mix(in srgb, var(--raised) 86%, var(--gold) 14%);
+      --me-line: rgba(207, 169, 99, .60);
+      --me-shadow: 0 1px 2px rgba(48, 37, 31, .06), 0 10px 26px -12px rgba(124, 93, 36, .50);
       --surface-2: #EEEAE2;   /* تعبئة غائرة داخل البطاقة، وحالات اللمس */
       --surface-3: #E3DED3;   /* مسار المفاتيح والشارات */
       --line: #E0D9CC;
@@ -122,6 +134,13 @@
       --ease: cubic-bezier(.2, .8, .2, 1);
       --t-fast: .14s;
       --t-base: .22s;
+      /* لغة الحركة الموحدة: ثلاث سرعات وثلاثة منحنيات */
+      --m-fast: .16s;    /* الضغط */
+      --m-mid: .26s;     /* المفاتيح والتبويبات */
+      --m-wide: .38s;    /* النوافذ */
+      --ease-sheet: cubic-bezier(.32, .72, 0, 1);   /* أوراق iOS */
+      --ease-spring: cubic-bezier(.34, 1.36, .64, 1); /* انزلاق نابضي خفيف */
+      --ease-calm: cubic-bezier(.4, 0, .2, 1);      /* ظهور واختفاء هادئ */
 
       --safe-top: env(safe-area-inset-top, 0px);
       --safe-bottom: env(safe-area-inset-bottom, 0px);
@@ -177,6 +196,12 @@
       --text-2: #B9B1A4;
       --text-3: #A1998C;
       --raised: var(--surface); --tile: var(--surface-2); --tile-ring: none; --sheet: var(--surface);   /* الليلي كما هو */
+      --elev-bg: #2A2521; --elev-line: rgba(255, 236, 210, .10);
+      --elev-shadow: 0 1px 2px rgba(0, 0, 0, .45), 0 16px 36px -16px rgba(0, 0, 0, .85);
+      --ctl-track: #171412; --ctl-on: #3B3530; --ctl-press: #443D37;
+      --ctl-shadow: 0 1px 1px rgba(0, 0, 0, .5), 0 4px 12px -6px rgba(0, 0, 0, .9);
+      --me-bg: color-mix(in srgb, #3B3530 88%, var(--gold) 12%); --me-line: rgba(207, 169, 99, .45);
+      --me-shadow: 0 1px 2px rgba(0, 0, 0, .5), 0 12px 28px -12px rgba(0, 0, 0, .9);
       --gold-fill: #C49D58;          /* ذهبي الأزرار الممتلئة: أعمق قليلًا حتى لا يبهر في الظلام */
       --gold-fill-hover: #CFA963;
       --gold-deep: #E3CCA0;
@@ -356,7 +381,7 @@
     #modeSelection {
       display: grid;
       grid-template-columns: repeat(3, minmax(0, 1fr));
-      background: var(--surface-3);
+      background: var(--ctl-track);
       max-width: 560px;
       margin: 0 auto;
     }
@@ -372,16 +397,15 @@
       line-height: 1.2;
     }
     .btn.mode-switch::before { margin-inline-end: 6px; }
-    .btn.mode-switch:hover { background: rgba(255, 255, 255, .45); }
-    body.dark-mode .btn.mode-switch:hover { background: rgba(255, 255, 255, .06); }
+    .btn.mode-switch:hover { background: color-mix(in srgb, var(--ctl-on) 45%, transparent); }
+    /* الاختيار النشط: كبسولة مرفوعة (سطح فاتح، حافة رفيعة، ظل ناعم)، والأيقونة ذهبية */
     .btn.mode-switch.active {
-      background: var(--wood);
-      color: var(--on-wood);
-      box-shadow: 0 2px 8px rgba(48, 37, 31, .28);
+      background: var(--ctl-on);
+      color: var(--text); font-weight: 800;
+      box-shadow: 0 0 0 1px var(--elev-line), var(--ctl-shadow);
     }
-    .btn.mode-switch.active::before { color: var(--gold); }
-    body.dark-mode .btn.mode-switch.active { background: var(--gold-fill); color: #1A140F; box-shadow: 0 2px 10px rgba(0, 0, 0, .35); }
-    body.dark-mode .btn.mode-switch.active::before { color: #1d1610; }
+    .btn.mode-switch.active::before { color: var(--gold-deep); }
+    body.dark-mode .btn.mode-switch.active::before { color: var(--gold); }
 
     .main {
       display: grid;
@@ -416,24 +440,25 @@
       padding: 0 20px;
       display: inline-flex; align-items: center; justify-content: center;
       gap: 0;
-      border-radius: var(--r-md);
-      border: 1px solid var(--line-strong);
-      background: var(--surface);
+      border-radius: 999px;
+      border: 1px solid var(--elev-line);
+      background: var(--ctl-on);
       color: var(--text);
       font-size: var(--fs-base);
       font-weight: 700;
       line-height: 1.2;
       text-align: center;
       cursor: pointer;
-      box-shadow: var(--sh-1);
+      box-shadow: var(--ctl-shadow);
       transition: background var(--t-fast) ease, border-color var(--t-fast) ease, transform var(--t-fast) var(--ease), box-shadow var(--t-fast) ease, opacity var(--t-fast) ease;
     }
-    .btn:hover { background: var(--surface-2); }
+    .btn:hover { background: var(--ctl-press); }
+    .btn:focus-visible, .cd-primary:focus-visible, .cd-secondary:focus-visible, .score-btn:focus-visible { outline: 2px solid var(--gold); outline-offset: 2px; }
     .btn:active { transform: scale(.975); }
-    .btn.primary { background: var(--wood); border-color: var(--wood); color: var(--on-wood); box-shadow: 0 4px 14px -4px rgba(48, 37, 31, .5); }
+    .btn.primary { background: var(--wood); border-color: var(--wood); color: var(--on-wood); box-shadow: 0 1px 1px rgba(48, 37, 31, .2), 0 8px 20px -8px rgba(48, 37, 31, .55); }
     .btn.primary:hover { background: var(--wood-2); }
     .btn.primary[data-ic]::before { color: var(--gold); }
-    body.dark-mode .btn.primary { background: var(--gold-fill); border-color: var(--gold-fill); color: #1A140F; box-shadow: none; }
+    body.dark-mode .btn.primary { background: var(--gold-fill); border-color: var(--gold-fill); color: #1A140F; box-shadow: var(--ctl-shadow); }
     body.dark-mode .btn.primary:hover { background: var(--gold-fill-hover); border-color: var(--gold-fill-hover); }
     /* الأزرار المعطّلة في الليلي: محايدة وواضح أنها غير متاحة (بدل ذهبي باهت «طيني») */
     body.dark-mode .btn:disabled, body.dark-mode .btn.primary:disabled, body.dark-mode #saveScoreBtn:disabled, body.dark-mode #saveScoreBtn:disabled:hover,
@@ -442,13 +467,13 @@
     }
     body.dark-mode .btn:disabled[data-ic]::before { color: var(--text-3); }
     body.dark-mode .btn.primary[data-ic]::before { color: #1d1610; }
-    .btn.neutral { background: var(--surface-2); border-color: transparent; box-shadow: none; }
-    .btn.neutral:hover { background: var(--surface-3); }
+    .btn.neutral { background: var(--ctl-on); border-color: var(--elev-line); box-shadow: var(--ctl-shadow); }
+    .btn.neutral:hover { background: var(--ctl-press); }
     .btn.danger, .league-reset-btn {
-      background: var(--danger-bg);
-      border-color: var(--danger-line);
+      background: var(--ctl-on);
+      border-color: var(--elev-line);
       color: var(--danger);
-      box-shadow: none;
+      box-shadow: var(--ctl-shadow);
     }
     .btn.danger:hover, .league-reset-btn:hover { background: var(--danger-bg); border-color: var(--danger); }
     .btn.block { width: 100%; }
@@ -609,8 +634,7 @@
     #showBracketWrap .btn, #exportWrap .btn, #clearWrap .btn, #statsBtn { width: 100%; }
     .tools-card { display: flex; flex-direction: column; gap: var(--s2); }
     /* إعادة الضبط إجراء خطر ثانوي: نص أحمر بلا تعبئة (التأكيد قبل التنفيذ كما هو) */
-    .tools-card #clearWrap .btn.danger { background: transparent; border-color: var(--line-strong); }
-    .tools-card #clearWrap .btn.danger:hover { background: var(--danger-bg); border-color: var(--danger-line); }
+
     /* الكمبيوتر: التصدير بجانب إعادة الضبط في صف واحد */
     @media (min-width: 960px) {
       .tools-card { flex-direction: row; align-items: stretch; }
@@ -750,21 +774,26 @@
     .score-badge.winner-badge { background: var(--ok); color: #fff; }
     body.dark-mode .score-badge.winner-badge { color: #10261a; }
     .score-badge.loser-badge { background: var(--surface-3); color: var(--text-2); }
+    /* بطاقة البطل: «عنصر مرفوع» — سطح فاتح، حافة رفيعة، ظل ناعم واسع، وخط ذهبي رفيع يلمع أسفلها (بدل الخشب) */
     .bracket .match-card.final-winner {
+      --on-wood: var(--text); --on-wood-2: var(--text-2); --gold-soft: var(--gold-deep);
+      position: relative; overflow: hidden;
       pointer-events: none;
       padding: var(--s6) var(--s4);
       align-items: center; text-align: center;
-      color: var(--on-wood);
-      border: 1px solid rgba(207, 169, 99, .6);
-      background-color: var(--wood);
-      background-repeat: no-repeat;
-      box-shadow: 0 14px 36px -12px rgba(48, 37, 31, .55);
-      animation: rise .4s var(--ease) both;
+      color: var(--text);
+      border: 1px solid var(--elev-line); border-radius: 28px;
+      background: var(--elev-bg);
+      box-shadow: var(--elev-shadow);
     }
+    .bracket .match-card.final-winner.fx-first, .league-final.fx-first { animation: rise .5s var(--ease-sheet) both; }
+    .bracket .match-card.final-winner::after, .league-final::after, .celeb-card::after {
+      content: ""; position: absolute; inset: auto 12% 0; height: 1px; pointer-events: none;
+      background: linear-gradient(90deg, transparent, var(--gold), transparent); }
     .final-winner .match-title { font-size: var(--fs-lg) !important; font-weight: 800 !important; color: var(--gold-soft) !important; display: flex; align-items: center; gap: 10px; }
     .final-winner .match-body { width: 100%; margin-top: var(--s3) !important; }
-    .final-winner .match-team.winner {
-      justify-content: center; min-height: 64px; background: var(--paper); color: var(--ink);
+    .bracket .match-card.final-winner .match-team.winner {
+      justify-content: center; min-height: 56px; background: none; color: var(--text);
       border: 0; font-size: var(--fs-xl) !important; font-weight: 800 !important;
     }
     .final-winner .match-team.winner > span:first-child::before { display: none; }
@@ -831,8 +860,7 @@
       transition: background var(--t-fast) ease, color var(--t-fast) ease;
     }
     .league-dot.done { background: var(--ok-bg); border-color: var(--ok-line); color: var(--ok); }
-    .league-dot.active { background: var(--wood); border-color: var(--wood); color: var(--gold); }
-    body.dark-mode .league-dot.active { background: var(--gold-fill); border-color: var(--gold-fill); color: #1A140F; }
+    .league-dot.active { background: var(--ctl-on); border-color: var(--elev-line); color: var(--text); font-weight: 800; box-shadow: 0 0 0 1.5px var(--gold), var(--ctl-shadow); }
     .league-bye {
       text-align: center; color: var(--text-2); font-size: var(--fs-sm); font-weight: 600;
       margin-top: var(--s3); padding: 10px; border: 1px dashed var(--line-strong); border-radius: var(--r-sm);
@@ -884,18 +912,14 @@
     .rank-number { font-weight: 800; width: 42px; }
 
     /* اكتمال الدوري والمنصة */
-    .league-final {
-      border-radius: var(--r-lg); padding: var(--s5) var(--s4);
-      color: var(--on-wood);
-      background-color: var(--wood);
-      background-image:   /* نفس خامة خشب الهيدر (بلا دوائر زخرفية) */
-        linear-gradient(180deg, rgba(74, 56, 44, .30), rgba(30, 22, 17, .55)),
-        url("assets/wood.webp"),
-        linear-gradient(180deg, var(--wood-2), var(--wood));
-      background-size: auto, cover, auto; background-position: 0 0, center, 0 0;
-      background-repeat: no-repeat;
-      border: 1px solid rgba(207, 169, 99, .5);
-      animation: rise .4s var(--ease) both;
+    .league-final {   /* «عنصر مرفوع» مثل بطاقة البطل */
+      --on-wood: var(--text); --on-wood-2: var(--text-2); --gold-soft: var(--gold-deep);
+      position: relative; overflow: hidden;
+      border-radius: 28px; padding: var(--s5) var(--s4);
+      color: var(--text);
+      background: var(--elev-bg);
+      border: 1px solid var(--elev-line);
+      box-shadow: var(--elev-shadow);
     }
     .league-final-title { text-align: center; font-size: var(--fs-lg); font-weight: 800; color: var(--gold-soft); margin-bottom: var(--s4); }
     .league-podium { display: grid; grid-template-columns: minmax(0, 1fr); gap: var(--s2); }
@@ -1062,19 +1086,19 @@
     .score-control input::selection { background: rgba(207, 169, 99, .35); }
     .score-btn {
       width: 56px; height: 56px; display: inline-flex; align-items: center; justify-content: center;
-      border: 1px solid var(--line-strong); border-radius: 50%;
-      background: var(--surface); color: var(--text); font-size: 28px; font-weight: 700; line-height: 1;
-      cursor: pointer; padding: 0; box-shadow: var(--sh-1);
+      border: 0; border-radius: 50%;
+      background: var(--ctl-track); color: var(--text); font-size: 28px; font-weight: 700; line-height: 1;
+      cursor: pointer; padding: 0; box-shadow: none;
       transition: transform var(--t-fast) var(--ease), background var(--t-fast) ease;
     }
-    .score-btn:hover { background: var(--surface-3); }
+    .score-btn:hover { background: color-mix(in srgb, var(--ctl-track) 85%, var(--text)); }
     .score-btn:active { transform: scale(.92); }
     .league-score-hint {
       display: none; text-align: center; font-size: var(--fs-sm); font-weight: 700;
       padding: 10px 12px; border-radius: var(--r-sm); margin-bottom: var(--s2);
       background: var(--surface-2); color: var(--text-2); border: 1px solid var(--line);
     }
-    .league-score-hint.ok { color: var(--ok); background: var(--ok-bg); border-color: var(--ok-line); }
+    .league-score-hint.ok { color: var(--text-2); background: var(--surface); border-color: var(--line); }   /* معلومة النقاط: هادئة لا خضراء */
     .league-score-hint.error { color: var(--danger); background: var(--danger-bg); border-color: var(--danger-line); }
     .score-modal-actions { display: grid; grid-template-columns: 1.4fr 1fr; gap: var(--s2); margin-top: var(--s4); }
     #saveScoreBtn { flex: 1; }
@@ -1087,11 +1111,11 @@
     .stats-header .btn { min-height: var(--h-control-sm); padding: 0 14px; font-size: var(--fs-sm); }
     .stats-close, .lg-close, .cd-close {
       width: 40px; height: 40px; flex: 0 0 auto; display: inline-flex; align-items: center; justify-content: center;
-      border: 0; border-radius: 50%; background: var(--surface-3); color: var(--text);
+      border: 0; border-radius: 50%; background: var(--ctl-track); color: var(--text);
       font-size: 0; cursor: pointer; padding: 0;
     }
     .stats-close::before, .lg-close::before, .cd-close::before { content: ""; width: 16px; height: 16px; background: currentColor; -webkit-mask: var(--ic-x) center / contain no-repeat; mask: var(--ic-x) center / contain no-repeat; }
-    .stats-close:hover, .lg-close:hover, .cd-close:hover { background: var(--line-strong); }
+    .stats-close:hover, .lg-close:hover, .cd-close:hover { background: color-mix(in srgb, var(--ctl-track) 85%, var(--text)); }
 
     .t-caps { display: flex; justify-content: center; gap: 3px; margin-top: 4px; direction: rtl; }
     .t-cap { display: inline-flex; align-items: center; gap: 2px; padding: 1px 6px 1px 5px; border-radius: 999px; font-size: 11px; font-weight: 800; line-height: 1.5;
@@ -1111,8 +1135,12 @@
     .pf-titles .t-cap { font-size: 12.5px; padding: 2px 9px 2px 7px; gap: 4px; }
     .pf-titles .t-cap .ic { width: 13px; height: 13px; }
 
-    .stats-live-note { display: flex; align-items: flex-start; gap: 8px; margin: calc(var(--s3) * -1) 0 var(--s5); padding: 10px 12px; border-radius: var(--r-md); background: var(--ok-bg); color: var(--ok); font-size: var(--fs-xs); font-weight: 700; line-height: 1.7; }
-    .stats-live-note .dot { flex: none; width: 8px; height: 8px; margin-top: 7px; border-radius: 50%; background: currentColor; }
+    /* ملاحظة معلومة (لا نجاح): سطر هادئ على طبقة البطاقة، ونقطة ذهبية تنبض بهدوء بمعنى «جارية الآن» */
+    .stats-live-note { display: flex; align-items: flex-start; gap: 10px; margin: calc(var(--s3) * -1) 0 var(--s5); padding: 10px 14px; border-radius: 16px; background: var(--surface); border: 1px solid var(--line); color: var(--text-2); font-size: var(--fs-xs); font-weight: 700; line-height: 1.7; }
+    .stats-live-note b { color: var(--text); font-weight: 800; }
+    .stats-live-note .dot { flex: none; width: 8px; height: 8px; margin-top: 7px; border-radius: 50%; background: var(--gold); animation: notePulse 2.4s ease-out infinite; }
+    @keyframes notePulse { 0% { box-shadow: 0 0 0 0 rgba(207, 169, 99, .55); } 70%, 100% { box-shadow: 0 0 0 7px rgba(207, 169, 99, 0); } }
+    @media (prefers-reduced-motion: reduce) { .stats-live-note .dot { animation: none; } }
 
     .stats-section { margin-top: var(--s5); }
     .stats-section h4 { display: flex; align-items: center; gap: 8px; font-size: var(--fs-md); font-weight: 800; margin-bottom: var(--s3); }
@@ -1153,35 +1181,28 @@
     /* لوحة التحكم (حماية البيانات) */
     #controlDashboard { padding: 0; }
     .cd-shell { max-width: 760px; padding: 0; overflow-y: auto; }
-    .cd-hero {
+    .cd-hero {   /* رأس الورقة على سطحها نفسه (بلا خشب)، وخط رفيع يفصله عن المحتوى */
+      --on-wood: var(--text); --on-wood-2: var(--text-2); --gold-soft: var(--gold-deep);
       padding: var(--s6) var(--s5) var(--s5);
-      color: var(--on-wood);
-      background-color: var(--wood);
-      background-image:   /* نفس خامة خشب الهيدر (بلا دوائر زخرفية) */
-        linear-gradient(180deg, rgba(74, 56, 44, .30), rgba(30, 22, 17, .55)),
-        url("assets/wood.webp"),
-        linear-gradient(180deg, var(--wood-2), var(--wood));
-      background-size: auto, cover, auto; background-position: 0 0, center, 0 0;
-      background-repeat: no-repeat;
+      color: var(--text);
+      border-bottom: 1px solid var(--line);
     }
     .cd-topline { display: flex; align-items: center; justify-content: space-between; gap: var(--s3); }
     .cd-brand { display: flex; align-items: center; gap: var(--s3); min-width: 0; }
     .cd-mark {
       width: 48px; height: 48px; flex: 0 0 auto; display: flex; align-items: center; justify-content: center;
-      border-radius: 14px; background: rgba(207, 169, 99, .18); border: 1px solid rgba(207, 169, 99, .4); color: var(--gold); font-size: 24px;
+      border-radius: 14px; background: rgba(207, 169, 99, .16); border: 1px solid rgba(207, 169, 99, .35); color: var(--gold-deep); font-size: 24px;
     }
     .cd-hero h2 { font-size: var(--fs-lg); font-weight: 800; color: var(--on-wood); }
     .cd-hero p { margin-top: 2px; font-size: var(--fs-sm); color: var(--on-wood-2); line-height: 1.6; }
-    .cd-hero .cd-close { background: rgba(255, 255, 255, .1); color: var(--on-wood); }
-    .cd-hero .cd-close:hover { background: rgba(255, 255, 255, .2); }
     .cd-body { padding: var(--s5); display: grid; gap: var(--s4); }
     .cd-status {
       display: flex; align-items: flex-start; gap: var(--s3); padding: var(--s3) var(--s4);
       border-radius: var(--r-md); background: var(--ok-bg); border: 1px solid var(--ok-line);
       font-size: var(--fs-sm); line-height: 1.7; color: var(--text);
     }
-    .cd-status strong { color: var(--ok); }
-    .cd-status-dot { width: 10px; height: 10px; margin-top: 8px; flex: 0 0 auto; border-radius: 50%; background: var(--ok); box-shadow: 0 0 0 4px var(--ok-line); }
+    .cd-status strong { color: var(--text); }
+    .cd-status-dot { width: 10px; height: 10px; margin-top: 8px; flex: 0 0 auto; border-radius: 50%; background: var(--gold); box-shadow: 0 0 0 4px rgba(207, 169, 99, .25); }
     .cd-metrics { display: grid; grid-template-columns: repeat(3, 1fr); gap: var(--s2); }
     .cd-metric { padding: var(--s3); border-radius: var(--r-md); background: var(--surface-2); border: 1px solid var(--line); min-width: 0; }
     .cd-metric .label { font-size: var(--fs-xs); font-weight: 600; color: var(--text-2); margin-bottom: 4px; }
@@ -1211,9 +1232,9 @@
     .export-center-card { container-type:inline-size; }
     .xh { display:grid; gap:var(--s3); }
     .xh-body { display:grid; gap:var(--s3); }
-    .xh-tabs { display:grid; grid-template-columns:repeat(3,1fr); gap:4px; padding:4px; background:var(--surface-2); border:1px solid var(--line); border-radius:var(--r-md); }
-    .xh-tab { min-height:46px; border:0; border-radius:calc(var(--r-md) - 4px); background:transparent; color:var(--text-2); font:700 var(--fs-sm) Tajawal,sans-serif; cursor:pointer; }
-    .xh-tab[aria-selected="true"] { background:var(--gold); color:var(--wood); font-weight:800; }
+    .xh-tabs { display:grid; grid-template-columns:repeat(3,1fr); gap:3px; padding:3px; background:var(--ctl-track); border:0; border-radius:999px; }
+    .xh-tab { min-height:40px; border:0; border-radius:999px; background:transparent; color:var(--text-2); font:700 var(--fs-sm) Tajawal,sans-serif; cursor:pointer; }
+    .xh-tab[aria-selected="true"] { background:var(--ctl-on); color:var(--text); font-weight:800; box-shadow: 0 0 0 1px var(--elev-line), var(--ctl-shadow); }
     .xh h4 { font-size:var(--fs-sm); font-weight:800; color:var(--text-2); margin:0 0 var(--s2); }
     .xh-chips { display:flex; flex-wrap:wrap; gap:var(--s2); }
     .xh-chip { min-height:46px; padding:0 16px; border-radius:999px; border:1px solid var(--gold); background:rgba(207,169,99,.10); color:var(--text); font:700 var(--fs-sm) Tajawal,sans-serif; cursor:pointer; }
@@ -1250,15 +1271,15 @@
     .cd-card p { font-size: var(--fs-sm); color: var(--text-2); line-height: 1.8; margin: var(--s3) 0 var(--s4); }
     .cd-primary, .cd-secondary {
       width: 100%; min-height: var(--h-control); display: flex; align-items: center; justify-content: center;
-      padding: 0 var(--s4); border-radius: var(--r-md);
+      padding: 0 var(--s4); border-radius: 999px;
       font-size: var(--fs-base); font-weight: 700; cursor: pointer;
       transition: background var(--t-fast) ease, transform var(--t-fast) var(--ease), opacity var(--t-fast) ease;
     }
-    .cd-primary { border: 1px solid var(--wood); background: var(--wood); color: var(--on-wood); }
+    .cd-primary { border: 1px solid var(--wood); background: var(--wood); color: var(--on-wood); box-shadow: 0 1px 1px rgba(48, 37, 31, .2), 0 8px 20px -8px rgba(48, 37, 31, .55); }
     .cd-primary:hover { background: var(--wood-2); }
     body.dark-mode .cd-primary { background: var(--gold-fill); border-color: var(--gold-fill); color: #1A140F; }
-    .cd-secondary { border: 1px solid var(--line-strong); background: var(--surface); color: var(--text); }
-    .cd-secondary:hover { background: var(--surface-2); }
+    .cd-secondary { border: 1px solid var(--elev-line); background: var(--ctl-on); color: var(--text); box-shadow: var(--ctl-shadow); }
+    .cd-secondary:hover { background: var(--ctl-press); }
 
     .cd-primary:active, .cd-secondary:active { transform: scale(.98); }
     .cd-history-card { background: var(--surface-2); box-shadow: none; }
@@ -1345,6 +1366,7 @@
     @keyframes rise { from { transform: translateY(6px); opacity: 0; } to { transform: none; opacity: 1; } }
     @keyframes toastIn { from { transform: translateY(-14px); opacity: 0; } to { transform: none; opacity: 1; } }
     @keyframes toastOut { to { transform: translateY(-10px); opacity: 0; } }
+    @keyframes bump { 0% { transform: scale(1); } 40% { transform: scale(1.12); } 100% { transform: scale(1); } }
 
     @media (min-width: 640px) {
       .app-bar { padding: var(--s5) var(--s6) var(--s6); }
@@ -1572,6 +1594,75 @@
     .control-open-btn.needs-backup::after { content: ''; position: absolute; top: 6px; inset-inline-end: 6px; width: 9px; height: 9px; border-radius: 50%; background: var(--gold); box-shadow: 0 0 0 2px var(--wood, #30251F); }
     .cd-backup-actions { display: flex; flex-direction: column; gap: var(--s2); }
     .cd-unbacked { display: block; margin-top: 4px; font-size: 12px; font-weight: 700; color: var(--gold-deep); }
+    /* ==========================================================================
+       الحركة (v5.5): لغة واحدة — رموز --m-* و--ease-* في رأس الملف
+       ========================================================================== */
+    /* 1) النوافذ: تصعد الورقة من الأسفل على الجوال وتنزل عند الإغلاق، وتكبر بهدوء على الكمبيوتر.
+          بخصائص CSS الحديثة (سفاري iOS 18): العرض يبقى حتى تنتهي حركة الإغلاق. المتصفحات الأقدم كما كانت. */
+    @supports (transition-behavior: allow-discrete) {
+      #playerSelectionModal, #scoreModal, #resultModal, #profileModal, #statsModal, .lg-modal, #controlDashboard, .ui-backdrop {
+        animation: none; opacity: 0;
+        transition: opacity var(--m-wide) var(--ease-calm), display var(--m-wide) allow-discrete; }
+      #playerSelectionModal[style*="flex"], #scoreModal[style*="flex"], #resultModal[style*="flex"], #profileModal[style*="flex"], #statsModal[style*="flex"], .lg-modal[style*="flex"], #controlDashboard.open, .ui-backdrop.open { opacity: 1; }
+      @starting-style {
+        #playerSelectionModal[style*="flex"], #scoreModal[style*="flex"], #resultModal[style*="flex"], #profileModal[style*="flex"], #statsModal[style*="flex"], .lg-modal[style*="flex"], #controlDashboard.open, .ui-backdrop.open { opacity: 0; }
+      }
+      #playerSelectionModal .modal-content, #scoreModal .modal-content, #resultModal .modal-content, #profileModal:not(.px-over) .modal-content, #statsModal .stats-modal-content, .lg-modal-content, .cd-shell {
+        animation: none; transform: translateY(100%); transition: transform var(--m-wide) var(--ease-sheet); }
+      #playerSelectionModal[style*="flex"] .modal-content, #scoreModal[style*="flex"] .modal-content, #resultModal[style*="flex"] .modal-content, #profileModal[style*="flex"]:not(.px-over) .modal-content,
+      #statsModal[style*="flex"] .stats-modal-content, .lg-modal[style*="flex"] .lg-modal-content, #controlDashboard.open .cd-shell { transform: none; }
+      @starting-style {
+        #playerSelectionModal[style*="flex"] .modal-content, #scoreModal[style*="flex"] .modal-content, #resultModal[style*="flex"] .modal-content, #profileModal[style*="flex"]:not(.px-over) .modal-content,
+        #statsModal[style*="flex"] .stats-modal-content, .lg-modal[style*="flex"] .lg-modal-content, #controlDashboard.open .cd-shell { transform: translateY(100%); }
+      }
+      .ui-dialog { animation: none; opacity: 0; transform: scale(.94); transition: transform var(--m-mid) var(--ease-spring), opacity var(--m-mid) var(--ease-calm); }
+      .ui-backdrop.open .ui-dialog { opacity: 1; transform: none; }
+      @starting-style { .ui-backdrop.open .ui-dialog { opacity: 0; transform: scale(.94); } }
+      @media (min-width: 640px) {
+        #playerSelectionModal .modal-content, #scoreModal .modal-content, #resultModal .modal-content, #profileModal:not(.px-over) .modal-content, #statsModal .stats-modal-content, .lg-modal-content, .cd-shell {
+          opacity: 0; transform: translateY(14px) scale(.97); transition: transform var(--m-wide) var(--ease-sheet), opacity var(--m-mid) var(--ease-calm), max-width .25s var(--ease-calm); }
+        #playerSelectionModal[style*="flex"] .modal-content, #scoreModal[style*="flex"] .modal-content, #resultModal[style*="flex"] .modal-content, #profileModal[style*="flex"]:not(.px-over) .modal-content,
+        #statsModal[style*="flex"] .stats-modal-content, .lg-modal[style*="flex"] .lg-modal-content, #controlDashboard.open .cd-shell { opacity: 1; transform: none; }
+        @starting-style {
+          #playerSelectionModal[style*="flex"] .modal-content, #scoreModal[style*="flex"] .modal-content, #resultModal[style*="flex"] .modal-content, #profileModal[style*="flex"]:not(.px-over) .modal-content,
+          #statsModal[style*="flex"] .stats-modal-content, .lg-modal[style*="flex"] .lg-modal-content, #controlDashboard.open .cd-shell { opacity: 0; transform: translateY(14px) scale(.97); }
+        }
+      }
+    }
+    /* 2) مفاتيح التبديل: كبسولة واحدة تنزلق إلى الاختيار الجديد (يضيفها setupSegThumbs) */
+    .has-thumb { position: relative; isolation: isolate; }
+    .has-thumb > :not(.seg-thumb) { position: relative; z-index: 1; }
+    .has-thumb > [aria-selected="true"], .has-thumb > [aria-pressed="true"], .has-thumb > .active { background: transparent !important; box-shadow: none !important; border-color: transparent !important; }
+    .seg-thumb { position: absolute; top: 0; left: 0; z-index: 0; border-radius: 999px; pointer-events: none;
+      background: var(--ctl-on); box-shadow: 0 0 0 1px var(--elev-line), var(--ctl-shadow);
+      transition: transform var(--m-mid) var(--ease-spring), width var(--m-mid) var(--ease-spring), height var(--m-mid) var(--ease-calm), opacity var(--m-fast) ease; }
+    .seg-thumb.no-anim { transition: none; }
+    /* 3) الضغط: انضغاط خفيف موحد، وعلى الكمبيوتر ترتفع الأزرار والبطاقات المرفوعة بكسلًا */
+    .vtabs button, .vseg button, .sx-tabbar button, .sx-seg button, .xh-tab, .league-dot, .vday-d, .lgc-row, .sx-li, .vme-row, .vday-r {
+      transition: transform var(--m-fast) var(--ease-calm), background var(--m-fast) ease, color var(--m-mid) ease; }
+    .vtabs button:active, .vseg button:active, .sx-seg button:active, .xh-tab:active, .league-dot:active, .vday-d:active, .btn.mode-switch:active { transform: scale(.95); }
+    .btn, .cd-primary, .cd-secondary { transition: background var(--m-fast) ease, border-color var(--m-fast) ease, transform var(--m-fast) var(--ease-calm), box-shadow var(--m-mid) var(--ease-calm), opacity var(--m-fast) ease; }
+    .btn:active, .cd-primary:active, .cd-secondary:active { transform: scale(.97); }
+    @media (hover: hover) and (pointer: fine) {
+      .btn:not(:disabled):not(.mode-switch):hover, .cd-primary:hover, .cd-secondary:hover { transform: translateY(-1px); box-shadow: 0 1px 1px rgba(48, 37, 31, .08), 0 8px 18px -8px rgba(48, 37, 31, .35); }
+      body.dark-mode .btn:not(:disabled):not(.mode-switch):hover, body.dark-mode .cd-primary:hover, body.dark-mode .cd-secondary:hover { box-shadow: 0 1px 1px rgba(0, 0, 0, .5), 0 10px 20px -8px rgba(0, 0, 0, .9); }
+      .btn:active, .cd-primary:active, .cd-secondary:active { transform: scale(.97); }
+      .sx-hero, .league-final { transition: transform var(--m-mid) var(--ease-calm), box-shadow var(--m-mid) var(--ease-calm); }
+    }
+    /* 4) خانة النتيجة: نبضة صغيرة مع كل + / − */
+    .score-control input.bump { animation: bump .24s var(--ease-spring); }
+    /* 5) الشريط الملتصق: ظله يظهر تدريجيًا عندما يبدأ بالالتصاق */
+    body.lg-focus .lg-tabs::before { transition: box-shadow var(--m-mid) var(--ease-calm); }
+    body.lg-focus .lg-tabs.is-stuck::before { box-shadow: 0 10px 18px -16px rgba(20, 14, 10, .55); }
+    #vNav { transition: box-shadow var(--m-mid) var(--ease-calm); }
+    #vNav.is-stuck { box-shadow: 16px 0 0 var(--vnav-bg), -16px 0 0 var(--vnav-bg), 0 10px 18px -16px rgba(20, 14, 10, .55); }
+    /* 6) تبديل الوضع الليلي/النهاري: انسياب الألوان */
+    ::view-transition-old(root), ::view-transition-new(root) { animation-duration: .34s; animation-timing-function: var(--ease-calm); }
+    /* 7) تقليل الحركة: كل الحركات تصير ظهورًا واختفاءً فوريين تقريبًا */
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after { animation-duration: .01ms !important; animation-iteration-count: 1 !important; transition-duration: .01ms !important; scroll-behavior: auto !important; }
+    }
+
     /* ===== إحساس التطبيق الأصلي عند الفتح من الشاشة الرئيسية ===== */
     @media (display-mode: standalone) {
       /* لا ارتداد للصفحة كلها ولا «سحب للتحديث» */
@@ -1614,11 +1705,10 @@
     /* أزرار الأوضاع: مفتاح تبديل مدمج يلتصق تحت الشريط الخشبي */
     .mode-nav { top: var(--hdr-c, 0px); padding-top: var(--s2); padding-bottom: var(--s2); z-index: 94;
       box-shadow: 0 10px 22px -16px rgba(20, 14, 10, calc(.7 * var(--hdr-p, 0))); }
-    .btn.mode-switch { min-height: 38px; border-radius: 10px; }
-    #modeSelection { padding: 3px; gap: 3px; border-radius: 13px; }
+    .btn.mode-switch { min-height: 38px; border-radius: 999px; }
+    #modeSelection { padding: 3px; gap: 3px; border-radius: 999px; }
     html { scroll-padding-top: var(--top-stack, 0px); }
     /* بطاقة بطل الجدول بنفس ملمس الخشب */
-    .bracket .match-card.final-winner { background-image: linear-gradient(180deg, rgba(74, 56, 44, .25), rgba(30, 22, 17, .55)), url("assets/wood.webp"); background-size: cover; background-position: center; }
 
     /* ===== شاشة الافتتاح (عند الفتح من الشاشة الرئيسية فقط) ===== */
     #launchScreen { display: none; }
@@ -1657,7 +1747,7 @@
 
     /* المعطّل (النهاري): محايد وواضح أنه غير متاح، بنص مقروء — بدل التعتيم المغسول. الليلي له قاعدته الخاصة */
     .btn:disabled, .btn.primary:disabled, #saveScoreBtn:disabled, #saveScoreBtn:disabled:hover, .cd-history-actions button:disabled {
-      opacity: 1; background: var(--surface-3); border-color: transparent; color: var(--text-3); box-shadow: none;
+      opacity: 1; background: var(--ctl-track); border-color: transparent; color: var(--text-3); box-shadow: none;
     }
     .btn:disabled[data-ic]::before { color: var(--text-3); }
     /* ===== كبسولة الإجراءات: زجاجية بأسلوب iOS ===== */
@@ -1718,11 +1808,11 @@
     /* شريط «يتوفر تحديث» */
     .update-bar { position: fixed; left: 0; right: 0; margin: 0 auto; width: max-content; white-space: nowrap; top: calc(var(--nav-bottom, 120px) + 8px); z-index: 96;
       display: flex; align-items: center; gap: 10px; padding: 6px 6px 6px 14px; border-radius: 999px; max-width: calc(100vw - 24px);
-      background: var(--wood); color: var(--on-wood); border: 1px solid rgba(207, 169, 99, .5); box-shadow: 0 12px 30px -10px rgba(0, 0, 0, .55);
+      background: var(--elev-bg); color: var(--text); border: 1px solid var(--elev-line); box-shadow: var(--elev-shadow);
       font-size: var(--fs-sm); font-weight: 700; animation: toastIn .35s var(--ease) both; direction: rtl; }
     .update-bar .ic { color: var(--gold); }
     .update-bar button { min-height: 36px; padding: 0 16px; border-radius: 999px; border: 0; background: var(--gold); color: #1d1610; font: inherit; font-weight: 800; cursor: pointer; }
-    .update-bar .ub-x { min-height: 36px; width: 36px; padding: 0; background: rgba(255, 255, 255, .08); color: var(--on-wood); }
+    .update-bar .ub-x { min-height: 36px; width: 36px; padding: 0; background: var(--ctl-track); color: var(--text); }
     html.sheet-open .update-bar { opacity: 0; pointer-events: none; }
     .cd-version { margin-top: 4px; font-variant-numeric: tabular-nums; opacity: .8; }
     /* سحب النوافذ لأسفل للإغلاق (الهاتف) */
@@ -1741,10 +1831,10 @@
     /* الغبار الذهبي: فوق الخلفية ويبهت تدريجيًا قبل منطقة الاسم والأزرار */
     #celebration canvas.celeb-dust { z-index: 1; -webkit-mask-image: linear-gradient(180deg, #000 0%, #000 22%, transparent 48%); mask-image: linear-gradient(180deg, #000 0%, #000 22%, transparent 48%); }
     #celebration canvas { position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none; z-index: 2; }   /* القصاصات فوق البطاقة (الشاشة الكاملة تغطي الخلفية) */
-    .celeb-card { position: relative; width: min(340px, 100%); padding: 30px 22px 24px; border-radius: 26px; text-align: center; color: var(--on-wood);
-      background: linear-gradient(180deg, rgba(74, 56, 44, .35), rgba(30, 22, 17, .7)), url("assets/wood.webp") center / cover, #30251F;
-      border: 1px solid rgba(227, 204, 160, .55);
-      box-shadow: 0 30px 70px -20px rgba(0, 0, 0, .8), inset 0 1px 0 rgba(255, 240, 210, .18);
+    .celeb-card { --on-wood: var(--text); --on-wood-2: var(--text-2); --gold-soft: var(--gold-deep); position: relative; width: min(340px, 100%); padding: 30px 22px 24px; border-radius: 28px; text-align: center; color: var(--text);
+      background: var(--elev-bg);
+      border: 1px solid var(--elev-line);
+      box-shadow: 0 1px 2px rgba(0, 0, 0, .08), 0 30px 70px -24px rgba(0, 0, 0, .55);
       animation: celebIn .7s cubic-bezier(.18, .9, .25, 1.15) .08s both; overflow: hidden; }
     @keyframes celebIn { from { transform: translateY(26px) scale(.86); opacity: 0; } to { transform: none; opacity: 1; } }
 
@@ -1754,8 +1844,8 @@
     .celeb-trophy::before { content: ""; width: 40px; height: 40px; background: #3A2A0C; -webkit-mask: var(--ic-trophy) center / contain no-repeat; mask: var(--ic-trophy) center / contain no-repeat; }
     @keyframes celebTrophy { from { transform: scale(.2) rotate(-30deg); opacity: 0; } to { transform: none; opacity: 1; } }
     .celeb-label { font-size: 15px; font-weight: 700; color: var(--gold-soft); letter-spacing: .2px; animation: rise .5s ease .45s both; }
-    .celeb-name { margin-top: 6px; font-size: 28px; font-weight: 800; line-height: 1.3; overflow-wrap: anywhere; text-shadow: 0 2px 8px rgba(0, 0, 0, .45); animation: rise .55s ease .55s both; }
-    .celeb-sub { margin-top: 8px; font-size: 14px; color: rgba(247, 243, 234, .75); animation: rise .5s ease .7s both; }
+    .celeb-name { margin-top: 6px; font-size: 28px; font-weight: 800; line-height: 1.3; overflow-wrap: anywhere; animation: rise .55s ease .55s both; }
+    .celeb-sub { margin-top: 8px; font-size: 14px; color: var(--text-2); animation: rise .5s ease .7s both; }
     /* شاشة التتويج: كاملة على الجوال (الكأس والاسم في المنتصف والأزرار أسفل الشاشة بمتناول الإبهام)، وبطاقة كبيرة على الكمبيوتر */
     @media (max-width: 639px) {
       #celebration { padding: 0; }
@@ -1788,13 +1878,13 @@
     @keyframes celebBreath { 0%, 100% { opacity: .15; transform: scale(.92); } 50% { opacity: 1; transform: scale(1.04); } }
     @media (prefers-reduced-motion: reduce) { .celeb-trophy::after { animation: none; opacity: .5; } }
     .celeb-actions { display: flex; flex-direction: column; gap: 10px; margin-top: 22px; animation: rise .5s ease 1s both; }
-    .celeb-btn { display: inline-flex; align-items: center; justify-content: center; gap: 8px; width: 100%; min-height: 50px; padding: 0 18px; border-radius: 14px;
+    .celeb-btn { display: inline-flex; align-items: center; justify-content: center; gap: 8px; width: 100%; min-height: 50px; padding: 0 18px; border-radius: 999px;
       font: inherit; font-size: 16px; font-weight: 800; cursor: pointer; -webkit-tap-highlight-color: transparent; transition: transform .15s ease; }
     .celeb-btn:active { transform: scale(.97); }
-    .celeb-btn:focus { outline: none; } .celeb-btn:focus-visible { outline: 2px solid rgba(243, 223, 174, .8); outline-offset: 3px; }
+    .celeb-btn:focus { outline: none; } .celeb-btn:focus-visible { outline: 2px solid var(--gold); outline-offset: 3px; }
     .celeb-btn.share { border: 0; color: #2B1F0D; background: linear-gradient(180deg, #F2DCA6, var(--gold)); box-shadow: 0 8px 20px -10px rgba(207, 169, 99, .9); }
     .celeb-btn.share::before { margin-inline-end: 0; }
-    .celeb-btn.ok { border: 1px solid rgba(227, 204, 160, .45); color: var(--on-wood); background: rgba(247, 243, 234, .08); }
+    .celeb-btn.ok { border: 1px solid var(--elev-line); color: var(--text); background: var(--ctl-on); box-shadow: var(--ctl-shadow); }
     .celeb-actions .celeb-btn:only-child { border: 0; color: #2B1F0D; background: linear-gradient(180deg, #F2DCA6, var(--gold)); }
 
     /* ===== الدوري بعد بدايته: وضع التركيز على تسجيل النتائج (تبويبان + لاعبون مطويون + جولة مختصرة) ===== */
@@ -2010,7 +2100,9 @@
     html.view-mode .match-team.is-me > span:first-child { color: var(--gold-deep); font-weight: 800; }
     html.view-mode .match-team.is-me > span:first-child::before { content: "● "; font-size: .7em; vertical-align: 2px; }
     html.view-mode .match-card.has-me { box-shadow: 0 0 0 2px var(--gold) inset, var(--sh-1); }
-    .lgc-row.is-me { outline: 2px solid var(--gold); outline-offset: -2px; }
+    .lgc-row.is-me, html body.lg-focus .lgc-row.is-me.is-me.is-me {   /* يغلب قواعد أول/آخر صف في القائمة */
+      position: relative; z-index: 2; background: var(--me-bg); border: 1px solid var(--me-line); border-radius: 16px; transform: scale(1.025); box-shadow: var(--me-shadow); }
+    html body.lg-focus .lgc-row.is-me + .lgc-row { border-top: 0; }
     .lgc-row.is-me .n b::after { content: " (أنت)"; font-size: 11px; font-weight: 800; color: var(--gold-deep); }
     /* صفّي في ترتيب اللاعبين: لمسة ذهبية هادئة على الصف كله + شارة «أنت» (بدل تلوين كل خلية) */
 
@@ -2026,7 +2118,7 @@
       padding: 6px 6px 6px 14px; padding-inline-start: 14px; padding-inline-end: 6px; border-radius: 999px; background: var(--surface); border: 1px solid var(--gold); box-shadow: 0 10px 30px rgba(0,0,0,.18);
       font-size: var(--fs-sm); font-weight: 800; color: var(--text); white-space: nowrap; opacity: 0; pointer-events: none; transition: transform .5s cubic-bezier(.2,.9,.25,1.1), opacity .3s ease; }
     .vlive.show { transform: translate(-50%, 0); opacity: 1; pointer-events: auto; }
-    .vlive .dot { width: 8px; height: 8px; border-radius: 50%; background: var(--gold); box-shadow: 0 0 0 0 rgba(207,169,99,.6); animation: vlivePulse 1.8s ease-out infinite; }
+    .vlive .dot { width: 8px; height: 8px; border-radius: 50%; background: var(--gold); box-shadow: 0 0 0 0 rgba(207,169,99,.6); animation: vlivePulse 2.4s ease-out infinite; }
     @keyframes vlivePulse { to { box-shadow: 0 0 0 8px rgba(207,169,99,0); } }
     .vlive button { min-height: 36px; padding: 0 16px; border: 0; border-radius: 999px; background: var(--wood); color: var(--on-wood); font: inherit; font-size: var(--fs-sm); font-weight: 800; cursor: pointer; -webkit-tap-highlight-color: transparent; }
     body.dark-mode .vlive { box-shadow: 0 10px 30px rgba(0,0,0,.5); }
@@ -2070,12 +2162,11 @@
     .vday-days::-webkit-scrollbar { display: none; }
     .vday-d { position: relative; flex: 0 0 auto; min-width: 58px; height: 34px; padding: 0 12px; border-radius: 999px; border: 1px solid var(--line-strong); background: var(--surface); color: var(--text-2);
       font: inherit; font-size: var(--fs-sm); font-weight: 700; font-variant-numeric: tabular-nums; cursor: pointer; scroll-snap-align: center; -webkit-tap-highlight-color: transparent; transition: background .2s ease, color .2s ease, border-color .2s ease; }
-    .vday-d.active { background: var(--wood); border-color: var(--wood); color: var(--gold); }
-    body.dark-mode .vday-d.active { background: var(--gold-fill); border-color: var(--gold-fill); color: #1A140F; }
+    .vday-d.active { background: var(--ctl-on); border-color: var(--elev-line); color: var(--text); font-weight: 800; box-shadow: var(--ctl-shadow); }
     /* نقطة «جديد» داخل الكبسولة بعد التاريخ، متمركزة عموديًا */
     .vday-d.has-new { display: inline-flex; align-items: center; gap: 6px; }
     .vday-d.has-new::after { content: ""; flex: none; width: 6px; height: 6px; border-radius: 50%; background: var(--gold); }
-    body.dark-mode .vday-d.active.has-new::after { background: #1A140F; }
+
     .vday-list { display: flex; flex-direction: column; }
     /* سهم تغيّر المركز بجانب رقم المركز، في خانة ثابتة العرض (تبقى الأسماء على خط واحد) */
     /* عمود المركز وحدة واحدة: الرقم وتحته حركة المركز (▲/▼ أو «–»)، والاسم يبدأ بعده مباشرة بمسافة ثابتة في كل الصفوف */
@@ -2182,7 +2273,7 @@
       .league-table tr.rank-1, .league-table tr.rank-2, .league-table tr.rank-3 { border-color: var(--line); box-shadow: none; }
     }
     /* منصة نهاية الدوري (على الخشب): البطاقات الثلاث بنفس التصميم، ورقم الأول بذهبي فاتح يناسب الخشب */
-    .podium-card.p1, .podium-card.p2, .podium-card.p3 { background: rgba(255, 255, 255, .07); border-color: rgba(255, 255, 255, .12); box-shadow: none; }
+    .podium-card.p1, .podium-card.p2, .podium-card.p3 { background: color-mix(in srgb, var(--text) 4%, transparent); border-color: var(--elev-line); box-shadow: none; }
     .podium-medal, .podium-card.p1 .podium-medal, .podium-card.p2 .podium-medal, .podium-card.p3 .podium-medal {
       width: auto; min-width: 30px; height: auto; border-radius: 0; background: none; font-size: 26px; font-weight: 800; line-height: 1; color: var(--on-wood-2); }
     .podium-card.p1 .podium-medal { color: #E3BF6E; font-weight: 900; }
@@ -2215,10 +2306,10 @@
     .sx-tabbar { flex: none; position: relative; z-index: 2; display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 2px; padding: 3px; margin: 0 0 var(--s2);
       border-radius: 13px; background: var(--surface-3); }
     .sx-tabbar[hidden] { display: none; }
-    .sx-tabbar button { min-height: 38px; padding: 0 4px; border: 0; border-radius: 10px; background: none; color: var(--text-2); font: inherit; font-size: 14.5px; font-weight: 800;
+    .sx-tabbar button { min-height: 38px; padding: 0 4px; border: 0; border-radius: 999px; background: none; color: var(--text-2); font: inherit; font-size: 14.5px; font-weight: 800;
       white-space: nowrap; cursor: pointer; -webkit-tap-highlight-color: transparent; transition: background .2s ease, color .2s ease, box-shadow .2s ease, transform .18s var(--sx-ease); }
     .sx-tabbar button:active { transform: scale(.96); }
-    .sx-tabbar button[aria-selected="true"] { background: var(--raised); color: var(--text); box-shadow: 0 1px 3px rgba(25, 18, 12, .16), 0 0 0 .5px rgba(25, 18, 12, .05); }
+    .sx-tabbar button[aria-selected="true"] { background: var(--ctl-on); color: var(--text); box-shadow: 0 0 0 1px var(--elev-line), var(--ctl-shadow); }
     /* خط فاصل رفيع يظهر تحت المفتاح عند التمرير فقط */
     #statsModal .sx-shell .sx-tabbar::after { content: ""; position: absolute; inset: auto calc(var(--s5) * -1) calc(var(--s2) * -1 - 1px); height: 1px; background: var(--line); opacity: 0; transition: opacity .2s ease; }
     #statsModal .sx-shell.sx-scrolled .sx-tabbar::after { opacity: 1; }
@@ -2256,16 +2347,15 @@
     .sx-foot { margin: 0 4px; font-size: 12px; font-weight: 700; color: var(--text-3); }
     .sx-card { background: var(--surface); border: 1px solid var(--line); border-radius: 16px; overflow: hidden; }
     /* مفاتيح التحويل (بنمط iOS) */
-    .sx-seg { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 2px; padding: 3px; border-radius: 12px; background: var(--surface-3); }
-    .sx-seg.sx-seg3 { grid-template-columns: repeat(3, minmax(0, 1fr)); padding: 2px; border-radius: 10px; background: transparent; border: 1px solid var(--line); }
-    .sx-seg.sx-seg3 button { min-height: 30px; font-size: 13px; border-radius: 8px; }
-    .sx-seg.sx-seg3 button[aria-pressed="true"] { background: var(--surface-3); box-shadow: none; }
+    .sx-seg { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 2px; padding: 3px; border-radius: 999px; background: var(--ctl-track); }
+    .sx-seg.sx-seg3 { grid-template-columns: repeat(3, minmax(0, 1fr)); padding: 2px; }
+    .sx-seg.sx-seg3 button { min-height: 30px; font-size: 13px; }
     .sx-seg.sx-seg4 { display: flex; }
     .sx-seg.sx-seg4 button { flex: 1 1 auto; padding: 0 8px; }
-    .sx-seg button { min-height: 34px; padding: 0 4px; border: 0; border-radius: 9px; background: none; color: var(--text-2); font: inherit; font-size: 13.5px; font-weight: 800; cursor: pointer; white-space: nowrap;
+    .sx-seg button { min-height: 34px; padding: 0 4px; border: 0; border-radius: 999px; background: none; color: var(--text-2); font: inherit; font-size: 13.5px; font-weight: 800; cursor: pointer; white-space: nowrap;
       -webkit-tap-highlight-color: transparent; transition: background .2s ease, color .2s ease, box-shadow .2s ease; }
     .sx-seg button .c { font-weight: 700; color: var(--text-2); }
-    .sx-seg button[aria-pressed="true"] { background: var(--raised); color: var(--text); box-shadow: 0 1px 3px rgba(25, 18, 12, .14), 0 0 0 .5px rgba(25, 18, 12, .04); }
+    .sx-seg button[aria-pressed="true"] { background: var(--ctl-on); color: var(--text); box-shadow: 0 0 0 1px var(--elev-line), var(--ctl-shadow); }
     .sx-seg button:disabled { opacity: .45; cursor: default; }
     .sx-more { display: flex; align-items: center; justify-content: center; width: 100%; min-height: 46px; border: 1px solid var(--line); border-radius: 14px; background: var(--surface);
       color: var(--gold-deep); font: inherit; font-size: 14px; font-weight: 800; cursor: pointer; }
@@ -2293,18 +2383,20 @@
     .sx-row .n b { display: block; font-size: 16px; font-weight: 800; line-height: 1.3; overflow-wrap: anywhere; }
     .sx-row .n small { display: block; margin-top: 1px; font-size: 12px; font-weight: 700; color: var(--text-3); }
     .sx-row .v { font-size: 20px; font-weight: 800; color: var(--text); }
-    .sx-row.is-me { border-color: var(--gold); box-shadow: 0 0 0 1px var(--gold) inset; }
+    /* صفّك: بطاقة مرفوعة (أكبر قليلًا من القائمة، بحافة ذهبية رفيعة وظل ناعم) — بلا إطار داخلي سميك */
+    .sx-row.is-me { position: relative; z-index: 2; background: var(--me-bg); border-color: var(--me-line); box-shadow: var(--me-shadow); }
+    .sx-table tr.is-me td { background: var(--me-bg); }
     .sx-you { display: inline-flex; margin-inline-start: 6px; padding: 1px 8px; border-radius: 999px; background: var(--gold); color: #3A2A0C; font-size: 12px; font-weight: 800; vertical-align: 2px; }
     .sx-plus { display: inline-block; margin: 0 5px; color: var(--gold-deep); font-weight: 800; }
     .sx-pin { position: sticky; bottom: calc((var(--s6) + var(--safe-bottom)) * -1); z-index: 2; margin: 0 calc(var(--s5) * -1); padding: 18px var(--s5) calc(var(--s3) + var(--safe-bottom)); background: linear-gradient(rgba(0, 0, 0, 0), var(--sheet) 16px); }
     .sx-pin .cap { margin: 0 4px 4px; font-size: 12px; font-weight: 800; color: var(--gold-deep); }
 
     /* ---------- نظرة عامة ---------- */
-    .sx-hero { position: relative; overflow: hidden; padding: 16px 18px; border-radius: 20px; color: var(--on-wood); box-shadow: var(--sh-2);
-      background: linear-gradient(160deg, rgba(74, 56, 44, .25), rgba(20, 14, 10, .62)), url("assets/wood.webp") center / cover, linear-gradient(180deg, var(--wood-2), var(--wood)); }
+    .sx-hero { --on-wood: var(--text); --on-wood-2: var(--text-2); --gold-soft: var(--gold-deep); position: relative; overflow: hidden; padding: 16px 18px; border-radius: 24px; color: var(--text);
+      background: var(--elev-bg); border: 1px solid var(--elev-line); box-shadow: var(--elev-shadow); }
     .sx-hero::after { content: ""; position: absolute; inset: auto 10% 0; height: 1px; background: linear-gradient(90deg, transparent, var(--gold), transparent); }
     .sx-eb { display: flex; align-items: center; gap: 6px; font-size: 13px; font-weight: 700; color: var(--on-wood-2); }
-    .sx-eb .ic { flex: none; width: 15px; height: 15px; color: var(--gold); }
+    .sx-eb .ic { flex: none; width: 15px; height: 15px; color: var(--gold-deep); }
     .sx-fin { display: grid; grid-template-columns: minmax(0, 1fr) auto; align-items: center; gap: 2px 12px; margin-top: 8px; }
     .sx-fin .nm { font-size: 24px; font-weight: 900; line-height: 1.25; overflow-wrap: anywhere; }
     .sx-fin .nm.lose { font-size: 15px; font-weight: 700; color: var(--on-wood-2); }
@@ -2364,7 +2456,7 @@
     .sx-table, .sx-side-pf { display: none; }
     .sx-rank-main { display: flex; flex-direction: column; gap: var(--s3); min-width: 0; }
     @media (min-width: 1024px) {
-      #statsModal .stats-modal-content.sx-shell { max-width: 760px; transition: max-width .25s var(--sx-ease); }
+      #statsModal .stats-modal-content.sx-shell { max-width: 760px; transition: max-width .25s var(--sx-ease), transform var(--m-wide) var(--ease-sheet), opacity var(--m-mid) var(--ease-calm); }
       #statsModal .stats-modal-content.sx-shell.sx-wide { max-width: 1240px; }
       .sx-only-narrow { display: none !important; }
       .sx-rank-grid { display: grid; grid-template-columns: minmax(0, 1fr) 390px; gap: var(--s5); align-items: start; }
@@ -2553,14 +2645,14 @@
        (::before الشريط الزجاجي، ::after خلفية المفتاح؛ خلفية مصمتة إن لم يدعم المتصفح الزجاج) */
     html body.lg-focus .lg-tabs, html body.dark-mode.lg-focus .lg-tabs { position: sticky; top: calc(var(--top-stack, 0px) + 4px); z-index: 90; isolation: isolate; background: none; }
     body.lg-focus .lg-tabs::before, body.lg-focus .lg-tabs::after { content: ""; position: absolute; z-index: -1; pointer-events: none; }
-    body.lg-focus .lg-tabs::before { inset: -10px -12px -8px; background: color-mix(in srgb, var(--bg) 80%, transparent);
+    body.lg-focus .lg-tabs::before { inset: -13px -12px -8px; background: color-mix(in srgb, var(--bg) 80%, transparent);
       -webkit-backdrop-filter: saturate(1.6) blur(18px); backdrop-filter: saturate(1.6) blur(18px); }
-    body.lg-focus .lg-tabs::after { inset: 0; border-radius: 13px; background: var(--surface-3); }
+    body.lg-focus .lg-tabs::after { inset: 0; border-radius: 999px; background: var(--ctl-track); }
     @supports not ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) { body.lg-focus .lg-tabs::before { background: var(--bg); } }
-    html body.lg-focus .lg-tabs button { min-height: 38px; border-radius: 10px; font-size: 14.5px; color: var(--text-2); }
+    html body.lg-focus .lg-tabs button { min-height: 38px; border-radius: 999px; font-size: 14.5px; color: var(--text-2); }
     html body.lg-focus .lg-tabs button[aria-selected="true"] { color: var(--text); }
-    html body.lg-focus .lg-tabs .ind, html body.dark-mode.lg-focus .lg-tabs .ind { top: 3px; bottom: 3px; inset-inline-start: 3px; width: calc(50% - 3px); border-radius: 10px;
-      background: var(--raised); box-shadow: 0 1px 3px rgba(25, 18, 12, .16), 0 0 0 .5px rgba(25, 18, 12, .05); }
+    html body.lg-focus .lg-tabs .ind, html body.dark-mode.lg-focus .lg-tabs .ind { top: 3px; bottom: 3px; inset-inline-start: 3px; width: calc(50% - 3px); border-radius: 999px;
+      background: var(--ctl-on); box-shadow: 0 0 0 1px var(--elev-line), var(--ctl-shadow); }
     html body.lg-focus .lg-tabs .ind::after { display: none; }
     /* و7 · لوحة التحكم: مجموعة «البيانات» أسطرًا بدل صندوق الحالة ومربعات الأرقام */
     html body #controlDashboard .cd-status { margin-bottom: calc(var(--s4) * -1); padding: 12px 16px; border-radius: 16px 16px 0 0; background: var(--surface); border: 1px solid var(--line); border-bottom: 0; align-items: flex-start; }
@@ -2593,7 +2685,7 @@
     html body #scoreModal .score-card { background: var(--surface); border: 1px solid var(--line); border-radius: 16px; box-shadow: none; }
     html body #scoreModal .score-card:has(+ .score-card) { border-radius: 16px 16px 0 0; border-bottom: 0; margin-bottom: 0; }
     html body #scoreModal .score-card + .score-card { border-radius: 0 0 16px 16px; margin-top: 0; border-top: 1px solid var(--line); }
-    html body #scoreModal .score-btn { background: var(--surface-2); }
+    html body #scoreModal .score-btn { background: var(--ctl-track); }
 
     /* =========================================================
        v4.2 · صفحة المشاهدة كتطبيق للاعب: «صفحتي» ثم المجلس
@@ -2619,7 +2711,7 @@
     .vme-row .l { min-width: 0; }
     .vme-row .l b { display: block; font-size: 15.5px; font-weight: 800; overflow-wrap: anywhere; }
     .vme-row .l small { display: block; margin-top: 1px; font-size: 12px; font-weight: 700; color: var(--text-3); }
-    .vme-row .l small.on { display: inline-flex; align-items: center; height: 20px; padding: 0 8px; border-radius: 999px; background: var(--ok-bg); color: var(--ok); font-size: 11.5px; font-weight: 800; }
+    .vme-row .l small.on { display: inline-flex; align-items: center; height: 20px; padding: 0 8px; border-radius: 999px; background: rgba(207, 169, 99, .16); color: var(--gold-deep); font-size: 11.5px; font-weight: 800; }
     .vme-row .v { flex: none; text-align: end; font-size: 15px; font-weight: 800; white-space: nowrap; }
     .vme-row .v bdi { font-size: 17px; font-variant-numeric: tabular-nums; }
     .vme-row .v small { display: block; font-size: 12px; font-weight: 700; color: var(--text-3); }
@@ -2637,19 +2729,19 @@
     #vNav { display: flex; flex-direction: column; gap: 8px; }
     /* الجوال: شريط الأقسام والعرض يلتصق تحت شريط الأوضاع بزجاج شفاف (الهوامش الجانبية بظل لا يسبب تمريرًا أفقيًا) */
     @media (max-width: 959px) {
-      #vNav { position: sticky; top: calc(var(--top-stack, 0px) - 2px); z-index: 90; margin-top: -6px; padding: 6px 0 8px;
+      #vNav { position: sticky; top: calc(var(--top-stack, 0px) - 9px); z-index: 90; margin-top: -14px; padding: 14px 0 8px;
         --vnav-bg: color-mix(in srgb, var(--bg) 80%, transparent); background: var(--vnav-bg); box-shadow: 16px 0 0 var(--vnav-bg), -16px 0 0 var(--vnav-bg);
         -webkit-backdrop-filter: saturate(1.6) blur(18px); backdrop-filter: saturate(1.6) blur(18px); }
       @supports not ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) { #vNav { --vnav-bg: var(--bg); } }
       #vNav .vtabs { background: color-mix(in srgb, var(--surface-3) 90%, transparent); }
     }
-    .vtabs, .vseg { display: grid; grid-template-columns: repeat(var(--n, 3), minmax(0, 1fr)); gap: 2px; padding: 3px; border-radius: 13px; background: var(--surface-3); }
-    .vtabs button, .vseg button { min-height: 38px; padding: 0 4px; border: 0; border-radius: 10px; background: none; font: inherit; font-size: 14.5px; font-weight: 800; color: var(--text-2); cursor: pointer; -webkit-tap-highlight-color: transparent; transition: background .2s ease, color .2s ease; }
+    .vtabs, .vseg { display: grid; grid-template-columns: repeat(var(--n, 3), minmax(0, 1fr)); gap: 2px; padding: 3px; border-radius: 999px; background: var(--ctl-track); }
+    .vtabs button, .vseg button { min-height: 38px; padding: 0 4px; border: 0; border-radius: 999px; background: none; font: inherit; font-size: 14.5px; font-weight: 800; color: var(--text-2); cursor: pointer; -webkit-tap-highlight-color: transparent; transition: background .2s ease, color .2s ease; }
     .vseg { background: none; padding: 0; gap: 6px; }
-    .vseg button { min-height: 34px; font-size: 13.5px; border: 1px solid var(--line); background: var(--surface); border-radius: 999px; }
-    .vtabs button[aria-selected="true"] { background: var(--raised); color: var(--text); box-shadow: 0 1px 3px rgba(25, 18, 12, .16), 0 0 0 .5px rgba(25, 18, 12, .05); }
-    .vseg button[aria-pressed="true"] { background: var(--wood); border-color: var(--wood); color: var(--on-wood, #F7F3EA); }
-    body.dark-mode .vseg button[aria-pressed="true"] { background: var(--gold-fill, #CFA963); border-color: var(--gold-fill, #CFA963); color: #1A140F; }
+    /* أزرار التصفية: غير النشط نص فقط، والنشط كبسولة مرفوعة */
+    .vseg button { min-height: 34px; font-size: 13.5px; border: 1px solid transparent; background: none; border-radius: 999px; color: var(--text-2); }
+    .vtabs button[aria-selected="true"] { background: var(--ctl-on); color: var(--text); box-shadow: 0 0 0 1px var(--elev-line), var(--ctl-shadow); }
+    .vseg button[aria-pressed="true"] { background: var(--ctl-on); border-color: var(--elev-line); color: var(--text); box-shadow: var(--ctl-shadow); }
     #vLists { display: flex; flex-direction: column; gap: 6px; }
     .vlist { display: flex; flex-direction: column; gap: 6px; }
     .vlist .vme-h { margin: 6px 6px 0; font-size: 13.5px; font-weight: 800; color: var(--text-3); }
@@ -2782,11 +2874,17 @@
     .vday-r.res .nm { font-weight: 500; }
     .vday-r.res .nm.win { font-weight: 800; }
     /* قوائم الإحصائيات: قائمة مجمّعة واحدة بخطوط فاصلة بدل بطاقة لكل صف */
-    .sx-list { gap: 0; background: var(--surface); border: 1px solid var(--line); border-radius: 16px; overflow: hidden; }
+    .sx-list { gap: 0; background: var(--surface); border: 1px solid var(--line); border-radius: 16px; }
+    .sx-list > .sx-row:first-child { border-top-left-radius: 15px; border-top-right-radius: 15px; }
+    .sx-list > .sx-row:last-child { border-bottom-left-radius: 15px; border-bottom-right-radius: 15px; }
     .sx-list > .sx-row { border: 0; border-top: 1px solid var(--line); border-radius: 0; }
     .sx-list > .sx-row:first-child { border-top: 0; }
     .sx-list > button.sx-row:active { transform: none; }
-    .sx-list > .sx-row.is-me { box-shadow: inset 0 0 0 2px var(--gold); }
+    .sx-list > .sx-row.is-me, .sx-list > .sx-row.is-me:first-child, .sx-list > .sx-row.is-me:last-child { border: 1px solid var(--me-line); border-radius: 16px; transform: scale(1.025); box-shadow: var(--me-shadow); }
+    .sx-list > .sx-row.is-me + .sx-row { border-top-color: transparent; }
+    /* «ملفك»: صفّك وحده، فتختفي القائمة وتبقى بطاقتك */
+    .sx-me .sx-list { background: none; border: 0; }
+    .sx-me .sx-list > .sx-row.is-me { transform: none; }
     /* ملف اللاعب: ف · ت · خ */
     .pf-wdl { font-variant-numeric: tabular-nums; }
     .pf-wdl i { font-style: normal; font-size: 13px; font-weight: 700; color: var(--text-3); }
@@ -3425,14 +3523,20 @@
     const themeIcon = document.getElementById("themeIcon");
 
     function toggleTheme() {
-      const isDarkMode = document.body.classList.toggle("dark-mode");
-      if (isDarkMode) {
-        themeIcon.className = "ic ic-sun";
-        localStorage.setItem("theme", "dark");
-      } else {
-        themeIcon.className = "ic ic-moon";
-        localStorage.setItem("theme", "light");
-      }
+      const run = () => {
+        const isDarkMode = document.body.classList.toggle("dark-mode");
+        if (isDarkMode) {
+          themeIcon.className = "ic ic-sun";
+          localStorage.setItem("theme", "dark");
+        } else {
+          themeIcon.className = "ic ic-moon";
+          localStorage.setItem("theme", "light");
+        }
+      };
+      // v5.5: انسياب الألوان بين الوضعين (انتقالات العرض في المتصفح)، وتبديل فوري حيث لا تدعم أو مع «تقليل الحركة»
+      const calm = window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches;
+      if (document.startViewTransition && !calm) { try { document.startViewTransition(run); return; } catch (e) {} }
+      run();
     }
 
     function applyInitialTheme() {
@@ -5375,7 +5479,7 @@ return teamName.replace('غير محدد', replacement);
     }
     function sxLiveNote(d) {
       if (!d.liveMatches) return '';
-      return `<div class="stats-live-note sx-live"><span class="dot" aria-hidden="true"></span>تشمل الأرقام ${d.liveMatches} ${d.liveMatches === 1 ? 'مباراة' : d.liveMatches === 2 ? 'مباراتين' : d.liveMatches <= 10 ? 'مباريات' : 'مباراة'} من البطولة الجارية، والألقاب تُضاف عند اكتمالها.</div>`;
+      return `<div class="stats-live-note sx-live"><span class="dot" aria-hidden="true"></span><span>تشمل الأرقام <b>${d.liveMatches} ${d.liveMatches === 1 ? 'مباراة' : d.liveMatches === 2 ? 'مباراتين' : d.liveMatches <= 10 ? 'مباريات' : 'مباراة'}</b> من البطولة الجارية، والألقاب تُضاف عند اكتمالها.</span></div>`;
     }
 
     // ---------- نظرة عامة: آخر بطل ← أرقام المجلس ← المتصدرون ← آخر النتائج ← أرقام بارزة ----------
@@ -6030,7 +6134,8 @@ currentScoreWinnerName = null;
       const finalMatch = verifiedChamp ? { winner: verifiedChamp.champion } : null;
       if (finalMatch) {
         const finalWinner = document.createElement('div');
-        finalWinner.className = 'match-card final-winner';
+        finalWinner.className = 'match-card final-winner' + (window.__fxChamp === finalMatch.winner ? '' : ' fx-first');   // حركة الظهور مرة واحدة لكل بطل
+        window.__fxChamp = finalMatch.winner;
         finalWinner.style.marginTop = '25px';
         const winnerDisplay = getDisplayTeamName(finalMatch.winner);
         finalWinner.innerHTML = `
@@ -8703,8 +8808,9 @@ function changeScore(inputId, amount){
           <div class="podium-name">${leagueEscape(r.name)}</div>
           <div class="podium-pts">${pointsLabel(r.points)}</div>
         </div>`).join('');
+      const fxKey = leagueStandings.slice(0, 3).map(r => r.name).join('|'), fxFirst = window.__fxLeagueFinal !== fxKey; window.__fxLeagueFinal = fxKey;
       leagueFinalEl.innerHTML = `
-        <div class="league-final">
+        <div class="league-final${fxFirst ? ' fx-first' : ''}">
           <div class="league-final-title">اكتمل الدوري</div>
           <div class="league-podium">${cards}</div>
         </div>`;
@@ -12175,7 +12281,7 @@ function buildLeagueStandingsCanvas() {
         { overlay: '#controlDashboard', panel: '#controlDashboard .cd-shell', close: '#closeControlDashboard' }
       ].map(d => ({ overlay: document.querySelector(d.overlay), panel: document.querySelector(d.panel), closeBtn: document.querySelector(d.close) }))
        .filter(d => d.overlay && d.panel && d.closeBtn);
-      const isOpen = d => getComputedStyle(d.overlay).display !== 'none';
+      const isOpen = d => d.overlay.id === 'controlDashboard' ? d.overlay.classList.contains('open') : (d.overlay.style.display ? d.overlay.style.display !== 'none' : getComputedStyle(d.overlay).display !== 'none');
       const openSheets = () => SHEETS.filter(isOpen);
 
       // ---------- 2) تجميد الصفحة خلف أي نافذة مفتوحة ----------
@@ -12241,8 +12347,9 @@ function buildLeagueStandingsCanvas() {
             d.overlay.style.backgroundColor = 'rgba(25, 18, 12, 0)';
             setTimeout(() => {
               d.closeBtn.click();
-              d.panel.classList.remove('sheet-settling'); d.overlay.classList.remove('sheet-backdrop-fading');
-              d.panel.style.transform = ''; d.overlay.style.backgroundColor = '';
+              // بعد انتهاء حركة الإغلاق حتى لا تعود العتمة لحظة
+              setTimeout(() => { d.panel.classList.remove('sheet-settling'); d.overlay.classList.remove('sheet-backdrop-fading');
+                d.panel.style.transform = ''; d.overlay.style.backgroundColor = ''; }, 420);
             }, 300);
           } else {
             d.panel.style.transform = 'translateY(0)';
@@ -12256,9 +12363,70 @@ function buildLeagueStandingsCanvas() {
     })();
 
     // ===================================
+    // ✨ الحركة (v5.5): كبسولة منزلقة لمفاتيح التبديل، نبضة النتيجة، ظل الشريط الملتصق — عرض فقط، لا تمس أي منطق
+    // ===================================
+    (function setupMotion() {
+      const TRACKS = [
+        ['#modeSelection', b => b.classList.contains('active')],
+        ['.vtabs', b => b.getAttribute('aria-selected') === 'true'],
+        ['.vseg', b => b.getAttribute('aria-pressed') === 'true'],
+        ['.sx-tabbar', b => b.getAttribute('aria-selected') === 'true'],
+        ['.sx-seg', b => b.getAttribute('aria-pressed') === 'true'],
+        ['.xh-tabs', b => b.getAttribute('aria-selected') === 'true']
+      ];
+      const last = new Map();   // آخر موضع لكل مفتاح، حتى تنزلق الكبسولة حتى لو أُعيد رسم المفتاح
+      const keyOf = t => (t.id || t.className.replace(/\s*has-thumb/, '')) + '|' + (t.getAttribute('aria-label') || '');
+      function place(t, isOn) {
+        const items = [...t.children].filter(c => c.tagName === 'BUTTON');
+        const on = items.find(isOn);
+        let th = t.querySelector(':scope > .seg-thumb');
+        if (!on || !t.offsetWidth) { if (th) th.style.opacity = '0'; return; }
+        const k = keyOf(t), r = { x: on.offsetLeft, y: on.offsetTop, w: on.offsetWidth, h: on.offsetHeight };
+        if (!th) {
+          th = document.createElement('span'); th.className = 'seg-thumb no-anim'; th.setAttribute('aria-hidden', 'true');
+          t.appendChild(th); t.classList.add('has-thumb');
+          const p = last.get(k) || r;   // مفتاح أُعيد رسمه: نبدأ من موضعه السابق ثم ننزلق
+          Object.assign(th.style, { width: p.w + 'px', height: p.h + 'px', transform: `translate(${p.x}px, ${p.y}px)` });
+          void th.offsetWidth; th.classList.remove('no-anim');
+        }
+        const cur = th.dataset.pos, pos = `${r.x},${r.y},${r.w},${r.h}`;
+        if (cur !== pos) { th.dataset.pos = pos; Object.assign(th.style, { width: r.w + 'px', height: r.h + 'px', transform: `translate(${r.x}px, ${r.y}px)`, opacity: '1' }); }
+        else th.style.opacity = '1';
+        last.set(k, r);
+      }
+      let queued = false;
+      function scan() { queued = false; TRACKS.forEach(([sel, isOn]) => document.querySelectorAll(sel).forEach(t => place(t, isOn))); }
+      const queue = () => { if (!queued) { queued = true; requestAnimationFrame(scan); } };
+      new MutationObserver(muts => { if (muts.some(m => !(m.target.classList && m.target.classList.contains('seg-thumb')))) queue(); })
+        .observe(document.body, { subtree: true, childList: true, attributes: true, attributeFilter: ['class', 'aria-selected', 'aria-pressed', 'hidden', 'style'] });
+      window.addEventListener('resize', queue);
+      if (document.fonts && document.fonts.ready) document.fonts.ready.then(queue);
+      queue();
+
+      // نبضة صغيرة على خانة النتيجة مع كل + / −
+      document.addEventListener('click', e => {
+        const b = e.target.closest('.score-btn'); if (!b) return;
+        const inp = b.parentElement && b.parentElement.querySelector('input'); if (!inp) return;
+        inp.classList.remove('bump'); void inp.offsetWidth; inp.classList.add('bump');
+      });
+
+      // الشريط الملتصق: ظله يظهر عند الالتصاق فقط
+      let sq = false;
+      function stuck() {
+        sq = false;
+        document.querySelectorAll('#vNav, body.lg-focus .lg-tabs').forEach(el => {
+          if (!el.offsetParent) return;
+          const top = parseFloat(getComputedStyle(el).top) || 0;
+          el.classList.toggle('is-stuck', window.scrollY > 4 && Math.abs(el.getBoundingClientRect().top - top) < 2);
+        });
+      }
+      window.addEventListener('scroll', () => { if (!sq) { sq = true; requestAnimationFrame(stuck); } }, { passive: true });
+    })();
+
+    // ===================================
     // 🧭 سلوك التطبيق: إعادة الوضع للأعلى، تعديل العنوان بالضغط المطوّل، تنبيه التحديث، رقم الإصدار
     // ===================================
-    const APP_VERSION = '5.4';   // ترقيم الاعتماد: 1 ثم 1.1 … 1.9 ثم 2 — ويُرفع معه رقم الإصدار في sw.js
+    const APP_VERSION = '5.5';   // ترقيم الاعتماد: 1 ثم 1.1 … 1.9 ثم 2 — ويُرفع معه رقم الإصدار في sw.js
     (function setupAppBehaviors() {
       const root = document.documentElement;
 
