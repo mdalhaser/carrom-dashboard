@@ -1,34 +1,21 @@
 /* عامل الخدمة: يجعل التطبيق يفتح دون إنترنت.
    - الصفحة: من الشبكة أولًا (لتصلك التحديثات)، ومن النسخة المخزنة إذا لم يتوفر اتصال أو تأخر.
-   - خط Tajawal: يُحفظ بعد أول فتح متصل، ثم يُقرأ من الجهاز دائمًا.
+   - خط Tajawal: ملفات محلية في assets/fonts ضمن ملفات التطبيق المحفوظة (لا يعتمد على Google Fonts).
    - لا يلمس بيانات البطولات (التخزين المحلي) إطلاقًا.
    - data.json (صفحة المشاهدة للاعبين): من الشبكة دائمًا، والمخزن عند انقطاع الإنترنت.
    عند تعديل الملفات مستقبلًا: غيّر رقم الإصدار أدناه ليُحدَّث المخزون القديم. */
-const VERSION = 'carrom-v3.5';
+const VERSION = 'carrom-v3.8';
 const SHELL = VERSION + '-shell';
 const FONTS = 'carrom-fonts';
-const SHELL_FILES = ['./', './index.html', './manifest.webmanifest', './view.html', './view.webmanifest', './icons/apple-touch-icon.png', './icons/icon-192.png', './icons/icon-512.png', './icons/icon-maskable-512.png', './assets/wood.webp'];
+const SHELL_FILES = ['./', './index.html', './manifest.webmanifest', './view.html', './view.webmanifest', './icons/apple-touch-icon.png', './icons/icon-192.png', './icons/icon-512.png', './icons/icon-maskable-512.png', './assets/wood.webp',
+  './assets/fonts/Tajawal-400.woff', './assets/fonts/Tajawal-500.woff', './assets/fonts/Tajawal-700.woff', './assets/fonts/Tajawal-800.woff', './assets/fonts/Tajawal-900.woff'];
 
 // نفس رابط الخط في index.html حرفيًا (بعد فك &amp;)
 const FONT_CSS = 'https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700;800;900&display=swap';
 
 // تخزين الخط مسبقًا عند التثبيت: لا ننتظر أن تطلبه الصفحة، لأن أول فتح للتطبيق
 // (خصوصًا بعد إضافته للشاشة الرئيسية) يتم قبل أن يتولى عامل الخدمة الطلبات، فلا يُحفظ الخط وقتها.
-async function cacheFonts() {
-  const cache = await caches.open(FONTS);
-  const res = await fetch(FONT_CSS, { mode: 'cors', credentials: 'omit' });
-  if (!res.ok) throw new Error('font css ' + res.status);
-  const css = await res.clone().text();
-  const urls = [...new Set([...css.matchAll(/url\((https:\/\/fonts\.gstatic\.com\/[^)'"]+)\)/g)].map(m => m[1]))];
-  if (!urls.length) throw new Error('no font files');
-  await Promise.all(urls.map(async u => {
-    if (await cache.match(u)) return;
-    const f = await fetch(u, { mode: 'cors', credentials: 'omit' });
-    if (f.ok) await cache.put(u, f);
-  }));
-  await cache.put(FONT_CSS, res);
-  return urls.length;
-}
+async function cacheFonts() { return 0; }   // الخط أصبح محليًا ضمن SHELL_FILES (أُبقيت الدالة لرسالة warm-fonts القديمة)
 
 self.addEventListener('install', e => {
   e.waitUntil(caches.open(SHELL).then(c => c.addAll(SHELL_FILES))
