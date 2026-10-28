@@ -2682,6 +2682,11 @@
        الإطار الذهبي يبقى فقط لمبارياتي في صفحة المشاهدة (معنى شخصي) */
     .match-card:has(.match-status.ready) { border-color: var(--line); box-shadow: var(--sh-1); }
     html.view-mode .match-card.has-me { border-color: color-mix(in srgb, var(--gold) 70%, var(--line)); box-shadow: var(--sh-1); }   /* مباراتي: إطار ذهبي رفيع بسماكة كل الإطارات */
+    /* 4.6 — تمييز «أنا» موحد في كل مكان (ترتيب الدوري، ترتيب اللاعبين، مبارياتي): إطار ذهبي رفيع بسماكة كل الإطارات
+       ولمسة ذهبية خفيفة جدًا على الخلفية — بلا حلقات عريضة ولا إطار مزدوج */
+    .lgc-row.is-me, #statsContent .stp-row.is-me, html.view-mode .match-card.has-me {
+      outline: 0; border-color: color-mix(in srgb, var(--gold) 70%, var(--line)); box-shadow: var(--sh-1);
+      background: linear-gradient(color-mix(in srgb, var(--gold) 6%, transparent), color-mix(in srgb, var(--gold) 6%, transparent)), var(--surface); }
   </style>
 </head>
 <body>
@@ -11872,7 +11877,7 @@ function buildLeagueStandingsCanvas() {
     // ===================================
     // 🧭 سلوك التطبيق: إعادة الوضع للأعلى، تعديل العنوان بالضغط المطوّل، تنبيه التحديث، رقم الإصدار
     // ===================================
-    const APP_VERSION = '4.5';   // ترقيم الاعتماد: 1 ثم 1.1 … 1.9 ثم 2 — ويُرفع معه رقم الإصدار في sw.js
+    const APP_VERSION = '4.6';   // ترقيم الاعتماد: 1 ثم 1.1 … 1.9 ثم 2 — ويُرفع معه رقم الإصدار في sw.js
     (function setupAppBehaviors() {
       const root = document.documentElement;
 
