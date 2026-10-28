@@ -2641,6 +2641,45 @@
     /* داخل النافذة: بلا إطار البطاقة (النافذة هي الإطار) */
     .vme.v2.sheet { padding: 0; border: 0; box-shadow: none; background: none; }
     .vme.v2.sheet .vm2-top .vme-av { width: 42px; height: 42px; }
+    /* «خصومي وشركائي»: ثلاث خانات متجاورة بلا صندوق (نفس أسلوب «أدائي الأخير» وأشرطة الأرقام):
+       الدور بلونه ← الاسم ← السجل، يفصلها خط رفيع. أقل مساحة وأسهل نظرة. */
+    .vm2-rvs { display: grid; grid-auto-flow: column; grid-auto-columns: minmax(0, 1fr); }
+    .vm2-rv { display: flex; flex-direction: column; align-items: center; gap: 2px; padding: 0 6px; text-align: center; min-width: 0; }
+    .vm2-rv + .vm2-rv { border-inline-start: 1px solid var(--line); }
+    .vm2-rv .lb { display: inline-flex; align-items: center; gap: 4px; font-size: 11px; font-weight: 800; }
+    .vm2-rv .lb .ic { width: 11px; height: 11px; margin: 0; }
+    .vm2-rv.nem .lb { color: var(--danger, #B3402F); } .vm2-rv.vic .lb { color: var(--ok); } .vm2-rv.par .lb { color: var(--gold-deep); }
+    .vm2-rv .nm { font-size: 14.5px; font-weight: 800; line-height: 1.3; color: var(--text); overflow-wrap: anywhere; }
+    .vm2-rv .rec { font-size: 11px; font-weight: 700; color: var(--text-3); white-space: nowrap; }
+    .vm2-rv .rec b { color: var(--text-2); font-weight: 800; }
+    @container vme (max-width: 340px) { .vm2-rv .nm { font-size: 13.5px; } .vm2-rv { padding: 0 4px; } }
+    /* ===== 4.3 — «صفحتي» بهوية واحدة: ثلاثة أحجام خط فقط (عنوان القسم · القيمة · العنوان الصغير)،
+       نمط واحد للبيانات (شريط خانات يفصلها خط رفيع)، وسطر ملاحظة هادئ؛ بلا أيقونات أو أسهم زخرفية ===== */
+    .vm2-cells { display: grid; grid-auto-flow: column; grid-auto-columns: minmax(0, 1fr); }
+    .vm2-cells .cl { display: flex; flex-direction: column; align-items: center; justify-content: flex-start; gap: 2px; min-width: 0; padding: 0 6px; text-align: center; }
+    .vm2-cells .cl + .cl { border-inline-start: 1px solid var(--line); }
+    .vm2-cells .v { display: flex; align-items: center; justify-content: center; min-height: 22px; font-size: 16px; font-weight: 800; line-height: 1.3; color: var(--text); font-variant-numeric: tabular-nums; }
+    .vm2-cells .v.nm { font-size: 14.5px; overflow-wrap: anywhere; }
+    .vm2-cells .v b { font-weight: 800; } .vm2-cells .v .up { color: var(--ok); } .vm2-cells .v .down { color: var(--danger, #B3402F); }
+    .vm2-cells .l { font-size: 11px; font-weight: 700; color: var(--text-3); line-height: 1.35; }
+    .vm2-cells .s { font-size: 11px; font-weight: 700; color: var(--text-3); white-space: nowrap; }
+    .vm2-cells .cl.wide { flex: 1; }
+    .vm2-cells .lgf { margin: 0; gap: 2px; } .vm2-cells .lgf i { width: 16px; height: 16px; font-size: 9.5px; }
+    .vm2-cells svg { display: block; width: 100%; max-width: 110px; height: 20px; }
+    .vm2-cells .nem .l { color: var(--danger, #B3402F); } .vm2-cells .vic .l { color: var(--ok); } .vm2-cells .par .l { color: var(--gold-deep); }
+    .vm2-cells .empty .v { color: var(--text-3); }
+    .vm2-note { margin: 9px 0 0; font-size: 12px; font-weight: 700; color: var(--text-3); text-align: center; line-height: 1.6; }
+    .vm2-note b { color: var(--text-2); font-weight: 800; }
+    .vm2-note + .vm2-note { margin-top: 2px; }
+    .vm2-since .up { color: var(--ok); font-weight: 800; } .vm2-since .down { color: var(--danger, #B3402F); font-weight: 800; }
+    /* مبارياتي القادمة: قائمة بخطوط رفيعة (بلا صناديق) — نفس هوية سجل البطولات */
+    .vme.v2 .vm2-list { gap: 0; }
+    .vme.v2 .vm2-m, .vme.v2 .vm2-m:first-child { padding: 8px 2px; border: 0; border-radius: 0; background: none; }
+    .vme.v2 .vm2-m + .vm2-m { border-top: 1px solid var(--line); }
+    .vme.v2 .vm2-m .o b { font-size: 14.5px; }
+    .vme.v2 .vm2-m .p b { font-size: 16px; }
+    .vme.v2 .vm2-m .p small, .vme.v2 .vm2-m .o small { font-size: 11px; }
+    .vme.v2 .vm2-more { min-height: 34px; margin-top: 4px; border-style: solid; border-color: var(--line); }
   </style>
 </head>
 <body>
@@ -11831,7 +11870,7 @@ function buildLeagueStandingsCanvas() {
     // ===================================
     // 🧭 سلوك التطبيق: إعادة الوضع للأعلى، تعديل العنوان بالضغط المطوّل، تنبيه التحديث، رقم الإصدار
     // ===================================
-    const APP_VERSION = '4.2';   // ترقيم الاعتماد: 1 ثم 1.1 … 1.9 ثم 2 — ويُرفع معه رقم الإصدار في sw.js
+    const APP_VERSION = '4.3';   // ترقيم الاعتماد: 1 ثم 1.1 … 1.9 ثم 2 — ويُرفع معه رقم الإصدار في sw.js
     (function setupAppBehaviors() {
       const root = document.documentElement;
 
@@ -12363,21 +12402,22 @@ function buildLeagueStandingsCanvas() {
           if (known) {
             const list = ratings.ranked.filter(x => x.games), idx = list.findIndex(x => x.name === me), up = list[idx - 1], dn = list[idx + 1];
             const tiers = ELO_TIERS.slice().sort((x, y) => x[0] - y[0]), cur = tiers.filter(x => r >= x[0]).pop(), nxt = tiers.find(x => x[0] > r);
-            const lo = Number.isFinite(cur[0]) ? cur[0] : (nxt ? nxt[0] - 80 : r - 80), hi = nxt ? nxt[0] : lo + 80, pctT = Math.max(4, Math.min(100, Math.round((r - lo) / (hi - lo) * 100)));
-            const tierLine = nxt ? `باقي <b>${nxt[0] - r}</b> ${ptsW2(nxt[0] - r)} لمستوى <b>${esc(nxt[1])}</b>` : `في أعلى مستوى · فوق حدّه بـ<b>${r - cur[0]}</b>`;
-            const nb = [];
-            if (up) nb.push(`<span class="nb up"><i aria-hidden="true"></i><span>تحتاج <b>${up.rating - r + 1}</b> ${ptsW2(up.rating - r + 1)} لتتجاوز <bdi>${esc(up.name)}</bdi></span></span>`);
-            else if (dn) nb.push(`<span class="nb top"><i aria-hidden="true"></i><span>الأول · تتقدم بـ<b>${r - dn.rating}</b> ${ptsW2(r - dn.rating)} على <bdi>${esc(dn.name)}</bdi></span></span>`);
-            if (up && dn) nb.push(`<span class="nb dn"><i aria-hidden="true"></i><span><bdi>${esc(dn.name)}</bdi> خلفك بـ<b>${r - dn.rating}</b> ${ptsW2(r - dn.rating)}</span></span>`);
-            let lgLine = '';
-            if (lg && !lg.excluded) { try { const S = calculateLeagueStandings().filter(x => !x.excluded); const first = S[0], second = S[1];
+            // نظام موحد لكل الأقسام: شريط خانات (القيمة ← العنوان ← تفصيل) + سطر ملاحظة هادئ واحد
+            const cell = (v, l, sub, cls) => `<span class="cl${cls ? ' ' + cls : ''}"><b class="v">${v}</b><small class="l">${l}</small>${sub ? `<span class="s">${sub}</span>` : ''}</span>`;
+            const cells = [cell(p.rank, 'الترتيب العام', `من ${rankedN}`)];
+            if (lg && !lg.excluded) cells.push(cell(lg.rank, 'مركزك في الدوري', `${lg.points} ${ptsW2(lg.points)}`));
+            cells.push(nxt ? cell(nxt[0] - r, `${ptsW2(nxt[0] - r)} لمستوى ${esc(nxt[1])}`, '') : cell(`<bdi dir="ltr">+${r - cur[0]}</bdi>`, 'فوق حد الأسطورة', ''));
+            const notes = [];
+            if (up) notes.push(`تحتاج <b>${up.rating - r + 1}</b> لتتجاوز <bdi>${esc(up.name)}</bdi>`);
+            else if (dn) notes.push(`تتقدم بـ<b>${r - dn.rating}</b> على <bdi>${esc(dn.name)}</bdi>`);
+            if (up && dn) notes.push(`<bdi>${esc(dn.name)}</bdi> خلفك بـ<b>${r - dn.rating}</b>`);
+            let lgNote = '';
+            if (lg && !lg.excluded) { try { const S = calculateLeagueStandings().filter(x => !x.excluded), first = S[0], second = S[1];
               const left = (leagueMatches || []).filter(x => !isLeagueMatchSettled(x) && (x.playerA === me || x.playerB === me)).length;
-              const gap = lg.rank === 1 ? (second ? `تتقدم بـ<b>${lg.points - second.points}</b> ${ptsW2(lg.points - second.points)}` : '') : `خلف المتصدر بـ<b>${first.points - lg.points}</b> ${ptsW2(first.points - lg.points)}`;
-              const leftTxt = left ? `متبقٍ لك <b>${left}</b> ${left === 1 ? 'مباراة' : left === 2 ? 'مباراتان' : left <= 10 ? 'مباريات' : 'مباراة'}` : '';
-              lgLine = `<div class="vm2-lg"><span class="k">الدوري</span><span class="m">المركز <b>${lg.rank}</b> · <b>${lg.points}</b> ${ptsW2(lg.points)}</span></div>${gap || leftTxt ? `<div class="vm2-lg2">${[gap, leftTxt].filter(Boolean).join(' · ')}</div>` : ''}`; } catch (e) {} }
-            whereHTML = `<div class="vm2-sec"><div class="vm2-h"><span>أين أنا</span><small>الترتيب العام <b>${p.rank}</b> من ${rankedN}</small></div>
-              <div class="vm2-tier"><div class="t">${tierLine}</div>${nxt ? `<div class="bar" role="img" aria-label="التقدم نحو المستوى التالي ${pctT}%"><i style="width:${pctT}%"></i></div><div class="ends"><span>${esc(cur[1])}</span><span>${esc(nxt[1])}</span></div>` : ''}</div>
-              ${nb.length ? `<div class="vm2-nb">${nb.join('')}</div>` : ''}${lgLine}</div>`;
+              const gap = lg.rank === 1 ? (second ? `الدوري: تتقدم بـ<b>${lg.points - second.points}</b> ${ptsW2(lg.points - second.points)}` : '') : `الدوري: خلف المتصدر بـ<b>${first.points - lg.points}</b> ${ptsW2(first.points - lg.points)}`;
+              lgNote = [gap, left ? `متبقٍ لك <b>${left}</b> ${left === 1 ? 'مباراة' : left === 2 ? 'مباراتان' : left <= 10 ? 'مباريات' : 'مباراة'}` : ''].filter(Boolean).join(' · '); } catch (e) {} }
+            whereHTML = `<div class="vm2-sec"><div class="vm2-h"><span>أين أنا</span></div><div class="vm2-cells">${cells.join('')}</div>
+              ${notes.length ? `<p class="vm2-note">${notes.join(' · ')}</p>` : ''}${lgNote ? `<p class="vm2-note">${lgNote}</p>` : ''}</div>`;
           }
           // (3) أدائي الأخير: آخر 5 نتائج · السلسلة الحالية · مسار التقييم · منذ زيارتك
           let formHTML = '';
@@ -12391,9 +12431,29 @@ function buildLeagueStandingsCanvas() {
             // منذ زيارتك: تغيّر التقييم والمركز (من التقييمات المحفوظة في آخر زيارة)
             let since = '';
             if (seen && seen.ratings && dl) { const prevList = Object.entries(seen.ratings).sort((x, y) => y[1] - x[1]).map(x => x[0]), pr = prevList.indexOf(me) + 1, mv = pr ? pr - p.rank : 0;
-              since = `<div class="vm2-since"><span class="k">منذ زيارتك</span><span class="${dl > 0 ? 'up' : 'down'}"><bdi dir="ltr">${dl > 0 ? '+' : '−'}${Math.abs(dl)}</bdi> تقييم</span>${mv ? `<i class="sep"></i><span class="${mv > 0 ? 'up' : 'down'}">${mv > 0 ? 'صعدت' : 'نزلت'} ${Math.abs(mv) === 1 ? 'مركزًا' : Math.abs(mv) === 2 ? 'مركزين' : Math.abs(mv) + ' مراكز'}</span>` : ''}</div>`; }
-            formHTML = `<div class="vm2-sec"><div class="vm2-h"><span>أدائي الأخير</span><small>${stTxt}</small></div>
-              <div class="vm2-form"><span class="cell"><span class="lgf">${seq.map(x => `<i class="${x}">${x === 'w' ? 'ف' : x === 'l' ? 'خ' : 'ت'}</i>`).join('') || '<span class="none">—</span>'}</span><small>آخر النتائج</small></span><span class="cell sp">${spark}<small>مسار التقييم</small></span></div>${since}</div>`;
+              since = `<div class="vm2-since">منذ زيارتك: <span class="${dl > 0 ? 'up' : 'down'}"><bdi dir="ltr">${dl > 0 ? '+' : '−'}${Math.abs(dl)}</bdi> تقييم</span>${mv ? ` · <span class="${mv > 0 ? 'up' : 'down'}">${mv > 0 ? 'صعدت' : 'نزلت'} ${Math.abs(mv) === 1 ? 'مركزًا' : Math.abs(mv) === 2 ? 'مركزين' : Math.abs(mv) + ' مراكز'}</span>` : ''}</div>`; }
+            const stV = p.streak && p.streak.len >= 2 ? p.streak.len : '—', stL = p.streak && p.streak.len >= 2 ? `${p.streak.type === 'w' ? 'انتصارات' : p.streak.type === 'l' ? 'خسائر' : 'تعادلات'} متتالية` : 'سلسلة حالية';
+            const fcell = (inner, l, cls) => `<span class="cl${cls ? ' ' + cls : ''}"><span class="v">${inner}</span><small class="l">${l}</small></span>`;
+            if (since) since = since.replace('<div class="vm2-since">', '<p class="vm2-note vm2-since">').replace(/<\/div>$/, '</p>');
+            formHTML = `<div class="vm2-sec"><div class="vm2-h"><span>أدائي الأخير</span></div><div class="vm2-cells">
+              ${fcell(`<span class="lgf">${seq.map(x => `<i class="${x}">${x === 'w' ? 'ف' : x === 'l' ? 'خ' : 'ت'}</i>`).join('') || '—'}</span>`, 'آخر النتائج', 'wide')}
+              ${fcell(spark, 'مسار التقييم', 'wide')}
+              ${fcell(`<b class="${p.streak && p.streak.len >= 2 ? (p.streak.type === 'w' ? 'up' : p.streak.type === 'l' ? 'down' : '') : ''}">${stV}</b>`, stL)}
+            </div>${since}</div>`;
+          }
+          // (4) خصومي وشركائي: عقدتك (أكثر من خسرت أمامه) · ضحيتك (أكثر من فزت عليه) · أفضل شريك (أعلى نسبة فوز معًا)
+          let rivalsHTML = '';
+          if (known) {
+            const H = Object.entries(p.h2h || {}).map(([n, x]) => ({ n, w: x.w || 0, l: x.l || 0, g: (x.w || 0) + (x.l || 0) + (x.d || 0) }));
+            const nem = H.filter(x => x.l >= 2 && x.l > x.w).sort((a, b) => b.l - a.l || (a.w / a.g) - (b.w / b.g) || b.g - a.g)[0];
+            const vic = H.filter(x => x.w >= 2 && x.w > x.l).sort((a, b) => b.w - a.w || (b.w / b.g) - (a.w / a.g) || b.g - a.g)[0];
+            const PT = Object.entries(p.partners || {}).map(([n, x]) => ({ n, g: x.games || 0, w: x.w || 0 })).filter(x => x.g >= 2);
+            const sc = x => (x.w + 1) / (x.g + 2);   // نسبة فوز مُرجَّحة بعدد المباريات: لا يتفوق ثنائي لعب مرتين على ثنائي فاز 8 من 10
+            const par = PT.sort((a, b) => sc(b) - sc(a) || b.g - a.g)[0];
+            // نفس شريط الخانات: الاسم ← الدور (بلونه) ← السجل. الخانات الثلاث ثابتة؛ الدور غير المتحقق يظهر بشرطة
+            const rc = (cls, lbl, x, rec) => `<span class="cl ${cls}${x ? '' : ' empty'}"><b class="v nm">${x ? `<bdi>${esc(x.n)}</bdi>` : '—'}</b><small class="l">${lbl}</small>${x ? `<span class="s">${rec}</span>` : ''}</span>`;
+            if (nem || vic || par) rivalsHTML = `<div class="vm2-sec"><div class="vm2-h"><span>خصومي وشركائي</span></div><div class="vm2-cells">
+              ${rc('nem', 'عقدتك', nem, nem ? `خسرت ${nem.l} من ${nem.g}` : '')}${rc('vic', 'ضحيتك', vic, vic ? `فزت ${vic.w} من ${vic.g}` : '')}${rc('par', 'شريكك', par, par ? `فزتما ${par.w} من ${par.g}` : '')}</div></div>`;
           }
           // ===== المستوى 1: شريط مختصر في الصفحة الرئيسية (اسمي · مباراتي القادمة · تقييمي) — يفتح «صفحتي» =====
           const n0 = nx[0];
@@ -12414,7 +12474,7 @@ function buildLeagueStandingsCanvas() {
             <div class="vm2-top"><span class="vme-av" aria-hidden="true"><span class="ic ic-user"></span></span>
               <button type="button" class="vme-top"><span class="who"><b>${esc(me)}</b><span class="pf-tier t${tier.level}">${esc(known ? tier.name : 'أول ظهور')}</span></span></button>
               <button type="button" class="vm2-key"><b>${fmt(r)}</b><small>التقييم${dl ? ` <em class="${dl > 0 ? 'up' : 'down'}"><bdi dir="ltr">${dl > 0 ? '▲' + dl : '▼' + Math.abs(dl)}</bdi></em>` : ''}</small></button></div>
-            <div class="vm2-body"><div class="vm2-col a">${matchesHTML}</div><div class="vm2-col b">${whereHTML}${formHTML}</div></div></div>`;
+            <div class="vm2-body"><div class="vm2-col a">${matchesHTML}</div><div class="vm2-col b">${whereHTML}${formHTML}${rivalsHTML}</div></div></div>`;
           mineNx = nx;
           decorate();
         }
