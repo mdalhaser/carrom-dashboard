@@ -2835,6 +2835,24 @@
     #aDayWrap .vday-r { padding: 8px 6px; min-height: 50px; }
     #aDayWrap .a-days { display: flex; gap: 6px; overflow-x: auto; scrollbar-width: none; padding: 2px; }
     #aDayWrap .a-days::-webkit-scrollbar { display: none; }
+    .view-bar .stamp.off { color: var(--warn); }
+    .view-bar .stamp.off b { color: var(--warn); }
+
+    /* v4.8 · الإقصائيات في الإدارة: شريط «القادمة · الجدول»، وقائمة اللاعبين مطوية بعد إنشاء الجدول */
+    #akSeg { margin-bottom: var(--s3); }
+    #akUpWrap { margin-bottom: var(--s3); }
+    #akUpWrap .vup-li .v .a-rec { font-size: 12.5px; font-weight: 800; color: var(--gold-deep); }
+    .ko-sum { display: none; }
+    body.ko-focus .players-card .ko-sum { display: grid; grid-template-columns: minmax(0, 1fr) auto auto; align-items: center; gap: 10px; width: 100%; min-height: 52px; padding: 8px 16px;
+      background: var(--surface); border: 1px solid var(--line); border-radius: 16px; font: inherit; color: var(--text); text-align: start; cursor: pointer; -webkit-tap-highlight-color: transparent; }
+    body.ko-focus .players-card .ko-sum .t { font-size: 15.5px; font-weight: 800; }
+    body.ko-focus .players-card .ko-sum .d { font-size: 12.5px; font-weight: 700; color: var(--text-3); }
+    body.ko-focus .players-card .ko-sum .chev { width: 18px; height: 18px; color: var(--text-3); transition: transform .35s cubic-bezier(.2,.8,.2,1); }
+    body.ko-focus .players-card.ko-open .ko-sum .chev { transform: rotate(180deg); }
+    body.ko-focus .players-card:not(.ko-open) > :not(.ko-sum) { display: none !important; }
+    body.ko-focus .players-card.ko-open > .ko-sum { margin-bottom: var(--s3); }
+    body.ko-focus .players-card.ko-open #playersTitleRow { display: none !important; }
+    @media (max-width: 959px) { body.ko-focus .main:not(.league-mode) > .right { order: -1; } }
   </style>
   <script>
     /* v4.4: احتياط الخط — إن لم توجد ملفات Tajawal مع التطبيق يُحمَّل من Google Fonts (كما في 3.5) */
@@ -12384,7 +12402,7 @@ function buildLeagueStandingsCanvas() {
     // ===================================
     // 🧭 سلوك التطبيق: إعادة الوضع للأعلى، تعديل العنوان بالضغط المطوّل، تنبيه التحديث، رقم الإصدار
     // ===================================
-    const APP_VERSION = '4.6';   // ترقيم الاعتماد: 1 ثم 1.1 … 1.9 ثم 2 — ويُرفع معه رقم الإصدار في sw.js
+    const APP_VERSION = '4.8';   // ترقيم الاعتماد: 1 ثم 1.1 … 1.9 ثم 2 — ويُرفع معه رقم الإصدار في sw.js
     (function setupAppBehaviors() {
       const root = document.documentElement;
 
@@ -12759,6 +12777,58 @@ function buildLeagueStandingsCanvas() {
       ['modeLeagueBtn', 'modeSingleBtn', 'modeFixedBtn'].forEach(id => { const b = document.getElementById(id); if (b) b.addEventListener('click', () => setTimeout(schedule, 60)); });
       paint();
     })();
+    // ===================================
+    // v4.8 · الفردي والفرق في نسخة الإدارة:
+    // (1) شريط «القادمة · الجدول» فوق الجدول — القادمة تفتح نافذة التسجيل مباشرة (مثل الدوري)
+    // (2) بعد إنشاء الجدول: قائمة اللاعبين تُطوى في سطر ملخص، وعلى الجوال يصعد الجدول قبلها. عرض فقط.
+    // ===================================
+    (function setupAdminKoFocus() {
+      if (document.documentElement.classList.contains('view-mode')) return;
+      const area = document.getElementById('bracketArea'), card = document.querySelector('section.main .bracket-card'), pcard = document.querySelector('section.main .players-card'), title = document.getElementById('playersTitleRow');
+      if (!area || !card) return;
+      const KEY = '__carrom_akseg_v1', E = s => escHTML(String(s == null ? '' : s));
+      let seg = 'table'; try { if (localStorage.getItem(KEY) === 'up') seg = 'up'; } catch (e) {}
+      const nav = document.createElement('div'); nav.id = 'akSeg';
+      const up = document.createElement('div'); up.id = 'akUpWrap'; up.className = 'vlist';
+      area.before(nav, up);
+      const isReal = n => !!n && !String(n).includes('الفائز من م') && !String(n).includes('Bye');
+      // ملخص قائمة اللاعبين القابل للفتح
+      let sumEl = null;
+      if (pcard && title) {
+        sumEl = document.createElement('button'); sumEl.type = 'button'; sumEl.className = 'ko-sum'; sumEl.setAttribute('aria-expanded', 'false');
+        sumEl.innerHTML = '<span class="t">قائمة اللاعبين</span><span class="d"></span><svg class="chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m6 9 6 6 6-6"/></svg>';
+        pcard.prepend(sumEl);
+        sumEl.addEventListener('click', () => { const o = !pcard.classList.contains('ko-open'); pcard.classList.toggle('ko-open', o); sumEl.setAttribute('aria-expanded', String(o)); });
+      }
+      function renderUp() {
+        const by = new Map();
+        Object.values(bracketState || {}).filter(m => m && !m.winner && isReal(m.team1) && isReal(m.team2)).sort((a, b) => a.matchNumber - b.matchNumber)
+          .forEach(m => { const t = isFinalMatch(m) ? 'المباراة النهائية' : cleanRound(m.roundName); if (!by.has(t)) by.set(t, []); by.get(t).push(m); });
+        let h = ''; by.forEach((rows, t) => { h += `<div class="vme-h">${E(t)}</div><div class="vme-card">${rows.map(m => `<button type="button" class="vme-row vup-li" data-id="${E(m.id)}"><span class="l"><b><bdi>${E(getDisplayTeamName(m.team1))}</bdi> <span class="vs">ضد</span> <bdi>${E(getDisplayTeamName(m.team2))}</bdi></b><small>مباراة ${m.matchNumber}</small></span><span class="v"><span class="a-rec">تسجيل</span></span></button>`).join('')}</div>`; });
+        up.innerHTML = h || '<div class="vme-none">لا توجد مباريات جاهزة للتسجيل الآن</div>';
+      }
+      let busy = false;
+      function paint() {
+        if (busy) return; busy = true;
+        try {
+          const ko = currentMode !== 'league', started = ko && Object.keys(bracketState || {}).length > 0;
+          document.body.classList.toggle('ko-focus', started);
+          if (sumEl) { const n = (() => { try { return currentMode === 'single' ? (manualPlayersPool || []).length : [...document.querySelectorAll('#playersGrid .player-card:not(.add-player-card)')].filter(c => !/غير محدد/.test(c.textContent)).length; } catch (e) { return 0; } })();
+            sumEl.querySelector('.d').textContent = n ? `${n} ${n === 1 ? 'لاعب' : n === 2 ? 'لاعبان' : n <= 10 ? 'لاعبين' : 'لاعبًا'}` : ''; if (!started) { pcard.classList.remove('ko-open'); sumEl.setAttribute('aria-expanded', 'false'); } }
+          nav.innerHTML = started ? `<div class="vseg" role="group" aria-label="عرض المباريات" style="--n:2">${[['up', 'القادمة'], ['table', 'الجدول']].map(([k, l]) => `<button type="button" data-akseg="${k}" aria-pressed="${seg === k}">${l}</button>`).join('')}</div>` : '';
+          nav.classList.toggle('a-off', !started); up.classList.toggle('a-off', !(started && seg === 'up')); area.classList.toggle('a-off', started && seg === 'up');
+          if (started && seg === 'up') renderUp();
+        } finally { busy = false; }
+      }
+      nav.addEventListener('click', e => { const b = e.target.closest('[data-akseg]'); if (!b || b.dataset.akseg === seg) return; seg = b.dataset.akseg; try { localStorage.setItem(KEY, seg); } catch (x) {} paint();
+        const t = seg === 'up' ? up : area; if (!(window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches)) { t.classList.remove('lg-enter'); void t.offsetWidth; t.classList.add('lg-enter'); } });
+      up.addEventListener('click', e => { const r = e.target.closest('.vup-li'); if (r) selectWinner(r.dataset.id); });
+      let raf = 0; const schedule = () => { if (!raf) raf = requestAnimationFrame(() => { raf = 0; paint(); }); };
+      new MutationObserver(schedule).observe(area, { childList: true, subtree: true });
+      const grid = document.getElementById('playersGrid'); if (grid) new MutationObserver(schedule).observe(grid, { childList: true });
+      ['modeLeagueBtn', 'modeSingleBtn', 'modeFixedBtn'].forEach(id => { const b = document.getElementById(id); if (b) b.addEventListener('click', () => setTimeout(schedule, 60)); });
+      paint();
+    })();
 
     // ===================================
     // 👀 صفحة المشاهدة للاعبين (view.html — تُولَّد من هذا الملف نفسه)
@@ -12776,7 +12846,8 @@ function buildLeagueStandingsCanvas() {
       const nav = document.querySelector('.mode-nav'), bar = document.createElement('div'); bar.className = 'view-bar';
       const when = info.publishedAt ? `${fmtDayDate(info.publishedAt)} · ${fmtTimeNum(info.publishedAt)}` : '';
       // سطر رفيع واحد بدل صندوق كبير: لا يغطي على المحتوى
-      if (info.ok) bar.innerHTML = `<div class="stamp">آخر تحديث · <b>${esc(when)}</b></div>`;
+      if (info.ok && info.cached) bar.innerHTML = `<div class="stamp off">بدون اتصال · آخر بيانات محفوظة · <b>${esc(when)}</b></div>`;   // v4.7
+      else if (info.ok) bar.innerHTML = `<div class="stamp">آخر تحديث · <b>${esc(when)}</b></div>`;
       else {   // سبب واضح لغياب النتائج بدل رسالة واحدة لكل الأعطال، مع إعادة المحاولة
         const R = { notfound: ['لم تُنشر النتائج بعد', 'تظهر هنا بعد أول نشر من لوحة التحكم.'],
           offline: ['تعذّر الاتصال', 'تحقق من الإنترنت ثم أعد المحاولة.'],
