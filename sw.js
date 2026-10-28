@@ -1,16 +1,13 @@
 /* عامل الخدمة: يجعل التطبيق يفتح دون إنترنت.
    - الصفحة: من الشبكة أولًا (لتصلك التحديثات)، ومن النسخة المخزنة إذا لم يتوفر اتصال أو تأخر.
-   - خط Tajawal: ملفاته داخل التطبيق (assets، أو assets/fonts) تُحفظ عند التثبيت دون أن يمنع غيابها التحديث. منطق Google Fonts أدناه باقٍ للنسخ القديمة ولا يضر.
+   - خط Tajawal: يُحفظ بعد أول فتح متصل، ثم يُقرأ من الجهاز دائمًا.
    - لا يلمس بيانات البطولات (التخزين المحلي) إطلاقًا.
    - data.json (صفحة المشاهدة للاعبين): من الشبكة دائمًا، والمخزن عند انقطاع الإنترنت.
    عند تعديل الملفات مستقبلًا: غيّر رقم الإصدار أدناه ليُحدَّث المخزون القديم. */
-const VERSION = 'carrom-v5.6';
+const VERSION = 'carrom-v3.5';
 const SHELL = VERSION + '-shell';
 const FONTS = 'carrom-fonts';
-const SHELL_FILES = ['./', './index.html', './manifest.webmanifest', './view.html', './view.webmanifest', './icons/apple-touch-icon.png', './icons/icon-192.png', './icons/icon-512.png', './icons/icon-maskable-512.png', './assets/wood.webp',
-];
-// v4.4: ملفات الخط تُحفظ كلٌّ على حدة: غياب أحدها لا يمنع تثبيت التحديث (كان addAll يفشل كله)
-const FONT_FILES = ['Regular', 'Medium', 'Bold', 'ExtraBold', 'Black'].flatMap(w => ['./assets/Tajawal-' + w + '.woff', './assets/fonts/Tajawal-' + w + '.woff']);
+const SHELL_FILES = ['./', './index.html', './manifest.webmanifest', './view.html', './view.webmanifest', './icons/apple-touch-icon.png', './icons/icon-192.png', './icons/icon-512.png', './icons/icon-maskable-512.png', './assets/wood.webp'];
 
 // نفس رابط الخط في index.html حرفيًا (بعد فك &amp;)
 const FONT_CSS = 'https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700;800;900&display=swap';
@@ -34,7 +31,7 @@ async function cacheFonts() {
 }
 
 self.addEventListener('install', e => {
-  e.waitUntil(caches.open(SHELL).then(c => c.addAll(SHELL_FILES).then(() => Promise.all(FONT_FILES.map(u => c.add(u).catch(() => {})))))
+  e.waitUntil(caches.open(SHELL).then(c => c.addAll(SHELL_FILES))
     .then(() => cacheFonts().catch(() => {}))   // فشل الخط (دون إنترنت) لا يمنع تثبيت التطبيق
     .then(() => self.skipWaiting()));
 });
