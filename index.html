@@ -2485,36 +2485,40 @@
     .st-pane.all .st-pane-more svg { transform: rotate(180deg); }
     .st-sub { margin: 0 0 10px; font-size: 12.5px; font-weight: 700; color: var(--text-3); }
     .st-sub b { color: var(--text-2); font-weight: 800; }
-    /* ===== بطاقة «آخر بطولة مكتملة» أعلى الإحصائيات =====
-       رأس (العنوان ← اليوم والنوع) ثم لوحة متماثلة: البطل | النتيجة | الوصيف، العناوين على خط واحد والأسماء على خط واحد */
-    .st-last { container: stlast / inline-size; margin: 0 0 var(--s3); border-radius: var(--r-md); border: 1px solid color-mix(in srgb, var(--gold) 45%, transparent);
-      background: linear-gradient(180deg, color-mix(in srgb, var(--gold) 10%, var(--surface)), var(--surface) 80%); box-shadow: var(--sh-2); overflow: hidden; }
-    .st-last-top { display: flex; align-items: center; justify-content: space-between; gap: 10px; padding: 10px 16px; border-bottom: 1px solid color-mix(in srgb, var(--gold) 22%, transparent); font-size: 12.5px; font-weight: 800; }
-    .st-last-top .tag { color: var(--gold-deep); }
-    .st-last-top .meta { display: inline-flex; align-items: center; gap: 6px; color: var(--text-3); font-weight: 700; white-space: nowrap; }
-    .st-last-top .meta .ic { width: 12px; height: 12px; margin: 0; color: var(--gold-deep); }
-    .st-last-top .dot { width: 3px; height: 3px; border-radius: 50%; background: var(--text-3); }
-    .st-last-main { display: grid; grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr); grid-template-areas: "lc sc lr" "nc sc nr"; align-items: center; column-gap: 12px; row-gap: 4px; padding: 12px 16px 14px; text-align: center; }
-    .st-last .lb { display: inline-flex; align-items: center; justify-content: center; gap: 5px; font-size: 11.5px; font-weight: 800; color: var(--text-3); align-self: end; }
-    .st-last .lb .ic { width: 12px; height: 12px; margin: 0; }
-    .st-last .lc { grid-area: lc; color: var(--gold-deep); } .st-last .lr { grid-area: lr; }
-    .st-last .nm { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 0; align-self: start; font-size: 17px; font-weight: 800; line-height: 1.4; overflow-wrap: anywhere; }
-    .st-last .nc { grid-area: nc; color: var(--text); } .st-last .nr { grid-area: nr; color: var(--text-2); font-weight: 700; }
-    .st-last .sc { grid-area: sc; display: grid; place-items: center; min-width: 76px; min-height: 46px; padding: 4px 12px; border-radius: 12px;
-      border: 1px solid color-mix(in srgb, var(--gold) 38%, transparent); background: color-mix(in srgb, var(--gold) 9%, var(--surface)); }
-    .st-last .sc b { font-size: 24px; font-weight: 900; line-height: 1; color: var(--text); font-variant-numeric: tabular-nums; white-space: nowrap; }
-    .st-last .sc .ic { width: 22px; height: 22px; margin: 0; color: var(--gold-deep); }
-    @container stlast (max-width: 359px) {   /* الجوالات الصغيرة: نفس اللوحة بمقاسات أصغر حتى لا تتكسر الأسماء */
-      .st-last-top { padding-inline: 12px; font-size: 11.5px; } .st-last-top .tag { white-space: nowrap; }
-      .st-last-main { column-gap: 8px; padding-inline: 12px; }
-      .st-last .nm { font-size: 14.5px; }
-      .st-last .sc { min-width: 58px; min-height: 40px; padding: 4px 8px; } .st-last .sc b { font-size: 19px; }
+    /* ===== بطاقة «آخر بطولة مكتملة» — بسيطة وراقية =====
+       لوحة إسبريسو عميقة (في الوضعين) بإطار ذهبي رفيع. سطر رأس صغير، ثم صف واحد متماسك:
+       وسام ذهبي ← اسم البطل (وتحته «أمام» الوصيف) ← النتيجة مفصولة بخط ذهبي رفيع. كل العناصر على محور عمودي واحد. */
+    .st-last { --lk-ivory: #F6EEDF; --lk-gold: #E3BF6E; --lk-muted: rgba(246, 238, 223, .6);
+      container: stlast / inline-size; position: relative; max-width: 680px; margin: 0 auto var(--s4); padding: 12px 16px 14px;   /* الكمبيوتر: البطاقة نفسها محدودة العرض في الوسط */ border-radius: 18px; overflow: hidden; color: var(--lk-ivory);
+      background: radial-gradient(140% 120% at 85% 0%, #4E3A29 0%, #31251B 50%, #211812 100%);
+      border: 1px solid rgba(227, 191, 110, .36);
+      box-shadow: 0 1px 0 rgba(255, 236, 200, .12) inset, 0 14px 30px -16px rgba(38, 24, 12, .55), 0 2px 6px rgba(38, 24, 12, .1); }
+    .st-last::before { content: ""; position: absolute; inset: 0 0 auto; height: 1px; background: linear-gradient(90deg, transparent, rgba(243, 223, 174, .7), transparent); }
+    body.dark-mode .st-last { border-color: rgba(227, 191, 110, .42); box-shadow: 0 1px 0 rgba(255, 236, 200, .08) inset, 0 16px 36px -16px rgba(0, 0, 0, .7); }
+    .st-last-top { display: flex; align-items: center; justify-content: space-between; gap: 10px; margin-bottom: 10px; font-size: 11.5px; font-weight: 800; }
+    .st-last-top .tag { color: var(--lk-gold); }
+    .st-last-top .meta { color: var(--lk-muted); font-weight: 700; white-space: nowrap; }
+    .st-last-row { display: grid; grid-template-columns: auto minmax(0, 1fr) auto; align-items: center; gap: 12px; }
+    .st-last .medal { display: grid; place-items: center; width: 42px; height: 42px; border-radius: 50%;
+      background: radial-gradient(circle at 35% 30%, #FBEBC4 0%, #E3BF6E 48%, #A97C33 100%);
+      box-shadow: 0 0 0 3px rgba(227, 191, 110, .16), 0 6px 14px -6px rgba(0, 0, 0, .6), inset 0 -2px 3px rgba(90, 60, 20, .35); }
+    .st-last .medal .ic { width: 20px; height: 20px; margin: 0; color: #3A2A0C; }
+    .st-last .who { display: flex; flex-direction: column; gap: 2px; min-width: 0; text-align: start; }
+    .st-last .champ { font-size: 19px; font-weight: 800; line-height: 1.3; color: var(--lk-ivory); overflow-wrap: anywhere; }
+    .st-last .ru { font-size: 12.5px; font-weight: 700; line-height: 1.45; color: var(--lk-muted); overflow-wrap: anywhere; }
+    .st-last .ru .k { margin-inline-end: 5px; }
+    .st-last .who bdi { white-space: nowrap; }   /* الاسم لا ينكسر داخله؛ السطر يلتف عند «+» فقط */
+    .st-last .pl { display: inline-block; margin: 0 5px; color: var(--lk-gold); font-weight: 800; }
+    .st-last .score { display: flex; flex-direction: column; align-items: center; gap: 2px; padding-inline-start: 12px; border-inline-start: 1px solid rgba(227, 191, 110, .32); }
+    .st-last .score b { font-size: 24px; font-weight: 900; line-height: 1.1; color: var(--lk-ivory); font-variant-numeric: tabular-nums; white-space: nowrap; }
+    .st-last .score i { font-style: normal; font-size: 11.5px; font-weight: 800; color: var(--lk-gold); }
+    @container stlast (max-width: 359px) { .st-last .champ { font-size: 17px; } .st-last .medal { width: 36px; height: 36px; } .st-last .medal .ic { width: 17px; height: 17px; } .st-last .score b { font-size: 20px; } .st-last-row { gap: 10px; } }
+    @container stlast (min-width: 600px) {   /* الكمبيوتر: نفس الصف بعرض محدود في الوسط */
+      .st-last { padding: 14px 22px 16px; }
+      .st-last .champ { font-size: 22px; } .st-last .medal { width: 48px; height: 48px; } .st-last .score b { font-size: 28px; }
     }
-    @container stlast (min-width: 600px) {
-      .st-last-main { column-gap: 28px; max-width: 640px; margin-inline: auto; padding: 14px 24px 18px; }   /* الكمبيوتر: اللوحة متجمعة في الوسط لتُقرأ كنتيجة واحدة */
-      .st-last .nm { font-size: 19px; }
-      .st-last .sc { min-width: 110px; min-height: 54px; } .st-last .sc b { font-size: 30px; }
-    }
+    /* فاصل رفيع بين بطاقة آخر بطولة والملخص (نفس خط الفصل أسفل الملخص) */
+    .st-last + .st-over { padding-top: var(--s3); border-top: 1px solid var(--line); }
     /* ===== ملخص البطولات: شريط واحد مدمج (أقل بروزًا من بطاقة آخر بطولة): المكتملة · المباريات ‖ فردية · فرق · دوري ===== */
     .st-over { container: stover / inline-size; margin: 0 0 var(--s5); padding-bottom: 10px; border-bottom: 1px solid var(--line); }   /* بلا إطار ولا ظل: أرقام على الخلفية مباشرة، فتبقى بطاقة آخر بطولة وحدها البارزة */
     .st-over-row { display: flex; align-items: stretch; padding: 4px 0; }
@@ -2531,6 +2535,85 @@
     .st-over-live .dot { flex: none; width: 6px; height: 6px; margin-top: 7px; border-radius: 50%; background: var(--ok); }
     @container stover (max-width: 359px) { .st-over .ov i, .st-over .sv i { white-space: normal; font-size: 10.5px; line-height: 1.25; } .st-over .ov b { font-size: 17px; } }
     .stp-id .sub .pf-tier { padding: 1px 10px; font-size: 11.5px; line-height: 1.6; }
+    /* ===== 4.2 — «صفحتي» (نسخة المشاهدة): هويتي ← مبارياتي القادمة ← أين أنا ← أدائي الأخير =====
+       نفس هوية الإحصائيات: سطح مرتفع وإطار رفيع، أقسام يفصلها خط رفيع، عنوان القسم يمينًا وملخصه يسارًا. */
+    .vme.v2, .vme.v2:not(.ask) { display: block; container: vme / inline-size; padding: 14px 14px 12px; }
+    .vm2-top { display: grid; grid-template-columns: auto minmax(0, 1fr) auto; align-items: center; gap: 12px; }
+    .vm2-key { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 3px; min-width: 104px; min-height: 54px; padding: 6px 10px; border-radius: 12px; cursor: pointer; font: inherit; color: var(--text);
+      border: 1px solid color-mix(in srgb, var(--gold) 38%, transparent); background: color-mix(in srgb, var(--gold) 9%, var(--surface)); -webkit-tap-highlight-color: transparent; }
+    .vm2-key b { font-size: 22px; font-weight: 800; line-height: 1; font-variant-numeric: tabular-nums; }
+    .vm2-key small { display: inline-flex; align-items: center; gap: 5px; font-size: 11px; font-weight: 800; color: var(--gold-deep); }
+    .vm2-key em { font-style: normal; font-weight: 800; } .vm2-key em.up { color: var(--ok); } .vm2-key em.down { color: var(--danger, #B3402F); }
+    .vm2-sec { margin-top: 12px; padding-top: 12px; border-top: 1px solid var(--line); }
+    .vm2-h { display: flex; align-items: baseline; justify-content: space-between; gap: 10px; margin-bottom: 9px; }
+    .vm2-h > span { font-size: 13.5px; font-weight: 800; color: var(--text); }
+    .vm2-h small { font-size: 11.5px; font-weight: 700; color: var(--text-3); }
+    .vm2-h small b { color: var(--text); font-weight: 800; }
+    /* مبارياتي القادمة: صفوف متطابقة؛ الأولى (القادمة فعلًا) بلمسة ذهبية */
+    .vm2-list { display: flex; flex-direction: column; gap: 6px; }
+    .vm2-m { display: grid; grid-template-columns: minmax(0, 1fr) auto; grid-template-areas: "r p" "o p"; align-items: center; column-gap: 12px; row-gap: 1px; width: 100%; padding: 8px 12px; border-radius: 12px;
+      border: 1px solid var(--line); background: var(--surface-2); font: inherit; color: var(--text); text-align: start; cursor: pointer; -webkit-tap-highlight-color: transparent; transition: transform .18s ease; }
+    .vm2-m:active { transform: scale(.985); }
+    .vm2-m:first-child { border-color: color-mix(in srgb, var(--gold) 45%, transparent); background: color-mix(in srgb, var(--gold) 9%, var(--surface)); }
+    .vm2-m .r { grid-area: r; font-size: 11px; font-weight: 800; color: var(--gold-deep); }
+    .vm2-m .o { grid-area: o; display: flex; align-items: baseline; flex-wrap: wrap; gap: 2px 8px; min-width: 0; }
+    .vm2-m .o b { font-size: 15.5px; font-weight: 800; overflow-wrap: anywhere; }
+    .vm2-m .o small { font-size: 11.5px; font-weight: 700; color: var(--text-3); white-space: nowrap; }
+    .vm2-m .p { grid-area: p; display: flex; flex-direction: column; align-items: center; min-width: 52px; padding-inline-start: 12px; border-inline-start: 1px solid var(--line); }
+    .vm2-m .p b { font-size: 17px; font-weight: 800; line-height: 1.2; font-variant-numeric: tabular-nums; }
+    .vm2-m .p small { font-size: 10.5px; font-weight: 800; color: var(--text-3); }
+    .vme.v2:not(.all) .vm2-m.x { display: none; }
+    .vm2-more { display: block; width: 100%; margin-top: 6px; min-height: 38px; border: 1px dashed var(--line-strong); border-radius: 12px; background: transparent; color: var(--text-2); font: inherit; font-size: 12.5px; font-weight: 800; cursor: pointer; }
+    .vm2-none { font-size: 12.5px; font-weight: 700; color: var(--text-3); }
+    /* أين أنا: التقدم نحو المستوى التالي، ثم الجيران، ثم الدوري */
+    .vm2-tier .t { font-size: 13px; font-weight: 700; color: var(--text-2); } .vm2-tier .t b { color: var(--text); font-weight: 800; }
+    .vm2-tier .bar { height: 6px; margin-top: 7px; border-radius: 999px; background: var(--surface-3); overflow: hidden; }
+    .vm2-tier .bar i { display: block; height: 100%; border-radius: inherit; background: linear-gradient(270deg, #E3BF6E, #B8892E); }
+    .vm2-tier .ends { display: flex; justify-content: space-between; margin-top: 4px; font-size: 10.5px; font-weight: 800; color: var(--text-3); }
+    .vm2-nb { display: flex; flex-direction: column; gap: 4px; margin-top: 10px; }
+    .vm2-nb .nb { display: flex; align-items: center; gap: 7px; font-size: 12.5px; font-weight: 700; color: var(--text-2); }
+    .vm2-nb .nb b { color: var(--text); font-weight: 800; }
+    .vm2-nb .nb i { flex: none; width: 0; height: 0; border-inline: 4.5px solid transparent; }
+    .vm2-nb .up i { border-bottom: 6px solid var(--ok); } .vm2-nb .dn i { border-top: 6px solid var(--danger, #B3402F); } .vm2-nb .top i { border-bottom: 6px solid var(--gold); }
+    .vm2-lg { display: flex; align-items: center; gap: 8px; margin-top: 10px; padding-top: 9px; border-top: 1px dashed var(--line); font-size: 13px; font-weight: 700; color: var(--text-2); }
+    .vm2-lg2 { margin-top: 4px; font-size: 12px; font-weight: 700; color: var(--text-3); } .vm2-lg2 b { color: var(--text-2); font-weight: 800; }
+    .vm2-lg b { color: var(--text); font-weight: 800; }
+    .vm2-lg .k, .vm2-since .k { padding: 0 8px; border-radius: 999px; font-size: 11px; font-weight: 800; line-height: 1.8; color: var(--gold-deep); background: color-mix(in srgb, var(--gold) 12%, transparent); }
+    .vm2-lg .sep, .vm2-since .sep { width: 1px; height: 11px; background: var(--line-strong); }
+    /* أدائي الأخير */
+    .vm2-form { display: grid; grid-template-columns: 1fr 1fr; }
+    .vm2-form .cell { display: flex; flex-direction: column; align-items: center; justify-content: flex-end; gap: 4px; min-width: 0; }
+    .vm2-form .cell + .cell { border-inline-start: 1px solid var(--line); }
+    .vm2-form .cell small { font-size: 10.5px; font-weight: 800; color: var(--text-3); }
+    .vm2-form .lgf { margin: 0; gap: 3px; } .vm2-form .lgf i { width: 18px; height: 18px; font-size: 10px; }
+    .vm2-form svg { display: block; width: 100%; max-width: 140px; height: 22px; }
+    .vm2-form .none { font-weight: 800; color: var(--text-3); }
+    .vm2-since { display: flex; flex-wrap: wrap; align-items: center; justify-content: center; gap: 4px 8px; margin-top: 10px; font-size: 12.5px; font-weight: 800; color: var(--text-2); }
+    .vm2-since .up { color: var(--ok); } .vm2-since .down { color: var(--danger, #B3402F); }
+    /* الكمبيوتر: مبارياتي يمينًا (الأهم)، وأين أنا وأدائي يسارًا */
+    @container vme (min-width: 760px) {
+      .vm2-body { display: grid; grid-template-columns: minmax(0, 1.1fr) minmax(0, 1fr); column-gap: 22px; margin-top: 12px; border-top: 1px solid var(--line); }
+      .vm2-col.b { padding-inline-start: 22px; border-inline-start: 1px solid var(--line); }
+      .vm2-col > .vm2-sec:first-child { border-top: 0; }
+    }
+    /* ===== 4.2 — «صفحتي» بمستويين: شريط مختصر في الصفحة الرئيسية، والصفحة الكاملة في نافذة ===== */
+    .vme.v2s, .vme.v2s:not(.ask) { display: grid; grid-template-columns: auto minmax(0, 1fr); align-items: center; gap: 10px; padding: 10px 12px; }
+    .vms-open { display: grid; grid-template-columns: minmax(0, 1fr) auto auto; align-items: center; gap: 12px; width: 100%; padding: 0; border: 0; background: none; font: inherit; color: var(--text); text-align: start; cursor: pointer; -webkit-tap-highlight-color: transparent; }
+    .vms-open .who { display: flex; flex-direction: column; gap: 3px; min-width: 0; }
+    .vms-open .l1 { display: flex; align-items: center; gap: 8px; min-width: 0; }
+    .vms-open .l1 b { font-size: 16.5px; font-weight: 800; line-height: 1.3; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .vms-open .l1 .pf-tier { flex: none; padding: 1px 9px; font-size: 11px; line-height: 1.6; }
+    .vms-open .l2 { font-size: 12.5px; font-weight: 700; color: var(--text-3); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .vms-open .l2 b { color: var(--text); font-weight: 800; }
+    .vms-open .rt { display: flex; flex-direction: column; align-items: center; gap: 1px; padding-inline-start: 12px; border-inline-start: 1px solid var(--line); }
+    .vms-open .rt b { font-size: 18px; font-weight: 800; line-height: 1.15; font-variant-numeric: tabular-nums; }
+    .vms-open .rt small { font-size: 10.5px; font-weight: 800; color: var(--gold-deep); }
+    .vms-open .rt em { font-style: normal; } .vms-open .rt em.up { color: var(--ok); } .vms-open .rt em.down { color: var(--danger, #B3402F); }
+    .vms-open .chev { width: 18px; height: 18px; color: var(--text-3); }
+    .vms-open:active { opacity: .7; }
+    /* داخل النافذة: بلا إطار البطاقة (النافذة هي الإطار) */
+    .vme.v2.sheet { padding: 0; border: 0; box-shadow: none; background: none; }
+    .vme.v2.sheet .vm2-top .vme-av { width: 42px; height: 42px; }
   </style>
 </head>
 <body>
@@ -5204,19 +5287,18 @@ return teamName.replace('غير محدد', replacement);
             (showName ? `<span class="sth-name">${escHTML(nm)}</span>` : '') + `</div>`; }).join('') + `</div>`).join('');
 
       // ===== بطاقة «آخر بطولة مكتملة»: البطل ← النتيجة ← الوصيف، ومعها اليوم والتاريخ ونوع البطولة =====
+      // ===== بطاقة «آخر بطولة مكتملة»: سطر واحد متماسك — الوسام ← البطل (وتحته الوصيف) ← النتيجة؛ والرأس: العنوان والتاريخ =====
       const lastCardHTML = (() => {
         if (!lastHist || !lastHist.champion) return '';
         const t = lastHist, fs = t.finalScore || {}, hasSc = fs.winner != null && fs.loser != null;
-        const names = side => sideNames(t, side).map(x => `<bdi>${escHTML(x)}</bdi>`).join('') || '—';
-        const [mic, ml] = modeOf(t);
+        const names = side => { const ms = sideNames(t, side); return ms.length ? ms.map(x => `<bdi>${escHTML(x)}</bdi>`).join('<span class="pl" aria-hidden="true">+</span>') : '—'; };
+        const sc = hasSc ? `${Math.max(fs.winner, fs.loser)} - ${Math.min(fs.winner, fs.loser)}` : '';
         return `<section class="st-last" aria-label="آخر بطولة مكتملة">
-          <div class="st-last-top"><span class="tag">آخر بطولة مكتملة</span><span class="meta">${escHTML(fmtDate(t.date))}<i class="dot" aria-hidden="true"></i><span class="ic ic-${mic}" aria-hidden="true"></span>${ml}</span></div>
-          <div class="st-last-main">
-            <span class="lb lc"><span class="ic ic-trophy" aria-hidden="true"></span>البطل</span>
-            <span class="lb lr">الوصيف</span>
-            <b class="nm nc">${names(t.champion)}</b>
-            <span class="sc">${hasSc ? `<b aria-label="النتيجة ${Math.max(fs.winner, fs.loser)} - ${Math.min(fs.winner, fs.loser)}">${Math.max(fs.winner, fs.loser)} - ${Math.min(fs.winner, fs.loser)}</b>` : '<span class="ic ic-trophy" aria-hidden="true"></span>'}</span>
-            <b class="nm nr">${names(t.runnerUp)}</b>
+          <div class="st-last-top"><span class="tag">بطل آخر بطولة${t.mode === 'league' ? ' · دوري' : ''}</span><span class="meta">${escHTML(fmtDate(t.date))}</span></div>
+          <div class="st-last-row">
+            <span class="medal" aria-hidden="true"><span class="ic ic-trophy"></span></span>
+            <span class="who"><b class="champ">${names(t.champion)}</b><span class="ru"><span class="k">أمام</span>${names(t.runnerUp)}</span></span>
+            ${sc ? `<span class="score"><b>${sc}</b><i>النهائي</i></span>` : ''}
           </div>
         </section>`;
       })();
@@ -11722,7 +11804,7 @@ function buildLeagueStandingsCanvas() {
     // ===================================
     // 🧭 سلوك التطبيق: إعادة الوضع للأعلى، تعديل العنوان بالضغط المطوّل، تنبيه التحديث، رقم الإصدار
     // ===================================
-    const APP_VERSION = '4';   // ترقيم الاعتماد: 1 ثم 1.1 … 1.9 ثم 2 — ويُرفع معه رقم الإصدار في sw.js
+    const APP_VERSION = '4.2';   // ترقيم الاعتماد: 1 ثم 1.1 … 1.9 ثم 2 — ويُرفع معه رقم الإصدار في sw.js
     (function setupAppBehaviors() {
       const root = document.documentElement;
 
@@ -11828,7 +11910,7 @@ function buildLeagueStandingsCanvas() {
       const bar = header && header.querySelector('.app-bar');
       const h2 = document.getElementById('tournamentName');
       const h1 = document.getElementById('tournamentTitle');
-      const btns = [document.getElementById('themeSwitch'), document.getElementById('openControlDashboard')];
+      let btns = [document.getElementById('themeSwitch'), document.getElementById('openControlDashboard')];
       const nav = document.querySelector('.mode-nav');
       if (!wrap || !header || !bar || !h2 || !h1 || !nav) return;
       const BAR = 52;             // ارتفاع الشريط الرفيع تحت منطقة الساعة
@@ -11837,6 +11919,8 @@ function buildLeagueStandingsCanvas() {
 
       const centerY = el => { const r = el.getBoundingClientRect(), h = header.getBoundingClientRect(); return r.top - h.top + r.height / 2; };
       function measure() {
+        // أزرار الهيدر الظاهرة الآن (صفحة المشاهدة تضيف زر الإحصائيات بعد بدء التطبيق، فنعيد جمعها في كل قياس)
+        btns = ['themeSwitch', 'openControlDashboard', 'viewStatsBtn'].map(id => document.getElementById(id)).filter(b => b && b.getClientRects().length);
         // القياس بلا أي تحويلات حتى تكون المواضع الأصلية
         [h2, h1, ...btns].forEach(el => { if (el) el.style.transform = ''; });
         safeTop = parseFloat(getComputedStyle(header).paddingTop) || 0;
@@ -12057,6 +12141,7 @@ function buildLeagueStandingsCanvas() {
         const sb = document.createElement('button'); sb.type = 'button'; sb.id = 'viewStatsBtn'; sb.className = adminBtn.className;
         sb.setAttribute('aria-label', 'اللاعبون والإحصائيات'); sb.setAttribute('data-ic', 'chart'); sb.innerHTML = '<span>الإحصائيات</span>';
         sb.addEventListener('click', () => openStats()); adminBtn.after(sb);
+        requestAnimationFrame(() => window.dispatchEvent(new Event('resize')));   // ليتحرك مع الهيدر عند الطي مثل زر المظهر
       }
       // الدوري: عمودان داخل اللوحة (المباريات | الترتيب). في الجوال يبقى التبويبان، وفي الشاشات الكبيرة يظهران جنبًا إلى جنب
       const lmp = document.getElementById('leagueMainPanel');
@@ -12211,7 +12296,7 @@ function buildLeagueStandingsCanvas() {
               .sort((a, b) => a.round - b.round || String(a.id).localeCompare(String(b.id), 'en', { numeric: true }))
               .forEach(m => { const opp = m.playerA === me ? m.playerB : m.playerA; out.push({ mode: 'league', id: m.id, label: `الدوري · الجولة ${m.round}`, opp, mA: [me], mB: [opp], lg: true, final: false }); });
           }
-          return out.slice(0, 5);
+          return out;   // كل مبارياتي القادمة (القائمة تعرض أول 3 ثم «عرض الكل»)
         }
         let slide = 0;   // البطاقة الظاهرة في شريط المباريات (تبقى عند إعادة الرسم)
         function paintMe() {
@@ -12233,26 +12318,95 @@ function buildLeagueStandingsCanvas() {
             lg ? (lg.excluded ? `<div class="c"><b class="ex">مستبعد</b><small>من الدوري</small></div>` : `<div class="c"><b>${lg.rank}</b><small>مركزك في الدوري</small></div>`) : ''
           ].filter(Boolean);
           const nx = nextMatches();
-          const rows = nx.map((m, i) => {
-            m.label = (i === 0 ? 'مباراتك القادمة · ' : '') + m.label; let pct = ''; try { const s = versusStory({ a: m.aLabel || me, b: m.opp, members: [m.mA, m.mB], lg: m.lg, final: m.final }); pct = `<span class="pct"><small>فرصتك</small><bdi dir="ltr">${Math.round(s.pA * 100)}%</bdi></span>`; } catch (e) {}
-            return `<button type="button" class="vme-next" data-i="${i}"><span class="t"><small>${esc(m.label)}</small><b>ضد ${esc(m.opp)}</b></span>${pct}</button>`; }).join('');
-          card.className = 'vme';
-          card.innerHTML = `<div class="vme-head"><button type="button" class="vme-change" aria-label="تغيير الاسم" title="تغيير الاسم"><span class="vme-av"><span class="ic ic-user" aria-hidden="true"></span></span><span class="sw"><span class="ic ic-swap" aria-hidden="true"></span></span></button><button type="button" class="vme-top">
-              <span class="who"><b>${esc(me)}</b><span class="pf-tier t${tier.level}">${esc(known ? tier.name : 'أول ظهور')}</span></span></button></div>
-            <button type="button" class="vme-stats" style="--n:${cells.length}">${cells.join('')}</button>
-            ${rows ? `<div class="vme-track" dir="rtl">${rows}</div>` : '<div class="vme-none">لا توجد مباراة قادمة لك حاليًا</div>'}`;
-          card.querySelectorAll('.vme-top, .vme-stats').forEach(el => el.addEventListener('click', () => { try { window.carromOpenProfile(me); } catch (e) {} }));
+          // ===== «صفحتي» 4.2: هويتي ← مبارياتي القادمة ← أين أنا ← أدائي الأخير =====
+          const fmt = n => Number(n).toLocaleString('en-US');
+          const ptsW2 = n => n === 1 ? 'نقطة' : n === 2 ? 'نقطتان' : n >= 3 && n <= 10 ? 'نقاط' : 'نقطة';
+          // (1) مبارياتي القادمة: قائمة مرتبة (أول 3 ظاهرة، والباقي بـ«عرض الكل»): الجولة · الخصم · المواجهات · فرصتك
+          const mRows = nx.map((m, i) => {
+            let pct = '', h2h = '';
+            try { const st = versusStory({ a: m.aLabel || me, b: m.opp, members: [m.mA, m.mB], lg: m.lg, final: m.final });
+              pct = `${Math.round(st.pA * 100)}%`;
+              if (st.h && st.h.total) h2h = `فزت ${st.h.a} · خسرت ${st.h.b}${st.h.d ? ` · تعادل ${st.h.d}` : ''}`; } catch (e) {}   // صريحة بالكلمات: لا التباس في اتجاه الأرقام
+            return `<button type="button" class="vm2-m${i >= 3 ? ' x' : ''}" data-i="${i}"><span class="r">${esc(m.label)}</span><span class="o"><b>ضد ${esc(m.opp)}</b><small>${h2h || 'أول مواجهة بينكما'}</small></span>${pct ? `<span class="p"><b>${pct}</b><small>فرصتك</small></span>` : ''}</button>`; }).join('');
+          const matchesHTML = nx.length
+            ? `<div class="vm2-sec"><div class="vm2-h"><span>مبارياتي القادمة</span><small>${nx.length}</small></div><div class="vm2-list">${mRows}</div>${nx.length > 3 ? `<button type="button" class="vm2-more" aria-expanded="false">عرض الكل (${nx.length})</button>` : ''}</div>`
+            : `<div class="vm2-sec"><div class="vm2-h"><span>مبارياتي القادمة</span></div><div class="vm2-none">لا توجد مباراة قادمة لك حاليًا</div></div>`;
+          // (2) أين أنا: المستوى التالي + الجيران في الترتيب العام + الدوري
+          let whereHTML = '';
+          if (known) {
+            const list = ratings.ranked.filter(x => x.games), idx = list.findIndex(x => x.name === me), up = list[idx - 1], dn = list[idx + 1];
+            const tiers = ELO_TIERS.slice().sort((x, y) => x[0] - y[0]), cur = tiers.filter(x => r >= x[0]).pop(), nxt = tiers.find(x => x[0] > r);
+            const lo = Number.isFinite(cur[0]) ? cur[0] : (nxt ? nxt[0] - 80 : r - 80), hi = nxt ? nxt[0] : lo + 80, pctT = Math.max(4, Math.min(100, Math.round((r - lo) / (hi - lo) * 100)));
+            const tierLine = nxt ? `باقي <b>${nxt[0] - r}</b> ${ptsW2(nxt[0] - r)} لمستوى <b>${esc(nxt[1])}</b>` : `في أعلى مستوى · فوق حدّه بـ<b>${r - cur[0]}</b>`;
+            const nb = [];
+            if (up) nb.push(`<span class="nb up"><i aria-hidden="true"></i><span>تحتاج <b>${up.rating - r + 1}</b> ${ptsW2(up.rating - r + 1)} لتتجاوز <bdi>${esc(up.name)}</bdi></span></span>`);
+            else if (dn) nb.push(`<span class="nb top"><i aria-hidden="true"></i><span>الأول · تتقدم بـ<b>${r - dn.rating}</b> ${ptsW2(r - dn.rating)} على <bdi>${esc(dn.name)}</bdi></span></span>`);
+            if (up && dn) nb.push(`<span class="nb dn"><i aria-hidden="true"></i><span><bdi>${esc(dn.name)}</bdi> خلفك بـ<b>${r - dn.rating}</b> ${ptsW2(r - dn.rating)}</span></span>`);
+            let lgLine = '';
+            if (lg && !lg.excluded) { try { const S = calculateLeagueStandings().filter(x => !x.excluded); const first = S[0], second = S[1];
+              const left = (leagueMatches || []).filter(x => !isLeagueMatchSettled(x) && (x.playerA === me || x.playerB === me)).length;
+              const gap = lg.rank === 1 ? (second ? `تتقدم بـ<b>${lg.points - second.points}</b> ${ptsW2(lg.points - second.points)}` : '') : `خلف المتصدر بـ<b>${first.points - lg.points}</b> ${ptsW2(first.points - lg.points)}`;
+              const leftTxt = left ? `متبقٍ لك <b>${left}</b> ${left === 1 ? 'مباراة' : left === 2 ? 'مباراتان' : left <= 10 ? 'مباريات' : 'مباراة'}` : '';
+              lgLine = `<div class="vm2-lg"><span class="k">الدوري</span><span class="m">المركز <b>${lg.rank}</b> · <b>${lg.points}</b> ${ptsW2(lg.points)}</span></div>${gap || leftTxt ? `<div class="vm2-lg2">${[gap, leftTxt].filter(Boolean).join(' · ')}</div>` : ''}`; } catch (e) {} }
+            whereHTML = `<div class="vm2-sec"><div class="vm2-h"><span>أين أنا</span><small>الترتيب العام <b>${p.rank}</b> من ${rankedN}</small></div>
+              <div class="vm2-tier"><div class="t">${tierLine}</div>${nxt ? `<div class="bar" role="img" aria-label="التقدم نحو المستوى التالي ${pctT}%"><i style="width:${pctT}%"></i></div><div class="ends"><span>${esc(cur[1])}</span><span>${esc(nxt[1])}</span></div>` : ''}</div>
+              ${nb.length ? `<div class="vm2-nb">${nb.join('')}</div>` : ''}${lgLine}</div>`;
+          }
+          // (3) أدائي الأخير: آخر 5 نتائج · السلسلة الحالية · مسار التقييم · منذ زيارتك
+          let formHTML = '';
+          if (known) {
+            const seq = (p.seq || []).slice(-5);
+            const stTxt = p.streak && p.streak.len >= 2 ? `${p.streak.len} ${p.streak.type === 'w' ? 'انتصارات' : p.streak.type === 'l' ? 'خسائر' : 'تعادلات'} متتالية` : seq.length ? `آخر نتيجة: ${seq[seq.length - 1] === 'w' ? 'فوز' : seq[seq.length - 1] === 'l' ? 'خسارة' : 'تعادل'}` : '—';
+            const pts = (p.points || []).slice(-10).map(x => x.r);
+            let spark = '<span class="none">—</span>';
+            if (pts.length >= 2) { const mn = Math.min(...pts), mx = Math.max(...pts), sp = Math.max(16, mx - mn), W = 100, H = 26, pd = 3, X = i => pd + (W - 2 * pd) * i / (pts.length - 1), Y = v => H - pd - (H - 2 * pd) * (v - mn) / sp, upT = pts[pts.length - 1] >= pts[0], c = upT ? 'var(--ok)' : 'var(--gold-deep)';
+              spark = `<svg viewBox="0 0 ${W} ${H}" preserveAspectRatio="none" aria-hidden="true"><polyline points="${pts.map((v, i) => `${X(i).toFixed(1)},${Y(v).toFixed(1)}`).join(' ')}" fill="none" stroke="${c}" stroke-width="2" stroke-linejoin="round" stroke-linecap="round" vector-effect="non-scaling-stroke"/><circle cx="${X(pts.length - 1).toFixed(1)}" cy="${Y(pts[pts.length - 1]).toFixed(1)}" r="2.6" fill="${c}"/></svg>`; }
+            // منذ زيارتك: تغيّر التقييم والمركز (من التقييمات المحفوظة في آخر زيارة)
+            let since = '';
+            if (seen && seen.ratings && dl) { const prevList = Object.entries(seen.ratings).sort((x, y) => y[1] - x[1]).map(x => x[0]), pr = prevList.indexOf(me) + 1, mv = pr ? pr - p.rank : 0;
+              since = `<div class="vm2-since"><span class="k">منذ زيارتك</span><span class="${dl > 0 ? 'up' : 'down'}"><bdi dir="ltr">${dl > 0 ? '+' : '−'}${Math.abs(dl)}</bdi> تقييم</span>${mv ? `<i class="sep"></i><span class="${mv > 0 ? 'up' : 'down'}">${mv > 0 ? 'صعدت' : 'نزلت'} ${Math.abs(mv) === 1 ? 'مركزًا' : Math.abs(mv) === 2 ? 'مركزين' : Math.abs(mv) + ' مراكز'}</span>` : ''}</div>`; }
+            formHTML = `<div class="vm2-sec"><div class="vm2-h"><span>أدائي الأخير</span><small>${stTxt}</small></div>
+              <div class="vm2-form"><span class="cell"><span class="lgf">${seq.map(x => `<i class="${x}">${x === 'w' ? 'ف' : x === 'l' ? 'خ' : 'ت'}</i>`).join('') || '<span class="none">—</span>'}</span><small>آخر النتائج</small></span><span class="cell sp">${spark}<small>مسار التقييم</small></span></div>${since}</div>`;
+          }
+          // ===== المستوى 1: شريط مختصر في الصفحة الرئيسية (اسمي · مباراتي القادمة · تقييمي) — يفتح «صفحتي» =====
+          const n0 = nx[0];
+          let nxTxt = 'لا توجد مباراة قادمة لك حاليًا';
+          if (n0) { let pc = ''; try { const st = versusStory({ a: n0.aLabel || me, b: n0.opp, members: [n0.mA, n0.mB], lg: n0.lg, final: n0.final }); pc = ` · <b><bdi dir="ltr">${Math.round(st.pA * 100)}%</bdi></b>`; } catch (e) {}
+            nxTxt = `القادمة: ضد <bdi>${esc(n0.opp)}</bdi>${pc}`; }
+          card.className = 'vme v2s';
+          card.innerHTML = `<button type="button" class="vme-change" aria-label="تغيير الاسم" title="تغيير الاسم"><span class="vme-av"><span class="ic ic-user" aria-hidden="true"></span></span><span class="sw"><span class="ic ic-swap" aria-hidden="true"></span></span></button>
+            <button type="button" class="vms-open" aria-label="فتح صفحتي">
+              <span class="who"><span class="l1"><b>${esc(me)}</b></span><span class="l2">${nxTxt}</span></span>
+              <span class="rt"><b>${fmt(r)}</b><small>${dl ? `<em class="${dl > 0 ? 'up' : 'down'}"><bdi dir="ltr">${dl > 0 ? '▲' + dl : '▼' + Math.abs(dl)}</bdi></em>` : 'التقييم'}</small></span>
+              <svg class="chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 6l-6 6 6 6"/></svg>
+            </button>`;
           card.querySelector('.vme-change').addEventListener('click', openPicker);
-          const track = card.querySelector('.vme-track');
-          if (track) setupTrack(track, nx.length);
-          card.querySelectorAll('.vme-next').forEach(b => b.addEventListener('click', () => {
-            if (track && track.dataset.dragged === '1') return;   // نهاية سحب بالماوس ليست ضغطة
-            const m = nx[+b.dataset.i]; if (!m) return;
-            if (currentMode !== m.mode) { const btn = document.getElementById({ league: 'modeLeagueBtn', single: 'modeSingleBtn', fixed: 'modeFixedBtn' }[m.mode]); if (btn) btn.click(); }
-            if (m.mode === 'league') openLeagueScoreModal(m.id); else selectWinner(m.id);
-          }));
+          card.querySelector('.vms-open').addEventListener('click', openMine);
+          // ===== المستوى 2: «صفحتي» الكاملة في نافذة مستقلة (نفس نافذة الملف والمباراة) =====
+          mineHTML = `<div class="vm-round">صفحتي</div><div class="vme v2 sheet">
+            <div class="vm2-top"><span class="vme-av" aria-hidden="true"><span class="ic ic-user"></span></span>
+              <button type="button" class="vme-top"><span class="who"><b>${esc(me)}</b><span class="pf-tier t${tier.level}">${esc(known ? tier.name : 'أول ظهور')}</span></span></button>
+              <button type="button" class="vm2-key"><b>${fmt(r)}</b><small>التقييم${dl ? ` <em class="${dl > 0 ? 'up' : 'down'}"><bdi dir="ltr">${dl > 0 ? '▲' + dl : '▼' + Math.abs(dl)}</bdi></em>` : ''}</small></button></div>
+            <div class="vm2-body"><div class="vm2-col a">${matchesHTML}</div><div class="vm2-col b">${whereHTML}${formHTML}</div></div></div>`;
+          mineNx = nx;
           decorate();
         }
+        let mineHTML = '', mineNx = [];
+        function openMine() {
+          if (!mineHTML) return;
+          body.innerHTML = mineHTML;
+          const sheet = body.querySelector('.vme.sheet');
+          sheet.querySelectorAll('.vme-top, .vm2-key').forEach(el => el.addEventListener('click', () => { try { window.carromOpenProfile(me); } catch (e) {} }));
+          const more = sheet.querySelector('.vm2-more');
+          if (more) more.addEventListener('click', () => { const on = !sheet.classList.contains('all'); sheet.classList.toggle('all', on); more.setAttribute('aria-expanded', String(on)); more.textContent = on ? 'عرض أقل' : `عرض الكل (${mineNx.length})`; });
+          sheet.querySelectorAll('.vm2-m').forEach(b => b.addEventListener('click', () => {
+            const m = mineNx[+b.dataset.i]; if (!m) return;
+            if (currentMode !== m.mode) { const btn = document.getElementById({ league: 'modeLeagueBtn', single: 'modeSingleBtn', fixed: 'modeFixedBtn' }[m.mode]); if (btn) btn.click(); }
+            if (m.mode === 'league') openLeagueScoreModal(m.id); else selectWinner(m.id);   // ورقة المباراة تحل محل «صفحتي» في نفس النافذة
+          }));
+          modal.style.display = 'flex'; modal.querySelector('.modal-content').scrollTop = 0;
+        }
+        window.carromOpenMine = openMine;
         // شريط المباريات القادمة: سحب أفقي أصلي بالتثبيت على كل بطاقة (اللمس ولوحة اللمس)، وسحب بالماوس على الكمبيوتر
         function setupTrack(track, n) {
           const w = () => track.clientWidth || 1;
