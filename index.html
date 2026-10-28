@@ -2684,6 +2684,22 @@
     /* 4.7 — بلا إطار ذهبي إطلاقًا: «أنا» تُعرف بشارة «أنت» ولمسة خلفية دافئة فقط، والإطار نفس إطار كل البطاقات */
     .lgc-row.is-me .n b::after { content: "أنت"; display: inline-flex; align-items: center; margin-inline-start: 6px; padding: 0 8px; border-radius: 999px;
       background: var(--gold); color: #2A1E10; font-size: 10.5px; font-weight: 800; line-height: 1.7; vertical-align: 2px; }
+    /* ===== 4.8 — كبسولات المستوى: نفس أسلوب كبسولة «أسطورة المجلس» (تدرج ناعم مسطح، بلا إطار ولا ظل ولا لمعة)،
+       ولكل مستوى لونه المتدرج: مبتدئ حجري · متمكن برونزي · محترف فضي · نخبة بني داكن بنص ذهبي · أسطورة ذهبي.
+       نفس الألوان في التطبيق ولوحة التحكم ونسخة اللاعبين وصور التصدير ===== */
+    .pf-tier, .pf-tier.t0, .pf-tier.t1, .pf-tier.t2, .pf-tier.t3, .pf-tier.t4 { display: inline-flex; align-items: center; border: 0; box-shadow: none; white-space: nowrap; }
+    .pf-tier.t0 { background: linear-gradient(135deg, #EEE8DE, #DCD3C5); color: #5E584E; }
+    .pf-tier.t1 { background: linear-gradient(135deg, #F2DDC8, #D9AE88); color: #4E2E14; }
+    .pf-tier.t2 { background: linear-gradient(135deg, #F0F2F3, #C3C9CE); color: #2F353B; }
+    .pf-tier.t3 { background: linear-gradient(135deg, #5A4535, #33261D); color: #F1D9A6; }
+    .pf-tier.t4 { background: linear-gradient(135deg, #F3DFAE, #CFA963); color: #3A2A0C; }
+    body.dark-mode .pf-tier.t0 { background: linear-gradient(135deg, #DCD3C5, #BFB4A3); color: #3A342D; }
+    body.dark-mode .pf-tier.t3 { background: linear-gradient(135deg, #735A45, #4C3A2C); color: #F3DDAC; }
+    /* توسيط النص بصريًا: حروف Tajawal تجلس أعلى من منتصف الكبسولة بنحو 0.2em؛ إزاحة ثابتة تعمل على كل المتصفحات */
+    .pf-tier > .tx { display: inline; text-box: none; padding: 0; position: relative; top: .17em; }
+    /* شارة «أنت»: نفس الإزاحة البصرية (حشوة علوية أكبر بدل الوسط الهندسي) */
+    #statsContent .stp-row.is-me .nm::after { padding: 3px 9px 0; line-height: 1.55; }
+    .lgc-row.is-me .n b::after { padding: 3px 8px 0; line-height: 1.5; }
   </style>
 </head>
 <body>
@@ -5233,7 +5249,7 @@ return teamName.replace('غير محدد', replacement);
         const tier = e && e.games ? eloTier(e.rating).name : '';
         let sub, key, stats, label;
         if (byRating) {
-          sub = tier ? `<span class="pf-tier t${eloTier(e.rating).level}">${tier}</span>` : '';   // نفس شارة المستوى في ملف اللاعب   // «التقييم»: التصنيف فقط (الألقاب مكانها تبويب «الألقاب»)
+          sub = tier ? `<span class="pf-tier t${eloTier(e.rating).level}"><span class="tx">${tier}</span></span>` : '';   // نفس شارة المستوى في ملف اللاعب   // «التقييم»: التصنيف فقط (الألقاب مكانها تبويب «الألقاب»)
           key = `<span class="kv"><b class="rt-val">${ratingTxt(e)}</b></span><span class="kl"><span class="kw">التقييم</span>${deltaTag(e)}</span>`;
           stats = `<span class="stp-g ga"><span class="sv trend">${trendSVG(e)}<i>مسار التقييم</i></span><span class="sv form">${formHTML(e)}<i>آخر النتائج</i></span></span>` +
             `<span class="stp-g gb">${sv(p.wins, 'فوز')}${sv(p.losses, 'خسارة')}${sv(p.winRate + '%', 'نسبة الفوز', 'wr')}</span>`;
@@ -10172,15 +10188,14 @@ function buildLeagueStandingsCanvas() {
     // ---------- 📈 تقييم المجلس في مركز التصدير: ترتيب التقييم + ملف لاعب كامل (مشتق من سجل البطولات، للقراءة فقط) ----------
     var exportProfileSel = { n: '' };
     // ألوان المستويات من هوية الصور نفسها: مبتدئ (محايد) · متمكن (أخضر) · محترف (ذهبي فاتح) · نخبة (خشبي) · أسطورة (ذهبي متدرج)
-    function exportTierStyle(level) {
-      const B = EXPORT_BRAND;
+    function exportTierStyle(level) {   // نفس كبسولات المستوى في التطبيق: تدرج ناعم بلا إطار
       return [
-        { bg: B.surface3, fg: B.muted, line: B.lineStrong },
-        { bg: B.okBg, fg: B.ok, line: B.okLine },
-        { bg: '#F4EAD3', fg: B.goldDeep, line: B.goldSoft },
-        { bg: B.wood, fg: B.goldSoft, line: B.wood },
-        { bg: null, fg: '#3A2A0C', line: '#A67C32' }
-      ][level] || { bg: B.surface3, fg: B.muted, line: B.line };
+        { grad: ['#EEE8DE', '#DCD3C5'], fg: '#5E584E' },
+        { grad: ['#F2DDC8', '#D9AE88'], fg: '#4E2E14' },
+        { grad: ['#F0F2F3', '#C3C9CE'], fg: '#2F353B' },
+        { grad: ['#5A4535', '#33261D'], fg: '#F1D9A6' },
+        { grad: ['#F3DFAE', '#CFA963'], fg: '#3A2A0C' }
+      ][level] || { grad: ['#EEE8DE', '#DCD3C5'], fg: '#5E584E' };
     }
     // كبسولة المستوى؛ x هي الحافة اليمنى (anchor='right') أو المركز (anchor='center'). تُرجع العرض.
     function exportTierPill(ctx, level, name, x, cy, size, anchor) {
@@ -10190,8 +10205,8 @@ function buildLeagueStandingsCanvas() {
       ctx.save();
       drawRoundedRect(ctx, x0, cy - h / 2, w, h, h / 2);
       if (s.bg) ctx.fillStyle = s.bg;
-      else { const g = ctx.createLinearGradient(x0, cy - h / 2, x0 + w, cy + h / 2); g.addColorStop(0, '#F3DFAE'); g.addColorStop(1, '#CFA963'); ctx.fillStyle = g; }
-      ctx.fill(); ctx.strokeStyle = s.line; ctx.lineWidth = 1.5; ctx.stroke();
+      else { const g = ctx.createLinearGradient(x0, cy - h / 2, x0 + w, cy + h / 2); s.grad.forEach((c, i) => g.addColorStop(i / (s.grad.length - 1), c)); ctx.fillStyle = g; }
+      ctx.fill(); if (s.line) { ctx.strokeStyle = s.line; ctx.lineWidth = 1.5; ctx.stroke(); }
       ctx.restore();
       exportText(ctx, name, x0 + w / 2, cy, { size, weight: 800, color: s.fg });
       return w;
@@ -11536,7 +11551,7 @@ function buildLeagueStandingsCanvas() {
         }
         const rt = el('div', 'pf-rating');
         rt.appendChild(el('span', 'num', p.rating.toLocaleString('en-US')));
-        rt.appendChild(el('span', 'pf-tier t' + p.tier.level, p.tier.name));
+        { const tp = el('span', 'pf-tier t' + p.tier.level); tp.appendChild(el('span', 'tx', p.tier.name)); rt.appendChild(tp); }
         if (p.lastDelta) rt.appendChild(el('span', 'pf-delta ' + (p.lastDelta > 0 ? 'up' : 'down'), (p.lastDelta > 0 ? '▲ ' : '▼ ') + Math.abs(p.lastDelta)));
         head.appendChild(rt);
         head.appendChild(el('div', 'pf-spark-cap', `المركز ${p.rank} من ${elo.ranked.length} في تقييم المجلس`));
@@ -11874,7 +11889,7 @@ function buildLeagueStandingsCanvas() {
     // ===================================
     // 🧭 سلوك التطبيق: إعادة الوضع للأعلى، تعديل العنوان بالضغط المطوّل، تنبيه التحديث، رقم الإصدار
     // ===================================
-    const APP_VERSION = '4.7';   // ترقيم الاعتماد: 1 ثم 1.1 … 1.9 ثم 2 — ويُرفع معه رقم الإصدار في sw.js
+    const APP_VERSION = '4.8';   // ترقيم الاعتماد: 1 ثم 1.1 … 1.9 ثم 2 — ويُرفع معه رقم الإصدار في sw.js
     (function setupAppBehaviors() {
       const root = document.documentElement;
 
@@ -12233,7 +12248,7 @@ function buildLeagueStandingsCanvas() {
           const at = recordedAt(o.kind, o.id);
           if (at) h += `<div class="vm-when"><span class="ic ic-calendar" aria-hidden="true"></span>سُجّلت النتيجة: ${esc(fmtDayDate(at))} · ${esc(fmtTimeNum(at))}</div>`;
         } else if (st) {
-          const pa = Math.round(st.pA * 100), pb = 100 - pa, tier = S => S.known ? `<span class="pf-tier t${S.tier.level}">${esc(S.tier.name)}</span>` : '<span class="pf-tier t0">أول ظهور</span>';
+          const pa = Math.round(st.pA * 100), pb = 100 - pa, tier = S => S.known ? `<span class="pf-tier t${S.tier.level}"><span class="tx">${esc(S.tier.name)}</span></span>` : '<span class="pf-tier t0"><span class="tx">أول ظهور</span></span>';
           h += `<div class="vm-rt"><div class="v"><b>${st.A.rating.toLocaleString('en-US')}</b>${tier(st.A)}</div><span class="lbl">${o.mA.length > 1 ? 'متوسط التقييم' : 'التقييم'}</span><div class="v"><b>${st.B.rating.toLocaleString('en-US')}</b>${tier(st.B)}</div></div>
             <div class="vm-box"><h4>فرص الفوز حسب التقييم</h4><div class="vm-prob"><span><bdi dir="ltr">${pa}%</bdi></span><span><bdi dir="ltr">${pb}%</bdi></span></div>
             <div class="vm-bar"><i class="${pa >= pb ? 'fav' : 'dog'}" style="width:${pa}%"></i><i class="${pb > pa ? 'fav' : 'dog'}" style="width:${pb}%"></i></div></div>`;
@@ -12476,7 +12491,7 @@ function buildLeagueStandingsCanvas() {
           // ===== المستوى 2: «صفحتي» الكاملة في نافذة مستقلة (نفس نافذة الملف والمباراة) =====
           mineHTML = `<div class="vm-round">صفحتي</div><div class="vme v2 sheet">
             <div class="vm2-top"><span class="vme-av" aria-hidden="true"><span class="ic ic-user"></span></span>
-              <button type="button" class="vme-top"><span class="who"><b>${esc(me)}</b><span class="pf-tier t${tier.level}">${esc(known ? tier.name : 'أول ظهور')}</span></span></button>
+              <button type="button" class="vme-top"><span class="who"><b>${esc(me)}</b><span class="pf-tier t${tier.level}"><span class="tx">${esc(known ? tier.name : 'أول ظهور')}</span></span></span></button>
               <button type="button" class="vm2-key"><b>${fmt(r)}</b><small>التقييم${dl ? ` <em class="${dl > 0 ? 'up' : 'down'}"><bdi dir="ltr">${dl > 0 ? '▲' + dl : '▼' + Math.abs(dl)}</bdi></em>` : ''}</small></button></div>
             <div class="vm2-body"><div class="vm2-col a">${matchesHTML}</div><div class="vm2-col b">${whereHTML}${formHTML}${rivalsHTML}</div></div></div>`;
           mineNx = nx;
