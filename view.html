@@ -63,14 +63,14 @@
   <meta name="format-detection" content="telephone=no">
   <!-- خط Tajawal محفوظ داخل المشروع (assets/fonts): ملف واحد لكل وزن يحمل الحروف العربية والأرقام معًا،
        فيعمل دون إنترنت، وتُرسم صور التصدير بنفس خط التطبيق (خط Google كان مقسّمًا لأجزاء فيُحمَّل الجزء اللاتيني وحده للصور). -->
-  <link rel="preload" href="assets/fonts/Tajawal-800.woff" as="font" type="font/woff" crossorigin>
-  <link rel="preload" href="assets/fonts/Tajawal-700.woff" as="font" type="font/woff" crossorigin>
+  <link rel="preload" href="assets/fonts/Tajawal-ExtraBold.woff" as="font" type="font/woff" crossorigin>
+  <link rel="preload" href="assets/fonts/Tajawal-Bold.woff" as="font" type="font/woff" crossorigin>
   <style>
-    @font-face { font-family: "Tajawal"; src: url("assets/fonts/Tajawal-400.woff") format("woff"); font-weight: 400; font-style: normal; font-display: swap; }
-    @font-face { font-family: "Tajawal"; src: url("assets/fonts/Tajawal-500.woff") format("woff"); font-weight: 500; font-style: normal; font-display: swap; }
-    @font-face { font-family: "Tajawal"; src: url("assets/fonts/Tajawal-700.woff") format("woff"); font-weight: 600 700; font-style: normal; font-display: swap; }
-    @font-face { font-family: "Tajawal"; src: url("assets/fonts/Tajawal-800.woff") format("woff"); font-weight: 800; font-style: normal; font-display: swap; }
-    @font-face { font-family: "Tajawal"; src: url("assets/fonts/Tajawal-900.woff") format("woff"); font-weight: 900; font-style: normal; font-display: swap; }
+    @font-face { font-family: "Tajawal"; src: url("assets/fonts/Tajawal-Regular.woff") format("woff"); font-weight: 400; font-style: normal; font-display: swap; }
+    @font-face { font-family: "Tajawal"; src: url("assets/fonts/Tajawal-Medium.woff") format("woff"); font-weight: 500; font-style: normal; font-display: swap; }
+    @font-face { font-family: "Tajawal"; src: url("assets/fonts/Tajawal-Bold.woff") format("woff"); font-weight: 600 700; font-style: normal; font-display: swap; }
+    @font-face { font-family: "Tajawal"; src: url("assets/fonts/Tajawal-ExtraBold.woff") format("woff"); font-weight: 800; font-style: normal; font-display: swap; }
+    @font-face { font-family: "Tajawal"; src: url("assets/fonts/Tajawal-Black.woff") format("woff"); font-weight: 900; font-style: normal; font-display: swap; }
   </style>
   <style>
     /* ==========================================================================
@@ -2379,6 +2379,7 @@
     .stp-id .sub { display: flex; flex-wrap: wrap; align-items: center; gap: 3px 6px; margin-top: 3px; font-size: 12px; font-weight: 700; color: var(--text-2); line-height: 1.5; }
     .stp-id .sub b { color: var(--text); font-weight: 800; font-variant-numeric: tabular-nums; }
     .stp-id .sub-l { color: var(--text-3); }
+    .stp-id.solo .nm { font-size: 18px; line-height: 1.3; }   /* الاسم وحده: أكبر قليلًا ومتوسط عموديًا مع خانة الألقاب */
     .stp-id .sub .rt-delta { margin-inline-start: 0; }
     .stp-id .sub .t-caps { margin: 0; gap: 3px; }
     .stp-id .sub .t-cap { font-size: 10.5px; padding: 0 5px 0 4px; line-height: 1.55; }
@@ -2463,6 +2464,43 @@
       #statsContent .stats-summary.st-sum2 { grid-template-columns: repeat(2, minmax(0, 1.35fr)) repeat(3, minmax(0, 1fr)); }
       #statsContent .st-sum2 > .main, #statsContent .st-sum2 > .sub { grid-column: auto; }
       #statsContent .st-sum2 > .sub { padding-block: var(--s3); }
+    }
+    /* ===== 3.9 — أفضل الشراكات وسجل البطولات بنفس هوية ترتيب اللاعبين ===== */
+    .st-fold:not(.all) .st-extra { display: none !important; }
+    .stp-row.is-static { cursor: default; }
+    .stp-row.is-static:active { background: var(--surface); }
+    @media (hover: hover) { .stp-row.is-static:hover { border-color: var(--line); box-shadow: var(--sh-1); } }
+    .stp[data-sort="pairs"] .stp-g.ga { flex-grow: .67; }
+    .stp-id .nm.pair { font-size: 16px; }
+    .stp-id .nm .pl, .sth .pl { display: inline-block; margin: 0 5px; color: var(--gold-deep); font-weight: 800; }
+    /* سجل البطولات: بطاقة لكل يوم، والتاريخ رأسها مرة واحدة */
+    .sth-wrap { container: sth / inline-size; }
+    .sth { display: flex; flex-direction: column; gap: 10px; }
+    .sth-day { border: 1px solid var(--line); border-radius: var(--r-md); background: var(--surface); box-shadow: var(--sh-1); overflow: hidden; }
+    .sth-date { display: flex; align-items: center; gap: 8px; padding: 7px 14px; background: var(--surface-2); border-bottom: 1px solid var(--line); font-size: 13.5px; font-weight: 800; color: var(--text); }
+    .sth-date .ic { width: 15px; height: 15px; margin: 0; color: var(--gold-deep); }
+    .sth-date small { margin-inline-start: auto; font-size: 12px; font-weight: 700; color: var(--text-3); }
+    .sth-row { display: grid; grid-template-columns: minmax(0, 1fr) auto; grid-template-areas: "champ sc" "ru sc" "name sc"; align-items: center; gap: 1px 12px; padding: 8px 14px; }
+    .sth-row + .sth-row { border-top: 1px solid var(--line); }
+    .sth-champ { grid-area: champ; display: flex; align-items: center; gap: 7px; min-width: 0; font-size: 15.5px; line-height: 1.4; }
+    .sth-champ b { font-weight: 800; color: var(--text); overflow-wrap: anywhere; }
+    .sth-champ .ic { flex: none; width: 15px; height: 15px; margin: 0; color: var(--gold-deep); }
+    .sth-sc { grid-area: sc; align-self: center; justify-self: end; font-size: 15px; font-weight: 800; color: var(--text); font-variant-numeric: tabular-nums; white-space: nowrap; }
+    .sth-ru { grid-area: ru; min-width: 0; padding-inline-start: 22px; font-size: 13px; font-weight: 700; line-height: 1.4; color: var(--text-2); overflow-wrap: anywhere; }
+    .sth-ru .l { margin-inline-end: 6px; font-size: 12px; color: var(--text-3); }
+    .sth-mode { flex: none; display: inline-flex; align-items: center; gap: 4px; padding: 1px 9px; border-radius: 999px; font-size: 11.5px; font-weight: 800; line-height: 1.7; white-space: nowrap;
+      color: var(--gold-deep); background: color-mix(in srgb, var(--gold) 10%, transparent); border: 1px solid color-mix(in srgb, var(--gold) 35%, transparent); }
+    .sth-mode .ic { width: 11px; height: 11px; margin: 0; }
+    .sth-name { grid-area: name; padding-inline-start: 22px; font-size: 12px; font-weight: 700; color: var(--text-3); }
+    /* الشاشات العريضة: كل بطولة في سطر واحد يُقرأ كنتيجة نهائي: البطل ← النتيجة ← الوصيف ← النظام */
+    @container sth (min-width: 720px) {
+      .sth-row { grid-template-columns: minmax(0, 1.25fr) 72px minmax(0, 1.25fr); grid-template-areas: "champ sc ru" "name name name"; padding: 7px 18px; }
+      .sth-sc { justify-self: center; }
+      .sth-ru { padding-inline-start: 0; }
+      .sth-date { padding-inline: 18px; }
+    }
+    @container stp (min-width: 720px) {
+      .stp[data-sort="pairs"] .stp-head, .stp[data-sort="pairs"] .stp-row { grid-template-columns: 40px minmax(250px, 1.9fr) 150px minmax(0, 3.2fr); }
     }
   </style>
 </head>
@@ -4967,7 +5005,7 @@ return teamName.replace('غير محدد', replacement);
       statsFoldOpen[id] = open; try { localStorage.setItem(STATS_FOLD_KEY, JSON.stringify(statsFoldOpen)); } catch (e) {}
     }
     function statsFoldMore(sec, btn) {
-      const id = sec.dataset.fold, all = !sec.classList.contains('all'), n = sec.querySelectorAll('tbody tr').length;
+      const id = sec.dataset.fold, all = !sec.classList.contains('all'), n = sec.querySelectorAll('tbody tr, .st-item').length;
       sec.classList.toggle('all', all); statsFoldAll[id] = all;
       btn.setAttribute('aria-expanded', String(all));
       btn.firstChild.textContent = all ? 'عرض أقل' : `عرض الكل (${n})`;
@@ -5013,13 +5051,13 @@ return teamName.replace('غير محدد', replacement);
         const tier = e && e.games ? eloTier(e.rating).name : '';
         let sub, key, stats, label;
         if (byRating) {
-          sub = `${tier ? `<span class="sub-tier">${tier}</span><i class="dot" aria-hidden="true"></i>` : ''}<span class="sub-t"><b>${n}</b> ${titleWord(n)}</span>`;
+          sub = tier ? `<span class="sub-tier">${tier}</span>` : '';   // «التقييم»: التصنيف فقط (الألقاب مكانها تبويب «الألقاب»)
           key = `<span class="kv"><b class="rt-val">${ratingTxt(e)}</b></span><span class="kl"><span class="kw">التقييم</span>${deltaTag(e)}</span>`;
           stats = `<span class="stp-g ga"><span class="sv trend">${trendSVG(e)}<i>مسار التقييم</i></span><span class="sv form">${formHTML(e)}<i>آخر النتائج</i></span></span>` +
             `<span class="stp-g gb">${sv(p.wins, 'فوز')}${sv(p.losses, 'خسارة')}${sv(p.winRate + '%', 'نسبة الفوز', 'wr')}</span>`;
           label = `${p.name}، المركز ${rk}، التقييم ${ratingTxt(e)}${e && e.lastDelta ? `، ${e.lastDelta > 0 ? 'ارتفع' : 'انخفض'} ${Math.abs(e.lastDelta)}` : ''}${tier ? `، ${tier}` : ''}، الألقاب ${n}${formTxt(e) ? `، آخر النتائج: ${formTxt(e)}` : ''}، فوز ${p.wins}، خسارة ${p.losses}، نسبة الفوز ${p.winRate}%`;
         } else {
-          sub = `<span class="sub-l">التقييم</span><b class="rt-val">${ratingTxt(e)}</b>${deltaTag(e)}`;
+          sub = '';   // «الألقاب»: الاسم وحده (التقييم مكانه تبويب «التقييم»)
           key = `<span class="kv"><b class="t-tot">${n}</b><small class="ku">${titleWord(n)}</small></span>`;
           stats = `<span class="stp-g ga">${kinds.map(([k, ic, l]) => `<span class="sv kind${by[k] ? ' on' : ''}"><b><span class="ic ic-${ic}" aria-hidden="true"></span>${by[k] || 0}</b><i>${l}</i></span>`).join('')}</span>` +
             `<span class="stp-g gb">${sv(p.runnerUps, 'وصافة')}${sv(p.semifinals, 'نصف نهائي')}${sv(p.tournaments, 'مشاركات')}</span>`;
@@ -5027,7 +5065,7 @@ return teamName.replace('غير محدد', replacement);
         }
         return `<button type="button" class="stp-row${i < 3 ? ` rk-${rk}` : ''}" data-player="${escHTML(p.name)}" title="عرض ملف اللاعب" aria-label="${escHTML(label)}">` +
           `<span class="stp-rk rank-number">${i < 3 ? `<span class="rank-badge rb-${rk}"><span class="tx">${rk}</span></span>` : rk}</span>` +
-          `<span class="stp-id"><b class="nm">${escHTML(p.name)}</b><span class="sub">${sub}</span></span>` +
+          `<span class="stp-id${sub ? '' : ' solo'}"><b class="nm">${escHTML(p.name)}</b>${sub ? `<span class="sub">${sub}</span>` : ''}</span>` +
           `<span class="stp-key ${byRating ? 'k-rating' : 'k-titles'}">${key}</span>` +
           `<span class="stp-stats">${stats}</span></button>`;
       }).join('');
@@ -5065,11 +5103,34 @@ return teamName.replace('غير محدد', replacement);
       const lastHist = tournamentHistory[tournamentHistory.length - 1];
       const lastChamp = lastHist ? (lastHist.teamMap?.[lastHist.champion] || (lastHist.mode === 'single' || lastHist.mode === 'league' ? [lastHist.champion] : String(lastHist.champion || '').split(' + '))).join(' + ') : '';
 
-      const pairRows = partnerships.map((p,i) => `<tr class="pair-row${i >= STATS_FOLD_PEEK ? ' st-extra' : ''}${i < 3 ? ` rk-${i+1}` : ''}"><td class="rank-number" data-l="#">${i < 3 ? `<span class="rank-badge rb-${i+1}"><span class="tx">${i+1}</span></span>` : i+1}</td><td data-l="الثنائي">${escHTML(p.name)}</td><td data-l="ألقاب"><span class="ic ic-trophy" aria-hidden="true"></span>${p.championships}</td><td data-l="وصافة">${p.runnerUps}</td><td data-l="مشاركات">${p.tournaments}</td><td data-l="فوز">${p.wins}</td><td data-l="خسارة">${p.losses}</td><td data-l="نسبة الفوز">${p.winRate}%</td></tr>`).join('');
-      // الفريق: كل لاعب في سطر وبينهما علامة «+» صغيرة
-      const teamHTML = (t, side) => { const ms = t.teamMap?.[side] || (t.mode === 'single' || t.mode === 'league' ? [side] : String(side || '').split(' + '));
-        return ms.length > 1 ? `<span class="hist-team">${ms.map(escHTML).join('<span class="hist-plus" aria-hidden="true">+</span>')}</span>` : escHTML(ms[0] || '—'); };
-      const historyRows = [...tournamentHistory].reverse().map((t, i) => `<tr class="hist-row${i >= STATS_FOLD_PEEK ? ' st-extra' : ''}"><td class="hist-date" data-l="التاريخ">${fmtDate(t.date)}</td><td class="hist-name" data-l="البطولة">${escHTML(t.name)}</td><td data-l="النظام">${t.mode === 'single' ? 'فردي' : t.mode === 'league' ? 'دوري' : 'فرق'}</td><td class="hist-champ" data-l="البطل"><span class="ic ic-trophy" aria-hidden="true"></span>${teamHTML(t, t.champion)}</td><td data-l="الوصيف">${teamHTML(t, t.runnerUp)}</td></tr>`).join('');
+      // ===== أفضل الشراكات: نفس بطاقة ترتيب اللاعبين (المركز ← الثنائي ← الألقاب بارزة ← وصافة · مشاركات ← فوز · خسارة · نسبة الفوز) =====
+      const pairWord = n => n === 1 ? 'لقب' : n === 2 ? 'لقبان' : n >= 3 && n <= 10 ? 'ألقاب' : n === 0 ? 'ألقاب' : 'لقبًا';
+      const pairName = nm => String(nm).split(' + ').map(x => `<bdi>${escHTML(x)}</bdi>`).join('<span class="pl" aria-hidden="true">+</span>');
+      const psv = (v, l) => `<span class="sv"><b>${v}</b><i>${l}</i></span>`, phv = l => `<span class="sv"><i>${l}</i></span>`;
+      const pairRows = partnerships.length ? `<div class="stp-head" aria-hidden="true"><span class="stp-rk">#</span><span class="stp-id">الثنائي</span><span class="stp-key">الألقاب</span><span class="stp-stats"><span class="stp-g ga">${phv('وصافة')}${phv('مشاركات')}</span><span class="stp-g gb">${phv('فوز')}${phv('خسارة')}${phv('نسبة الفوز')}</span></span></div>` +
+        partnerships.map((p, i) => { const rk = i + 1, n = Number(p.championships) || 0;
+          return `<div class="stp-row is-static st-item${i >= STATS_FOLD_PEEK ? ' st-extra' : ''}${i < 3 ? ` rk-${rk}` : ''}" role="listitem" aria-label="${escHTML(`${p.name}، المركز ${rk}، الألقاب ${n}، وصافة ${p.runnerUps}، مشاركات ${p.tournaments}، فوز ${p.wins}، خسارة ${p.losses}، نسبة الفوز ${p.winRate}%`)}">` +
+            `<span class="stp-rk rank-number">${i < 3 ? `<span class="rank-badge rb-${rk}"><span class="tx">${rk}</span></span>` : rk}</span>` +
+            `<span class="stp-id solo"><b class="nm pair">${pairName(p.name)}</b></span>` +
+            `<span class="stp-key k-titles"><span class="kv"><b class="t-tot">${n}</b><small class="ku">${pairWord(n)}</small></span></span>` +
+            `<span class="stp-stats"><span class="stp-g ga">${psv(p.runnerUps, 'وصافة')}${psv(p.tournaments, 'مشاركات')}</span><span class="stp-g gb">${psv(p.wins, 'فوز')}${psv(p.losses, 'خسارة')}${psv(p.winRate + '%', 'نسبة الفوز')}</span></span></div>`; }).join('') : '';
+      // ===== سجل البطولات: مجمّع حسب اليوم (التاريخ مرة واحدة)، وكل بطولة: البطل ← النتيجة ← الوصيف ← النظام =====
+      // اسم البطولة لا يُكرر إذا كان نفس عنوان المشروع؛ يظهر فقط عندما يختلف
+      const sideNames = (t, side) => { const ms = t.teamMap?.[side] || (t.mode === 'single' || t.mode === 'league' ? [side] : String(side || '').split(' + ')); return ms.filter(Boolean); };
+      const namesHTML = ms => ms.length ? ms.map(x => `<bdi>${escHTML(x)}</bdi>`).join('<span class="pl" aria-hidden="true">+</span>') : '—';
+      const projTitle = (tournamentName.textContent || '').trim();
+      const modeOf = t => t.mode === 'single' ? ['user', 'فردي'] : t.mode === 'league' ? ['league', 'دوري'] : ['users', 'فرق'];
+      const days = []; let hi = 0;
+      [...tournamentHistory].reverse().forEach(t => { const k = fmtDate(t.date) || '—'; let g = days[days.length - 1]; if (!g || g.k !== k) days.push(g = { k, items: [] }); g.items.push({ t, i: hi++ }); });
+      const historyRows = days.map(g => `<div class="sth-day${g.items[0].i >= STATS_FOLD_PEEK ? ' st-extra' : ''}"><div class="sth-date"><span class="ic ic-calendar" aria-hidden="true"></span><b>${escHTML(g.k)}</b>${g.items.length > 1 ? `<small>${g.items.length} ${arCountW(g.items.length, 'بطولة', 'بطولتان', 'بطولات', 'بطولة')}</small>` : ''}</div>` +
+        g.items.map(({ t, i }) => { const [mic, ml] = modeOf(t), fs = t.finalScore || {}, hasSc = fs.winner != null && fs.loser != null;
+          const sc = hasSc ? `${Math.max(fs.winner, fs.loser)} - ${Math.min(fs.winner, fs.loser)}` : '';
+          const nm = String(t.name || '').trim(), showName = nm && nm !== projTitle;
+          return `<div class="sth-row st-item${i >= STATS_FOLD_PEEK ? ' st-extra' : ''}">` +
+            `<span class="sth-champ"><span class="ic ic-trophy" aria-hidden="true"></span><b>${namesHTML(sideNames(t, t.champion))}</b>${t.mode === 'league' ? `<span class="sth-mode"><span class="ic ic-${mic}" aria-hidden="true"></span>${ml}</span>` : ''}</span>` +   // النوع واضح من الأسماء (لاعب أو ثنائي)؛ الشارة للدوري فقط
+            `<span class="sth-sc">${sc}</span>`   /* بلا اتجاه مفروض: الرقم الأكبر يُقرأ أولًا من اليمين */ +
+            `<span class="sth-ru"><span class="l">الوصيف</span>${namesHTML(sideNames(t, t.runnerUp))}</span>` +
+            (showName ? `<span class="sth-name">${escHTML(nm)}</span>` : '') + `</div>`; }).join('') + `</div>`).join('');
 
       statsContent.innerHTML = `
         <div class="stats-summary st-sum2">
@@ -5084,10 +5145,10 @@ return teamName.replace('غير محدد', replacement);
         <div class="stats-section"><h4><span class="ic ic-rank" aria-hidden="true"></span>ترتيب اللاعبين</h4><div class="st-sort" role="group" aria-label="ترتيب اللاعبين حسب"><button type="button" data-sort="titles" aria-pressed="${!byRating}">الألقاب</button><button type="button" data-sort="rating" aria-pressed="${byRating}">التقييم</button></div><p class="st-hint">اضغط على أي لاعب لعرض ملفه الكامل</p><div class="stp-wrap"><div class="stp" data-sort="${byRating ? 'rating' : 'titles'}">${statsPlayersListHTML(d, byRating)}</div></div></div>
 
         ${statsFold('pairs', 'ic-users', 'أفضل الشراكات', partnerships.length ? `${partnerships.length} ${arCountW(partnerships.length, 'ثنائي', 'ثنائيان', 'ثنائيات', 'ثنائيًا')} · الأفضل: <bdi>${escHTML(partnerships[0].name)}</bdi>` : 'لا توجد بطولات فرق بعد', partnerships.length,
-          pairRows ? `<div class="stats-table-wrap"><table class="stats-table"><thead><tr><th>#</th><th>الثنائي</th><th>ألقاب</th><th>وصافة</th><th>مشاركات</th><th>فوز</th><th>خسارة</th><th>نسبة الفوز</th></tr></thead><tbody>${pairRows}</tbody></table></div>` : '<div class="empty-stats">لا توجد بطولات فرق مسجلة.</div>')}
+          pairRows ? `<div class="stp-wrap"><div class="stp" data-sort="pairs" role="list">${pairRows}</div></div>` : '<div class="empty-stats">لا توجد بطولات فرق مسجلة.</div>')}
 
         ${statsFold('hist', 'ic-table', 'سجل البطولات', `${tournamentHistory.length} ${arCountW(tournamentHistory.length, 'بطولة', 'بطولتان', 'بطولات', 'بطولة')}${lastHist ? ` · آخر بطل: <bdi>${escHTML(lastChamp)}</bdi>` : ''}`, tournamentHistory.length,
-          `<div class="stats-table-wrap"><table class="stats-table"><thead><tr><th>التاريخ</th><th>البطولة</th><th>النظام</th><th>البطل</th><th>الوصيف</th></tr></thead><tbody>${historyRows}</tbody></table></div>`)}
+          `<div class="sth-wrap"><div class="sth">${historyRows}</div></div>`)}
       `;
     }
 
@@ -11299,7 +11360,7 @@ function buildLeagueStandingsCanvas() {
         if (sb) { statsApplySort(sb.dataset.sort); return; }
         const fh = e.target.closest('.st-fold-head'); if (fh) { statsFoldToggle(fh.closest('.st-fold')); return; }
         const fm = e.target.closest('.st-fold-more'); if (fm) { statsFoldMore(fm.closest('.st-fold'), fm); return; }
-        const tr = e.target.closest('.stp-row'); if (tr && !tr.closest('.stp.is-moving')) open(tr.dataset.player);   // البطاقة زر: Enter/Space تعمل تلقائيًا
+        const tr = e.target.closest('.stp-row[data-player]'); if (tr && !tr.closest('.stp.is-moving')) open(tr.dataset.player);   // البطاقة زر: Enter/Space تعمل تلقائيًا
       });
       const _openHist = openLeaguePlayerHistory;
       openLeaguePlayerHistory = function (name) {
@@ -11561,7 +11622,7 @@ function buildLeagueStandingsCanvas() {
     // ===================================
     // 🧭 سلوك التطبيق: إعادة الوضع للأعلى، تعديل العنوان بالضغط المطوّل، تنبيه التحديث، رقم الإصدار
     // ===================================
-    const APP_VERSION = '3.8';   // ترقيم الاعتماد: 1 ثم 1.1 … 1.9 ثم 2 — ويُرفع معه رقم الإصدار في sw.js
+    const APP_VERSION = '3.9';   // ترقيم الاعتماد: 1 ثم 1.1 … 1.9 ثم 2 — ويُرفع معه رقم الإصدار في sw.js
     (function setupAppBehaviors() {
       const root = document.documentElement;
 

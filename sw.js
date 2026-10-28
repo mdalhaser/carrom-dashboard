@@ -4,11 +4,11 @@
    - لا يلمس بيانات البطولات (التخزين المحلي) إطلاقًا.
    - data.json (صفحة المشاهدة للاعبين): من الشبكة دائمًا، والمخزن عند انقطاع الإنترنت.
    عند تعديل الملفات مستقبلًا: غيّر رقم الإصدار أدناه ليُحدَّث المخزون القديم. */
-const VERSION = 'carrom-v3.8';
+const VERSION = 'carrom-v3.9';
 const SHELL = VERSION + '-shell';
 const FONTS = 'carrom-fonts';
 const SHELL_FILES = ['./', './index.html', './manifest.webmanifest', './view.html', './view.webmanifest', './icons/apple-touch-icon.png', './icons/icon-192.png', './icons/icon-512.png', './icons/icon-maskable-512.png', './assets/wood.webp',
-  './assets/fonts/Tajawal-400.woff', './assets/fonts/Tajawal-500.woff', './assets/fonts/Tajawal-700.woff', './assets/fonts/Tajawal-800.woff', './assets/fonts/Tajawal-900.woff'];
+  './assets/fonts/Tajawal-Regular.woff', './assets/fonts/Tajawal-Medium.woff', './assets/fonts/Tajawal-Bold.woff', './assets/fonts/Tajawal-ExtraBold.woff', './assets/fonts/Tajawal-Black.woff'];
 
 // نفس رابط الخط في index.html حرفيًا (بعد فك &amp;)
 const FONT_CSS = 'https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700;800;900&display=swap';
