@@ -2154,14 +2154,9 @@
     /* تمييز اسمي + شارة «جديد» */
     html.view-mode .match-team.is-me > span:first-child { color: var(--gold-deep); font-weight: 800; }
     html.view-mode .match-team.is-me > span:first-child::before { content: "● "; font-size: .7em; vertical-align: 2px; }
-    html.view-mode .match-card.has-me { box-shadow: 0 0 0 2px var(--gold) inset, var(--sh-1); }
-    .lgc-row.is-me { outline: 2px solid var(--gold); outline-offset: -2px; }
-    .lgc-row.is-me .n b::after { content: " (أنت)"; font-size: 11px; font-weight: 800; color: var(--gold-deep); }
     /* صفّي في ترتيب اللاعبين: لمسة ذهبية هادئة على الصف كله + شارة «أنت» (بدل تلوين كل خلية) */
-    #statsContent .stp-row.is-me { background: linear-gradient(rgba(207, 169, 99, .10), rgba(207, 169, 99, .10)), var(--surface); border-color: var(--gold); box-shadow: 0 0 0 1px var(--gold) inset, var(--sh-1); }
     #statsContent .stp-row.is-me .nm::after { content: "أنت"; display: inline-flex; align-items: center; margin-inline-start: 8px; padding: 1px 9px; border-radius: 999px;
       background: var(--gold); color: #2A1E10; font-size: 11px; font-weight: 800; line-height: 1.7; vertical-align: 2px; }
-    body.dark-mode #statsContent .stp-row.is-me { background: linear-gradient(rgba(207, 169, 99, .08), rgba(207, 169, 99, .08)), var(--surface); }
     /* آخر 5 نتائج في الترتيب المضغوط (صفحة المشاهدة): سطر مستقل تحت الاسم، يبدأ من نفس محاذاته */
     .lgf { display: flex; gap: 3px; direction: rtl; justify-content: flex-start; margin: 4px 0 3px; }
     .lgf i { display: grid; place-items: center; width: 17px; height: 17px; border-radius: 5px; font-style: normal; font-size: 10px; font-weight: 800; line-height: 1; }
@@ -2681,12 +2676,14 @@
     /* 4.5 — المباريات القادمة: نفس بطاقة كل المباريات (إطار رفيع محايد وظل خفيف). الحالة تحملها شارة «جاهزة/قادمة» الذهبية وحدها؛
        الإطار الذهبي يبقى فقط لمبارياتي في صفحة المشاهدة (معنى شخصي) */
     .match-card:has(.match-status.ready) { border-color: var(--line); box-shadow: var(--sh-1); }
-    html.view-mode .match-card.has-me { border-color: color-mix(in srgb, var(--gold) 70%, var(--line)); box-shadow: var(--sh-1); }   /* مباراتي: إطار ذهبي رفيع بسماكة كل الإطارات */
     /* 4.6 — تمييز «أنا» موحد في كل مكان (ترتيب الدوري، ترتيب اللاعبين، مبارياتي): إطار ذهبي رفيع بسماكة كل الإطارات
        ولمسة ذهبية خفيفة جدًا على الخلفية — بلا حلقات عريضة ولا إطار مزدوج */
     .lgc-row.is-me, #statsContent .stp-row.is-me, html.view-mode .match-card.has-me {
-      outline: 0; border-color: color-mix(in srgb, var(--gold) 70%, var(--line)); box-shadow: var(--sh-1);
-      background: linear-gradient(color-mix(in srgb, var(--gold) 6%, transparent), color-mix(in srgb, var(--gold) 6%, transparent)), var(--surface); }
+      outline: 0; border-color: var(--line); box-shadow: var(--sh-1);
+      background: linear-gradient(color-mix(in srgb, var(--gold) 9%, transparent), color-mix(in srgb, var(--gold) 9%, transparent)), var(--surface); }
+    /* 4.7 — بلا إطار ذهبي إطلاقًا: «أنا» تُعرف بشارة «أنت» ولمسة خلفية دافئة فقط، والإطار نفس إطار كل البطاقات */
+    .lgc-row.is-me .n b::after { content: "أنت"; display: inline-flex; align-items: center; margin-inline-start: 6px; padding: 0 8px; border-radius: 999px;
+      background: var(--gold); color: #2A1E10; font-size: 10.5px; font-weight: 800; line-height: 1.7; vertical-align: 2px; }
   </style>
 </head>
 <body>
@@ -11877,7 +11874,7 @@ function buildLeagueStandingsCanvas() {
     // ===================================
     // 🧭 سلوك التطبيق: إعادة الوضع للأعلى، تعديل العنوان بالضغط المطوّل، تنبيه التحديث، رقم الإصدار
     // ===================================
-    const APP_VERSION = '4.6';   // ترقيم الاعتماد: 1 ثم 1.1 … 1.9 ثم 2 — ويُرفع معه رقم الإصدار في sw.js
+    const APP_VERSION = '4.7';   // ترقيم الاعتماد: 1 ثم 1.1 … 1.9 ثم 2 — ويُرفع معه رقم الإصدار في sw.js
     (function setupAppBehaviors() {
       const root = document.documentElement;
 
