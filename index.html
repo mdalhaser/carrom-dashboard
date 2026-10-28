@@ -2676,7 +2676,7 @@
     html body .match-card .match-team.placeholder { border: 0; background: none; color: var(--text-3); }
     html body .score-badge, html body .score-badge.loser-badge, html body .score-badge.winner-badge { background: none; min-width: 26px; padding: 0; font-size: 17px; font-weight: 800; }
     html body .score-badge.loser-badge { color: var(--text-2); }
-    html body .score-badge.winner-badge, html body.dark-mode .score-badge.winner-badge { color: var(--ok); }
+    html body .score-badge.winner-badge, html body.dark-mode .score-badge.winner-badge, html body .score-badge.loser-badge { color: var(--text); }   /* v4.9: الرقمان بالأسود مثل الصور، والفائز يتميز بخط اسمه */
     html body .match-team:hover:not(.placeholder):not(.disabled):not(.winner) { background: var(--surface-2); }
     /* و4 · ورقة النتيجة المسجلة: صفان في بطاقة واحدة */
     html body .result-rows { gap: 0; background: var(--surface); border: 1px solid var(--line); border-radius: 16px; overflow: hidden; }
@@ -2853,6 +2853,35 @@
     body.ko-focus .players-card.ko-open > .ko-sum { margin-bottom: var(--s3); }
     body.ko-focus .players-card.ko-open #playersTitleRow { display: none !important; }
     @media (max-width: 959px) { body.ko-focus .main:not(.league-mode) > .right { order: -1; } }
+    /* v4.9: آخر النتائج في الإحصائيات: الرقمان بلون واحد مثل الصور */
+    html body .sx-side .s, html body .sx-side.w .s { color: var(--text); }
+
+    /* v5 · سطر واحد لكل قوائم المباريات (نتائج اليوم، القادمة، مبارياتي) في الإدارة والمشاهدة:
+       شارة الجولة/المباراة ← الطرفان متقابلان وفي الوسط النتيجة أو «ضد» */
+    .vme-card > .vday-r { border-top: 1px solid var(--line); padding: 8px 12px; min-height: 50px; }
+    .vme-card > .vday-r:first-child { border-top: 0; }
+    .vday-r .sc.vs { font-size: 12.5px; font-weight: 700; color: var(--text-3); }
+    .vday-r.tap { position: relative; padding-inline-end: 30px; }
+    .vday-r.tap::after { content: ""; position: absolute; inset-inline-end: 10px; top: 50%; width: 14px; height: 14px; margin-top: -7px; background: var(--text-3);
+      -webkit-mask: var(--ic-chev-l) center / contain no-repeat; mask: var(--ic-chev-l) center / contain no-repeat; }
+    .vrow { display: grid; grid-template-columns: 32px minmax(0, 1fr) auto; align-items: center; column-gap: 10px; width: 100%; min-height: 50px; padding: 8px 12px;
+      border: 0; border-top: 1px solid var(--line); background: none; font: inherit; color: var(--text); text-align: start; cursor: pointer; -webkit-tap-highlight-color: transparent; }
+    .vme-card > .vrow:first-child { border-top: 0; }
+    .vrow:active { background: var(--surface-2); }
+    .vrow .rd { justify-self: start; display: grid; place-items: center; width: 32px; height: 24px; border-radius: 999px; background: var(--surface-2); font-size: 11.5px; font-weight: 800; color: var(--text-2); }
+    .vrow .t { min-width: 0; }
+    .vrow .t b { display: block; font-size: 15.5px; font-weight: 800; overflow-wrap: anywhere; }
+    .vrow .t b.res-w::before, .vrow .t b.res-l::before, .vrow .t b.res-d::before { content: ""; display: inline-block; width: 8px; height: 8px; margin-inline-end: 7px; border-radius: 50%; vertical-align: 2px; background: var(--ok); }
+    .vrow .t b.res-l::before { background: var(--danger, #B3402F); } .vrow .t b.res-d::before { background: var(--text-3); }
+    .vrow .v { text-align: end; font-size: 17px; font-weight: 800; white-space: nowrap; font-variant-numeric: tabular-nums; }
+    .vrow .v .mute { font-size: 13px; color: var(--text-3); font-weight: 700; }
+    .vrow .v .pc { display: flex; flex-direction: column; align-items: flex-end; line-height: 1.15; }
+    .vrow .v .pc small { font-size: 10.5px; font-weight: 800; color: var(--text-3); }
+    .vrow .v .pc bdi { font-size: 16px; }
+    .vlist .vme-h { margin-top: 10px; }
+    .vlist .vme-h:first-child { margin-top: 2px; }
+    .vlist .vme-h.vme-h2 { display: flex; justify-content: space-between; }
+    .vrow .v .pc bdi { color: var(--text-2); }
   </style>
   <script>
     /* v4.4: احتياط الخط — إن لم توجد ملفات Tajawal مع التطبيق يُحمَّل من Google Fonts (كما في 3.5) */
@@ -12402,7 +12431,7 @@ function buildLeagueStandingsCanvas() {
     // ===================================
     // 🧭 سلوك التطبيق: إعادة الوضع للأعلى، تعديل العنوان بالضغط المطوّل، تنبيه التحديث، رقم الإصدار
     // ===================================
-    const APP_VERSION = '4.8';   // ترقيم الاعتماد: 1 ثم 1.1 … 1.9 ثم 2 — ويُرفع معه رقم الإصدار في sw.js
+    const APP_VERSION = '5';   // ترقيم الاعتماد: 1 ثم 1.1 … 1.9 ثم 2 — ويُرفع معه رقم الإصدار في sw.js
     (function setupAppBehaviors() {
       const root = document.documentElement;
 
@@ -12734,7 +12763,7 @@ function buildLeagueStandingsCanvas() {
         (Array.isArray(leagueMatches) ? leagueMatches : []).filter(m => !isLeagueMatchSettled(m) && isReal(m.playerA) && isReal(m.playerB))
           .sort((a, b) => a.round - b.round || String(a.id).localeCompare(String(b.id), 'en', { numeric: true }))
           .forEach(m => { if (!by.has(m.round)) by.set(m.round, []); by.get(m.round).push(m); });
-        let h = ''; by.forEach((rows, r) => { h += `<div class="vme-h">الجولة ${r}</div><div class="vme-card">${rows.map(m => `<button type="button" class="vme-row vup-li" data-id="${E(m.id)}"><span class="l"><b><bdi>${E(m.playerA)}</bdi> <span class="vs">ضد</span> <bdi>${E(m.playerB)}</bdi></b></span><span class="v"><span class="a-rec">تسجيل</span></span></button>`).join('')}</div>`; });
+        let h = ''; const flat = []; by.forEach(rows => flat.push(...rows)); if (flat.length) h = `<div class="vme-card">${[flat].map(rows => rows.map(m => `<button type="button" class="vday-r vup-li tap" data-id="${E(m.id)}"><span class="rd">ج${m.round}</span><span class="nm">${E(m.playerA)}</span><span class="sc vs">ضد</span><span class="nm">${E(m.playerB)}</span></button>`).join('')).join('')}</div>`;
         up.innerHTML = h || '<div class="vme-none">لا توجد مباريات قادمة — اكتملت كل المباريات</div>';
       }
       function renderDay(D) {
@@ -12804,7 +12833,7 @@ function buildLeagueStandingsCanvas() {
         const by = new Map();
         Object.values(bracketState || {}).filter(m => m && !m.winner && isReal(m.team1) && isReal(m.team2)).sort((a, b) => a.matchNumber - b.matchNumber)
           .forEach(m => { const t = isFinalMatch(m) ? 'المباراة النهائية' : cleanRound(m.roundName); if (!by.has(t)) by.set(t, []); by.get(t).push(m); });
-        let h = ''; by.forEach((rows, t) => { h += `<div class="vme-h">${E(t)}</div><div class="vme-card">${rows.map(m => `<button type="button" class="vme-row vup-li" data-id="${E(m.id)}"><span class="l"><b><bdi>${E(getDisplayTeamName(m.team1))}</bdi> <span class="vs">ضد</span> <bdi>${E(getDisplayTeamName(m.team2))}</bdi></b><small>مباراة ${m.matchNumber}</small></span><span class="v"><span class="a-rec">تسجيل</span></span></button>`).join('')}</div>`; });
+        let h = ''; by.forEach((rows, t) => { h += `<div class="vme-h">${E(t)}</div><div class="vme-card">${rows.map(m => `<button type="button" class="vday-r vup-li tap" data-id="${E(m.id)}"><span class="rd">م${m.matchNumber}</span><span class="nm">${E(getDisplayTeamName(m.team1))}</span><span class="sc vs">ضد</span><span class="nm">${E(getDisplayTeamName(m.team2))}</span></button>`).join('')}</div>`; });
         up.innerHTML = h || '<div class="vme-none">لا توجد مباريات جاهزة للتسجيل الآن</div>';
       }
       let busy = false;
@@ -13046,7 +13075,7 @@ function buildLeagueStandingsCanvas() {
           if (currentMode === 'league') {
             const T = leagueMatchTimes();
             (Array.isArray(leagueMatches) ? leagueMatches : []).filter(m => m.playerA === me || m.playerB === me).forEach(m => {
-              const opp = m.playerA === me ? m.playerB : m.playerA, row = { k: 'lg', id: m.id, opp, sub: `الجولة ${m.round}`, round: m.round, at: T[m.id] || 0 };
+              const opp = m.playerA === me ? m.playerB : m.playerA, row = { k: 'lg', id: m.id, opp, sub: `الجولة ${m.round}`, badge: `ج${m.round}`, round: m.round, at: T[m.id] || 0, mA: [me], mB: [opp], lg: true };
               if (isLeagueMatchAnnulled(m)) done.push(Object.assign(row, { res: 'void' }));
               else if (isLeagueMatchCompleted(m)) { const d = deriveLeagueResult(m.scoreA, m.scoreB), mineA = m.playerA === me;
                 done.push(Object.assign(row, { res: d.result === 'draw' ? 'd' : (d.result === 'A') === mineA ? 'w' : 'l', own: mineA ? m.scoreA : m.scoreB, opp2: mineA ? m.scoreB : m.scoreA, ff: !!m.forfeit })); }
@@ -13057,7 +13086,8 @@ function buildLeagueStandingsCanvas() {
           } else {
             Object.values(bracketState || {}).filter(m => m && real(m.team1) && real(m.team2)).sort((a, b) => a.matchNumber - b.matchNumber).forEach(m => {
               const t1 = isMine(getDisplayTeamName(m.team1)) || isMine(m.team1), t2 = isMine(getDisplayTeamName(m.team2)) || isMine(m.team2); if (!t1 && !t2) return;
-              const opp = getDisplayTeamName(t1 ? m.team2 : m.team1), row = { k: 'ko', id: m.id, opp, sub: `${isFinalMatch(m) ? 'النهائي' : cleanRound(m.roundName)} · مباراة ${m.matchNumber}` };
+              const opp = getDisplayTeamName(t1 ? m.team2 : m.team1), sp = n => currentMode === 'single' ? [n] : String(n).split(' + ').map(x => x.trim()).filter(Boolean);
+              const row = { k: 'ko', id: m.id, opp, sub: `${isFinalMatch(m) ? 'النهائي' : cleanRound(m.roundName)} · مباراة ${m.matchNumber}`, badge: `م${m.matchNumber}`, mA: sp(getDisplayTeamName(t1 ? m.team1 : m.team2)), mB: sp(opp), lg: false, final: isFinalMatch(m), aLabel: getDisplayTeamName(t1 ? m.team1 : m.team2) };
               if (!m.winner) { up.push(row); return; }
               const won = m.winner === (t1 ? m.team1 : m.team2);
               done.unshift(Object.assign(row, { res: won ? 'w' : 'l', own: won ? m.winnerScore : m.loserScore, opp2: won ? m.loserScore : m.winnerScore }));
@@ -13073,9 +13103,12 @@ function buildLeagueStandingsCanvas() {
             const played = x.res === 'w' || x.res === 'l' || x.res === 'd';
             const title = x.res === 'w' ? `فوز على ${esc(x.opp)}` : x.res === 'l' ? `خسارة أمام ${esc(x.opp)}` : x.res === 'd' ? `تعادل مع ${esc(x.opp)}` : `ضد ${esc(x.opp)}`;
             const sc = played && x.own != null && x.opp2 != null ? `<bdi dir="ltr">${exportScoreTxt(x.own, x.opp2)}</bdi>` : x.res === 'void' ? '<span class="mute">ملغاة</span>' : '';
-            return `<button type="button" class="vme-row vmine-li" data-k="${x.k}" data-id="${esc(x.id)}"><span class="l"><b${played ? ` class="res-${x.res}"` : ''}>${title}${x.ff ? ' · بالانسحاب' : ''}</b><small>${esc(x.sub)}</small></span><span class="v">${sc}</span></button>`; };
+            // v5: نفس سطر القوائم: شارة الجولة ← الحصيلة أو «ضد X» ← النتيجة أو فرصتك
+            let chance = '';
+            if (!x.res) { try { const st = versusStory({ a: x.aLabel || me, b: x.opp, members: [x.mA, x.mB], lg: x.lg, final: !!x.final }); chance = `<span class="pc"><bdi dir="ltr">${Math.round(st.pA * 100)}%</bdi></span>`; } catch (e) {} }
+            return `<button type="button" class="vrow vmine-li" data-k="${x.k}" data-id="${esc(x.id)}"><span class="rd">${esc(x.badge || '')}</span><span class="t"><b${played ? ` class="res-${x.res}"` : ''}>${title}${x.ff ? ' · بالانسحاب' : ''}</b></span><span class="v">${sc || chance}</span></button>`; };
           mineWrap.innerHTML = !me ? '<div class="vme-none">اختر اسمك من «صفحتي» لتظهر مبارياتك هنا</div>' : !any ? '<div class="vme-none">لا توجد لك مباريات في هذه المنافسة</div>'
-            : `${it.up.length ? `<div class="vme-h">القادمة</div><div class="vme-card">${it.up.map(row).join('')}</div>` : ''}${it.done.length ? `<div class="vme-h">لُعبت</div><div class="vme-card">${it.done.map(row).join('')}</div>` : ''}`;
+            : `${it.up.length ? `<div class="vme-h vme-h2"><span>القادمة</span><span>فرصتك</span></div><div class="vme-card">${it.up.map(row).join('')}</div>` : ''}${it.done.length ? `<div class="vme-h">لُعبت</div><div class="vme-card">${it.done.map(row).join('')}</div>` : ''}`;
           return any;
         }
         window.__vMine = { wrap: mineWrap, render: renderMine, hasMe: () => !!me, isMine: n => isMine(n) };
@@ -13249,7 +13282,7 @@ function buildLeagueStandingsCanvas() {
           if (lg()) {
             const by = new Map();
             (Array.isArray(leagueMatches) ? leagueMatches : []).filter(m => !isLeagueMatchSettled(m) && real(m.playerA) && real(m.playerB)).sort((a, b) => a.round - b.round || String(a.id).localeCompare(String(b.id), 'en', { numeric: true }))
-              .forEach(m => { if (!by.has(m.round)) by.set(m.round, []); by.get(m.round).push({ k: 'lg', id: m.id, a: m.playerA, b: m.playerB }); });
+              .forEach(m => { if (!by.has(m.round)) by.set(m.round, []); by.get(m.round).push({ k: 'lg', id: m.id, a: m.playerA, b: m.playerB, r: m.round }); });
             by.forEach((rows, r) => groups.push({ title: `الجولة ${r}`, rows }));
           } else {
             const by = new Map();
@@ -13261,7 +13294,7 @@ function buildLeagueStandingsCanvas() {
         }
         function renderUp() {
           const g = upItems(), mine = n => window.__vMine.isMine(n);
-          up.innerHTML = g.length ? g.map(x => `<div class="vme-h">${esc(x.title)}</div><div class="vme-card">${x.rows.map(r => `<button type="button" class="vme-row vup-li" data-k="${r.k}" data-id="${esc(r.id)}"><span class="l"><b><bdi${mine(r.a) ? ' class="me"' : ''}>${esc(r.a)}</bdi> <span class="vs">ضد</span> <bdi${mine(r.b) ? ' class="me"' : ''}>${esc(r.b)}</bdi></b>${r.n ? `<small>مباراة ${r.n}</small>` : ''}</span></button>`).join('')}</div>`).join('')
+          up.innerHTML = g.length ? (lg() ? [{ title: '', rows: g.flatMap(x => x.rows) }] : g).map(x => `${x.title ? `<div class="vme-h">${esc(x.title)}</div>` : ''}<div class="vme-card">${x.rows.map(r => `<button type="button" class="vday-r vup-li" data-k="${r.k}" data-id="${esc(r.id)}"><span class="rd">${r.n ? 'م' + r.n : 'ج' + r.r}</span><span class="nm${mine(r.a) ? ' me' : ''}">${esc(r.a)}</span><span class="sc vs">ضد</span><span class="nm${mine(r.b) ? ' me' : ''}">${esc(r.b)}</span></button>`).join('')}</div>`).join('')
             : '<div class="vme-none">لا توجد مباريات قادمة حاليًا</div>';
         }
         up.addEventListener('click', e => { const r = e.target.closest('.vup-li'); if (!r) return; if (r.dataset.k === 'lg') openLeagueScoreModal(r.dataset.id); else selectWinner(r.dataset.id); });
