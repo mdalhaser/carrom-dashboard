@@ -2727,6 +2727,120 @@
     /* شارة «أنت»: نفس الإزاحة البصرية (حشوة علوية أكبر بدل الوسط الهندسي) */
     #statsContent .stp-row.is-me .nm::after { padding: 3px 9px 0; line-height: 1.55; }
     .lgc-row.is-me .n b::after { padding: 3px 8px 0; line-height: 1.5; }
+    /* ===== 4.9 — تحسينات الإدارة ===== */
+    /* (1) «اللاعبون والقرعة» مطوية تحت الجدول بعد إنشائه */
+    .ko-setup { display: flex; flex-direction: column; }
+    .ko-sum { display: flex; align-items: center; gap: 10px; width: 100%; min-height: 56px; padding: 0 var(--s4); margin: 0; font: inherit; color: var(--text); text-align: start; cursor: pointer; -webkit-tap-highlight-color: transparent; }
+    .ko-sum .ic { width: 18px; height: 18px; margin: 0; color: var(--gold-deep); }
+    .ko-sum .t { font-size: var(--fs-md); font-weight: 800; }
+    .ko-sum .d { margin-inline-start: auto; font-size: var(--fs-xs); font-weight: 700; color: var(--text-2); }
+    .ko-sum .chev { width: 18px; height: 18px; color: var(--text-3); transition: transform .4s cubic-bezier(.2,.8,.2,1); }
+    .ko-setup.open .ko-sum .chev { transform: rotate(180deg); }
+    .ko-body { display: grid; grid-template-rows: 0fr; opacity: 0; transition: grid-template-rows .45s cubic-bezier(.2,.8,.2,1), opacity .35s ease; }
+    .ko-body > .in { min-height: 0; overflow: hidden; display: flex; flex-direction: column; gap: var(--s4); }
+    .ko-setup.open .ko-body { grid-template-rows: 1fr; opacity: 1; }
+    .ko-setup.open .ko-body > .in { padding-top: var(--s4); }
+    @media (min-width: 960px) { body.ko-focus section.main { grid-template-columns: minmax(0, 1fr); max-width: 1180px; margin-inline: auto; width: 100%; } body.ko-focus section.main > .left { display: none; } }
+    @media (prefers-reduced-motion: reduce) { .ko-body, .ko-sum .chev { transition: none; } }
+    /* (2) زر الإحصائيات في الهيدر بجانب لوحة التحكم */
+    .hdr-acts { display: flex; align-items: center; justify-content: flex-end; gap: 6px; }
+    /* الجوال: زر المظهر وحده يمينًا، والإحصائيات + لوحة التحكم يسارًا بحجم 40px؛ العنوان في سطر واحد بحجم أصغر قليلًا */
+    @media (max-width: 639px) {
+      body.hdr-stats .app-bar { grid-template-columns: 40px minmax(0, 1fr) 84px; column-gap: 6px; }
+      body.hdr-stats .app-bar .theme-switch, body.hdr-stats .hdr-acts .control-open-btn { width: 40px; height: 40px; font-size: 19px; }
+      body.hdr-stats .hdr-acts { gap: 4px; }
+      body.hdr-stats .header-title h2 { font-size: 18.5px; white-space: nowrap; }
+    }
+    @media (min-width: 640px) { body.hdr-stats .app-bar { grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr); } .hdr-acts { gap: 8px; } }
+    body.hdr-stats #statsBtn { display: none; }
+    /* (4) سجل البطولات: نقاط بطل الدوري */
+    .sth-sc small { font-size: 11px; font-weight: 700; color: var(--text-3); }
+    /* (5) سحب الجولات: المتصفح يمرر عموديًا فقط، والأفقي لنا */
+    body.lg-focus #leagueRounds .league-matches { touch-action: pan-y; }
+    /* (6) تبويبا «المباريات | الترتيب»: نفس شريط تبويبات الإحصائيات (خلفية خفيفة، والنشط سطح مرتفع بإطار رفيع) */
+    body.lg-focus .lg-tabs, body.dark-mode.lg-focus .lg-tabs { padding: 3px; border-radius: 12px; border: 0; background: var(--surface-3); }
+    body.lg-focus .lg-tabs button { min-height: 40px; border-radius: 9px; color: var(--text-2); }
+    body.lg-focus .lg-tabs button[aria-selected="true"] { color: var(--text); }
+    body.lg-focus .lg-tabs .ind, body.dark-mode.lg-focus .lg-tabs .ind { top: 3px; bottom: 3px; inset-inline-start: 3px; width: calc(50% - 3px); border-radius: 9px;
+      background: var(--surface); border: 1px solid var(--line); box-shadow: var(--sh-1); }
+    body.dark-mode.lg-focus .lg-tabs .ind { background: var(--surface-2); }
+    body.lg-focus .lg-tabs .ind::after { display: none; }
+    /* (7) حقل النتيجة: الرقم يتحرك داخل حدوده */
+    .score-control { position: relative; }
+    .sc-roll { position: absolute; z-index: 2; overflow: hidden; pointer-events: none; border-radius: var(--r-md); background: var(--surface);
+      border: 1px solid var(--line); box-sizing: border-box; font-size: 32px; font-weight: 800; color: var(--text); font-variant-numeric: tabular-nums; }
+    .sc-roll i { position: absolute; inset: 0; display: grid; place-items: center; font-style: normal; }
+    /* ===== 5 — لحظة التتويج: بطاقة كبيرة فخمة في منتصف الشاشة (لا شاشة كاملة)
+       كشف متتابع: تعتيم الخلفية ← صعود البطاقة ← الوسام ينبثق مع حلقتين تتوسعان وأشعة ذهبية تدور ببطء خلفه ←
+       «بطل الدوري» ← الاسم بلمعة ذهبية تعبر مرة واحدة ← زخرفة ← التفصيل ← الأزرار. القصاصات حول البطاقة لا فوق النص ===== */
+    #celebration { padding: 16px; background: radial-gradient(80% 60% at 50% 45%, rgba(30, 20, 12, .45), rgba(12, 8, 5, .72)); -webkit-backdrop-filter: blur(12px) saturate(1.1); backdrop-filter: blur(12px) saturate(1.1); }
+    #celebration .celeb-card { position: relative; z-index: 1; display: flex; flex-direction: column; align-items: center; justify-content: center;
+      width: min(400px, 100%); height: auto; padding: 30px 22px 20px; border-radius: 30px; overflow: hidden; text-align: center;
+      background: radial-gradient(120% 70% at 50% 0%, #6A4E36 0%, #3B2B1F 45%, #1E1611 100%);
+      border: 1px solid rgba(227, 191, 110, .5);
+      box-shadow: 0 1px 0 rgba(255, 236, 200, .16) inset, 0 0 0 6px rgba(227, 191, 110, .06), 0 40px 80px -24px rgba(0, 0, 0, .8);
+      animation: celebIn .8s cubic-bezier(.16, 1, .3, 1) .05s both; }
+    @keyframes celebIn { from { transform: translateY(40px) scale(.92); opacity: 0; } to { transform: none; opacity: 1; } }
+    #celebration .celeb-card::before { content: ""; position: absolute; inset: 0 0 auto; height: 1px; background: linear-gradient(90deg, transparent, rgba(243, 223, 174, .85), transparent); }
+    /* المسرح: أشعة + حلقات + الوسام */
+    .celeb-stage { position: relative; display: grid; place-items: center; width: 200px; height: 170px; margin: -6px auto 6px; }
+    .celeb-rays { position: absolute; inset: -40px; border-radius: 50%; opacity: 0;
+      background: repeating-conic-gradient(from 0deg, rgba(243, 214, 150, .16) 0deg 7deg, transparent 7deg 20deg);
+      -webkit-mask-image: radial-gradient(circle, #000 18%, transparent 66%); mask-image: radial-gradient(circle, #000 18%, transparent 66%);
+      animation: raysIn 1.2s ease .5s forwards, raysSpin 40s linear .5s infinite; }
+    @keyframes raysIn { to { opacity: 1; } }
+    @keyframes raysSpin { to { transform: rotate(360deg); } }
+    .celeb-ring { position: absolute; width: 112px; height: 112px; border-radius: 50%; border: 2px solid rgba(243, 214, 150, .7); opacity: 0; animation: ringOut 1.4s cubic-bezier(.2, .7, .2, 1) .55s both; }
+    .celeb-ring.r2 { animation-delay: .8s; border-width: 1px; }
+    @keyframes ringOut { 0% { transform: scale(.7); opacity: .9; } 100% { transform: scale(2.1); opacity: 0; } }
+    #celebration .celeb-trophy { position: relative; z-index: 1; width: 112px; height: 112px; margin: 0;
+      background: radial-gradient(circle at 34% 28%, #FFF3D2 0%, #F0CF83 32%, #C9993F 70%, #8A6324 100%);
+      box-shadow: 0 0 0 5px rgba(227, 191, 110, .16), 0 0 0 6px rgba(227, 191, 110, .3), 0 18px 40px -10px rgba(0, 0, 0, .7), 0 0 60px -6px rgba(240, 200, 120, .55), inset 0 -3px 6px rgba(90, 60, 20, .35), inset 0 2px 0 rgba(255, 255, 255, .5);
+      animation: celebTrophy 1s cubic-bezier(.2, 1.2, .3, 1) .3s both; }
+    #celebration .celeb-trophy::before { width: 54px; height: 54px; }
+    @keyframes celebTrophy { 0% { transform: scale(.3) rotate(-25deg); opacity: 0; } 60% { transform: scale(1.08) rotate(4deg); opacity: 1; } 100% { transform: none; opacity: 1; } }
+    /* النصوص */
+    #celebration .celeb-label { font-size: 15px; font-weight: 800; letter-spacing: .4px; color: #E9C77A; animation: rise .55s ease .8s both; }
+    #celebration .celeb-name { margin-top: 6px; font-size: 38px; font-weight: 900; line-height: 1.25; color: transparent; text-shadow: none;
+      background-image: linear-gradient(100deg, transparent 38%, #FFE3A0 50%, transparent 62%), linear-gradient(#F6EEDF, #F6EEDF);
+      background-size: 260% 100%, 100% 100%; background-repeat: no-repeat; background-position: 120% 0, 0 0; -webkit-background-clip: text; background-clip: text;
+      filter: drop-shadow(0 2px 10px rgba(0, 0, 0, .5)); animation: rise .6s ease .95s both, shine 1.6s ease 1.6s both; }
+    @keyframes shine { from { background-position: 120% 0, 0 0; } to { background-position: -20% 0, 0 0; } }
+    .celeb-orn { display: flex; align-items: center; gap: 8px; width: min(70%, 220px); margin: 14px auto 10px; animation: rise .5s ease 1.15s both; }
+    .celeb-orn b { flex: 1; height: 1px; background: linear-gradient(90deg, transparent, rgba(227, 191, 110, .6)); }
+    .celeb-orn b:last-child { background: linear-gradient(90deg, rgba(227, 191, 110, .6), transparent); }
+    .celeb-orn span { width: 6px; height: 6px; transform: rotate(45deg); background: #E3BF6E; }
+    #celebration .celeb-sub { margin-top: 0; font-size: 14.5px; font-weight: 700; color: rgba(246, 238, 223, .72); animation: rise .5s ease 1.25s both; }
+    #celebration .celeb-actions { width: 100%; margin-top: 0; padding-top: 28px; gap: 8px; animation: rise .5s ease 1.5s both; }
+    #celebration .celeb-btn { min-height: 50px; font-size: 16px; border-radius: 14px; }
+    @media (max-height: 640px) { .celeb-stage { height: 140px; } #celebration .celeb-trophy { width: 92px; height: 92px; } #celebration .celeb-name { font-size: 32px; } }
+    @media (min-width: 640px) {
+      #celebration .celeb-card { width: 460px; padding: 38px 32px 26px; }
+      #celebration .celeb-name { font-size: 42px; }
+    }
+    /* الغبار الذهبي داخل منطقة البطاقة */
+    #celebration canvas:not(.celeb-dust) { z-index: 2; }   /* القصاصات تنبثق فوق البطاقة وتغطيها ثم تتساقط (التأثير المعتمد) */
+    #celebration canvas.celeb-dust { -webkit-mask-image: radial-gradient(45% 40% at 50% 45%, #000 40%, transparent 100%); mask-image: radial-gradient(45% 40% at 50% 45%, #000 40%, transparent 100%); }
+    @media (prefers-reduced-motion: reduce) {
+      .celeb-rays { animation: none; opacity: 1; } .celeb-ring { display: none; }
+      #celebration .celeb-card, #celebration .celeb-trophy, #celebration .celeb-label, #celebration .celeb-name, .celeb-orn, #celebration .celeb-sub, #celebration .celeb-actions { animation: none; }
+      #celebration .celeb-name { background-position: -20% 0, 0 0; }
+    }
+    /* تفاصيل التتويج المنظمة */
+    #celebration .celeb-top { position: absolute; top: 16px; inset-inline: 20px; font-size: 12px; font-weight: 700; color: rgba(246, 238, 223, .55); letter-spacing: .2px; }
+    #celebration .celeb-note { display: inline-flex; margin: 0 auto 8px; padding: 3px 12px 1px; border-radius: 999px; font-size: 12px; font-weight: 800; color: #2E2008;
+      background: linear-gradient(135deg, #F3DFAE, #CFA963); animation: rise .5s ease .75s both; }
+    #celebration .celeb-stats { display: grid; grid-auto-flow: column; grid-auto-columns: minmax(0, 1fr); width: 100%; margin-top: 2px; animation: rise .5s ease 1.25s both; }
+    #celebration .celeb-stats > span { display: flex; flex-direction: column; align-items: center; gap: 3px; min-width: 0; padding: 0 6px; }
+    #celebration .celeb-stats > span + span { border-inline-start: 1px solid rgba(227, 191, 110, .22); }
+    #celebration .celeb-stats b { font-size: 20px; font-weight: 800; line-height: 1.25; color: #F6EEDF; font-variant-numeric: tabular-nums; overflow-wrap: anywhere; }
+    #celebration .celeb-stats i { font-style: normal; font-size: 11.5px; font-weight: 700; color: rgba(233, 199, 122, .85); }
+    #celebration .celeb-stage { margin-top: 10px; }
+    #celebration .celeb-stats > span.tx b { font-size: 15.5px; line-height: 1.4; }
+    #celebration .celeb-name.long { font-size: 29px; }
+    @media (min-width: 640px) { #celebration .celeb-name.long { font-size: 32px; } }
+    #celebration .nw { white-space: nowrap; display: inline-block; }
+    #celebration .celeb-name .pl, #celebration .celeb-stats .pl { color: #E3BF6E; -webkit-text-fill-color: #E3BF6E; }
   </style>
 </head>
 <body>
@@ -5381,6 +5495,15 @@ return teamName.replace('غير محدد', replacement);
             `<span class="stp-id solo"><b class="nm pair">${pairName(p.name)}</b></span>` +
             `<span class="stp-key k-titles"><span class="kv"><b class="t-tot">${n}</b><small class="ku">${pairWord(n)}</small></span></span>` +
             `<span class="stp-stats"><span class="stp-g ga">${psv(p.runnerUps, 'وصافة')}${psv(p.tournaments, 'مشاركات')}</span><span class="stp-g gb">${psv(p.wins, 'فوز')}${psv(p.losses, 'خسارة')}${psv(p.winRate + '%', 'نسبة الفوز')}</span></span></div>`; }).join('') : '';
+      // ملخص بطل الدوري من مبارياته المحفوظة في السجل: ف/ت/خ والأشواط والفارق، والنقاط من ترتيبه النهائي (عرض فقط)
+      const leagueChampLine = t => {
+        const c = t.champion, row = (t.leagueStandings || []).find(r => r.name === c);
+        let w = 0, d = 0, l = 0, sf = 0, sa = 0, pts = row ? row.points : null;
+        (t.matches || []).forEach(m => { if (m.team1 !== c && m.team2 !== c) return; const a = m.team1 === c, my = Number(a ? m.scoreA : m.scoreB), op = Number(a ? m.scoreB : m.scoreA);
+          if (Number.isFinite(my) && Number.isFinite(op)) { sf += my; sa += op; } if (m.winner === c) w++; else if (m.winner == null) d++; else l++; });
+        if (pts == null) pts = w * 3 + d;
+        return { pts, w, d, l, diff: sf - sa };
+      };
       // ===== سجل البطولات: مجمّع حسب اليوم (التاريخ مرة واحدة)، وكل بطولة: البطل ← النتيجة ← الوصيف ← النظام =====
       // اسم البطولة لا يُكرر إذا كان نفس عنوان المشروع؛ يظهر فقط عندما يختلف
       const sideNames = (t, side) => { const ms = t.teamMap?.[side] || (t.mode === 'single' || t.mode === 'league' ? [side] : String(side || '').split(' + ')); return ms.filter(Boolean); };
@@ -5391,7 +5514,8 @@ return teamName.replace('غير محدد', replacement);
       [...tournamentHistory].reverse().forEach(t => { const k = fmtDate(t.date) || '—'; let g = days[days.length - 1]; if (!g || g.k !== k) days.push(g = { k, items: [] }); g.items.push({ t, i: hi++ }); });
       const historyRows = days.map(g => `<div class="sth-day${g.items[0].i >= STATS_FOLD_PEEK ? ' st-extra' : ''}"><div class="sth-date"><span class="ic ic-calendar" aria-hidden="true"></span><b>${escHTML(g.k)}</b>${g.items.length > 1 ? `<small>${g.items.length} ${arCountW(g.items.length, 'بطولة', 'بطولتان', 'بطولات', 'بطولة')}</small>` : ''}</div>` +
         g.items.map(({ t, i }) => { const [mic, ml] = modeOf(t), fs = t.finalScore || {}, hasSc = fs.winner != null && fs.loser != null;
-          const sc = hasSc ? `${Math.max(fs.winner, fs.loser)} - ${Math.min(fs.winner, fs.loser)}` : '';
+          let sc = hasSc ? `${Math.max(fs.winner, fs.loser)} - ${Math.min(fs.winner, fs.loser)}` : '';
+          if (t.mode === 'league') { const P = leagueChampLine(t).pts; sc = `${P} <small>${P === 1 ? 'نقطة' : P === 2 ? 'نقطتان' : P >= 3 && P <= 10 ? 'نقاط' : 'نقطة'}</small>`; }   // الدوري: نقاط البطل مكان النتيجة
           const nm = String(t.name || '').trim(), showName = nm && nm !== projTitle;
           return `<div class="sth-row st-item${i >= STATS_FOLD_PEEK ? ' st-extra' : ''}">` +
             `<span class="sth-champ"><span class="ic ic-trophy" aria-hidden="true"></span><b>${namesHTML(sideNames(t, t.champion))}</b>${t.mode === 'league' ? `<span class="sth-mode"><span class="ic ic-${mic}" aria-hidden="true"></span>${ml}</span>` : ''}</span>` +   // النوع واضح من الأسماء (لاعب أو ثنائي)؛ الشارة للدوري فقط
@@ -5401,17 +5525,22 @@ return teamName.replace('غير محدد', replacement);
 
       // ===== بطاقة «آخر بطولة مكتملة»: البطل ← النتيجة ← الوصيف، ومعها اليوم والتاريخ ونوع البطولة =====
       // ===== بطاقة «آخر بطولة مكتملة»: سطر واحد متماسك — الوسام ← البطل (وتحته الوصيف) ← النتيجة؛ والرأس: العنوان والتاريخ =====
+      // ===== بطاقة «آخر بطولة مكتملة»: سطر واحد متماسك — الوسام ← البطل (وتحته الوصيف) ← النتيجة؛ والرأس: العنوان والتاريخ =====
+      // الدوري: البطل وحده، وتحته سجله (ف · ت · خ · الفارق)، ومكان النتيجة نقاطه
       const lastCardHTML = (() => {
         if (!lastHist || !lastHist.champion) return '';
         const t = lastHist, fs = t.finalScore || {}, hasSc = fs.winner != null && fs.loser != null;
         const names = side => { const ms = sideNames(t, side); return ms.length ? ms.map(x => `<bdi>${escHTML(x)}</bdi>`).join('<span class="pl" aria-hidden="true">+</span>') : '—'; };
+        const isLg = t.mode === 'league', L = isLg ? leagueChampLine(t) : null;
         const sc = hasSc ? `${Math.max(fs.winner, fs.loser)} - ${Math.min(fs.winner, fs.loser)}` : '';
+        const sub = isLg ? `<span class="ru">فوز ${L.w} · تعادل ${L.d} · خسارة ${L.l} · الفارق <bdi dir="ltr">${L.diff > 0 ? '+' : ''}${L.diff}</bdi></span>` : `<span class="ru"><span class="k">أمام</span>${names(t.runnerUp)}</span>`;
+        const right = isLg ? `<span class="score"><b>${L.pts}</b><i>${L.pts === 1 ? 'نقطة' : L.pts === 2 ? 'نقطتان' : L.pts >= 3 && L.pts <= 10 ? 'نقاط' : 'نقطة'}</i></span>` : sc ? `<span class="score"><b>${sc}</b><i>النهائي</i></span>` : '';
         return `<section class="st-last" aria-label="آخر بطولة مكتملة">
-          <div class="st-last-top"><span class="tag">بطل آخر بطولة${t.mode === 'league' ? ' · دوري' : ''}</span><span class="meta">${escHTML(fmtDate(t.date))}</span></div>
+          <div class="st-last-top"><span class="tag">${isLg ? 'بطل آخر دوري' : 'بطل آخر بطولة'}</span><span class="meta">${escHTML(fmtDate(t.date))}</span></div>
           <div class="st-last-row">
             <span class="medal" aria-hidden="true"><span class="ic ic-trophy"></span></span>
-            <span class="who"><b class="champ">${names(t.champion)}</b><span class="ru"><span class="k">أمام</span>${names(t.runnerUp)}</span></span>
-            ${sc ? `<span class="score"><b>${sc}</b><i>النهائي</i></span>` : ''}
+            <span class="who"><b class="champ">${names(t.champion)}</b>${sub}</span>
+            ${right}
           </div>
         </section>`;
       })();
@@ -9014,7 +9143,7 @@ function changeScore(inputId, amount){
         const cl = leagueClinch();
         if (cl && window.carromCelebrate && (!wasCl || wasCl.name !== cl.name || (!wasDone && cl.final))) {
           const t = tournamentName.textContent.trim();
-          window.carromCelebrate(cl.final ? 'بطل الدوري' : 'حسم لقب الدوري', cl.name, cl.final ? exportPointsLabel(cl.points) + (t ? ' · ' + t : '') : `قبل ${arRounds(cl.roundsLeft)} من النهاية`, { share: () => exportLeagueAchievementImage('champion', calculateLeagueStandings(), true) });
+          window.carromCelebrate(cl.final ? 'بطل الدوري' : 'حسم لقب الدوري', cl.name, celebLeagueDetails(cl.name, cl) || exportPointsLabel(cl.points), { top: t, note: celebClinchNote(cl), share: () => exportLeagueAchievementImage('champion', calculateLeagueStandings(), true) });
         }
       } catch (e) {}
     }
@@ -9198,6 +9327,16 @@ function buildLeagueStandingsCanvas() {
     // يعتمد على دوال التصدير المشتركة الحالية (EXPORT_BRAND / exportBrandHeader)
     // ولا يغيّر منطق البطولة أو حساب النتائج.
     // =========================================================
+    // تفاصيل لحظة التتويج في الدوري (عرض فقط): النقاط · ف-ت-خ · الفارق، وعند الحسم المبكر: النقاط · التقدم على الثاني · المتبقي
+    function celebLeagueDetails(name, clinch) {
+      const st = calculateLeagueStandings().filter(x => !x.excluded), me = st.find(x => x.name === name); if (!me) return null;
+      const second = st.find(x => x.name !== name);
+      const diff = me.setDifference > 0 ? '+' + me.setDifference : String(me.setDifference);
+      if (clinch && !clinch.final) return [[me.points, 'نقطة'], [second ? '+' + (me.points - second.points) : '—', 'التقدم على الثاني'], [clinch.matchesLeft, clinch.matchesLeft === 1 ? 'مباراة متبقية' : 'مباريات متبقية']];
+      return [[me.points, 'نقطة'], [`${me.wins} · ${me.draws} · ${me.losses}`, 'ف · ت · خ'], [diff, 'فارق الأشواط']];
+    }
+    function celebClinchNote(cl) { return cl && !cl.final ? `حُسم قبل النهاية بـ${arRounds(cl.roundsLeft)}` : ''; }
+
     function getCurrentFinalistData() {
       const v = getVerifiedTournamentChampion();
       return v ? { champion: v.champion, runnerUp: v.runnerUp, score: v.score } : null;
@@ -11388,10 +11527,18 @@ function buildLeagueStandingsCanvas() {
         const el = document.createElement('div');
         el.id = 'celebration'; el.setAttribute('role', 'dialog'); el.setAttribute('aria-modal', 'true'); el.setAttribute('aria-label', `${label}: ${name}`);
         const card = document.createElement('div'); card.className = 'celeb-card';
-        card.innerHTML = '<div class="celeb-trophy" aria-hidden="true"></div><div class="celeb-label"></div><div class="celeb-name"></div><div class="celeb-sub"></div><div class="celeb-actions"></div>';
+        card.innerHTML = '<div class="celeb-stage" aria-hidden="true"><span class="celeb-rays"></span><span class="celeb-ring"></span><span class="celeb-ring r2"></span><div class="celeb-trophy"></div></div><div class="celeb-label"></div><div class="celeb-name"></div><i class="celeb-orn" aria-hidden="true"><b></b><span></span><b></b></i><div class="celeb-sub"></div><div class="celeb-actions"></div>';
         card.querySelector('.celeb-label').textContent = label;
-        card.querySelector('.celeb-name').textContent = name;
-        const subEl = card.querySelector('.celeb-sub'); if (sub) subEl.textContent = sub; else subEl.remove();
+        { const parts = String(name).split(/\s*\+\s*/).filter(Boolean);   // الفريق: كل اسم لا ينكسر داخله، والالتفاف عند «+» فقط
+          card.querySelector('.celeb-name').innerHTML = parts.map(x => `<span class="nw">${escHTML(x)}</span>`).join('<span class="pl"> + </span>'); }
+        if (String(name).includes('+') || String(name).length > 16) card.querySelector('.celeb-name').classList.add('long');   // اسم فريق: أصغر قليلًا ليبقى متوازنًا
+        // التفاصيل منظمة: اسم البطولة سطر علوي هادئ، وملاحظة الحسم شارة، والأرقام خانات (القيمة ← عنوانها) بفواصل رفيعة
+        const subEl = card.querySelector('.celeb-sub');
+        if (Array.isArray(sub) && sub.length) { subEl.className = 'celeb-stats'; subEl.innerHTML = sub.map(([v, l]) => { const x = escHTML(String(v)); const xv = /\d/.test(String(v)) ? x : String(v).split(/\s*\+\s*/).map(z => `<span class="nw">${escHTML(z)}</span>`).join('<span class="pl"> + </span>');
+            return `<span${/\d/.test(String(v)) ? '' : ' class="tx"'}><b>${/^[+\-−]\d/.test(String(v)) ? `<bdi dir="ltr">${x}</bdi>` : xv}</b><i>${escHTML(l)}</i></span>`; }).join(''); }
+        else if (sub) subEl.textContent = sub; else subEl.remove();
+        if (opts.top) { const tp = document.createElement('div'); tp.className = 'celeb-top'; tp.textContent = opts.top; card.prepend(tp); }
+        if (opts.note) { const nt = document.createElement('div'); nt.className = 'celeb-note'; nt.textContent = opts.note; card.querySelector('.celeb-label').before(nt); }
         const acts = card.querySelector('.celeb-actions');
         let cv = null;
         if (!reduceMotion()) { cv = document.createElement('canvas'); el.appendChild(cv); requestAnimationFrame(() => confetti(cv)); }
@@ -11435,8 +11582,8 @@ function buildLeagueStandingsCanvas() {
             const after = getVerifiedTournamentChampion();
             if (after && (!before || before.champion !== after.champion)) {
               const t = tournamentName.textContent.trim();
-              celebrate(currentMode === 'single' ? 'بطل المنافسة الفردية' : 'بطل البطولة', getDisplayTeamName(after.champion), (t ? t + ' · ' : '') + 'النهائي ' + after.score,
-                { share: () => exportTournamentAchievementImage('champion', getCurrentFinalistData()) });
+              celebrate(currentMode === 'single' ? 'بطل المنافسة الفردية' : 'بطل البطولة', getDisplayTeamName(after.champion), [[String(after.score).replace(/\s*[–-]\s*/, ' - '), 'نتيجة النهائي'], [getDisplayTeamName(after.runnerUp), 'الوصيف']],
+                { top: t, share: () => exportTournamentAchievementImage('champion', getCurrentFinalistData()) });
             }
           }
         } catch (e) { console.error(e); }
@@ -11452,11 +11599,11 @@ function buildLeagueStandingsCanvas() {
           if (leagueCompleted) {
             // تتويج: عند اكتمال الدوري، أو عند تغيّر البطل بتعديل نتيجة بعد اكتماله
             const st = calculateLeagueStandings();
-            if (st[0] && (!wasDone || !wasCl || wasCl.name !== st[0].name)) { const t = tournamentName.textContent.trim(); celebrate('بطل الدوري', st[0].name, `${exportPointsLabel(st[0].points)}` + (t ? ' · ' + t : ''), { share: () => exportLeagueAchievementImage('champion', calculateLeagueStandings(), true) }); }
+            if (st[0] && (!wasDone || !wasCl || wasCl.name !== st[0].name)) { const t = tournamentName.textContent.trim(); celebrate('بطل الدوري', st[0].name, celebLeagueDetails(st[0].name) || exportPointsLabel(st[0].points), { top: t, share: () => exportLeagueAchievementImage('champion', calculateLeagueStandings(), true) }); }
           } else if (!leagueCompleted) {
             // احتفال عند لحظة حسم جديدة: لم يكن محسومًا، أو صار محسومًا للاعب آخر بعد تعديل نتيجة
             const cl = leagueClinch();
-            if (cl && !cl.final && (!wasCl || wasCl.name !== cl.name)) celebrate('حسم لقب الدوري', cl.name, `قبل ${arRounds(cl.roundsLeft)} من النهاية`, { share: () => exportLeagueAchievementImage('champion', calculateLeagueStandings(), true) });
+            if (cl && !cl.final && (!wasCl || wasCl.name !== cl.name)) celebrate('حسم لقب الدوري', cl.name, celebLeagueDetails(cl.name, cl) || `قبل ${arRounds(cl.roundsLeft)} من النهاية`, { top: tournamentName.textContent.trim(), note: celebClinchNote(cl), share: () => exportLeagueAchievementImage('champion', calculateLeagueStandings(), true) });
           }
         } catch (e) { console.error(e); }
         return r;
@@ -11916,7 +12063,7 @@ function buildLeagueStandingsCanvas() {
     // ===================================
     // 🧭 سلوك التطبيق: إعادة الوضع للأعلى، تعديل العنوان بالضغط المطوّل، تنبيه التحديث، رقم الإصدار
     // ===================================
-    const APP_VERSION = '4.8';   // ترقيم الاعتماد: 1 ثم 1.1 … 1.9 ثم 2 — ويُرفع معه رقم الإصدار في sw.js
+    const APP_VERSION = '5';   // ترقيم الاعتماد: 1 ثم 1.1 … 1.9 ثم 2 — ويُرفع معه رقم الإصدار في sw.js
     (function setupAppBehaviors() {
       const root = document.documentElement;
 
@@ -12032,7 +12179,7 @@ function buildLeagueStandingsCanvas() {
       const centerY = el => { const r = el.getBoundingClientRect(), h = header.getBoundingClientRect(); return r.top - h.top + r.height / 2; };
       function measure() {
         // أزرار الهيدر الظاهرة الآن (صفحة المشاهدة تضيف زر الإحصائيات بعد بدء التطبيق، فنعيد جمعها في كل قياس)
-        btns = ['themeSwitch', 'openControlDashboard', 'viewStatsBtn'].map(id => document.getElementById(id)).filter(b => b && b.getClientRects().length);
+        btns = ['themeSwitch', 'openControlDashboard', 'viewStatsBtn', 'hdrStatsBtn'].map(id => document.getElementById(id)).filter(b => b && b.getClientRects().length);
         // القياس بلا أي تحويلات حتى تكون المواضع الأصلية
         [h2, h1, ...btns].forEach(el => { if (el) el.style.transform = ''; });
         safeTop = parseFloat(getComputedStyle(header).paddingTop) || 0;
@@ -12720,6 +12867,129 @@ function buildLeagueStandingsCanvas() {
         // عند الرجوع للتطبيق/التبويب نفحص فورًا (إن مضى أكثر من 20 ثانية على آخر فحص)
         document.addEventListener('visibilitychange', () => { if (!document.hidden && Date.now() - last > 20000) check(); });
         window.addEventListener('online', () => check());
+      })();
+    })();
+    // ===================================
+    // 4.9 — تحسينات الإدارة: طيّ اللاعبين والقرعة بعد إنشاء الجدول · زر الإحصائيات في الهيدر ·
+    //        السحب بين جولات الدوري · حركة أرقام النتيجة. عرض وتفاعل فقط؛ لا يمس القرعة ولا الحساب ولا البيانات.
+    // ===================================
+    (function setupAdmin49() {
+      const RM = () => !!(window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches);
+      const VIEW = !!window.CARROM_VIEW;
+
+      // ---------- (1) الفرق والفردي: بعد إنشاء الجدول تنطوي «اللاعبون والقرعة» في سطر ملخص تحت الجدول ----------
+      (function koFocus() {
+        if (VIEW) return;
+        const left = document.querySelector('section.main > .left'), right = document.querySelector('section.main > .right');
+        const bracketCard = document.querySelector('.bracket-card'), tools = document.querySelector('.tools-card');
+        const parts = ['.players-card', '.draw-card', '#teamsListContainer'].map(q => document.querySelector(q)).filter(Boolean);
+        const nt = document.getElementById('newTournamentWrap');
+        if (!left || !right || !bracketCard || !parts.length) return;
+        const homes = parts.map(el => ({ el, parent: el.parentNode, next: el.nextSibling }));
+        const ntHome = nt ? { parent: nt.parentNode, next: nt.nextSibling } : null;
+        const box = document.createElement('section'); box.className = 'ko-setup'; box.id = 'koSetup';
+        box.innerHTML = '<button type="button" class="card ko-sum" aria-expanded="false"><span class="ic ic-users" aria-hidden="true"></span><span class="t">اللاعبون والقرعة</span><span class="d"></span><svg class="chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg></button><div class="ko-body"><div class="in"></div></div>';
+        const sum = box.querySelector('.ko-sum'), inner = box.querySelector('.in');
+        sum.addEventListener('click', () => { const o = !box.classList.contains('open'); box.classList.toggle('open', o); sum.setAttribute('aria-expanded', String(o)); });
+        const hasBracket = () => currentMode !== 'league' && !!bracketState && Object.keys(bracketState).length > 0 && !!document.querySelector('#bracketArea .match-card');
+        let on = null, busy = false;
+        const sync = () => {
+          if (busy) return; busy = true;
+          try {
+            const want = hasBracket();
+            if (want !== on) {
+              on = want; document.body.classList.toggle('ko-focus', want);
+              if (want) {
+                bracketCard.after(box); parts.forEach(el => inner.appendChild(el));
+                if (nt && tools) tools.prepend(nt);   // «منافسة جديدة» تبقى ظاهرة بجانب أدوات الجدول
+              } else {
+                box.classList.remove('open'); sum.setAttribute('aria-expanded', 'false');
+                homes.forEach(h => h.parent.insertBefore(h.el, h.next && h.next.parentNode === h.parent ? h.next : null));
+                if (nt && ntHome) ntHome.parent.insertBefore(nt, ntHome.next && ntHome.next.parentNode === ntHome.parent ? ntHome.next : null);
+                if (box.parentNode) box.remove();
+              }
+            }
+            if (want) {
+              const n = Number((document.getElementById('teamsCount') || {}).textContent) || 0;
+              const teams = document.querySelectorAll('#teamsContainer > :not(.empty)').length;
+              sum.querySelector('.d').textContent = currentMode === 'single' ? `${n} لاعبًا` : `${teams || n} ${arCountW(teams || n, 'فريق', 'فريقان', 'فرق', 'فريقًا')} · ${(teams || n) * 2} لاعبًا`;
+            }
+          } finally { busy = false; }
+        };
+        const ba = document.getElementById('bracketArea');
+        if (ba) new MutationObserver(() => requestAnimationFrame(sync)).observe(ba, { childList: true });
+        document.querySelectorAll('#modeSelection [data-mode]').forEach(b => b.addEventListener('click', () => setTimeout(sync, 60)));
+        sync();
+      })();
+
+      // ---------- (2) زر الإحصائيات في الهيدر (لوحة الإدارة) بجانب زر لوحة التحكم، كما في نسخة اللاعبين ----------
+      (function headerStats() {
+        if (VIEW) return;
+        const ctl = document.getElementById('openControlDashboard'); if (!ctl) return;
+        const grp = document.createElement('div'); grp.className = 'hdr-acts';
+        const sb = document.createElement('button'); sb.type = 'button'; sb.id = 'hdrStatsBtn'; sb.className = ctl.className.replace(/\bhas-dot\b/, '').trim();
+        sb.setAttribute('aria-label', 'الإحصائيات'); sb.setAttribute('data-ic', 'chart'); sb.innerHTML = '<span>الإحصائيات</span>';
+        sb.addEventListener('click', () => openStats());
+        ctl.parentNode.insertBefore(grp, ctl); grp.append(sb, ctl);
+        document.body.classList.add('hdr-stats');
+        requestAnimationFrame(() => window.dispatchEvent(new Event('resize')));
+      })();
+
+      // ---------- (5) الدوري: السحب أفقيًا على مباريات الجولة للتنقل بين الجولات (RTL: لليمين = التالية) ----------
+      (function roundSwipe() {
+        const host = document.getElementById('leagueRounds'); if (!host) return;
+        let st = null;
+        const grid = () => host.querySelector('.league-matches');
+        host.addEventListener('touchstart', e => {
+          if (e.touches.length !== 1 || e.target.closest('.league-round-dots, .league-round-nav, input, textarea')) { st = null; return; }
+          const t = e.touches[0]; st = { x: t.clientX, y: t.clientY, dx: 0, lock: null, g: grid() };
+        }, { passive: true });
+        host.addEventListener('touchmove', e => {
+          if (!st) return; const t = e.touches[0]; const dx = t.clientX - st.x, dy = t.clientY - st.y;
+          if (st.lock === null && (Math.abs(dx) > 8 || Math.abs(dy) > 8)) st.lock = Math.abs(dx) > Math.abs(dy) * 1.3 ? 'x' : 'y';
+          if (st.lock !== 'x') return;
+          const total = leagueExpectedTotals(leaguePlayers.length).rounds, cur = leagueCurrentRound, can = dx > 0 ? cur < total : cur > 1;
+          st.dx = dx; const shown = can ? dx * .45 : dx * .15;   // مقاومة عند أول/آخر جولة
+          if (st.g && !RM()) { st.g.style.transition = 'none'; st.g.style.transform = `translateX(${shown}px)`; st.g.style.opacity = String(1 - Math.min(.35, Math.abs(shown) / 400)); }
+        }, { passive: true });
+        const end = () => {
+          if (!st) return; const s0 = st; st = null; if (s0.lock !== 'x') return;
+          const total = leagueExpectedTotals(leaguePlayers.length).rounds, cur = leagueCurrentRound;
+          const go = Math.abs(s0.dx) > 60 ? (s0.dx > 0 ? cur + 1 : cur - 1) : cur;
+          host.dataset.swiped = '1'; setTimeout(() => { delete host.dataset.swiped; }, 350);
+          if (go !== cur && go >= 1 && go <= total) { goToLeagueRound(go); return; }
+          if (s0.g) { s0.g.style.transition = 'transform .35s cubic-bezier(.2,.8,.2,1), opacity .35s ease'; s0.g.style.transform = ''; s0.g.style.opacity = ''; setTimeout(() => { if (s0.g) s0.g.style.transition = ''; }, 380); }
+        };
+        host.addEventListener('touchend', end, { passive: true }); host.addEventListener('touchcancel', end, { passive: true });
+        host.addEventListener('click', e => { if (host.dataset.swiped) { e.stopPropagation(); e.preventDefault(); } }, true);   // نهاية السحب ليست ضغطة على مباراة
+      })();
+
+      // ---------- (7) أزرار + و− في إدخال النتيجة: الرقم ينزلق بنعومة، ويهتز عند الحد ----------
+      (function scoreMotion() {
+        if (typeof changeScore !== 'function') return;
+        const _cs = changeScore;
+        changeScore = function (inputId, amount) {
+          const inp = document.getElementById(inputId), before = inp ? inp.value : null;
+          const r = _cs.apply(this, arguments);
+          if (!inp || RM() || !inp.animate) return r;
+          if (inp.value !== before) {
+            const d = amount > 0 ? 1 : -1;
+            // عدّاد: الرقم القديم يخرج والجديد يدخل داخل حدود الحقل (طبقة مؤقتة فوق الحقل بنفس شكله؛ الحقل نفسه لا يتحرك)
+            const host = inp.parentNode, ov = document.createElement('span'); ov.className = 'sc-roll'; ov.setAttribute('aria-hidden', 'true');
+            ov.style.cssText = `left:${inp.offsetLeft}px;top:${inp.offsetTop}px;width:${inp.offsetWidth}px;height:${inp.offsetHeight}px`;
+            ov.innerHTML = `<i>${before}</i><i>${inp.value}</i>`; host.appendChild(ov);
+            const [o1, o2] = ov.children, D = 260, E = 'cubic-bezier(.2,.8,.2,1)';
+            o1.animate([{ transform: 'translateY(0)', opacity: 1 }, { transform: `translateY(${-d * 70}%)`, opacity: 0 }], { duration: D, easing: E, fill: 'forwards' });
+            o2.animate([{ transform: `translateY(${d * 70}%)`, opacity: 0 }, { transform: 'translateY(0)', opacity: 1 }], { duration: D, easing: E, fill: 'forwards' });
+            clearTimeout(inp.__rollT); host.querySelectorAll('.sc-roll').forEach(x => { if (x !== ov) x.remove(); });
+            inp.__rollT = setTimeout(() => ov.remove(), D + 20);
+            const pb = inp.parentNode.querySelector(`.score-btn[aria-label="${amount > 0 ? 'زيادة' : 'إنقاص'}"]`);
+            if (pb) pb.animate([{ transform: 'scale(1)' }, { transform: 'scale(.86)' }, { transform: 'scale(1)' }], { duration: 220, easing: 'ease-out' });
+          } else {
+            inp.animate([{ transform: 'translateX(0)' }, { transform: 'translateX(-5px)' }, { transform: 'translateX(4px)' }, { transform: 'translateX(-2px)' }, { transform: 'translateX(0)' }], { duration: 260, easing: 'ease-out' });
+          }
+          return r;
+        };
       })();
     })();
   </script>
