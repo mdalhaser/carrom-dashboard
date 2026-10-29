@@ -117,9 +117,14 @@
       /* التحكم */
       --h-control: 48px;
       --h-control-sm: 40px;
+      /* نظام الحركة الموحد (5.3): منحنى تباطؤ واحد للدخول، ومنحنى تسارع للخروج، وأربع مدد فقط
+         fast: استجابة الأزرار · base: التبويبات وتبديل المحتوى · sheet: النوافذ والطي والتوسع · slow: الانتقالات الكبيرة */
       --ease: cubic-bezier(.2, .8, .2, 1);
+      --ease-in: cubic-bezier(.4, 0, 1, 1);
       --t-fast: .14s;
       --t-base: .22s;
+      --t-sheet: .26s;
+      --t-slow: .3s;
 
       --safe-top: env(safe-area-inset-top, 0px);
       --safe-bottom: env(safe-area-inset-bottom, 0px);
@@ -753,7 +758,7 @@
         linear-gradient(180deg, var(--wood-2), var(--wood));
       background-repeat: no-repeat;
       box-shadow: 0 14px 36px -12px rgba(48, 37, 31, .55);
-      animation: rise .4s var(--ease) both;
+      animation: rise var(--t-slow) var(--ease) both;
     }
     .final-winner .match-title { font-size: var(--fs-lg) !important; font-weight: 800 !important; color: var(--gold-soft) !important; display: flex; align-items: center; gap: 10px; }
     .final-winner .match-body { width: 100%; margin-top: var(--s3) !important; }
@@ -805,7 +810,7 @@
     }
     .league-stat b { font-size: var(--fs-lg); font-weight: 800; color: var(--text); }
     .league-bar { height: 8px; border-radius: 999px; background: var(--surface-3); overflow: hidden; margin-top: var(--s3); }
-    .league-bar > div { height: 100%; border-radius: 999px; background: linear-gradient(90deg, var(--gold-deep), var(--gold)); transition: width .5s var(--ease); }
+    .league-bar > div { height: 100%; border-radius: 999px; background: linear-gradient(90deg, var(--gold-deep), var(--gold)); transition: width var(--t-slow) var(--ease); }
 
     #leagueRounds {
       background: var(--surface); border: 1px solid var(--line); border-radius: var(--r-lg); padding: var(--s4); box-shadow: var(--sh-1);
@@ -872,7 +877,7 @@
       background-size: auto, cover, auto; background-position: 0 0, center, 0 0;
       background-repeat: no-repeat;
       border: 1px solid rgba(207, 169, 99, .5);
-      animation: rise .4s var(--ease) both;
+      animation: rise var(--t-slow) var(--ease) both;
     }
     .league-final-title { text-align: center; font-size: var(--fs-lg); font-weight: 800; color: var(--gold-soft); margin-bottom: var(--s4); }
     .league-podium { display: grid; grid-template-columns: minmax(0, 1fr); gap: var(--s2); }
@@ -1013,7 +1018,7 @@
     .st-sort button { min-height: 32px; padding: 0 14px; border: 0; border-radius: 9px; background: transparent; color: var(--text-2); font: inherit; font-size: var(--fs-xs); font-weight: 800; cursor: pointer; }
     .st-sort button[aria-pressed="true"] { background: var(--surface); color: var(--text); box-shadow: var(--sh-1); }
     .st-hint { margin: 0 0 8px; font-size: 11.5px; color: var(--text-3); }
-    .st-sort button { transition: background .22s ease, color .22s ease, box-shadow .22s ease; }
+    .st-sort button { transition: background var(--t-base) ease, color var(--t-base) ease, box-shadow var(--t-base) ease; }
     .rt-delta { display: inline-block; margin-inline-start: 4px; font-size: 10.5px; font-weight: 800; font-variant-numeric: tabular-nums; }
     .lg-profile-btn { margin-top: var(--s3); width: 100%; }
 
@@ -1088,18 +1093,18 @@
     /* القوائم المنسدلة في الإحصائيات: رأس بطاقة قابل للضغط (عنوان + ملخص سطر واحد + سهم)، والجسم يُطوى بانسياب */
     .st-fold-head { display: flex; align-items: center; gap: 12px; width: 100%; min-height: 64px; padding: 10px 14px; margin: 0;
       background: var(--surface-2); border: 1px solid var(--line); border-radius: var(--r-md); color: var(--text); font: inherit; text-align: start;
-      cursor: pointer; -webkit-tap-highlight-color: transparent; transition: border-color .2s ease, background-color .2s ease; }
+      cursor: pointer; -webkit-tap-highlight-color: transparent; transition: border-color var(--t-fast) ease, background-color var(--t-fast) ease; }
     .st-fold-head:active { background: var(--surface-3); }
     .st-fold-head > .ic { flex: none; width: 20px; height: 20px; color: var(--gold-deep); }
     .st-fold-head .tx { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 3px; }
     .st-fold-head .t { font-size: var(--fs-md); font-weight: 800; line-height: 1.3; }
     .st-fold-head .d { font-size: var(--fs-xs); font-weight: 700; color: var(--text-2); line-height: 1.4; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
     .st-fold-head .chev { flex: none; display: grid; place-items: center; width: 30px; height: 30px; border-radius: 50%; background: var(--surface); border: 1px solid var(--line); color: var(--text-2); }
-    .st-fold-head .chev svg { width: 16px; height: 16px; transition: transform .4s cubic-bezier(.2,.8,.2,1); }
+    .st-fold-head .chev svg { width: 16px; height: 16px; transition: transform var(--t-sheet) var(--ease); }
     .st-fold.open .st-fold-head { border-color: var(--gold); }
     .st-fold + .st-fold { margin-top: var(--s3); }
     .st-fold.open .st-fold-head .chev svg { transform: rotate(180deg); }
-    .st-fold-body { display: grid; grid-template-rows: 0fr; opacity: 0; transition: grid-template-rows .45s cubic-bezier(.2,.8,.2,1), opacity .3s ease; }
+    .st-fold-body { display: grid; grid-template-rows: 0fr; opacity: 0; transition: grid-template-rows var(--t-sheet) var(--ease), opacity var(--t-base) ease; }
     .st-fold-body > .in { min-height: 0; overflow: hidden; }
     .st-fold.open .st-fold-body { grid-template-rows: 1fr; opacity: 1; }
     .st-fold.open .st-fold-body > .in { padding-top: var(--s3); }
@@ -1107,7 +1112,7 @@
       background: none; border: 1px dashed var(--line-strong, var(--line)); border-radius: var(--r-md); color: var(--text-2); font: inherit; font-size: var(--fs-sm); font-weight: 800;
       cursor: pointer; -webkit-tap-highlight-color: transparent; }
     .st-fold-more:active { background: var(--surface-2); }
-    .st-fold-more svg { width: 15px; height: 15px; transition: transform .3s ease; }
+    .st-fold-more svg { width: 15px; height: 15px; transition: transform var(--t-base) var(--ease); }
     .st-fold.all .st-fold-more svg { transform: rotate(180deg); }
     @media (prefers-reduced-motion: reduce) { .st-fold-body, .st-fold-head .chev svg, .st-fold-more svg { transition: none; } }
     .lg-history-name { font-size: var(--fs-lg); font-weight: 800; color: var(--gold-deep); margin-bottom: var(--s3); }
@@ -1198,7 +1203,7 @@
     .xh-item .t { display:block; font-weight:800; font-size:var(--fs-sm); }
     .xh-item .d { display:block; font-size:var(--fs-xs); color:var(--text-2); line-height:1.6; }
     .xh-item .ic { color:var(--gold); }
-    .xh-chev { color:var(--text-2); transition:transform .15s; }
+    .xh-chev { color:var(--text-2); transition:transform var(--t-fast) var(--ease); }
     .xh-item[aria-expanded="true"] .xh-chev { transform:rotate(180deg); }
     .xh-panel { display:grid; gap:var(--s2); margin:2px 0 6px; padding:12px; border:1px solid var(--line); border-radius:var(--r-md); background:var(--surface); }
     .xh-go { min-height:54px; border:0; border-radius:var(--r-md); background:var(--gold); color:#30251F; font:800 var(--fs-md) Tajawal,sans-serif; cursor:pointer; }
@@ -1531,7 +1536,7 @@
     }
     /* انتقال ناعم عند تبديل وضع البطولة */
     @keyframes modeEnter { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: none; } }
-    .main.mode-enter { animation: modeEnter .28s var(--ease, ease-out) both; }
+    .main.mode-enter { animation: modeEnter var(--t-sheet) var(--ease) both; }
     /* ===== الهيدر المنكمش (أسلوب العنوان الكبير في iOS) =====
        الهيدر لاصق بإزاحة سالبة: يصعد مع التمرير حتى لا يبقى منه إلا شريط رفيع (منطقة الساعة + 52px) ثم يثبت.
        --hdr-p (0 → 1) تقدّم الانكماش، تحسبه الدالة setupCollapsingHeader من موضع التمرير، وكل الحركة transform/opacity فقط. */
@@ -1618,14 +1623,14 @@
       border: 1px solid rgba(48, 37, 31, .08);
       box-shadow: 0 14px 34px -12px rgba(30, 22, 17, .32), 0 2px 6px rgba(30, 22, 17, .06);
       transform: translateY(calc(100% + 30px)) scale(.94); opacity: 0;
-      transition: transform .55s cubic-bezier(.32, .72, 0, 1), opacity .3s ease;
+      transition: transform var(--t-slow) var(--ease), opacity var(--t-base) ease;
       touch-action: none; -webkit-user-select: none; user-select: none; will-change: transform;
     }
     body.dark-mode .card, body.dark-mode .teams, body.dark-mode #leagueSetupPanel,
     body.dark-mode .cd-card, body.dark-mode .cd-metric, body.dark-mode .export-center-card, body.dark-mode .cd-history-card { box-shadow: inset 0 1px 0 rgba(255, 245, 230, .04), var(--sh-1); }
     body.dark-mode .capsule { background: rgba(46, 39, 33, .9); border-color: rgba(255, 255, 255, .08); box-shadow: 0 14px 34px -12px rgba(0, 0, 0, .7); }
     .capsule.in { transform: none; opacity: 1; }
-    .capsule.out { opacity: 0; transform: translateY(14px) scale(.96); transition: transform .32s cubic-bezier(.4, 0, 1, 1), opacity .26s ease; pointer-events: none; }
+    .capsule.out { opacity: 0; transform: translateY(14px) scale(.96); transition: transform var(--t-base) var(--ease-in), opacity var(--t-base) ease; pointer-events: none; }
     .capsule.dragging { transition: none; }
     .cap-ok { width: 24px; height: 24px; border-radius: 50%; display: grid; place-items: center; flex: 0 0 auto; background: var(--ok-bg); color: var(--ok); }
     .cap-ok .ic { width: 14px; height: 14px; }
@@ -1738,11 +1743,11 @@
       background: none; border: 0; color: var(--text); font: inherit; cursor: pointer; text-align: start; -webkit-tap-highlight-color: transparent; }
     .lg-sum .t { font-weight: 800; font-size: var(--fs-md); }
     .lg-sum .d { margin-inline-start: auto; color: var(--text-2); font-size: var(--fs-xs); font-weight: 700; }
-    .lg-sum .chev { width: 18px; height: 18px; color: var(--text-3); transition: transform .4s cubic-bezier(.2,.8,.2,1); }
+    .lg-sum .chev { width: 18px; height: 18px; color: var(--text-3); transition: transform var(--t-sheet) var(--ease); }
     #leagueSetupPanel.open .lg-sum .chev { transform: rotate(180deg); }
     .lg-setup-body { display: grid; grid-template-rows: 1fr; }
     .lg-setup-body > .in { min-height: 0; display: flex; flex-direction: column; gap: var(--s4); }
-    body.lg-focus .lg-setup-body { transition: grid-template-rows .45s cubic-bezier(.2,.8,.2,1), opacity .35s ease; }
+    body.lg-focus .lg-setup-body { transition: grid-template-rows var(--t-sheet) var(--ease), opacity var(--t-base) ease; }
     body.lg-focus .lg-setup-body > .in { overflow: hidden; }
     body.lg-focus #leagueSetupPanel:not(.open) .lg-setup-body { grid-template-rows: 0fr; opacity: 0; }
     body.lg-focus #leagueSetupPanel { gap: 0; padding-block: 4px; }
@@ -1751,17 +1756,17 @@
     body.lg-focus .lg-tabs { display: grid; grid-template-columns: 1fr 1fr; position: relative; padding: 4px; border-radius: 999px;
       background: var(--surface-3); border: 1px solid var(--line); }
     .lg-tabs button { position: relative; z-index: 1; min-height: 42px; border: 0; background: none; border-radius: 999px; font: inherit;
-      font-size: var(--fs-sm); font-weight: 800; color: var(--text-2); cursor: pointer; transition: color .3s ease; -webkit-tap-highlight-color: transparent; }
+      font-size: var(--fs-sm); font-weight: 800; color: var(--text-2); cursor: pointer; transition: color var(--t-base) ease; -webkit-tap-highlight-color: transparent; }
     .lg-tabs button[aria-selected="true"] { color: var(--text); }
     .lg-tabs .ind { position: absolute; top: 4px; bottom: 4px; inset-inline-start: 4px; width: calc(50% - 4px); border-radius: 999px;
-      background: var(--surface); box-shadow: var(--sh-1); transition: transform .5s cubic-bezier(.32,1.25,.5,1); }
+      background: var(--surface); box-shadow: var(--sh-1); transition: transform var(--t-sheet) var(--ease); }
     .lg-tabs[data-tab="standings"] .ind { transform: translateX(-100%); }
     body.lg-focus #leagueMainPanel[data-tab="matches"] #leagueStandings,
     body.lg-focus #leagueMainPanel[data-tab="matches"] #leagueFinal,
     body.lg-focus #leagueMainPanel[data-tab="standings"] #leagueRounds,
     body.lg-focus #leagueMainPanel[data-tab="standings"] #leagueProgress { display: none; }
     @keyframes lgIn { from { opacity: 0; transform: translateX(var(--dx, 0)) scale(.985); } to { opacity: 1; transform: none; } }
-    .lg-enter { animation: lgIn .42s cubic-bezier(.2,.8,.2,1) both; }
+    .lg-enter { animation: lgIn var(--t-slow) var(--ease) both; }
 
     body.lg-focus .league-stats, body.lg-focus #leagueSetupPanel .league-panel-title { display: none; }
     body.lg-focus .league-bar { height: 6px; margin-top: 2px; }
@@ -1879,7 +1884,7 @@
     .vm-when .ic { width: 14px; height: 14px; }
     /* «أنا» */
     .vme { display: flex; flex-direction: column; gap: 12px; padding: 14px; border-radius: var(--r-lg); background: var(--surface); border: 1px solid var(--line); box-shadow: var(--sh-1); }
-    .vme.vme-in { animation: lgIn .45s cubic-bezier(.2,.8,.2,1) both; }
+    .vme.vme-in { animation: lgIn var(--t-slow) var(--ease) both; }
     .vme.ask { flex-direction: row; align-items: center; justify-content: space-between; gap: 10px; }
     .vme-ask { display: flex; align-items: center; gap: 10px; min-width: 0; }
     .vme-ask b { display: block; font-size: var(--fs-sm); font-weight: 800; color: var(--text); }
@@ -1918,7 +1923,7 @@
     /* تنبيه «نتائج جديدة» أسفل الشاشة */
     .vlive { position: fixed; z-index: 60; left: 50%; bottom: calc(16px + env(safe-area-inset-bottom, 0px)); transform: translate(-50%, 140%); display: flex; align-items: center; gap: 10px;
       padding: 6px 6px 6px 14px; padding-inline-start: 14px; padding-inline-end: 6px; border-radius: 999px; background: var(--surface); border: 1px solid var(--gold); box-shadow: 0 10px 30px rgba(0,0,0,.18);
-      font-size: var(--fs-sm); font-weight: 800; color: var(--text); white-space: nowrap; opacity: 0; pointer-events: none; transition: transform .5s cubic-bezier(.2,.9,.25,1.1), opacity .3s ease; }
+      font-size: var(--fs-sm); font-weight: 800; color: var(--text); white-space: nowrap; opacity: 0; pointer-events: none; transition: transform var(--t-slow) var(--ease), opacity var(--t-base) ease; }
     .vlive.show { transform: translate(-50%, 0); opacity: 1; pointer-events: auto; }
     .vlive .dot { width: 8px; height: 8px; border-radius: 50%; background: var(--gold); box-shadow: 0 0 0 0 rgba(207,169,99,.6); animation: vlivePulse 1.8s ease-out infinite; }
     @keyframes vlivePulse { to { box-shadow: 0 0 0 8px rgba(207,169,99,0); } }
@@ -1934,9 +1939,9 @@
     .vday-h .ttl b { font-size: var(--fs-md); font-weight: 800; }
     .vday-h .ttl small { font-size: var(--fs-xs); font-weight: 700; color: var(--text-2); }
     .vday-h .meta { font-size: 11.5px; font-weight: 700; color: var(--text-3); white-space: nowrap; }
-    .vday-h .chev { width: 18px; height: 18px; color: var(--text-3); transition: transform .4s cubic-bezier(.2,.8,.2,1); }
+    .vday-h .chev { width: 18px; height: 18px; color: var(--text-3); transition: transform var(--t-sheet) var(--ease); }
     .vday.open .vday-h .chev { transform: rotate(180deg); }
-    .vday-b { display: grid; grid-template-rows: 0fr; opacity: 0; transition: grid-template-rows .45s cubic-bezier(.2,.8,.2,1), opacity .35s ease; }
+    .vday-b { display: grid; grid-template-rows: 0fr; opacity: 0; transition: grid-template-rows var(--t-sheet) var(--ease), opacity var(--t-base) ease; }
     .vday.open .vday-b { grid-template-rows: 1fr; opacity: 1; }
     .vday-b > .in { min-height: 0; overflow: hidden; display: flex; flex-direction: column; padding: 0 6px; }
     .vday.open .vday-b > .in { padding-bottom: 8px; }
@@ -2217,7 +2222,7 @@
     .st-sub b { color: var(--text-2); font-weight: 800; }
     /* ===== بطاقة «آخر بطولة مكتملة» — بسيطة وراقية =====
        لوحة إسبريسو عميقة (في الوضعين) بإطار ذهبي رفيع. سطر رأس صغير، ثم صف واحد متماسك:
-       وسام ذهبي ← اسم البطل (وتحته «أمام» الوصيف) ← النتيجة مفصولة بخط ذهبي رفيع. كل العناصر على محور عمودي واحد. */
+       وسام ذهبي ← اسم البطل (وتحته شارة «الوصيف» ثم اسمه) ← النتيجة مفصولة بخط ذهبي رفيع. كل العناصر على محور عمودي واحد. */
     .st-last { --lk-ivory: #F6EEDF; --lk-gold: #E3BF6E; --lk-muted: rgba(246, 238, 223, .6);
       container: stlast / inline-size; position: relative; max-width: 680px; margin: 0 auto var(--s4); padding: 12px 16px 14px;   /* الكمبيوتر: البطاقة نفسها محدودة العرض في الوسط */ border-radius: 18px; overflow: hidden; color: var(--lk-ivory);
       background: radial-gradient(140% 120% at 85% 0%, #4E3A29 0%, #31251B 50%, #211812 100%);
@@ -2228,23 +2233,30 @@
     .st-last-top { display: flex; align-items: center; justify-content: space-between; gap: 10px; margin-bottom: 10px; font-size: 11.5px; font-weight: 800; }
     .st-last-top .tag { color: var(--lk-gold); }
     .st-last-top .meta { color: var(--lk-muted); font-weight: 700; white-space: nowrap; }
-    .st-last-row { display: grid; grid-template-columns: auto minmax(0, 1fr) auto; align-items: center; gap: 12px; }
-    .st-last .medal { display: grid; place-items: center; width: 42px; height: 42px; border-radius: 50%;
-      background: radial-gradient(circle at 35% 30%, #FBEBC4 0%, #E3BF6E 48%, #A97C33 100%);
-      box-shadow: 0 0 0 3px rgba(227, 191, 110, .16), 0 6px 14px -6px rgba(0, 0, 0, .6), inset 0 -2px 3px rgba(90, 60, 20, .35); }
-    .st-last .medal .ic { width: 20px; height: 20px; margin: 0; color: #3A2A0C; }
-    .st-last .who { display: flex; flex-direction: column; gap: 2px; min-width: 0; text-align: start; }
-    .st-last .champ { font-size: 19px; font-weight: 800; line-height: 1.3; color: var(--lk-ivory); overflow-wrap: anywhere; }
-    .st-last .ru { font-size: 12.5px; font-weight: 700; line-height: 1.45; color: var(--lk-muted); overflow-wrap: anywhere; }
-    .st-last .ru .k { margin-inline-end: 5px; }
-    .st-last .who bdi { white-space: nowrap; }   /* الاسم لا ينكسر داخله؛ السطر يلتف عند «+» فقط */
-    .st-last .pl { display: inline-block; margin: 0 5px; color: var(--lk-gold); font-weight: 800; }
-    .st-last .score { display: flex; flex-direction: column; align-items: center; gap: 2px; padding-inline-start: 12px; border-inline-start: 1px solid rgba(227, 191, 110, .32); }
-    .st-last .score b { font-size: 24px; font-weight: 900; line-height: 1.1; color: var(--lk-ivory); font-variant-numeric: tabular-nums; white-space: nowrap; }
-    .st-last .score i { font-style: normal; font-size: 11.5px; font-weight: 800; color: var(--lk-gold); }
-    @container stlast (max-width: 359px) { .st-last .champ { font-size: 17px; } .st-last .medal { width: 36px; height: 36px; } .st-last .medal .ic { width: 17px; height: 17px; } .st-last .score b { font-size: 20px; } .st-last-row { gap: 10px; } }
-    @container stlast (min-width: 600px) {   /* الكمبيوتر: نفس الصف بعرض محدود في الوسط */
-      .st-last .champ { font-size: 22px; } .st-last .medal { width: 48px; height: 48px; } .st-last .score b { font-size: 28px; }
+    /* لوحة النتيجة: عمود الوسام · الاسم · الرقم — نفس المحاذاة في الصفين فتُقرأ كجدول نتيجة */
+    .st-sb { display: flex; flex-direction: column; }
+    .sb-row { display: grid; grid-template-columns: 56px minmax(0, 1fr) auto; align-items: center; gap: 10px; padding: 8px; padding-inline-end: 12px; }
+    .sb-row.w { padding-top: 4px; }
+    .sb-row + .sb-row { border-top: 1px solid rgba(246, 238, 223, .1); }   /* فاصل رفيع بين الصفين كلوحة النتائج — بلا إطار ولا خلفية للبطل */
+    .sb-tag { justify-self: center; padding: 0 9px; border-radius: 999px; font-size: 11px; font-weight: 800; line-height: 1.85; white-space: nowrap; }
+    .sb-tag.ch { background: linear-gradient(135deg, #F3DFAE, #CFA963); color: #3A2A0C; }
+    .sb-tag.ru { background: linear-gradient(135deg, #F0F2F3, #C3C9CE); color: #2F353B; opacity: .9; }
+    .sb-row .nm { display: flex; flex-direction: column; gap: 1px; min-width: 0; text-align: start; overflow-wrap: anywhere; }
+    .sb-row.w .nm b { font-size: 19px; font-weight: 800; line-height: 1.3; color: var(--lk-ivory); }
+    .sb-row.l .nm { font-size: 14.5px; font-weight: 700; line-height: 1.4; color: rgba(246, 238, 223, .66); }
+    .sb-row .nm .rec { font-size: 12px; font-weight: 700; color: var(--lk-muted); }
+    .sb-row.w.solo .nm { gap: 3px; } .sb-row.w.solo .nm b { font-size: 27px; line-height: 1.2; }   /* الدوري: البطل وحده في البطاقة فيأخذ مساحة الاسم كاملة */
+    .sb-row.w.solo .nm .rec { font-size: 11.5px; color: rgba(246, 238, 223, .55); }
+    .st-last .nm bdi { white-space: nowrap; }   /* الاسم لا ينكسر داخله؛ السطر يلتف عند «+» فقط */
+    .st-last .pl { display: inline-block; margin: 0 5px; font-weight: 800; color: var(--lk-gold); }
+    .sb-row.l .pl { color: rgba(246, 238, 223, .4); }
+    .sb-row .sc { display: flex; flex-direction: column; align-items: center; min-width: 28px; font-variant-numeric: tabular-nums; }
+    .sb-row.w .sc b { font-size: 30px; font-weight: 800; line-height: 1; color: var(--lk-ivory); }
+    .sb-row.w .sc small { margin-top: 3px; font-size: 11px; font-weight: 700; color: var(--lk-muted); }
+    .sb-row.l .sc b { font-size: 19px; font-weight: 700; line-height: 1; color: rgba(246, 238, 223, .45); }
+    @container stlast (max-width: 359px) { .sb-row.w .nm b { font-size: 17.5px; } .sb-row.w.solo .nm b { font-size: 25px; } .sb-tag { padding: 0 8px; } .sb-row { gap: 8px; padding-inline-end: 8px; } .sb-row.w .sc b { font-size: 26px; } .sb-row { gap: 10px; grid-template-columns: 52px minmax(0, 1fr) auto; } }
+    @container stlast (min-width: 600px) {   /* الكمبيوتر: نفس اللوحة بعرض محدود في الوسط */
+      .sb-row.w .nm b { font-size: 24px; } .sb-row.w.solo .nm b { font-size: 30px; } .sb-tag { font-size: 12.5px; } .sb-row { grid-template-columns: 68px minmax(0, 1fr) auto; gap: 14px; } .sb-row.w .sc b { font-size: 34px; } .sb-row.l .nm { font-size: 16px; }
     }
     /* فاصل رفيع بين بطاقة آخر بطولة والملخص (نفس خط الفصل أسفل الملخص) */
     .st-last + .st-over { padding-top: var(--s3); border-top: 1px solid var(--line); }
@@ -2408,9 +2420,9 @@
     .ko-sum .ic { width: 18px; height: 18px; margin: 0; color: var(--gold-deep); }
     .ko-sum .t { font-size: var(--fs-md); font-weight: 800; }
     .ko-sum .d { margin-inline-start: auto; font-size: var(--fs-xs); font-weight: 700; color: var(--text-2); }
-    .ko-sum .chev { width: 18px; height: 18px; color: var(--text-3); transition: transform .4s cubic-bezier(.2,.8,.2,1); }
+    .ko-sum .chev { width: 18px; height: 18px; color: var(--text-3); transition: transform var(--t-sheet) var(--ease); }
     .ko-setup.open .ko-sum .chev { transform: rotate(180deg); }
-    .ko-body { display: grid; grid-template-rows: 0fr; opacity: 0; transition: grid-template-rows .45s cubic-bezier(.2,.8,.2,1), opacity .35s ease; }
+    .ko-body { display: grid; grid-template-rows: 0fr; opacity: 0; transition: grid-template-rows var(--t-sheet) var(--ease), opacity var(--t-base) ease; }
     .ko-body > .in { min-height: 0; overflow: hidden; display: flex; flex-direction: column; gap: var(--s4); }
     .ko-setup.open .ko-body { grid-template-rows: 1fr; opacity: 1; }
     .ko-setup.open .ko-body > .in { padding-top: var(--s4); }
@@ -2575,6 +2587,7 @@
     .pf-rc:nth-child(n+3) { border-top: 1px solid var(--line); }
     .pf-rc small { font-size: 11px; font-weight: 800; color: var(--gold-deep); }
     .pf-rc b { font-size: 16px; font-weight: 800; line-height: 1.35; color: var(--text); font-variant-numeric: tabular-nums; overflow-wrap: anywhere; }
+    .pf-rc b.tx { font-size: 14.5px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
     .pf-rc b em { display: block; font-style: normal; font-size: 14px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
     .pf-trend-cap .pk.now { color: var(--gold-deep); }
     .pf-rc span { font-size: 11px; font-weight: 700; color: var(--text-3); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
@@ -2586,7 +2599,8 @@
     .pf-res { justify-self: start; padding: 0 9px; border-radius: 999px; font-size: 11px; font-weight: 800; line-height: 1.8; white-space: nowrap; color: var(--text-3); background: color-mix(in srgb, var(--text) 6%, transparent); }
     .pf-res.ch { background: linear-gradient(135deg, #F3DFAE, #CFA963); color: #3A2A0C; }
     .pf-res.ru { background: linear-gradient(135deg, #F0F2F3, #C3C9CE); color: #2F353B; }
-    .pf-res.sf { color: var(--text-2); }
+    .pf-res.sf { background: linear-gradient(135deg, #F2DDC8, #D9AE88); color: #4E2E14; }   /* نصف النهائي: برونزي (ذهب ← فضة ← برونز ← مشاركة) */
+    .pf-res.pt { background: transparent; box-shadow: inset 0 0 0 1px var(--line-strong); color: var(--text-3); }   /* مشارك: إطار رفيع بلا تعبئة */
     .pf-res.live { background: var(--ok-bg); color: var(--ok); }
     .pf-tr .nm { display: flex; flex-direction: column; min-width: 0; }
     .pf-tr .nm b { font-size: 13.5px; font-weight: 800; color: var(--text); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
@@ -2633,10 +2647,10 @@
     .pf-hero.t3 .pf-prog .pf-bar i { background: linear-gradient(90deg, #F3DFAE, #CFA963); }
     /* دليل المستويات: رابط هادئ في طرف سطر التقدم يفتح سُلّم المستويات تحته */
     .pf-guide-btn { display: flex; align-items: center; gap: 3px; margin: 6px 0 -4px; margin-inline-start: auto; padding: 4px 0; border: 0; background: none; font: inherit; font-size: 11.5px; font-weight: 800; color: var(--gold-deep); cursor: pointer; -webkit-tap-highlight-color: transparent; }
-    .pf-guide-btn span { display: inline-block; font-size: 14px; line-height: 1; transition: transform .25s ease; }
+    .pf-guide-btn span { display: inline-block; font-size: 14px; line-height: 1; transition: transform var(--t-base) var(--ease); }
     .pf-hero.guide-open .pf-guide-btn span { transform: rotate(-90deg); }
     .pf-guide { margin-top: 10px; }
-    .pf-guide-in { padding: 9px 10px 10px; border-radius: 14px; border: 1px solid var(--hl, var(--line)); background: color-mix(in srgb, var(--hx, var(--text)) 4%, transparent); animation: pfGuideIn .28s cubic-bezier(.2, .8, .2, 1); }
+    .pf-guide-in { padding: 9px 10px 10px; border-radius: 14px; border: 1px solid var(--hl, var(--line)); background: color-mix(in srgb, var(--hx, var(--text)) 4%, transparent); animation: pfGuideIn var(--t-sheet) var(--ease); }
     @keyframes pfGuideIn { from { opacity: 0; transform: translateY(-6px); } to { opacity: 1; transform: none; } }
     @media (prefers-reduced-motion: reduce) { .pf-guide-in { animation: none; } }
     .pf-ladder { display: flex; flex-direction: column; gap: 3px; }
@@ -4901,7 +4915,7 @@ return teamName.replace('غير محدد', replacement);
       const at = {}; try { readMatchLog().forEach(e => { const m = e.k === 'ko' && bs && bs[e.id]; if (m && m.team1 === e.a && m.team2 === e.b && m.winner === e.w) at[e.id] = e.at; }); } catch (e) {}
       return Object.values(bs || {}).filter(m => m.winner).map(m => ({ ...(at[m.id] ? { at: at[m.id] } : {}),
         id: m.id, roundName: m.roundName, matchNumber: m.matchNumber, team1: m.team1, team2: m.team2,
-        winner: m.winner, winnerScore: m.winnerScore, loserScore: m.loserScore
+        winner: m.winner, winnerScore: m.winnerScore, loserScore: m.loserScore, ...(m.forfeit ? { forfeit: true } : {})
       }));
     }
     // ترتيب زمني فعلي: ما له وقت لعب مسجّل يُرتَّب بوقته (فالمباراة المؤجلة تأتي حين لُعبت)،
@@ -5205,7 +5219,7 @@ return teamName.replace('غير محدد', replacement);
             `<span class="stp-g gb">${sv(p.wins, 'فوز')}${sv(p.losses, 'خسارة')}${sv(p.winRate + '%', 'نسبة الفوز', 'wr')}</span>`;
           label = `${p.name}، المركز ${rk}، التقييم ${ratingTxt(e)}${e && e.lastDelta ? `، ${e.lastDelta > 0 ? 'ارتفع' : 'انخفض'} ${Math.abs(e.lastDelta)}` : ''}${tier ? `، ${tier}` : ''}، الألقاب ${n}${formTxt(e) ? `، آخر النتائج: ${formTxt(e)}` : ''}، فوز ${p.wins}، خسارة ${p.losses}، نسبة الفوز ${p.winRate}%`;
         } else {
-          sub = '';   // «الألقاب»: الاسم وحده (التقييم مكانه تبويب «التقييم»)
+          sub = tier ? `<span class="pf-tier t${eloTier(e.rating).level}"><span class="tx">${tier}</span></span>` : '';   // «الألقاب»: المستوى تحت الاسم كما في «التقييم» (بلا رقم التقييم)
           key = `<span class="kv"><b class="t-tot">${n}</b><small class="ku">${titleWord(n)}</small></span>`;
           stats = `<span class="stp-g ga">${kinds.map(([k, ic, l]) => `<span class="sv kind${by[k] ? ' on' : ''}"><b><span class="ic ic-${ic}" aria-hidden="true"></span>${by[k] || 0}</b><i>${l}</i></span>`).join('')}</span>` +
             `<span class="stp-g gb">${sv(p.runnerUps, 'وصافة')}${sv(p.semifinals, 'نصف نهائي')}${sv(p.tournaments, 'مشاركات')}</span>`;
@@ -5262,6 +5276,37 @@ return teamName.replace('غير محدد', replacement);
       const tabsEl = board.querySelector('.st-tabs'), r = tabsEl.getBoundingClientRect();
       if (r.top < 0) tabsEl.scrollIntoView({ block: 'start', behavior: rankFlipReduced() ? 'auto' : 'smooth' });
     }
+    // السحب أفقيًا على محتوى «الترتيب والسجل» للتنقل بين التبويبات (نفس سلوك جولات الدوري — RTL: لليمين = التبويب التالي)
+    (function statsTabSwipe() {
+      if (!statsContent) return;
+      let st = null;
+      const RMq = () => !!(window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches);
+      const hScrollable = (el, stop) => { for (let n = el; n && n !== stop; n = n.parentElement) if (n.scrollWidth > n.clientWidth + 2 && /(auto|scroll)/.test(getComputedStyle(n).overflowX)) return true; return false; };
+      statsContent.addEventListener('touchstart', e => {
+        st = null;
+        const board = statsContent.querySelector('.st-board'); if (!board || e.touches.length !== 1) return;
+        const pane = e.target.closest('.st-pane'); if (!pane || !board.contains(pane) || hScrollable(e.target, pane)) return;
+        const t = e.touches[0]; st = { x: t.clientX, y: t.clientY, dx: 0, lock: null, pane };
+      }, { passive: true });
+      statsContent.addEventListener('touchmove', e => {
+        if (!st) return; const t = e.touches[0], dx = t.clientX - st.x, dy = t.clientY - st.y;
+        if (st.lock === null && (Math.abs(dx) > 8 || Math.abs(dy) > 8)) st.lock = Math.abs(dx) > Math.abs(dy) * 1.3 ? 'x' : 'y';
+        if (st.lock !== 'x') return;
+        const i = STATS_TABS.indexOf(statsTab), can = dx > 0 ? i < STATS_TABS.length - 1 : i > 0;
+        st.dx = dx; const shown = can ? dx * .4 : dx * .12;   // مقاومة عند أول/آخر تبويب
+        if (!RMq()) { st.pane.style.transition = 'none'; st.pane.style.transform = `translateX(${shown}px)`; st.pane.style.opacity = String(1 - Math.min(.35, Math.abs(shown) / 400)); }
+      }, { passive: true });
+      const end = () => {
+        if (!st) return; const s0 = st; st = null; if (s0.lock !== 'x') return;
+        statsContent.dataset.swiped = '1'; setTimeout(() => { delete statsContent.dataset.swiped; }, 350);
+        const i = STATS_TABS.indexOf(statsTab), j = Math.abs(s0.dx) > 60 ? i + (s0.dx > 0 ? 1 : -1) : i;
+        const p = s0.pane; p.style.transition = 'transform .22s cubic-bezier(.2,.8,.2,1), opacity .22s ease'; p.style.transform = ''; p.style.opacity = '';
+        setTimeout(() => { p.style.transition = ''; }, 260);
+        if (j !== i && j >= 0 && j < STATS_TABS.length) { if (STATS_TABS[j] !== 'titles' && STATS_TABS[j] !== 'rating' || STATS_TABS[i] === 'pairs' || STATS_TABS[i] === 'hist') p.style.transition = 'none'; statsSetTab(STATS_TABS[j]); }
+      };
+      statsContent.addEventListener('touchend', end, { passive: true }); statsContent.addEventListener('touchcancel', end, { passive: true });
+      statsContent.addEventListener('click', e => { if (statsContent.dataset.swiped) { e.stopPropagation(); e.preventDefault(); } }, true);   // نهاية السحب ليست ضغطة على لاعب
+    })();
     let statsFlipTimer = 0;
     function statsApplySort(mode) {
       const list = statsContent.querySelector('.stp:not([data-sort="pairs"])');
@@ -5332,24 +5377,27 @@ return teamName.replace('غير محدد', replacement);
             `<span class="sth-ru"><span class="l">الوصيف</span>${namesHTML(sideNames(t, t.runnerUp))}</span>` +
             (showName ? `<span class="sth-name">${escHTML(nm)}</span>` : '') + `</div>`; }).join('') + `</div>`).join('');
 
-      // ===== بطاقة «آخر بطولة مكتملة»: البطل ← النتيجة ← الوصيف، ومعها اليوم والتاريخ ونوع البطولة =====
-      // ===== بطاقة «آخر بطولة مكتملة»: سطر واحد متماسك — الوسام ← البطل (وتحته الوصيف) ← النتيجة؛ والرأس: العنوان والتاريخ =====
-      // ===== بطاقة «آخر بطولة مكتملة»: سطر واحد متماسك — الوسام ← البطل (وتحته الوصيف) ← النتيجة؛ والرأس: العنوان والتاريخ =====
-      // الدوري: البطل وحده، وتحته سجله (ف · ت · خ · الفارق)، ومكان النتيجة نقاطه
+      // ===== بطاقة «آخر بطولة مكتملة» (5.3): لوحة نتيجة النهائي كما في تطبيقات الرياضة =====
+      // صفّان متوازيان: البطل (كبسولة ذهبية · اسم بارز · نتيجته بخط كبير) فوق الوصيف (كبسولة فضية · اسم وخط أهدأ · نتيجته باهتة).
+      // العين تقرأ صف البطل أولًا مع رقمه، والوصيف معلومة ثانوية تحته. الدوري: البطل وحده — نقاطه مكان النتيجة وسجله تحت اسمه، بلا صف للوصيف.
       const lastCardHTML = (() => {
         if (!lastHist || !lastHist.champion) return '';
         const t = lastHist, fs = t.finalScore || {}, hasSc = fs.winner != null && fs.loser != null;
         const names = side => { const ms = sideNames(t, side); return ms.length ? ms.map(x => `<bdi>${escHTML(x)}</bdi>`).join('<span class="pl" aria-hidden="true">+</span>') : '—'; };
         const isLg = t.mode === 'league', L = isLg ? leagueChampLine(t) : null;
-        const sc = hasSc ? `${Math.max(fs.winner, fs.loser)} - ${Math.min(fs.winner, fs.loser)}` : '';
-        const sub = isLg ? `<span class="ru">فوز ${L.w} · تعادل ${L.d} · خسارة ${L.l} · الفارق <bdi dir="ltr">${L.diff > 0 ? '+' : ''}${L.diff}</bdi></span>` : `<span class="ru"><span class="k">أمام</span>${names(t.runnerUp)}</span>`;
-        const right = isLg ? `<span class="score"><b>${L.pts}</b><i>${L.pts === 1 ? 'نقطة' : L.pts === 2 ? 'نقطتان' : L.pts >= 3 && L.pts <= 10 ? 'نقاط' : 'نقطة'}</i></span>` : sc ? `<span class="score"><b>${sc}</b><i>النهائي</i></span>` : '';
-        return `<section class="st-last" aria-label="آخر بطولة مكتملة">
-          <div class="st-last-top"><span class="tag">${isLg ? 'بطل آخر دوري' : 'بطل آخر بطولة'}</span><span class="meta">${escHTML(fmtDate(t.date))}</span></div>
-          <div class="st-last-row">
-            <span class="medal" aria-hidden="true"><span class="ic ic-trophy"></span></span>
-            <span class="who"><b class="champ">${names(t.champion)}</b>${sub}</span>
-            ${right}
+        const ptsW = n => n === 1 ? 'نقطة' : n === 2 ? 'نقطتان' : n >= 3 && n <= 10 ? 'نقاط' : 'نقطة';
+        const wSc = isLg ? `<span class="sc"><b>${L.pts}</b><small>${ptsW(L.pts)}</small></span>` : hasSc ? `<span class="sc"><b>${Math.max(fs.winner, fs.loser)}</b></span>` : '';
+        const lSc = !isLg && hasSc ? `<span class="sc"><b>${Math.min(fs.winner, fs.loser)}</b></span>` : '';
+        const rec = isLg ? `<small class="rec">فوز ${L.w} · تعادل ${L.d} · خسارة ${L.l} · الفارق <bdi dir="ltr">${L.diff > 0 ? '+' : ''}${L.diff}</bdi></small>` : '';
+        // شارة الصف بهوية المشروع الموحدة: نفس كبسولتي «بطل» الذهبية و«وصيف» الفضية في مسيرة اللاعب (تدرج مسطح بلا إطار)
+        const tag = (k, l) => `<span class="sb-tag ${k}">${l}</span>`;
+        const ruRow = !isLg && t.runnerUp ?   // الدوري: البطاقة للبطل وحده
+          `<div class="sb-row l">${tag('ru', 'الوصيف')}<span class="nm"><span>${names(t.runnerUp)}</span></span>${lSc}</div>` : '';
+        return `<section class="st-last" aria-label="آخر بطولة مكتملة: البطل ${escHTML(sideNames(t, t.champion).join(' و'))}">
+          <div class="st-last-top"><span class="tag">${isLg ? 'بطل آخر دوري' : 'بطل آخر بطولة'}</span><span class="meta">${isLg ? '' : (hasSc ? 'النهائي · ' : '')}${escHTML(fmtDate(t.date))}</span></div>
+          <div class="st-sb">
+            <div class="sb-row w${isLg ? ' solo' : ''}">${tag('ch', 'البطل')}<span class="nm"><b>${names(t.champion)}</b>${rec}</span>${wSc}</div>
+            ${ruRow}
           </div>
         </section>`;
       })();
@@ -5670,8 +5718,43 @@ currentScoreWinnerName = null;
         document.getElementById('winnerScoreInput').value = 0;
         document.getElementById('loserScoreInput').value = 0;
       }
+      // الانسحاب (5.3): نفس صف الدوري. المنسحب هو الخاسر دائمًا
+      koForfeitSel = match.winner && match.forfeit ? (match.winner === match.team1 ? 'B' : 'A') : null;
+      if (leagueForfeitRow) { leagueForfeitRow.hidden = false;
+        leagueForfeitRow.querySelectorAll('.lg-ff-btn').forEach(b => { b.textContent = `انسحب ${getDisplayTeamName(b.dataset.side === 'A' ? match.team1 : match.team2)}`; }); }
+      koFfSync();
 
       document.getElementById('scoreModal').style.display = 'flex';
+    }
+    // ---------- الانسحاب في الفردي والفرق (5.3) ----------
+    // الانسحاب = خسارة وخروج من البطولة ويتأهل الخصم، ويُحتسب في التقييم كأي خسارة. المنسحب 0 ثابت،
+    // ونتيجة الفائز تُعبّأ بأكثر نتيجة فوز تكررت في هذه البطولة (2 افتراضيًا) وتبقى قابلة للتعديل يدويًا.
+    var koForfeitSel = null;
+    function koUsualWinScore() {
+      const c = {}; Object.values(bracketState || {}).forEach(m => { const w = Number(m.winnerScore); if (m.winner && !m.forfeit && w > 0) c[w] = (c[w] || 0) + 1; });
+      const best = Object.entries(c).sort((a, b) => b[1] - a[1] || b[0] - a[0])[0];
+      return best ? Number(best[0]) : 2;
+    }
+    function koFfSync() {
+      if (currentMode === 'league' && leagueScoreMatchId !== null) return;
+      const iA = document.getElementById('winnerScoreInput'), iB = document.getElementById('loserScoreInput');
+      if (koForfeitSel && Number((koForfeitSel === 'A' ? iA : iB).value) !== 0) koForfeitSel = null;   // رقم للمنسحب = لم يعد انسحابًا
+      if (leagueForfeitRow) leagueForfeitRow.querySelectorAll('.lg-ff-btn').forEach(x => { const on = x.dataset.side === koForfeitSel; x.classList.toggle('on', on); x.setAttribute('aria-pressed', String(on)); });
+      const m = bracketState[currentScoreMatchId], hint = document.getElementById('leagueScoreHint');
+      if (!hint) return;
+      if (koForfeitSel && m) {
+        const quit = koForfeitSel === 'A' ? m.team1 : m.team2, win = koForfeitSel === 'A' ? m.team2 : m.team1;
+        hint.className = 'league-score-hint warn'; hint.style.display = 'block';
+        hint.textContent = `فوز ${getDisplayTeamName(win)} بالانسحاب ويتأهل\nخسارة لـ ${getDisplayTeamName(quit)} وتُحتسب في التقييم`;
+      } else { hint.style.display = 'none'; hint.className = 'league-score-hint'; }
+    }
+    function koForfeitClick(side) {
+      const iA = document.getElementById('winnerScoreInput'), iB = document.getElementById('loserScoreInput');
+      if (koForfeitSel === side) { koForfeitSel = null; koFfSync(); return; }
+      koForfeitSel = side;
+      const quitIn = side === 'A' ? iA : iB, winIn = side === 'A' ? iB : iA;
+      quitIn.value = 0; if (!(Number(winIn.value) > 0)) winIn.value = koUsualWinScore();
+      koFfSync();
     }
 
     function confirmWinner(matchId, winnerName, winnerScore, loserScore) {
@@ -5720,6 +5803,7 @@ currentScoreWinnerName = null;
         next.winner = null;
         next.winnerScore = null;
         next.loserScore = null;
+        delete next.forfeit;
         if (isFinalMatch(next)) removeCurrentTournamentRecord();
         invalidateDownstream(next, nextOldWinner);
       }
@@ -5846,12 +5930,14 @@ currentScoreWinnerName = null;
             }
           }
 
-          const team1HTML = displayTeam1;
-          const team2HTML = displayTeam2;
+          // الانسحاب: وسم «انسحب» بجانب اسم الخاسر (نفس وسم الدوري)
+          const ffTagHTML = '<em class="ff-tag">انسحب</em>';
+          const team1HTML = match.winner && match.forfeit && match.winner !== match.team1 ? displayTeam1.replace('</span>', ffTagHTML + '</span>') : displayTeam1;
+          const team2HTML = match.winner && match.forfeit && match.winner !== match.team2 ? displayTeam2.replace('</span>', ffTagHTML + '</span>') : displayTeam2;
 
           const completedBanner = '';
           const statusChip = match.winner
-            ? '<span class="match-status done"><span class="tx">مكتملة</span></span>'
+            ? (match.forfeit ? '<span class="match-status done ff"><span class="tx">انسحاب</span></span>' : '<span class="match-status done"><span class="tx">مكتملة</span></span>')
             : (isPlayable ? '<span class="match-status ready"><span class="tx">جاهزة للتسجيل</span></span>' : '<span class="match-status"><span class="tx">بانتظار التأهل</span></span>');
 
           matchDiv.innerHTML = `
@@ -6680,9 +6766,9 @@ currentScoreWinnerName = null;
     }
 
     // ---------- 2) جدول البطولة (المباريات) ----------
-    function drawExportMatchTeamRow(ctx, x, y, w, h, order, name, isWinner, theme, score, isWinnerScore) {
+    function drawExportMatchTeamRow(ctx, x, y, w, h, order, name, isWinner, theme, score, isWinnerScore, tag) {
       const B = EXPORT_BRAND;
-      const label = getDisplayTeamName(name);
+      const label = getDisplayTeamName(name) + (tag ? ` · ${tag}` : '');   // tag: «انسحب» للمنسحب
       const hasScore = score !== null && score !== undefined;
       ctx.save();
       drawRoundedRect(ctx, x, y, w, h, 13);
@@ -6763,7 +6849,7 @@ currentScoreWinnerName = null;
 
       const title = isFinal ? 'المباراة النهائية' : `مباراة ${match.matchNumber}`;
       exportText(ctx, title, x + w - 16, y + 25, { size: 22, weight: 800, color: B.muted, align: 'right', maxW: w * 0.57, min: 17 });
-      const chip = done ? 'مكتملة' : 'لم تُلعب';
+      const chip = done ? (match.forfeit ? 'انسحاب' : 'مكتملة') : 'لم تُلعب';
       ctx.save();
       ctx.font = `700 17px ${EXPORT_FONT}`;
       const cw = ctx.measureText(chip).width + 22;
@@ -6776,18 +6862,19 @@ currentScoreWinnerName = null;
       ctx.restore();
       exportText(ctx, chip, cx + cw / 2, cy + 14, { size: 17, weight: 700, color: done ? B.ok : B.muted, maxW: cw - 8, min: 14 });
 
-      const team1Name = match.team1 || '--- انتظار ---';
-      const team2Name = match.team2 || '--- انتظار ---';
       const t1w = !!(match.winner && match.winner === match.team1);
       const t2w = !!(match.winner && match.winner === match.team2);
+      const ffTag = won => match.winner && match.forfeit && !won ? 'انسحب' : '';
+      const team1Name = match.team1 || '--- انتظار ---';
+      const team2Name = match.team2 || '--- انتظار ---';
       const winnerScore = match.winnerScore, loserScore = match.loserScore;
       const score1 = t1w ? winnerScore : ((match.winner && !t1w) ? loserScore : null);
       const score2 = t2w ? winnerScore : ((match.winner && !t2w) ? loserScore : null);
 
       const rowH = 47, rowX = x + 12, rowW = w - 24;
       const row1Y = y + 43;
-      drawExportMatchTeamRow(ctx, rowX, row1Y, rowW, rowH, null, team1Name, t1w, theme, score1, t1w);
-      drawExportMatchTeamRow(ctx, rowX, row1Y + rowH + 7, rowW, rowH, null, team2Name, t2w, theme, score2, t2w);
+      drawExportMatchTeamRow(ctx, rowX, row1Y, rowW, rowH, null, team1Name, t1w, theme, score1, t1w, ffTag(t1w));
+      drawExportMatchTeamRow(ctx, rowX, row1Y + rowH + 7, rowW, rowH, null, team2Name, t2w, theme, score2, t2w, ffTag(t2w));
     }
 
     function exportRoundBlock(roundName, matches, teamOrderMap, theme, contentWidth) {
@@ -7686,14 +7773,23 @@ currentScoreWinnerName = null;
         loserScore = score1;
     }
 
+    const ffOk = !!koForfeitSel && (koForfeitSel === 'A' ? (score1 === 0 && score2 > 0) : (score2 === 0 && score1 > 0));
+    const ffPrev = !!match.forfeit;
     confirmWinner(
         currentScoreMatchId,
         winnerName,
         winnerScore,
         loserScore
     );
+    // علامة الانسحاب بعد الاعتماد (فتبقى نقطة التراجع على الحالة السابقة كما هي)، ثم حفظ وتحديث السجل إن كانت نهائيًا
+    if (match.winner === winnerName && (ffOk || ffPrev)) {
+      if (ffOk) match.forfeit = true; else delete match.forfeit;
+      saveState(); if (isFinalMatch(match)) recordCompletedTournament(); reRenderBracket();
+    }
 
     document.getElementById('scoreModal').style.display = 'none';
+    if (leagueForfeitRow) leagueForfeitRow.hidden = true;
+    koForfeitSel = null; { const h = document.getElementById('leagueScoreHint'); if (h) { h.style.display = 'none'; h.className = 'league-score-hint'; } }
     currentScoreMatchId = null;
     currentScoreWinnerName = null;
 });
@@ -7735,6 +7831,7 @@ function changeScore(inputId, amount){
         value=0;
 
     input.value=value;
+    koFfSync();
 
 }
 
@@ -8834,6 +8931,7 @@ function changeScore(inputId, amount){
     leagueForfeitRow.addEventListener('click', e => {
       const b = e.target.closest('.lg-ff-btn'); if (!b) return;
       const side = b.dataset.side;
+      if (!(currentMode === 'league' && leagueScoreMatchId !== null)) { koForfeitClick(side); return; }   // الفردي والفرق
       if (leagueForfeitSel === side) { leagueForfeitSel = null; }
       else { leagueForfeitSel = side; scoreInputA.value = side === 'A' ? 0 : 2; scoreInputB.value = side === 'A' ? 2 : 0; }
       leagueScoreTouched = true; refreshLeagueScoreModalState();
@@ -9125,6 +9223,7 @@ function buildLeagueStandingsCanvas() {
     leagueHistoryModal.addEventListener('click', e => { if (e.target === leagueHistoryModal) closeLeagueHistory(); });
     scoreInputA.addEventListener('input', () => leagueOnScoreTyped('winnerScoreInput'));
     scoreInputB.addEventListener('input', () => leagueOnScoreTyped('loserScoreInput'));
+    scoreInputA.addEventListener('input', koFfSync); scoreInputB.addEventListener('input', koFfSync);   // الفردي والفرق: تعديل رقم المنسحب يلغي الانسحاب
 
     // قراءة حالة الدوري المحفوظة قبل تشغيل التطبيق
     loadLeagueState();
@@ -9579,7 +9678,7 @@ function buildLeagueStandingsCanvas() {
       if (isLeagueMatchAnnulled(m)) it.annul = leagueIsExcluded(m.playerA) ? 'a' : 'b';
       return it; };
     const leagueItem0 = m => { const done = isLeagueMatchCompleted(m), d = done ? deriveLeagueResult(m.scoreA, m.scoreB) : null; return matchItem(m.playerA, m.playerB, done ? m.scoreA : null, done ? m.scoreB : null, d ? (d.result === 'A' ? 'a' : d.result === 'B' ? 'b' : null) : null); };
-    const koItem = m => { const nm = x => getDisplayTeamName(x || '—'); if (!m.winner) return matchItem(nm(m.team1), nm(m.team2), null, null, null); const w1 = m.winner === m.team1; return matchItem(nm(m.team1), nm(m.team2), w1 ? m.winnerScore : m.loserScore, w1 ? m.loserScore : m.winnerScore, w1 ? 'a' : 'b'); };
+    const koItem = m => { const nm = x => getDisplayTeamName(x || '—'); if (!m.winner) return matchItem(nm(m.team1), nm(m.team2), null, null, null); const w1 = m.winner === m.team1; const it = matchItem(nm(m.team1), nm(m.team2), w1 ? m.winnerScore : m.loserScore, w1 ? m.loserScore : m.winnerScore, w1 ? 'a' : 'b'); if (m.forfeit) it.ff = w1 ? 'b' : 'a'; return it; };
     const itemLine = it => it.bye ? `• راحة: ${it.bye}` : it.annul ? `• ${it.a} × ${it.b} (ملغاة: استُبعد ${it.annul === 'a' ? it.a : it.b})` : it.done ? `• ${it.a} ${it.sa} – ${it.sb} ${it.b}` + (it.ff ? ` (${it.auto ? 'استُبعد' : 'انسحب'} ${it.ff === 'a' ? it.a : it.b})` : '') : `• ${it.a} × ${it.b}`;
 
     // الإنجازات المعتمدة من سجل البطولات المكتملة فقط (بلا أي رمز كأس)
@@ -9816,6 +9915,7 @@ function buildLeagueStandingsCanvas() {
       const label = nightLabel(key), file = `Day-Results-${key}.png`, nm = x => lg ? x : getDisplayTeamName(x);
       const items = list.map(e => { const it = matchItem(nm(e.a), nm(e.b), e.sa, e.sb, e.sa === e.sb ? null : (lg ? (e.sa > e.sb ? 'a' : 'b') : (e.w === e.a ? 'a' : 'b')));
         if (lg) { const m = leagueMatches.find(x => x.id === e.id); if (m && m.forfeit) { it.ff = m.forfeit === 'A' ? 'a' : 'b'; it.auto = !!m.auto; } if (m && isLeagueMatchAnnulled(m)) it.annul = leagueIsExcluded(m.playerA) ? 'a' : 'b'; }
+        else { const m = bracketState[e.id]; if (m && m.forfeit && m.winner === e.w && m.team1 === e.a && m.team2 === e.b) it.ff = e.w === e.a ? 'b' : 'a'; }
         return it; });
       setCaption(file, `نتائج يوم ${label} (${chipMatches(list.length)}):\n` + items.map(itemLine).join('\n'));
       await renderLeagueSheet('نتائج اليوم', `${label} · ${chipMatches(list.length)}`, 1, [{ heading: 'مباريات اليوم', matches: items }], file);
@@ -10271,8 +10371,10 @@ function buildLeagueStandingsCanvas() {
     // «أفضل أرقامه» (نفس القائمة في نافذة الملف وصورة تصديره): [العنوان، القيمة، التفصيل]
     function playerBests(p, C) {
       const R = [];
-      R.push(['أعلى تقييم', C.peak ? C.peak.r.toLocaleString('en-US') : '—', C.peak ? C.peak.name || fmtDateNum(C.peak.date) : '']);
-      R.push(['أكبر قفزة في بطولة', C.jump ? '\u200E+' + C.jump.dl : '—', C.jump ? C.jump.t.name || '' : '']);
+      // التفصيل تاريخ البطولة (أوضح من اسمها المتكرر)؛ البطولة الجارية بلا تاريخ ثابت فتُذكر بوصفها
+      const liveNames = new Set(statsSourceRecords().filter(t => t && t.live).map(t => t.name));
+      R.push(['أعلى تقييم', C.peak ? C.peak.r.toLocaleString('en-US') : '—', C.peak ? (liveNames.has(C.peak.name) ? 'البطولة الجارية' : fmtDateNum(C.peak.date)) : '']);
+      R.push(['أكبر قفزة في بطولة', C.jump ? '\u200E+' + C.jump.dl : '—', C.jump ? fmtDateNum(C.jump.t.date) : '']);
       R.push(['أطول سلسلة انتصارات', p.bestWin ? (p.bestWin === 1 ? 'فوز واحد' : `${p.bestWin} ${arWinsW(p.bestWin)}`) : '—', p.bestWin > 1 ? 'متتالية' : '']);
       R.push(['أطول سلسلة بلا هزيمة', C.unb ? `${C.unb} ${arMatchesW(C.unb)}` : '—', C.unb ? 'فوز أو تعادل' : '']);
       if (C.titleRun > 1) R.push(['ألقاب متتالية', `${C.titleRun} ${arTitlesW(C.titleRun)}`, 'على التوالي']);
@@ -10529,10 +10631,11 @@ function buildLeagueStandingsCanvas() {
           const L = C.career.slice(0, 6), RH = 92, nT = C.titles.length;
           listFrame('مسيرته في البطولات', 'trophy', nT ? `${nT} ${arTitlesW(nT)} من ${C.done.length} ${arToursW(C.done.length)}` : `${C.done.length} ${arToursW(C.done.length)}`, L.length, RH);
           L.forEach((x, i) => { rowBox(i, RH); const cy = y + (RH - 10) / 2;
-            const RS = { ch: { grad: ['#F3DFAE', '#CFA963'], fg: '#3A2A0C' }, ru: { grad: ['#F0F2F3', '#C3C9CE'], fg: '#2F353B' }, live: { bg: B.okBg, fg: B.ok }, sf: { bg: B.surface3, fg: B.text }, pt: { bg: B.surface2, fg: B.faint } }[x.res[0]];
+            const RS = { ch: { grad: ['#F3DFAE', '#CFA963'], fg: '#3A2A0C' }, ru: { grad: ['#F0F2F3', '#C3C9CE'], fg: '#2F353B' }, live: { bg: B.okBg, fg: B.ok }, sf: { grad: ['#F2DDC8', '#D9AE88'], fg: '#4E2E14' }, pt: { bg: 'rgba(0,0,0,0)', line: B.lineStrong, fg: B.faint } }[x.res[0]];
             const pw = 128, ph = 42, px = RX + RW - 22 - pw;
             ctx.save(); drawRoundedRect(ctx, px, cy - ph / 2, pw, ph, ph / 2);
-            if (RS.bg) ctx.fillStyle = RS.bg; else { const g2 = ctx.createLinearGradient(px, 0, px + pw, 0); g2.addColorStop(0, RS.grad[0]); g2.addColorStop(1, RS.grad[1]); ctx.fillStyle = g2; } ctx.fill(); ctx.restore();
+            if (RS.bg) ctx.fillStyle = RS.bg; else { const g2 = ctx.createLinearGradient(px, 0, px + pw, 0); g2.addColorStop(0, RS.grad[0]); g2.addColorStop(1, RS.grad[1]); ctx.fillStyle = g2; } ctx.fill();
+            if (RS.line) { ctx.strokeStyle = RS.line; ctx.lineWidth = 1.6; ctx.stroke(); } ctx.restore();
             T(ctx, x.res[1], px + pw / 2, cy, { size: 22, weight: 800, color: RS.fg, maxW: pw - 16 });
             T(ctx, x.t.name || 'بطولة', px - 22, cy - 15, { size: 27, weight: 800, color: B.ink, align: 'right', maxW: RW - pw - 170, min: 16 });
             T(ctx, `${fmtDateNum(x.t.date)} · ${x.kind}`, px - 22, cy + 20, { size: 20, weight: 700, color: B.faint, align: 'right' });
@@ -11621,6 +11724,29 @@ function buildLeagueStandingsCanvas() {
       return { players: P, ranked };
     }
 
+    // تبديل المحتوى داخل نافذة الملف (ملف ↔ مباراة ↔ «صفحتي») بحركة دفع ناعمة كما في iOS:
+    // dir = 1 تقدّم (المحتوى الجديد يدخل من اليسار في الواجهة العربية) · dir = -1 رجوع (يدخل من اليمين)
+    // «عرض الكل / عرض أقل» بانسياب: الصندوق يتمدد أو ينكمش، والعناصر الإضافية تظهر تباعًا بفارق بسيط أو تتلاشى
+    // sizeEl: العنصر الذي يتمدد فعلًا (القائمة نفسها)، فلا يُقص ما تحتها من أقسام أثناء الحركة
+    function softToggle(box, cls, on, itemsSel, sizeEl) {
+      const el = sizeEl || box;
+      if (box.__st) { box.__st.a.cancel(); box.__st.done(); }
+      if (!el.animate || (window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches)) { box.classList.toggle(cls, on); return; }
+      const h0 = el.offsetHeight; box.classList.toggle(cls, on); const h1 = el.offsetHeight;
+      if (!on) box.classList.add(cls);   // تبقى ظاهرة أثناء الانكماش ثم تُخفى
+      const items = [...box.querySelectorAll(itemsSel)], E = 'cubic-bezier(.2, .8, .2, 1)';
+      el.style.overflow = 'hidden';
+      const a = el.animate([{ height: h0 + 'px' }, { height: h1 + 'px' }], { duration: 260, easing: E });
+      const fx = items.map((x, i) => on ? x.animate([{ opacity: 0, transform: 'translateY(-6px)' }, { opacity: 1, transform: 'none' }], { duration: 220, delay: Math.min(i, 6) * 30, easing: E, fill: 'backwards' })
+        : x.animate([{ opacity: 1 }, { opacity: 0 }], { duration: 140, easing: 'ease', fill: 'forwards' }));
+      const done = () => { box.__st = null; el.style.overflow = ''; if (!on) { box.classList.remove(cls); fx.forEach(f => f.cancel()); } };
+      box.__st = { a, done }; a.onfinish = () => { if (box.__st && box.__st.a === a) done(); };
+    }
+    function pfSwapIn(dir) {
+      const b = document.getElementById('profileBody');
+      if (!b || !b.animate || (window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches)) return;
+      b.animate([{ opacity: 0, transform: `translateX(${dir > 0 ? -18 : 18}px)` }, { opacity: 1, transform: 'none' }], { duration: 260, easing: 'cubic-bezier(.2, .8, .2, 1)' });
+    }
     (function setupPlayerProfiles() {
       const modal = document.getElementById('profileModal'), body = document.getElementById('profileBody');
       if (!modal || !body) return;
@@ -11643,6 +11769,7 @@ function buildLeagueStandingsCanvas() {
       function open(name) {
         const elo = computePlayerRatings(), p = elo.players[name];
         const stats = (getStatsData().players || {})[name] || { championships: 0, runnerUps: 0 };
+        const swap = modal.style.display === 'flex';   // النافذة مفتوحة أصلًا (من «صفحتي» مثلًا): تبديل ناعم بدل الفتح
         body.replaceChildren(); shownName = name; shareBtn.hidden = !(p && p.games);
         const head = el('div', 'pf-head');
         const nm = el('div', 'pf-name', name); nm.id = 'pfName'; head.appendChild(nm);
@@ -11708,8 +11835,8 @@ function buildLeagueStandingsCanvas() {
         html += `<div class="vm2-sec pf-s pf-form2"><div class="vm2-h"><span>آخر النتائج</span><span class="pf-chips" aria-label="الأقدم إلى الأحدث">${p.seq.slice(-5).map(r => `<span class="pf-chip ${r}">${r === 'w' ? 'ف' : r === 'l' ? 'خ' : 'ت'}</span>`).join('')}</span></div><p class="vm2-note">${H(profileStreakText(p))}</p></div>`;
         // (4) الأرقام القياسية + (5) المسيرة: من سجل البطولات (المكتملة، والجارية إن شارك فيها)
         const C0 = playerCareer(name, p), { career, done, titles, best } = C0, kindOf = t => t.mode === 'single' ? 'فردي' : t.mode === 'league' ? 'دوري' : 'فرق';
-        const rc = (l, v, s) => `<div class="pf-rc"><small>${l}</small><b>${v}</b>${s ? `<span>${s}</span>` : ''}</div>`;
-        const recs = playerBests(p, C0).map(([l, v, s]) => rc(H(l), H(v), H(s)));
+        const rc = (l, v, s, tx) => `<div class="pf-rc"><small>${l}</small><b${tx ? ' class="tx"' : ''}>${v}</b>${s ? `<span>${s}</span>` : ''}</div>`;
+        const recs = playerBests(p, C0).map(([l, v, s]) => rc(H(l), H(v), H(s), !/\d/.test(v) && v !== '—'));   // قيمة نصية (اسم بطولة/نتيجة): سطر واحد أصغر
         html += sec('أفضل أرقامه', '', `<div class="pf-recs">${recs.join('')}</div>`);
         if (career.length) {
           const row = (x, i) => `<div class="pf-tr${i >= 5 ? ' x' : ''}"><span class="pf-res ${x.res[0]}">${x.res[1]}</span><span class="nm"><b>${H(x.t.name || 'بطولة')}</b><small>${fmtDateNum(x.t.date)} · ${kindOf(x.t)}</small></span>${x.dl == null ? '' : `<span class="dl ${x.dl > 0 ? 'up' : x.dl < 0 ? 'down' : ''}"><bdi dir="ltr">${x.dl > 0 ? '+' : x.dl < 0 ? '−' : ''}${Math.abs(x.dl)}</bdi></span>`}</div>`;
@@ -11736,11 +11863,12 @@ function buildLeagueStandingsCanvas() {
           const pc = Math.round(x.w / x.games * 100);
           return `<div class="pf-hr par${i >= 6 ? ' x' : ''}"><span class="who">${H(x.o)}</span><span class="rec">فاز <b>${x.w}</b> من ${x.games} · <bdi dir="ltr">${pc}%</bdi></span><span class="pf-bar2"><i style="width:${pc}%"></i></span></div>`; }), parts.length);
         const rest = document.createElement('div'); rest.className = 'pf-body2'; rest.innerHTML = html; body.appendChild(rest);
-        rest.querySelectorAll('.pf-more').forEach(b => b.addEventListener('click', () => { const s = b.closest('.vm2-sec'), o = !s.classList.contains('all'); s.classList.toggle('all', o); b.setAttribute('aria-expanded', String(o)); b.textContent = o ? 'عرض أقل' : b.dataset.t || b.textContent; }));
+        rest.querySelectorAll('.pf-more').forEach(b => b.addEventListener('click', () => { const s = b.closest('.vm2-sec'), o = !s.classList.contains('all'); softToggle(s, 'all', o, '.pf-group > .x', s.querySelector('.pf-group')); b.setAttribute('aria-expanded', String(o)); b.textContent = o ? 'عرض أقل' : b.dataset.t || b.textContent; }));
         rest.querySelectorAll('.pf-more').forEach(b => { b.dataset.t = b.textContent; });
         { const lm = liveMatchesCount(); body.appendChild(el('div', 'pf-note', lm ? `يشمل التقييم والأرقام ${lm} ${lm === 1 ? 'مباراة' : lm === 2 ? 'مباراتين' : lm <= 10 ? 'مباريات' : 'مباراة'} من البطولة الجارية ويتحدث بعد كل نتيجة. الألقاب والمشاركات تُحتسب عند اكتمال البطولة.` : 'يتحدث التقييم تلقائيًا بعد كل نتيجة تُسجَّل.')); }
         modal.style.display = 'flex';
         modal.querySelector('.modal-content').scrollTop = 0;
+        if (swap) pfSwapIn(1);
       }
       // «تم» داخل ملف أو مباراة فُتحا من «صفحتي» يرجع إليها؛ السحب للأسفل والخلفية و Esc تغلق النافذة كلها
       function close(e) { const back = window.__pfBack; window.__pfBack = null; if (back && e && e.isTrusted) { try { back(); return; } catch (x) {} } modal.style.display = 'none'; }
@@ -11807,7 +11935,7 @@ function buildLeagueStandingsCanvas() {
           sa = t1Won ? m.winnerScore : m.loserScore; sb = t1Won ? m.loserScore : m.winnerScore;
           title = isFinalMatch(m) ? 'المباراة النهائية' : `مباراة ${m.matchNumber}`;
           sub = isFinalMatch(m) ? 'النتيجة المعتمدة' : String(m.roundName).replace(/\u{1F3C6}/gu, '').trim();
-          outcome = `الفائز: ${getDisplayTeamName(m.winner)}`;
+          outcome = `الفائز: ${getDisplayTeamName(m.winner)}` + (m.forfeit ? ' · بالانسحاب' : '');
           locked = isKoLocked();
           $('resultRows').replaceChildren(row(a, sa, t1Won), row(b, sb, !t1Won));
         } else {
@@ -12015,12 +12143,28 @@ function buildLeagueStandingsCanvas() {
         d.panel.addEventListener('touchend', end);
         d.panel.addEventListener('touchcancel', end);
       });
+
+      // ---------- 4) إغلاق ناعم بالزر (5.3): نوافذ العرض فقط — تنزل قليلًا وتتلاشى ثم تُغلق بنفس منطقها القائم ----------
+      const SOFT_CLOSE = new Set(['profileModal', 'statsModal', 'leagueHistoryModal']);
+      SHEETS.forEach(d => {
+        if (!SOFT_CLOSE.has(d.overlay.id)) return;
+        d.closeBtn.addEventListener('click', e => {
+          if (!e.isTrusted || d.overlay.dataset.closing || !d.panel.animate) return;
+          if (d.overlay.id === 'profileModal' && window.__pfBack) return;   // رجوع إلى «صفحتي»: تبديل محتوى لا إغلاق
+          if (window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+          e.preventDefault(); e.stopImmediatePropagation();
+          d.overlay.dataset.closing = '1';
+          const p = d.panel.animate([{ transform: 'none', opacity: 1 }, { transform: 'translateY(16px)', opacity: 0 }], { duration: 200, easing: 'cubic-bezier(.4, 0, 1, 1)', fill: 'forwards' });
+          const o = d.overlay.animate([{ opacity: 1 }, { opacity: 0 }], { duration: 200, easing: 'ease', fill: 'forwards' });
+          p.onfinish = () => { d.closeBtn.click(); p.cancel(); o.cancel(); delete d.overlay.dataset.closing; };
+        }, true);
+      });
     })();
 
     // ===================================
     // 🧭 سلوك التطبيق: إعادة الوضع للأعلى، تعديل العنوان بالضغط المطوّل، تنبيه التحديث، رقم الإصدار
     // ===================================
-    const APP_VERSION = '5.2';   // ترقيم الاعتماد: 1 ثم 1.1 … 1.9 ثم 2 — ويُرفع معه رقم الإصدار في sw.js
+    const APP_VERSION = '5.3';   // ترقيم الاعتماد: 1 ثم 1.1 … 1.9 ثم 2 — ويُرفع معه رقم الإصدار في sw.js
     (function setupAppBehaviors() {
       const root = document.documentElement;
 
@@ -12391,7 +12535,9 @@ function buildLeagueStandingsCanvas() {
                <div class="vm-last">آخر لقاء: ${x.last.win ? 'فاز ' + esc(x.last.win === 'A' ? o.a : o.b) + (x.last.ff ? ' بالانسحاب' : '') : 'تعادل'} · ${esc(x.last.final ? 'النهائي' : x.last.round)} · ${esc(st.date(x.last.date))}</div>`
             : '<div class="vm-last">اللقاء الأول بينهما في سجل المجلس</div>') + '</div>';
         }
+        const swap = modal.style.display === 'flex';
         body.innerHTML = h; modal.style.display = 'flex'; modal.querySelector('.modal-content').scrollTop = 0;
+        if (swap) pfSwapIn(1);
       }
       // وقت تسجيل النتيجة من سجل المباريات الملعوبة (آخر حفظ صالح لها). النتائج الأقدم من ميزة التوقيت لا وقت لها.
       function recordedAt(kind, id) {
@@ -12403,7 +12549,7 @@ function buildLeagueStandingsCanvas() {
         const m = bracketState[id]; if (!m || !real(m.team1) || !real(m.team2)) return;
         const a = getDisplayTeamName(m.team1), b = getDisplayTeamName(m.team2), done = !!m.winner, t1 = m.winner === m.team1;
         showMatch({ kind: 'ko', id, a, b, mA: split(a), mB: split(b), lg: false, final: isFinalMatch(m), round: `${cleanRound(m.roundName)} · مباراة ${m.matchNumber}`, done,
-          sa: done ? (t1 ? m.winnerScore : m.loserScore) : null, sb: done ? (t1 ? m.loserScore : m.winnerScore) : null, outcome: done ? 'فاز ' + getDisplayTeamName(m.winner) : '' });
+          sa: done ? (t1 ? m.winnerScore : m.loserScore) : null, sb: done ? (t1 ? m.loserScore : m.winnerScore) : null, outcome: done ? 'فاز ' + getDisplayTeamName(m.winner) + (m.forfeit ? ' بالانسحاب' : '') : '' });
       };
       openLeagueScoreModal = function (id) {   // الدوري: عرض فقط
         const m = leagueMatches.find(x => x.id === id); if (!m) return;
@@ -12631,12 +12777,13 @@ function buildLeagueStandingsCanvas() {
         let mineHTML = '', mineNx = [];
         function openMine() {
           if (!mineHTML) return;
+          const swap = modal.style.display === 'flex';   // رجوع من مباراة أو ملف داخل نفس النافذة
           body.innerHTML = mineHTML;
           const sheet = body.querySelector('.vme.sheet');
           window.__pfBack = null;
           sheet.querySelectorAll('.vme-top, .vm2-key').forEach(el => el.addEventListener('click', () => { try { const back = backToMine(); window.carromOpenProfile(me); window.__pfBack = back; } catch (e) {} }));
           const more = sheet.querySelector('.vm2-more');
-          if (more) more.addEventListener('click', () => { const on = !sheet.classList.contains('all'); sheet.classList.toggle('all', on); more.setAttribute('aria-expanded', String(on)); more.textContent = on ? 'عرض أقل' : `عرض الكل (${mineNx.length})`; });
+          if (more) more.addEventListener('click', () => { const on = !sheet.classList.contains('all'); softToggle(sheet, 'all', on, '.vm2-m.x', sheet.querySelector('.vm2-list')); more.setAttribute('aria-expanded', String(on)); more.textContent = on ? 'عرض أقل' : `عرض الكل (${mineNx.length})`; });
           sheet.querySelectorAll('.vm2-m').forEach(b => b.addEventListener('click', () => {
             const m = mineNx[+b.dataset.i]; if (!m) return; const back = backToMine();
             if (currentMode !== m.mode) { const btn = document.getElementById({ league: 'modeLeagueBtn', single: 'modeSingleBtn', fixed: 'modeFixedBtn' }[m.mode]); if (btn) btn.click(); }
@@ -12644,6 +12791,7 @@ function buildLeagueStandingsCanvas() {
             window.__pfBack = back;   // «تم» يرجع إلى «صفحتي»
           }));
           modal.style.display = 'flex'; modal.querySelector('.modal-content').scrollTop = 0;
+          if (swap) pfSwapIn(-1);
         }
         window.carromOpenMine = openMine;
         // الرجوع إلى «صفحتي» في نفس موضع التمرير الذي غادرها منه
@@ -12900,7 +13048,7 @@ function buildLeagueStandingsCanvas() {
           const go = Math.abs(s0.dx) > 60 ? (s0.dx > 0 ? cur + 1 : cur - 1) : cur;
           host.dataset.swiped = '1'; setTimeout(() => { delete host.dataset.swiped; }, 350);
           if (go !== cur && go >= 1 && go <= total) { goToLeagueRound(go); return; }
-          if (s0.g) { s0.g.style.transition = 'transform .35s cubic-bezier(.2,.8,.2,1), opacity .35s ease'; s0.g.style.transform = ''; s0.g.style.opacity = ''; setTimeout(() => { if (s0.g) s0.g.style.transition = ''; }, 380); }
+          if (s0.g) { s0.g.style.transition = 'transform .26s cubic-bezier(.2,.8,.2,1), opacity .26s ease'; s0.g.style.transform = ''; s0.g.style.opacity = ''; setTimeout(() => { if (s0.g) s0.g.style.transition = ''; }, 380); }
         };
         host.addEventListener('touchend', end, { passive: true }); host.addEventListener('touchcancel', end, { passive: true });
         host.addEventListener('click', e => { if (host.dataset.swiped) { e.stopPropagation(); e.preventDefault(); } }, true);   // نهاية السحب ليست ضغطة على مباراة
