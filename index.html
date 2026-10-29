@@ -2571,7 +2571,8 @@
     /* تبويبات «الترتيب والسجل» ثابتة أعلى نافذة الإحصائيات أثناء التمرير (5.6): التنقل بينها من أي موضع بلا صعود للأعلى.
        هالة بلون أرضية النافذة حولها تخفي ما يمر تحتها */
     body:not(.dark-mode) #statsModal { --st-bg: var(--bg); } body.dark-mode #statsModal { --st-bg: var(--surface); }
-    #statsModal .st-tabs { position: sticky; top: 0; z-index: 4; box-shadow: 0 -26px 0 6px var(--st-bg), 0 0 0 6px var(--st-bg); }
+    #statsModal .stats-modal-content { position: relative; }   /* مرجع حساب مواضع الأقسام داخل النافذة */
+    #statsModal .st-tabs { position: -webkit-sticky; position: sticky; top: 0; z-index: 4; box-shadow: 0 -26px 0 6px var(--st-bg), 0 0 0 6px var(--st-bg); }
     /* ===== «الحاضرون الليلة» (الإدارة): بطاقة بنفس هوية «لاعبو الدوري» — سطر ملخص قابل للفتح، أسماء للاختيار، ثم المباريات المتاحة ===== */
     #leagueTonight { display: none; }
     body.lg-focus #leagueTonight:not([hidden]) { display: block; margin: 0 0 var(--s3); padding: 2px 16px; border-radius: 22px; border: 1px solid var(--line); background: var(--surface); box-shadow: var(--sh-1); }
@@ -5335,9 +5336,12 @@ return teamName.replace('غير محدد', replacement);
       if (tab === prev) return;
       statsTab = tab; try { localStorage.setItem(STATS_TAB_KEY, tab); } catch (e) {}
       const isP = t => t === 'titles' || t === 'rating';
-      if (isP(tab) && isP(prev)) { statsApplySort(tab); return; }   // نفس القائمة: انزلاق المراكز
+      const scroller = board.closest('.stats-modal-content'), prevTop = scroller ? scroller.scrollTop : 0;
+      // تثبيت موضع التمرير: سفاري iOS يقصّ موضع التمرير لحظة إخفاء القائمة الطويلة قبل ظهور الجديدة فيقفز للأعلى؛ نعيده صراحةً (الآن وبعد الرسم)
+      const hold = y => { if (!scroller) return; scroller.scrollTop = y; requestAnimationFrame(() => { scroller.scrollTop = y; requestAnimationFrame(() => { scroller.scrollTop = y; }); }); };
+      if (isP(tab) && isP(prev)) { statsApplySort(tab); hold(prevTop); return; }   // نفس القائمة: انزلاق المراكز
       // التبويبات ثابتة أعلى النافذة أثناء التمرير (5.6): لا قفز للأعلى. إن كانت ملتصقة يبدأ المحتوى الجديد تحتها مباشرة، وإلا يبقى الموضع كما هو
-      const scroller = board.closest('.stats-modal-content'), tabsEl = board.querySelector('.st-tabs');
+      const tabsEl = board.querySelector('.st-tabs');
       const h4 = board.querySelector('h4');   // ملتصقة = ابتعد عنوان القسم فوقها أكثر من مسافته الطبيعية
       const stuck = !!(scroller && tabsEl && h4 && tabsEl.getBoundingClientRect().top - h4.getBoundingClientRect().bottom > 30);
       board.querySelectorAll('.st-tabs button').forEach(b => b.setAttribute('aria-pressed', String(b.dataset.sort === tab)));
@@ -5348,7 +5352,11 @@ return teamName.replace('غير محدد', replacement);
       const key = isP(tab) ? 'players' : tab;
       let shown = null;
       board.querySelectorAll('.st-pane').forEach(p => { const on = p.dataset.pane === key; p.hidden = !on; if (on) shown = p; });
-      if (stuck && shown) scroller.scrollTop += shown.getBoundingClientRect().top - (tabsEl.getBoundingClientRect().bottom + 10);   // قبل حركة الدخول (المقياس يغيّر الموضع)
+      // الهدف يُحسب من التخطيط لا من موضع التمرير الحالي: ملتصقة ← بداية المحتوى الجديد تحت التبويبات مباشرة، وإلا ← نفس الموضع السابق
+      let target = prevTop;
+      if (stuck && shown) { let y = 0, e = shown; while (e && e !== scroller) { y += e.offsetTop; e = e.offsetParent; }
+        if (e === scroller) target = Math.max(0, y - (parseFloat(getComputedStyle(scroller).paddingTop) || 0) - tabsEl.offsetHeight - 10); }
+      hold(target);   // قبل حركة الدخول (المقياس يغيّر الموضع)
       if (shown && !rankFlipReduced()) {   // الدخول من جهة التبويب (RTL: التبويب التالي يسارًا)
         shown.style.setProperty('--dx', (STATS_TABS.indexOf(tab) > STATS_TABS.indexOf(prev) ? -22 : 22) + 'px');
         shown.classList.remove('lg-enter'); void shown.offsetWidth; shown.classList.add('lg-enter');
@@ -12340,7 +12348,7 @@ function buildLeagueStandingsCanvas() {
     // ===================================
     // 🧭 سلوك التطبيق: إعادة الوضع للأعلى، تعديل العنوان بالضغط المطوّل، تنبيه التحديث، رقم الإصدار
     // ===================================
-    const APP_VERSION = '5.8';   // ترقيم الاعتماد: 1 ثم 1.1 … 1.9 ثم 2 — ويُرفع معه رقم الإصدار في sw.js
+    const APP_VERSION = '5.9';   // ترقيم الاعتماد: 1 ثم 1.1 … 1.9 ثم 2 — ويُرفع معه رقم الإصدار في sw.js
     (function setupAppBehaviors() {
       const root = document.documentElement;
 
