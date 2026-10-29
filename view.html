@@ -442,14 +442,6 @@
       box-shadow: var(--sh-1);
       min-width: 0;
     }
-    .card-title {
-      display: flex; align-items: center; justify-content: space-between; gap: var(--s3);
-      font-size: var(--fs-md);
-      font-weight: 800;
-      color: var(--text);
-      margin-bottom: var(--s3);
-    }
-    .card-title small { font-size: var(--fs-xs); font-weight: 500; color: var(--text-2); }
     #playersTitleRow { margin-bottom: var(--s3) !important; }
     #playersTitleRow > div { font-size: var(--fs-md) !important; font-weight: 800 !important; }
 
@@ -483,7 +475,6 @@
     body.dark-mode .cd-history-actions button:disabled {
       opacity: 1; background: var(--surface-3); border-color: transparent; color: var(--text-3); box-shadow: none;
     }
-    body.dark-mode .btn:disabled[data-ic]::before { color: var(--text-3); }
     body.dark-mode .btn.primary[data-ic]::before { color: #1d1610; }
     .btn.neutral { background: var(--surface-2); border-color: transparent; box-shadow: none; }
     .btn.neutral:hover { background: var(--surface-3); }
@@ -496,7 +487,6 @@
     .btn.danger:hover, .league-reset-btn:hover { background: var(--danger-bg); border-color: var(--danger); }
     .btn.block { width: 100%; }
     .btn:disabled { opacity: .42; cursor: not-allowed; transform: none; box-shadow: none; }
-    .btn.is-busy { position: relative; pointer-events: none; opacity: .75; }
 
     /* حقول الإدخال */
     input[type="text"], input[type="number"] {
@@ -646,10 +636,8 @@
     #statusText span { font-weight: 800; color: var(--text); }
     #statusText .num { display: inline-flex; align-items: center; justify-content: center; min-width: 34px; height: 28px; padding: 0 10px; border-radius: 999px;
       background: var(--surface-2); border: 1px solid var(--line); font-size: var(--fs-sm); font-variant-numeric: tabular-nums; line-height: 1; }
-    #statusText .num span { color: inherit; }
     #statusSep { color: var(--text-2) !important; font-weight: 700 !important; margin: 0 3px; }
     .draw-card { display: flex; flex-direction: column; gap: var(--s3); }
-    #showBracketWrap, #exportWrap, #clearWrap { margin: 0 !important; }
     #showBracketWrap .btn, #exportWrap .btn, #clearWrap .btn, #statsBtn { width: 100%; }
 
     /* الفرق */
@@ -707,8 +695,6 @@
       transition: border-color var(--t-base) ease, box-shadow var(--t-base) ease, background var(--t-base) ease;
     }
     /* حالة البطاقة تُقرأ من شارة حالتها نفسها، فتتطابق الألوان مع النص دائمًا (الجدول والدوري) */
-    .match-card:has(.match-status.ready) { border-color: var(--card-ready-line); box-shadow: 0 0 0 1px var(--card-ready-ring), var(--sh-2); }
-    .match-card:has(.match-status.done) { border-color: var(--card-done-line); background: var(--card-done-bg); box-shadow: var(--sh-1); }
     .match-card:has(.match-status.done) .match-title { color: var(--text-3, var(--text-2)); }
     .match-head { display: flex; align-items: center; justify-content: space-between; gap: var(--s2); }
     .match-title { font-size: var(--fs-sm); font-weight: 800; color: var(--text-2); }
@@ -719,7 +705,6 @@
       display: inline-flex; align-items: center; gap: 4px;
     }
     .match-status.ready { background: var(--warn-bg); color: var(--warn); }
-    .match-status.done { background: var(--ok-bg); color: var(--ok); }
     .match-status.done::before { content: ""; width: 12px; height: 12px; background: currentColor; -webkit-mask: var(--ic-check) center / contain no-repeat; mask: var(--ic-check) center / contain no-repeat; }
     .match-body { display: flex; flex-direction: column; gap: 6px; margin: 0; }
     /* ===== المباراة القادمة: مواجهة ===== */
@@ -727,7 +712,7 @@
     .match-card.vs .match-body { gap: 0; }
     .match-card.vs .match-team { background: transparent; border-color: transparent; min-height: 38px; padding: 4px 8px;
       flex-wrap: wrap; align-items: center; justify-content: center; text-align: center; gap: 2px 6px; font-weight: 800; }
-    .match-card.vs .match-team > span:first-child { flex: 1 1 auto; }   /* الاسمان في المنتصف على محور «ضد»؛ بعد النتيجة تعود البطاقة للشكل المعتاد (الاسم يمينًا والنتيجة يسارًا) */
+/* الاسمان في المنتصف على محور «ضد»؛ بعد النتيجة تعود البطاقة للشكل المعتاد (الاسم يمينًا والنتيجة يسارًا) */
     .vs-sep { display: flex; align-items: center; gap: 8px; margin: 0 8px; color: var(--text-3); }
     .vs-sep::before, .vs-sep::after { content: ""; flex: 1; height: 1px; background: var(--line); }
     /* توسيط بصري دقيق للنص داخل الشارات والكبسولات: مقاييس خط Tajawal تجعل النص أعلى من المنتصف بنحو ربع حرف.
@@ -875,42 +860,7 @@
     }
     .league-matches { display: grid; grid-template-columns: minmax(0, 1fr); gap: var(--s2); margin-top: var(--s3); }
     .lg-match { cursor: pointer; }
-    .lg-match .match-team { cursor: pointer; }
     @media (min-width: 640px) { .league-matches { gap: var(--s3); } }
-    .league-match {
-      display: flex; flex-direction: column; gap: 6px;
-      padding: var(--s3); border-radius: var(--r-md);
-      background: var(--surface); border: 1px solid var(--line);
-      cursor: pointer;
-      transition: border-color var(--t-fast) ease, background var(--t-fast) ease, transform var(--t-fast) var(--ease);
-    }
-    .league-match:hover { border-color: var(--gold-soft); background: var(--surface-2); }
-    .league-match:active { transform: scale(.985); }
-    .league-match.done { border-color: var(--ok-line); }
-    .lm-player {
-      display: flex; align-items: center; justify-content: space-between; gap: var(--s2);
-      min-height: 44px; padding: 6px 12px; border-radius: var(--r-sm);
-      background: var(--surface-2); border: 1px solid transparent;
-      font-size: var(--fs-md); font-weight: 700; line-height: 1.3;
-    }
-    .lm-name { flex: 1 1 auto; min-width: 0; overflow-wrap: anywhere; }
-    .lm-score {
-      flex: 0 0 auto; min-width: 32px; height: 30px; padding: 0 8px; border-radius: 9px;
-      display: inline-flex; align-items: center; justify-content: center;
-      background: var(--surface-3); color: var(--text-2); direction: ltr;
-      font-size: var(--fs-md); font-weight: 800; font-variant-numeric: tabular-nums;
-    }
-    .lm-player.winner { background: var(--ok-bg); border-color: var(--ok-line); color: var(--ok); font-weight: 800; }
-    .lm-player.winner .lm-name::before {
-      content: ""; display: inline-block; width: 15px; height: 15px; margin-inline-end: 8px; background: currentColor; vertical-align: -2px;
-      -webkit-mask: var(--ic-check) center / contain no-repeat; mask: var(--ic-check) center / contain no-repeat;
-    }
-    .lm-player.winner .lm-score { background: var(--ok); color: #fff; }
-    body.dark-mode .lm-player.winner .lm-score { color: #10261a; }
-    .lm-vs { display: none; }
-    .lm-status { align-self: center; font-size: var(--fs-xs); font-weight: 700; padding: 3px 12px; border-radius: 999px; }
-    .lm-status.pending { background: var(--surface-3); color: var(--text-2); }
-    .lm-status.done { background: var(--ok-bg); color: var(--ok); }
 
     /* جداول (ترتيب الدوري / الإحصائيات / سجل اللاعب) */
     #leagueStandings:empty { display: none !important; }
@@ -925,7 +875,6 @@
     .league-table td, .stats-table td, .lg-history-table td {
       padding: 12px 6px; text-align: center; border-top: 1px solid var(--line); font-weight: 600; font-variant-numeric: tabular-nums;
     }
-    .league-table .lt-name, .stats-table td:nth-child(2), .stats-table th:nth-child(2) { text-align: start; }
     .league-table th.lt-name, .league-table td.lt-name { min-width: 110px; font-weight: 800; font-size: var(--fs-base); text-align: start; }
     .league-table tbody tr { cursor: pointer; transition: background var(--t-fast) ease; }
     .league-table tbody tr:hover { background: var(--surface-2); }
@@ -935,21 +884,6 @@
       width: 30px; height: 30px; border-radius: 50%; color: #fff; font-weight: 800; font-size: var(--fs-sm);
     }
     /* ألوان المراكز الثلاثة تأتي من متغيرات --rank-N-* المولّدة من RANK_IDENTITY في السكربت */
-    .league-table tr.rank-1 { background: var(--rank-1-tint); }
-    .league-table tr.rank-2 { background: var(--rank-2-tint); }
-    .league-table tr.rank-3 { background: var(--rank-3-tint); }
-    .league-table tr.rank-1 td:first-child { box-shadow: inset -4px 0 0 var(--rank-1-main); }
-    .league-table tr.rank-2 td:first-child { box-shadow: inset -4px 0 0 var(--rank-2-main); }
-    .league-table tr.rank-3 td:first-child { box-shadow: inset -4px 0 0 var(--rank-3-main); }
-    .league-table tr.rank-1 .rank-badge, .rank-badge.rb-1 { background: var(--rank-1-badge); color: var(--rank-1-badge-text); }
-    .league-table tr.rank-2 .rank-badge, .rank-badge.rb-2 { background: var(--rank-2-badge); color: var(--rank-2-badge-text); }
-    .league-table tr.rank-3 .rank-badge, .rank-badge.rb-3 { background: var(--rank-3-badge); color: var(--rank-3-badge-text); }
-    .league-table tr.rank-1 td.lt-points { color: var(--rank-1-text); }
-    .league-table tr.rank-2 td.lt-points { color: var(--rank-2-text); }
-    .league-table tr.rank-3 td.lt-points { color: var(--rank-3-text); }
-    body.dark-mode .league-table tr.rank-1 td.lt-points { color: var(--rank-1-main); }
-    body.dark-mode .league-table tr.rank-2 td.lt-points { color: var(--rank-2-main); }
-    body.dark-mode .league-table tr.rank-3 td.lt-points { color: var(--rank-3-main); }
     .league-legend { margin-top: var(--s3); color: var(--text-2); font-size: var(--fs-xs); line-height: 1.7; text-align: center; }
     .rank-number { color: var(--gold-deep); font-weight: 800; width: 42px; }
 
@@ -1048,7 +982,6 @@
     #resultModal .result-sub { text-align: center; color: var(--text-2); font-size: var(--fs-sm); margin: 4px 0 var(--s4); }
     .result-lock { display: flex; align-items: center; justify-content: center; gap: 6px; margin: 0 auto var(--s3); width: fit-content;
       padding: 5px 12px; border-radius: 999px; background: var(--warn-bg); color: var(--warn); font-size: var(--fs-xs); font-weight: 800; }
-    .result-lock[hidden] { display: none; }
     .result-lock .ic { width: 14px; height: 14px; }
     .result-rows { display: flex; flex-direction: column; gap: 8px; }
     .result-rows .match-team { cursor: default; min-height: 56px; font-size: var(--fs-md); }
@@ -1108,7 +1041,6 @@
     .st-sort button[aria-pressed="true"] { background: var(--surface); color: var(--text); box-shadow: var(--sh-1); }
     .st-hint { margin: 0 0 8px; font-size: 11.5px; color: var(--text-3); }
     .st-sort button { transition: background .22s ease, color .22s ease, box-shadow .22s ease; }
-    .rt-val { font-variant-numeric: tabular-nums; }
     .rt-delta { display: inline-block; margin-inline-start: 4px; font-size: 10.5px; font-weight: 800; font-variant-numeric: tabular-nums; }
     .lg-profile-btn { margin-top: var(--s3); width: 100%; }
 
@@ -1166,35 +1098,17 @@
     }
     .stats-close::before, .lg-close::before, .cd-close::before { content: ""; width: 16px; height: 16px; background: currentColor; -webkit-mask: var(--ic-x) center / contain no-repeat; mask: var(--ic-x) center / contain no-repeat; }
     .stats-close:hover, .lg-close:hover, .cd-close:hover { background: var(--line-strong); }
-    .stats-summary { display: grid; grid-template-columns: repeat(4, 1fr); gap: var(--s2); margin-bottom: var(--s5); }
     .t-caps { display: flex; justify-content: center; gap: 3px; margin-top: 4px; direction: rtl; }
     .t-cap { display: inline-flex; align-items: center; gap: 2px; padding: 1px 6px 1px 5px; border-radius: 999px; font-size: 11px; font-weight: 800; line-height: 1.5;
       font-variant-numeric: tabular-nums; color: var(--text-3); background: var(--surface-3); border: 1px solid var(--line); }
     /* كبسولات الألقاب الثلاث بأسلوب واحد حتى لو العدد صفر (مثل صور التصدير): خلفية ذهبية خفيفة، أيقونة بلون الجوز، ورقم بلون النص */
     .t-cap, .t-cap.on { color: var(--text); background: color-mix(in srgb, var(--gold) 12%, transparent); border-color: color-mix(in srgb, var(--gold) 45%, transparent); }
     .t-cap .ic { width: 11px; height: 11px; margin: 0; color: var(--gold-deep); }
-    /* خانة الألقاب في جدول الإحصائيات بنفس ترتيب صورة التصدير: الكبسولات الثلاث في الأعلى، والمجموع تحتها برقم أكبر بلا كأس */
-    .st-titles .t-caps { margin-top: 0; }
-    .st-titles .t-tot { display: block; margin-top: 4px; font-size: var(--fs-md); font-weight: 800; line-height: 1.2; text-align: center; color: var(--text); font-variant-numeric: tabular-nums; }
-    @media (max-width: 639px) {   /* الجوال (بطاقة بأعمدة ضيقة): المجموع على سطر القيم بمحاذاة بقية الأرقام، والكبسولات تحته في المساحة الفارغة دون أن تزاحم الخانة المجاورة */
-      .stats-table td.st-titles { display: flex; flex-direction: column; align-items: center; }
-      .stats-table td.st-titles::before { order: 0; align-self: stretch; }
-      .st-titles .t-tot { order: 1; margin-top: 0; font-size: var(--fs-base); line-height: inherit; }
-      .st-titles .t-caps { order: 2; margin-top: 6px; white-space: nowrap; }
-    }
-    .stats-table td .t-cap .ic { width: 11px; height: 11px; margin: 0; color: var(--gold-deep); }
     .pf-titles { display: flex; align-items: center; justify-content: space-between; gap: 8px; margin: -4px 0 var(--s3); padding: 8px 12px; border-radius: var(--r-md); background: var(--surface-2); }
     .pf-titles .lbl { font-size: var(--fs-xs); font-weight: 800; color: var(--text-2); }
     .pf-titles .t-caps { margin: 0; gap: 5px; }
     .pf-titles .t-cap { font-size: 12.5px; padding: 2px 9px 2px 7px; gap: 4px; }
     .pf-titles .t-cap .ic { width: 13px; height: 13px; }
-    .hist-team { display: inline-flex; flex-direction: column; align-items: center; gap: 1px; vertical-align: middle; }
-    .hist-plus { display: grid; place-items: center; width: 16px; height: 16px; border-radius: 50%; border: 1px solid var(--gold); color: var(--gold-deep); font-size: 11px; font-weight: 800; line-height: 1; }
-    .stats-live-note { display: flex; align-items: flex-start; gap: 8px; margin: calc(var(--s3) * -1) 0 var(--s5); padding: 10px 12px; border-radius: var(--r-md); background: var(--ok-bg); color: var(--ok); font-size: var(--fs-xs); font-weight: 700; line-height: 1.7; }
-    .stats-live-note .dot { flex: none; width: 8px; height: 8px; margin-top: 7px; border-radius: 50%; background: currentColor; }
-    .stats-card { padding: var(--s3) 6px; text-align: center; border-radius: var(--r-md); background: var(--surface-2); border: 1px solid var(--line); }
-    .stats-card .value { font-size: var(--fs-xl); font-weight: 800; color: var(--text); line-height: 1.2; }
-    .stats-card .label { font-size: var(--fs-xs); font-weight: 600; color: var(--text-2); margin-top: 2px; }
     .stats-section { margin-top: var(--s5); }
     .stats-section h4 { display: flex; align-items: center; gap: 8px; font-size: var(--fs-md); font-weight: 800; margin-bottom: var(--s3); }
     .stats-section h4 .ic { color: var(--gold-deep); }
@@ -1216,7 +1130,6 @@
     .st-fold-body > .in { min-height: 0; overflow: hidden; }
     .st-fold.open .st-fold-body { grid-template-rows: 1fr; opacity: 1; }
     .st-fold.open .st-fold-body > .in { padding-top: var(--s3); }
-    .st-fold:not(.all) .stats-table tr.st-extra { display: none !important; }
     .st-fold-more { display: flex; align-items: center; justify-content: center; gap: 6px; width: 100%; min-height: 46px; margin-top: var(--s2);
       background: none; border: 1px dashed var(--line-strong, var(--line)); border-radius: var(--r-md); color: var(--text-2); font: inherit; font-size: var(--fs-sm); font-weight: 800;
       cursor: pointer; -webkit-tap-highlight-color: transparent; }
@@ -1224,7 +1137,6 @@
     .st-fold-more svg { width: 15px; height: 15px; transition: transform .3s ease; }
     .st-fold.all .st-fold-more svg { transform: rotate(180deg); }
     @media (prefers-reduced-motion: reduce) { .st-fold-body, .st-fold-head .chev svg, .st-fold-more svg { transition: none; } }
-    .stats-table td .ic { color: var(--gold-deep); width: 1em; height: 1em; margin-inline-end: 4px; }
     .lg-history-name { font-size: var(--fs-lg); font-weight: 800; color: var(--gold-deep); margin-bottom: var(--s3); }
     .lg-history-summary { display: flex; flex-wrap: wrap; gap: var(--s2); margin-bottom: var(--s3); }
     .lg-chipstat { padding: 4px 12px; border-radius: 999px; background: var(--surface-2); border: 1px solid var(--line); font-size: var(--fs-sm); font-weight: 600; }
@@ -1235,10 +1147,8 @@
     .lg-history-table td.res .res-ff { display: block; margin-top: 1px; font-size: 10.5px; font-weight: 700; color: var(--text-3); }
     .lg-history-table tr.res-pending td, .lg-history-table tr.res-bye td { color: var(--text-3); }
     .lg-history-table td { overflow-wrap: anywhere; }
-    .lg-modal-content { max-width: 560px; }
 
     /* لوحة التحكم (حماية البيانات) */
-    #controlDashboard { padding: 0; }
     .cd-shell { max-width: 760px; padding: 0; overflow-y: auto; }
     .cd-hero {
       padding: var(--s6) var(--s5) var(--s5);
@@ -1293,7 +1203,6 @@
     .export-center-option:hover:not(:disabled) { border-color:var(--gold); background:var(--surface-3); transform:translateY(-1px); }
     .export-center-option:disabled { opacity:.48; cursor:not-allowed; }
     .export-center-option .ic { color:var(--gold); flex:0 0 auto; }
-    .export-center-option.is-final { border-color:rgba(207,169,99,.65); background:rgba(207,169,99,.10); }
 
     /* ===== مركز التصدير — واجهة مبسّطة (تبويبات + فئات + لوحات خيارات مضمّنة) ===== */
     .export-center-card { container-type:inline-size; }
@@ -1319,7 +1228,6 @@
     .xh-chev { color:var(--text-2); transition:transform .15s; }
     .xh-item[aria-expanded="true"] .xh-chev { transform:rotate(180deg); }
     .xh-panel { display:grid; gap:var(--s2); margin:2px 0 6px; padding:12px; border:1px solid var(--line); border-radius:var(--r-md); background:var(--surface); }
-    .xh-panel[hidden] { display:none; }
     .xh-go { min-height:54px; border:0; border-radius:var(--r-md); background:var(--gold); color:#30251F; font:800 var(--fs-md) Tajawal,sans-serif; cursor:pointer; }
     .xh-go:disabled { opacity:.6; cursor:wait; }
     .xh-fields { display:grid; gap:var(--s3); grid-template-columns:1fr; }
@@ -1332,7 +1240,6 @@
     .xh-rchip[aria-pressed="true"] { background:var(--gold); color:#30251F; font-weight:800; }
     .xh-hint { font-size:var(--fs-xs); color:var(--text-2); line-height:1.7; }
     .xh-box { border:1px solid var(--line); border-radius:var(--r-lg); padding:var(--s3); background:var(--surface); display:grid; gap:var(--s2); }
-    .xh-sticky { position:sticky; bottom:0; padding:10px 0 calc(6px + env(safe-area-inset-bottom,0px)); background:linear-gradient(to top,var(--surface) 70%,transparent); }
 
     .cd-card h3, .cd-history-head h3 { font-size: var(--fs-md); font-weight: 800; }
     .cd-card .sub { font-size: var(--fs-xs); color: var(--text-2); line-height: 1.6; }
@@ -1348,7 +1255,6 @@
     body.dark-mode .cd-primary { background: var(--gold-fill); border-color: var(--gold-fill); color: #1A140F; }
     .cd-secondary { border: 1px solid var(--line-strong); background: var(--surface); color: var(--text); }
     .cd-secondary:hover { background: var(--surface-2); }
-    .cd-danger { border: 1px solid var(--danger-line); background: var(--danger-bg); color: var(--danger); }
     .cd-primary:active, .cd-secondary:active, .cd-danger:active { transform: scale(.98); }
     .cd-history-card { background: var(--surface-2); box-shadow: none; }
     .cd-history-state { font-size: var(--fs-sm); color: var(--text-2); line-height: 1.7; }
@@ -1368,7 +1274,6 @@
     #ghPublishBtn[aria-busy="true"] { opacity: .7; pointer-events: none; }
     .gh-more { margin-top: var(--s3); border-top: 1px solid var(--line); }
     .gh-more summary { list-style: none; cursor: pointer; display: flex; align-items: center; justify-content: space-between; gap: 8px; min-height: 46px; font-size: var(--fs-sm); font-weight: 800; color: var(--text-2); -webkit-tap-highlight-color: transparent; }
-    .gh-more summary::-webkit-details-marker { display: none; }
     .gh-more summary::after { content: ""; flex: none; width: 8px; height: 8px; border-right: 2px solid currentColor; border-bottom: 2px solid currentColor; transform: translateY(-2px) rotate(45deg); margin-inline-end: 6px; transition: transform .25s ease; }
     .gh-more[open] summary::after { transform: translateY(2px) rotate(-135deg); }
     .gh-body { padding-bottom: var(--s2); display: flex; flex-direction: column; gap: var(--s3); }
@@ -1458,7 +1363,6 @@
     }
     @media (min-width: 960px) {
       .main { grid-template-columns: minmax(0, 5fr) minmax(0, 6fr); padding: var(--s6) var(--s8) var(--s8); }
-      .main.league-mode { grid-template-columns: minmax(300px, 380px) minmax(0, 1fr); }
       .round-matches { grid-template-columns: minmax(0, 1fr); }
       .players-grid { grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); }
     }
@@ -1471,12 +1375,9 @@
       .player-avatar { width: 32px; height: 32px; font-size: 12px; }
       .player-card { font-size: var(--fs-sm); }
       .header-title h2 { font-size: 22px; }
-      .stats-summary { grid-template-columns: repeat(2, 1fr); }
       .cd-grid { grid-template-columns: 1fr; }
-      .cd-metrics { grid-template-columns: 1fr; }
       .cd-history-actions { grid-template-columns: 1fr; }
       .stats-header { flex-wrap: wrap; }
-      .league-round-nav .btn { padding: 0 10px; }
       .btn.mode-switch::before { display: none; }
       .btn.mode-switch { font-size: 13px; padding: 0 4px; }
 
@@ -1499,23 +1400,8 @@
       .league-table td.lt-points { grid-column: 7; grid-row: 1; align-self: center; font-size: var(--fs-lg); }
       .league-table td.lt-points::before { display: none; }
       .league-table td:nth-child(1)::before, .league-table td.lt-name::before { display: none; }
-      .league-table tr.rank-1 td:first-child, .league-table tr.rank-2 td:first-child, .league-table tr.rank-3 td:first-child { box-shadow: none; }
-      .league-table tr.rank-1 { border-color: var(--rank-1-main); } .league-table tr.rank-2 { border-color: var(--rank-2-main); } .league-table tr.rank-3 { border-color: var(--rank-3-main); }
-      .stats-table tr { grid-template-columns: repeat(4, minmax(0, 1fr)); }
-      .stats-table td:nth-child(1) { grid-column: 1; grid-row: 1; align-self: center; }
-      .stats-table td:nth-child(2) { grid-column: 2 / 5; grid-row: 1; align-self: center; font-size: var(--fs-md); font-weight: 800; overflow-wrap: anywhere; text-align: start; }
-      .stats-table td:nth-child(1)::before, .stats-table td:nth-child(2)::before { display: none; }
-      /* سجل البطولات على الهاتف: الاسم في سطر واليوم والتاريخ تحته (كانا متراكبين في نفس السطر) */
-      .stats-table td.hist-name { grid-column: 1 / -1; grid-row: 1; text-align: start; }
-      .stats-table td.hist-date { grid-column: 1 / -1; grid-row: 2; text-align: start; font-size: var(--fs-sm); font-weight: 700; color: var(--text-2); }
-      .stats-table td.hist-date::before { display: none; }
-      /* الشراكات: 6 أرقام في 3 أعمدة × سطرين (بدل 4 أعمدة تترك فراغًا)، والسجل: النظام ضيق والبطل والوصيف أعرض حتى لا تنكسر الأسماء */
-      .stats-table tr.pair-row { grid-template-columns: repeat(3, minmax(0, 1fr)); }
-      .stats-table tr.pair-row td:nth-child(2) { grid-column: 2 / 4; }
-      .stats-table tr.hist-row { grid-template-columns: minmax(0, .7fr) minmax(0, 1.65fr) minmax(0, 1.65fr); }
+
       /* البطل على الهاتف: الكأس ينتقل من جانب الاسم (كان يتشتت مع أسماء الفريق) إلى عنوان العمود الذهبي، فتتحاذى الأسماء مع الوصيف */
-      .stats-table td.hist-champ > .ic { display: none; }
-      .stats-table td.hist-champ::before { color: var(--gold-deep); font-weight: 800; }
       .lg-history-table th, .lg-history-table td { padding: 10px 4px; font-size: var(--fs-sm); }
     }
     @media (max-width: 380px) {
@@ -1582,53 +1468,9 @@
         width: 100%;
         min-width: 0;
       }
-      .league-match {
-        min-width: 0;
-        gap: 4px;
-        padding: 5px;
-        border-radius: 11px;
-      }
-      .lm-player {
-        min-width: 0;
-        min-height: 31px;
-        gap: 4px;
-        padding: 3px 5px;
-        border-radius: 7px;
-        font-size: 12px;
-        line-height: 1.2;
-      }
-      .lm-name {
-        min-width: 0;
-        overflow-wrap: anywhere;
-        word-break: normal;
-      }
-      .lm-score {
-        min-width: 23px;
-        height: 23px;
-        padding: 0 4px;
-        border-radius: 6px;
-        font-size: 12px;
-      }
-      .lm-player.winner .lm-name::before {
-        width: 10px;
-        height: 10px;
-        margin-inline-end: 3px;
-      }
-      .lm-status {
-        max-width: 100%;
-        padding: 2px 6px;
-        font-size: 10px;
-        line-height: 1.2;
-        white-space: normal;
-        text-align: center;
-      }
     }
     @media (max-width: 380px) {
       .league-matches { gap: 5px; }
-      .league-match { padding: 4px; }
-      .lm-player { font-size: 11px; padding: 3px 4px; }
-      .lm-score { min-width: 21px; height: 21px; font-size: 11px; }
-      .league-dot { min-width: 25px; height: 25px; }
     }
 
     /* ==========================================================================
@@ -1646,7 +1488,6 @@
     }
     .cycle-info b { color: var(--text); font-weight: 800; }
     .cycle-info .ic { color: var(--gold-deep); }
-    #winnerScoreLabel, #loserScoreLabel { overflow-wrap: anywhere; }
     @media (max-width: 639px) {
       /* كل اللاعبين ظاهرون على الهاتف دون صندوق تمرير داخلي يخفي آخر الأسماء */
       .players-grid { max-height: none; overflow: visible; }
@@ -1656,9 +1497,6 @@
       .cd-metric .label { font-size: 11px; line-height: 1.3; }
       .cd-metric .value { font-size: var(--fs-sm); }
       /* بطاقات الدوري المدمجة: حد أدنى مقروء دون تكبير (كانت 10–12px) */
-      .lm-player { font-size: 13px; min-height: 36px; }
-      .lm-score { min-width: 26px; height: 26px; font-size: 13px; }
-      .lm-status { font-size: 11px; }
       .league-dot { min-width: 32px; height: 32px; font-size: 12.5px; }
       .league-bye { font-size: 12px; }
       .league-round-title small { font-size: 11.5px; }
@@ -1692,38 +1530,11 @@
       .round-matches { grid-template-columns: minmax(0, 1fr); }
     }
     /* شريط التراجع السريع (أسفل الشاشة في متناول الإبهام) */
-    .quick-undo {
-      position: fixed; left: 50%; transform: translateX(-50%);
-      bottom: calc(18px + var(--safe-bottom)); z-index: 99001;
-      display: flex; align-items: center; gap: var(--s2);
-      width: max-content; max-width: calc(100vw - 24px);
-      padding: 6px 6px 6px 6px; padding-inline-start: 14px;
-      border-radius: 999px; background: var(--wood); color: var(--on-wood);
-      border: 1px solid rgba(207, 169, 99, .45); box-shadow: var(--sh-dialog);
-      font-size: var(--fs-sm); font-weight: 700;
-      animation: rise var(--t-base) var(--ease);
-    }
-    .quick-undo.above-share { bottom: calc(80px + var(--safe-bottom)); }
-    .quick-undo-text { display: inline-flex; align-items: center; gap: 6px; min-width: 0; overflow-wrap: anywhere; line-height: 1.3; }
-    .quick-undo-text .ic { color: var(--gold); }
-    .quick-undo-btn {
-      min-height: 40px; padding: 0 16px; border-radius: 999px; border: 0;
-      background: var(--gold); color: #1d1610; font: inherit; font-weight: 800;
-      display: inline-flex; align-items: center; cursor: pointer; white-space: nowrap;
-    }
-    .quick-undo-btn::before { margin-inline-end: 6px; }
-    .quick-undo-btn:disabled { opacity: .7; }
-    .quick-undo-close {
-      width: 40px; height: 40px; border-radius: 50%; border: 0; flex: 0 0 auto;
-      background: rgba(255, 255, 255, .08); color: var(--on-wood); font-size: 15px; cursor: pointer;
-    }
     .new-tournament-btn { width: 100%; }
-    #newTournamentWrap { margin: 0; }
     /* الكمبيوتر: قائمة اللاعبين تتسع لقائمة كاملة (12 + إضافة) قبل أن تحتاج تمريرًا داخليًا */
     @media (min-width: 640px) { .players-grid { max-height: min(640px, 72vh); } }
     /* اختيار سريع من اللاعبين المعروفين (الفردي والدوري): أسماء موحّدة بلمسة بدل الكتابة */
     .known-players { width: 100%; display: flex; flex-direction: column; gap: var(--s2); margin-top: var(--s2); }
-    .known-players[hidden] { display: none; }
     .kp-head { display: flex; align-items: center; justify-content: space-between; gap: var(--s2); flex-wrap: wrap; font-size: var(--fs-sm); font-weight: 700; color: var(--text-2); }
     .kp-all { min-height: 40px; padding: 0 14px; border-radius: 999px; border: 1px solid var(--gold-soft); background: rgba(207, 169, 99, .10); color: var(--text); font: inherit; font-size: var(--fs-sm); font-weight: 800; cursor: pointer; }
     .kp-all:hover { background: rgba(207, 169, 99, .2); }
@@ -1774,7 +1585,6 @@
     }
     .app-header .app-bar { position: relative; }
     .app-header .theme-switch, .app-header .control-open-btn, .header-title h2, .header-title h1 { will-change: transform; transform-origin: center; }
-    .header-title h1 { opacity: calc(1 - var(--hdr-p, 0) * 1.8); }
     .header-title h2 { transition: none; }
     /* أزرار الأوضاع: مفتاح تبديل مدمج يلتصق تحت الشريط الخشبي */
     .mode-nav { top: var(--hdr-c, 0px); padding-top: var(--s2); padding-bottom: var(--s2); z-index: 94;
@@ -1923,30 +1733,17 @@
     .celeb-sub { margin-top: 8px; font-size: 14px; color: rgba(247, 243, 234, .75); animation: rise .5s ease .7s both; }
     /* شاشة التتويج: كاملة على الجوال (الكأس والاسم في المنتصف والأزرار أسفل الشاشة بمتناول الإبهام)، وبطاقة كبيرة على الكمبيوتر */
     @media (max-width: 639px) {
-      #celebration { padding: 0; }
-      .celeb-card { width: 100%; height: 100%; border-radius: 0; border: 0; display: flex; flex-direction: column; justify-content: center;
-        padding: calc(env(safe-area-inset-top, 0px) + 40px) 24px calc(env(safe-area-inset-bottom, 0px) + 24px); }
-      .celeb-trophy { width: 128px; height: 128px; margin-bottom: 26px; }
-      .celeb-trophy::before { width: 64px; height: 64px; }
-      .celeb-label { font-size: 19px; }
-      .celeb-name { margin-top: 10px; font-size: 40px; }
       .celeb-sub { margin-top: 12px; font-size: 16px; }
-      .celeb-trophy { margin-top: auto; }   /* المسافة الفارغة تتوزع فوق الكأس وبين التفاصيل والأزرار: البطل في وسط الشاشة والأزرار أسفلها */
-      .celeb-actions { margin-top: auto; padding-top: 24px; }
-      .celeb-btn { min-height: 56px; font-size: 17px; }
+
     }
     @media (max-width: 639px) and (max-height: 640px) {   /* شاشات قصيرة (SE): أحجام أصغر قليلًا */
       .celeb-trophy { width: 100px; height: 100px; margin-bottom: 18px; } .celeb-trophy::before { width: 50px; height: 50px; }
       .celeb-name { font-size: 34px; }
     }
     @media (min-width: 640px) {
-      .celeb-card { width: 520px; padding: 44px 36px 32px; border-radius: 30px; }
-      .celeb-trophy { width: 104px; height: 104px; margin-bottom: 18px; }
-      .celeb-trophy::before { width: 54px; height: 54px; }
-      .celeb-label { font-size: 17px; } .celeb-name { font-size: 36px; } .celeb-sub { font-size: 15px; }
+.celeb-sub { font-size: 15px; }
     }
     /* الكأس: هالة ذهبية ناعمة «تتنفس» ببطء خلفه (توهج دائري يخفت ويشتد، لا شريط يتحرك) */
-    .celeb-trophy { position: relative; z-index: 0; }
     .celeb-trophy::after { content: ""; position: absolute; inset: -55%; z-index: -1; border-radius: 50%; pointer-events: none;
       background: radial-gradient(circle, rgba(240, 205, 130, .5) 0%, rgba(240, 205, 130, .18) 38%, rgba(240, 205, 130, 0) 68%);
       opacity: 0; animation: celebBreath 3.4s ease-in-out 1.4s infinite; }
@@ -1993,7 +1790,6 @@
     @keyframes lgIn { from { opacity: 0; transform: translateX(var(--dx, 0)) scale(.985); } to { opacity: 1; transform: none; } }
     .lg-enter { animation: lgIn .42s cubic-bezier(.2,.8,.2,1) both; }
 
-    .lg-prog { display: none; }
     body.lg-focus .league-stats, body.lg-focus #leagueSetupPanel .league-panel-title { display: none; }
     body.lg-focus .league-bar { height: 6px; margin-top: 2px; }
     body.lg-focus .lg-prog { display: flex; justify-content: space-between; gap: 8px; margin-top: 8px; font-size: 12.5px; font-weight: 700; color: var(--text-2); }
@@ -2001,10 +1797,8 @@
     body.dark-mode .lg-tabs { background: var(--surface); }
     body.dark-mode .lg-tabs .ind { background: var(--surface-3); box-shadow: 0 1px 3px rgba(0,0,0,.4); }
     /* تبويبا الدوري (المباريات/الترتيب) تابعان لشريط الأوضاع: نص وخط سفلي ذهبي بدل كبسولة ممتلئة، فيتضح التسلسل */
-    body.lg-focus .lg-tabs, body.dark-mode.lg-focus .lg-tabs { background: none; border: 0; border-bottom: 1px solid var(--line); border-radius: 0; padding: 0; }
     body.lg-focus .lg-tabs button { min-height: 44px; border-radius: 0; color: var(--text-3); }
     body.lg-focus .lg-tabs button[aria-selected="true"] { color: var(--text); }
-    body.lg-focus .lg-tabs .ind, body.dark-mode.lg-focus .lg-tabs .ind { top: 0; bottom: -1px; inset-inline-start: 0; width: 50%; border-radius: 0; background: none; box-shadow: none; }
     body.lg-focus .lg-tabs .ind::after { content: ""; position: absolute; bottom: 0; left: 50%; width: 64px; height: 3px; border-radius: 3px 3px 0 0; transform: translateX(-50%); background: var(--gold-deep); }
     body.lg-focus .league-round-dots { flex-wrap: nowrap; justify-content: flex-start; overflow-x: auto; scroll-snap-type: x proximity;
       padding: 4px 8px 6px; margin-inline: -8px; scrollbar-width: none; -webkit-overflow-scrolling: touch;
@@ -2021,7 +1815,6 @@
     body.lg-focus .lg-match.done { opacity: .82; transition: opacity .2s ease; }
 
     /* ترتيب مضغوط في وضع التركيز: سطر لكل لاعب، والتفاصيل في سجل اللاعب بلمسة */
-    .lgc, .lgc-legend { display: none; }
     body.lg-focus #leagueStandings .league-table-wrap, body.lg-focus #leagueStandings .league-legend { display: none; }
     body.lg-focus .lgc { display: flex; flex-direction: column; gap: 4px; }
     body.lg-focus #leagueStandings { padding-inline: 10px; }
@@ -2033,16 +1826,12 @@
       transition: transform .18s ease, background .2s ease; }
     .lgc-row:active { transform: scale(.985); }
     .lgc-row .r { display: grid; place-items: center; font-weight: 800; color: var(--text-3); font-variant-numeric: tabular-nums; }
-    .lgc-row .r .rank-badge { width: 28px; height: 28px; font-size: 13px; }
     .lgc-row .n b { display: block; font-size: 16px; font-weight: 800; line-height: 1.3; overflow-wrap: anywhere; }
     .lgc-row .n small { display: block; margin-top: 0; font-size: 11px; font-weight: 700; color: var(--text-3); }
     .lgc-row .n small .sep { display: inline-block; width: 1px; height: 9px; margin: 0 5px; background: var(--line-strong); vertical-align: -1px; }
     .lgc-row .c { font-weight: 700; color: var(--text-2); font-variant-numeric: tabular-nums; }
     .lgc-row .sd.up { color: var(--ok); } .lgc-row .sd.down { color: var(--danger, #B3402F); }
     .lgc-row .pts { font-size: 19px; font-weight: 800; color: var(--text); font-variant-numeric: tabular-nums; }
-    .lgc-row.rank-1 { background: var(--rank-1-tint); border-color: var(--rank-1-main); }
-    .lgc-row.rank-2 { background: var(--rank-2-tint); border-color: var(--rank-2-main); }
-    .lgc-row.rank-3 { background: var(--rank-3-tint); border-color: var(--rank-3-main); }
     body.lg-focus .lgc-legend { display: block; margin-top: 10px; text-align: center; font-size: 11.5px; font-weight: 700; color: var(--text-3); }
     .lgc-legend .key { display: block; line-height: 1.7; }
     .lgc-legend .hint { display: block; margin-top: 6px; font-weight: 600; opacity: .85; }
@@ -2054,20 +1843,13 @@
     html.view-mode #exportWrap, html.view-mode #clearWrap, html.view-mode #actionCapsule, html.view-mode #profileShareBtn,
     html.view-mode #exportStatsBtn, html.view-mode .tools-card, html.view-mode #controlDashboard, html.view-mode .update-bar { display: none !important; }
     html.view-mode body:has(#actionCapsule) .container { padding-bottom: var(--safe-bottom); }
-    .view-bar { display: none; }
     .pub-stale { color: var(--warn, #9A6A12); font-weight: 800; }
-    #openControlDashboard { position: relative; }
     #openControlDashboard.has-dot::after { content: ""; position: absolute; top: 6px; inset-inline-end: 6px; width: 9px; height: 9px; border-radius: 50%; background: #E0A33A; box-shadow: 0 0 0 2px rgba(48,37,31,.9); }
     html.view-mode .view-bar { display: flex; justify-content: center; margin: 8px var(--s4) -6px; padding: 0; }
     /* العمود الأيسر (إدارة اللاعبين والقرعة) فارغ في صفحة المشاهدة: لا نترك فراغه */
     html.view-mode section.main > .left { display: none !important; }
     /* زر «تم» وحده بعرض كامل (زر المشاركة مخفي في صفحة المشاهدة) */
     html.view-mode #profileModal .score-modal-actions { grid-template-columns: minmax(0, 1fr); }
-    /* ملخص الإحصائيات (التطبيق وصفحة المشاهدة): لا يبقى مربع وحيد في سطر */
-    @media (max-width: 639px) { .stats-summary > :last-child:nth-child(odd) { grid-column: 1 / -1; } }
-    @media (min-width: 640px) {
-      .stats-summary:has(> :nth-child(5):last-child) { grid-template-columns: repeat(5, minmax(0, 1fr)); }
-    }
     /* مباراة وحيدة في آخر الدور (مثل النهائي) تتوسط السطر بدل أن تلتصق بجهة — حيث تكون المباريات بعمودين */
     @media (min-width: 640px) and (max-width: 959px), (min-width: 1100px) {
       .round-matches > :last-child:nth-child(odd) { grid-column: 1 / -1; justify-self: center; width: 100%; max-width: calc(50% - var(--s3) / 2); }
@@ -2088,8 +1870,6 @@
       body.lg-focus .lg-tabs { display: none; }
       body.lg-focus .main.league-mode { grid-template-columns: minmax(0, 1fr); }   /* ملف التحكم: الدوري الجاري يأخذ العرض كله بعمودين بدل عمود فارغ */
       body.lg-focus #leagueMainPanel { flex-direction: row; align-items: flex-start; gap: var(--s5); }
-      body.lg-focus #leagueMainPanel .lv-main,
-      body.lg-focus #leagueMainPanel .lv-side { display: flex; }
       html body.lg-focus #leagueMainPanel[data-tab] #leagueProgress, html body.lg-focus #leagueMainPanel[data-tab] #leagueRounds,
       html body.lg-focus #leagueMainPanel[data-tab] #leagueStandings, html body.lg-focus #leagueMainPanel[data-tab] #leagueFinal { display: block; }
       html body.lg-focus #leagueMainPanel[data-tab] #leagueStandings:empty, html body.lg-focus #leagueMainPanel[data-tab] #leagueFinal:empty { display: none; }
@@ -2114,7 +1894,6 @@
     html.view-mode .match-status.ready::before { content: "قادمة"; font-size: 11px; }
     /* صفحة المشاهدة: لا نصوص إدارية في الحالات الفارغة، ولا بطاقة فرق فارغة */
     html.view-mode #teamsListContainer:has(#teamsContainer > .empty) { display: none !important; }
-    html.view-mode .match-card, html.view-mode .match-team, html.view-mode .lg-match { cursor: pointer; }
     /* ورقة المباراة في صفحة المشاهدة */
     .vm-round { text-align: center; font-size: var(--fs-xs); font-weight: 800; color: var(--gold-deep); margin-bottom: 6px; }
     .vm-names { display: grid; grid-template-columns: minmax(0,1fr) auto minmax(0,1fr); align-items: center; gap: 10px; text-align: center; }
@@ -2139,39 +1918,14 @@
     .vme-top .who { display: flex; flex-direction: column; align-items: flex-start; gap: 5px; min-width: 0; }
     .vme-top .who b { font-size: 18px; font-weight: 800; line-height: 1.3; overflow-wrap: anywhere; }
     .vme-top .pf-tier { padding: 2px 10px; font-size: 11.5px; }
-    .vme-stats { display: grid; grid-template-columns: repeat(var(--n, 3), minmax(0, 1fr)); width: 100%; padding: 10px 0; border: 0; border-radius: var(--r-md); background: var(--surface-2); font: inherit; color: var(--text); cursor: pointer; -webkit-tap-highlight-color: transparent; }
-    .vme-stats .c { display: flex; flex-direction: column; align-items: center; gap: 3px; padding: 0 6px; min-width: 0; }
-    .vme-stats .c + .c { border-inline-start: 1px solid var(--line); }
-    .vme-stats b { font-size: 21px; font-weight: 800; line-height: 1.15; font-variant-numeric: tabular-nums; }
-    .vme-stats b .of { font-size: 12px; font-weight: 700; color: var(--text-3); }
-    .vme-stats small { font-size: 11px; font-weight: 700; color: var(--text-3); text-align: center; line-height: 1.4; }
-    .vme-stats b.ex { font-size: 16px; color: var(--danger, #B3402F); line-height: 1.6; }
-    .vme-stats em { font-style: normal; font-weight: 800; } .vme-stats em.up { color: var(--ok); } .vme-stats em.down { color: var(--danger); }
-    .vme-head { display: grid; grid-template-columns: auto minmax(0, 1fr); align-items: center; gap: 12px; }
+
     /* الصورة الرمزية هي زر تغيير الاسم، مع شارة ⇄ صغيرة على طرفها */
     .vme-change { position: relative; flex: none; padding: 0; border: 0; background: none; cursor: pointer; border-radius: 50%; -webkit-tap-highlight-color: transparent; transition: transform .18s ease; }
     .vme-change:active { transform: scale(.94); }
     .vme-change .sw { position: absolute; bottom: -2px; inset-inline-end: -4px; display: grid; place-items: center; width: 20px; height: 20px; border-radius: 50%; background: var(--surface); border: 1px solid var(--line-strong); color: var(--text-2); }
     .vme-change .sw .ic { width: 11px; height: 11px; }
-    .vme-track { display: flex; gap: 0; overflow-x: auto; overscroll-behavior-x: contain; scroll-snap-type: x mandatory; scrollbar-width: none; -webkit-overflow-scrolling: touch; border-radius: var(--r-md); outline: none; }
-    .vme-track::-webkit-scrollbar { display: none; }
-    .vme-track > .vme-next { flex: 0 0 100%; scroll-snap-align: center; scroll-snap-stop: always; }
-    .vme-track.dragging { scroll-snap-type: none; cursor: grabbing; user-select: none; }
-    .vme-track.dragging > .vme-next { pointer-events: none; }
-    .vme-h { font-size: 11.5px; font-weight: 800; color: var(--text-3); margin-top: 2px; padding: 0 2px; }
-    .vme-next { display: flex; align-items: center; justify-content: space-between; gap: 10px; width: 100%; min-height: 54px; padding: 8px 12px; border-radius: var(--r-md); border: 1px solid var(--gold); background: var(--warn-bg); font: inherit; color: var(--text); text-align: start; cursor: pointer; -webkit-tap-highlight-color: transparent; transition: transform .18s ease; }
-    .vme-next:active { transform: scale(.985); }
-    .vme-next .t small { display: block; font-size: 11px; font-weight: 800; color: var(--gold-deep); }
-    .vme-next .t b { display: block; font-size: 15.5px; font-weight: 800; }
-    .vme-next .pct { flex: none; display: flex; flex-direction: column; align-items: center; line-height: 1.2; }
-    .vme-next .pct small { font-size: 10.5px; font-weight: 800; color: var(--text-3); }
-    .vme-next .pct bdi { font-size: 17px; font-weight: 800; }
-    .vme-none { font-size: var(--fs-xs); font-weight: 700; color: var(--text-3); padding: 2px; }
     @media (min-width: 960px) {   /* الشاشات الكبيرة: بياناتي يمينًا ومبارياتي القادمة يسارًا */
       .vme:not(.ask) { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); column-gap: var(--s5); row-gap: 8px; align-items: center; padding: 14px 16px; }
-      .vme:not(.ask) .vme-head { grid-column: 1; grid-row: 1; }
-      .vme:not(.ask) .vme-stats { grid-column: 1; grid-row: 2; }
-      .vme:not(.ask) .vme-track, .vme:not(.ask) .vme-none { grid-column: 2; grid-row: 1 / span 2; }
     }
     .vpick-h { text-align: center; margin: 0 0 4px; font-size: var(--fs-lg, 20px); }
     .vpick-sub { text-align: center; margin: 0 0 14px; font-size: var(--fs-xs); color: var(--text-3); font-weight: 700; }
@@ -2263,7 +2017,6 @@
     .lgc-row .mv.up { color: var(--ok); } .lgc-row .mv.up i { border-bottom: 6px solid currentColor; }
     .lgc-row .mv.down { color: var(--danger, #B3402F); } .lgc-row .mv.down i { border-top: 6px solid currentColor; }
     @media (max-width: 370px) {   /* الجوالات الصغيرة: نضغط الأعمدة بهدوء حتى يبقى الاسم في سطر واحد */
-      .lgc-row { padding-inline: 8px; }
       .lgc-row .n b { font-size: 15px; }
       .lgc-row .mv { font-size: 12px; }
     }
@@ -2304,7 +2057,6 @@
     .match-status.done.ff.void { background: var(--surface-3); color: var(--text-2); }
     .lgc-row.excluded .r { font-weight: 800; color: var(--text-3); }
     .lg-ff { display: flex; align-items: center; gap: 10px; margin: 2px 0 10px; }
-    .lg-ff[hidden] { display: none; }
     .lg-ff .lbl { flex: none; font-size: var(--fs-xs); font-weight: 800; color: var(--text-2); }
     .lg-ff .opts { flex: 1; display: grid; grid-template-columns: 1fr 1fr; gap: 6px; min-width: 0; }
     .lg-ff-btn { min-height: 40px; padding: 4px 8px; border-radius: var(--r-md); border: 1px dashed var(--line-strong); background: transparent; color: var(--text-2); font: inherit; font-size: 13px; font-weight: 700; line-height: 1.3; cursor: pointer; overflow-wrap: anywhere; -webkit-tap-highlight-color: transparent; transition: background .2s ease, color .2s ease, border-color .2s ease; }
@@ -2326,7 +2078,6 @@
     .vm-box h4 { margin: 0 0 8px; text-align: center; font-size: var(--fs-xs); font-weight: 800; color: var(--text-2); }
     .vm-prob { display: flex; justify-content: space-between; font-size: 18px; font-weight: 800; color: var(--text); font-variant-numeric: tabular-nums; }
     .vm-bar { display: flex; height: 10px; margin-top: 6px; border-radius: 999px; overflow: hidden; background: var(--surface-3); gap: 2px; direction: rtl; }
-    .vm-bar i { display: block; height: 100%; }
     .vm-bar .fav { background: linear-gradient(90deg, #B8893D, #8F6927); } .vm-bar .dog { background: #E3CCA0; }
     .vm-h2h { display: grid; grid-template-columns: 1fr auto 1fr; align-items: center; text-align: center; }
     .vm-h2h b { font-size: 28px; font-weight: 800; color: var(--text); font-variant-numeric: tabular-nums; }
@@ -2339,7 +2090,7 @@
     .league-table tr.rank-1 .rank-badge, .league-table tr.rank-2 .rank-badge, .league-table tr.rank-3 .rank-badge, .lgc-row .r .rank-badge {
       width: auto; height: auto; border-radius: 0; background: none; box-shadow: none; color: inherit; font-size: inherit; font-weight: inherit; }
     .rank-badge.rb-1, .league-table tr.rank-1 .rank-badge, .lgc-row.rank-1 .r, .lgc-row.rank-1 .r .rank-badge { color: var(--rk1); font-weight: 900; }
-    .rank-number { color: var(--text); font-size: var(--fs-md); }   /* أرقام المراكز أكبر قليلًا وبلون نص واضح (كل الشاشات) */
+/* أرقام المراكز أكبر قليلًا وبلون نص واضح (كل الشاشات) */
     .league-table tr.rank-1, .league-table tr.rank-2, .league-table tr.rank-3 { background: transparent; }
     .league-table tr.rank-1 td:first-child, .league-table tr.rank-2 td:first-child, .league-table tr.rank-3 td:first-child { box-shadow: none; }
     body .league-table tr.rank-1 td.lt-points, body .league-table tr.rank-2 td.lt-points, body .league-table tr.rank-3 td.lt-points,
@@ -2373,7 +2124,6 @@
     .stp-id .nm { display: block; font-size: 16px; font-weight: 800; line-height: 1.35; overflow-wrap: anywhere; }
     .stp-id .sub { display: flex; flex-wrap: wrap; align-items: center; gap: 3px 6px; margin-top: 3px; font-size: 12px; font-weight: 700; color: var(--text-2); line-height: 1.5; }
     .stp-id .sub b { color: var(--text); font-weight: 800; font-variant-numeric: tabular-nums; }
-    .stp-id .sub-l { color: var(--text-3); }
     .stp-id.solo .nm { font-size: 18px; line-height: 1.3; }   /* الاسم وحده: أكبر قليلًا ومتوسط عموديًا مع خانة الألقاب */
     .stp-id .sub .rt-delta { margin-inline-start: 0; }
     .stp-id .sub .t-caps { margin: 0; gap: 3px; }
@@ -2384,7 +2134,6 @@
       border-radius: 12px; border: 1px solid color-mix(in srgb, var(--gold) 38%, transparent); background: color-mix(in srgb, var(--gold) 9%, var(--surface)); }
     .stp-key .kv { display: inline-flex; align-items: baseline; gap: 4px; line-height: 1; direction: rtl; }
     .stp-key .kv b { font-size: 22px; font-weight: 800; color: var(--text); font-variant-numeric: tabular-nums; }
-    .stp-key .t-tot { display: inline; margin: 0; }
     .stp-key .ku, .stp-key .kl { font-size: 11px; font-weight: 800; color: var(--gold-deep); }
     .stp-key .kl { display: inline-flex; align-items: center; gap: 6px; }
     .stp-key .rt-delta { margin-inline-start: 0; font-size: 11px; }
@@ -2417,7 +2166,6 @@
     .stp .sv .lgf i { width: 14px; height: 14px; font-size: 9px; border-radius: 4px; white-space: nowrap; }
     .stp .sv .lgf i.w { color: var(--ok); } .stp .sv .lgf i.l { color: var(--danger, #B3402F); } .stp .sv .lgf i.d { color: var(--text-2); }
     .stp .sv .tr-none { display: block; height: 18px; line-height: 18px; color: var(--text-3); font-weight: 800; }
-    .stp-id .sub-tier { color: var(--gold-deep); font-weight: 800; }
     .stp-id .sub .dot { width: 3px; height: 3px; border-radius: 50%; background: var(--text-3); }
     @container stp (max-width: 359px) {
       .stp-row { padding-inline: 10px; column-gap: 8px; }
@@ -2435,10 +2183,8 @@
       .stp-head { display: grid; align-items: end; padding: 0 16px 2px; font-size: 11.5px; font-weight: 800; color: var(--text-3); }
       .stp-head .stp-rk { font-size: 11.5px; color: var(--text-3); }
       .stp-head .stp-key { min-height: 0; padding: 0; border: 0; background: none; color: var(--gold-deep); }
-      .stp-head .stp-stats { border: 0; padding: 0; }
       .stp-head .stp-g.gb { border-color: transparent; }
       .stp-head .sv i { font-size: 11.5px; font-weight: 800; color: var(--text-3); }
-      .stp-head .ga .sv i { color: var(--gold-deep); }
       .stp-row { padding: 7px 16px; min-height: 58px; }
       .stp-row .stp-key { flex-direction: row; gap: 10px; width: 100%; min-height: 42px; padding: 4px 10px; }   /* المعيار وتفصيله في سطر واحد: صف أقل ارتفاعًا */
       .stp-row .stp-key .kv b { font-size: 21px; }
@@ -2449,16 +2195,6 @@
       .stp .sv b { font-size: 16px; }
       .stp-g.gb, .stp-g.ga { align-self: stretch; align-items: center; }
       .stp-row .sv.trend .stp-trend { height: 22px; }
-    }
-    /* ملخص الإحصائيات: الإجمالي والمباريات أولًا وأبرز، ثم التفصيل حسب النوع في سطر أصغر */
-    #statsContent .stats-summary.st-sum2 { grid-template-columns: repeat(6, minmax(0, 1fr)); }
-    #statsContent .st-sum2 > .main { grid-column: span 3; }
-    #statsContent .st-sum2 > .sub { grid-column: span 2; padding-block: 8px; }
-    #statsContent .st-sum2 > .sub .value { font-size: var(--fs-lg); }
-    @media (min-width: 640px) {
-      #statsContent .stats-summary.st-sum2 { grid-template-columns: repeat(2, minmax(0, 1.35fr)) repeat(3, minmax(0, 1fr)); }
-      #statsContent .st-sum2 > .main, #statsContent .st-sum2 > .sub { grid-column: auto; }
-      #statsContent .st-sum2 > .sub { padding-block: var(--s3); }
     }
     /* ===== 3.9 — أفضل الشراكات وسجل البطولات بنفس هوية ترتيب اللاعبين ===== */
     .st-fold:not(.all) .st-extra { display: none !important; }
@@ -2502,7 +2238,6 @@
     .st-tabs button { padding: 0 6px; min-height: 36px; font-size: 13px; white-space: nowrap; }
     .st-board > h4 { margin-bottom: 10px; }
     .st-pane { margin-top: 6px; }
-    .st-pane[hidden] { display: none !important; }
     .st-pane:not(.all) .st-extra { display: none !important; }
     .st-pane.all .st-pane-more svg { transform: rotate(180deg); }
     .st-sub { margin: 0 0 10px; font-size: 12.5px; font-weight: 700; color: var(--text-3); }
@@ -2536,7 +2271,6 @@
     .st-last .score i { font-style: normal; font-size: 11.5px; font-weight: 800; color: var(--lk-gold); }
     @container stlast (max-width: 359px) { .st-last .champ { font-size: 17px; } .st-last .medal { width: 36px; height: 36px; } .st-last .medal .ic { width: 17px; height: 17px; } .st-last .score b { font-size: 20px; } .st-last-row { gap: 10px; } }
     @container stlast (min-width: 600px) {   /* الكمبيوتر: نفس الصف بعرض محدود في الوسط */
-      .st-last { padding: 14px 22px 16px; }
       .st-last .champ { font-size: 22px; } .st-last .medal { width: 48px; height: 48px; } .st-last .score b { font-size: 28px; }
     }
     /* فاصل رفيع بين بطاقة آخر بطولة والملخص (نفس خط الفصل أسفل الملخص) */
@@ -2576,7 +2310,6 @@
     .vm2-m { display: grid; grid-template-columns: minmax(0, 1fr) auto; grid-template-areas: "r p" "o p"; align-items: center; column-gap: 12px; row-gap: 1px; width: 100%; padding: 8px 12px; border-radius: 12px;
       border: 1px solid var(--line); background: var(--surface-2); font: inherit; color: var(--text); text-align: start; cursor: pointer; -webkit-tap-highlight-color: transparent; transition: transform .18s ease; }
     .vm2-m:active { transform: scale(.985); }
-    .vm2-m:first-child { border-color: color-mix(in srgb, var(--gold) 45%, transparent); background: color-mix(in srgb, var(--gold) 9%, var(--surface)); }
     .vm2-m .r { grid-area: r; font-size: 11px; font-weight: 800; color: var(--gold-deep); }
     .vm2-m .o { grid-area: o; display: flex; align-items: baseline; flex-wrap: wrap; gap: 2px 8px; min-width: 0; }
     .vm2-m .o b { font-size: 15.5px; font-weight: 800; overflow-wrap: anywhere; }
@@ -2588,36 +2321,15 @@
     .vm2-more { display: block; width: 100%; margin-top: 6px; min-height: 38px; border: 1px dashed var(--line-strong); border-radius: 12px; background: transparent; color: var(--text-2); font: inherit; font-size: 12.5px; font-weight: 800; cursor: pointer; }
     .vm2-none { font-size: 12.5px; font-weight: 700; color: var(--text-3); }
     /* أين أنا: التقدم نحو المستوى التالي، ثم الجيران، ثم الدوري */
-    .vm2-tier .t { font-size: 13px; font-weight: 700; color: var(--text-2); } .vm2-tier .t b { color: var(--text); font-weight: 800; }
-    .vm2-tier .bar { height: 6px; margin-top: 7px; border-radius: 999px; background: var(--surface-3); overflow: hidden; }
-    .vm2-tier .bar i { display: block; height: 100%; border-radius: inherit; background: linear-gradient(270deg, #E3BF6E, #B8892E); }
-    .vm2-tier .ends { display: flex; justify-content: space-between; margin-top: 4px; font-size: 10.5px; font-weight: 800; color: var(--text-3); }
-    .vm2-nb { display: flex; flex-direction: column; gap: 4px; margin-top: 10px; }
-    .vm2-nb .nb { display: flex; align-items: center; gap: 7px; font-size: 12.5px; font-weight: 700; color: var(--text-2); }
-    .vm2-nb .nb b { color: var(--text); font-weight: 800; }
-    .vm2-nb .nb i { flex: none; width: 0; height: 0; border-inline: 4.5px solid transparent; }
-    .vm2-nb .up i { border-bottom: 6px solid var(--ok); } .vm2-nb .dn i { border-top: 6px solid var(--danger, #B3402F); } .vm2-nb .top i { border-bottom: 6px solid var(--gold); }
-    .vm2-lg { display: flex; align-items: center; gap: 8px; margin-top: 10px; padding-top: 9px; border-top: 1px dashed var(--line); font-size: 13px; font-weight: 700; color: var(--text-2); }
-    .vm2-lg2 { margin-top: 4px; font-size: 12px; font-weight: 700; color: var(--text-3); } .vm2-lg2 b { color: var(--text-2); font-weight: 800; }
-    .vm2-lg b { color: var(--text); font-weight: 800; }
+
+
+
     .vm2-lg .k, .vm2-since .k { padding: 0 8px; border-radius: 999px; font-size: 11px; font-weight: 800; line-height: 1.8; color: var(--gold-deep); background: color-mix(in srgb, var(--gold) 12%, transparent); }
     .vm2-lg .sep, .vm2-since .sep { width: 1px; height: 11px; background: var(--line-strong); }
     /* أدائي الأخير */
-    .vm2-form { display: grid; grid-template-columns: 1fr 1fr; }
-    .vm2-form .cell { display: flex; flex-direction: column; align-items: center; justify-content: flex-end; gap: 4px; min-width: 0; }
-    .vm2-form .cell + .cell { border-inline-start: 1px solid var(--line); }
-    .vm2-form .cell small { font-size: 10.5px; font-weight: 800; color: var(--text-3); }
-    .vm2-form .lgf { margin: 0; gap: 3px; } .vm2-form .lgf i { width: 18px; height: 18px; font-size: 10px; }
-    .vm2-form svg { display: block; width: 100%; max-width: 140px; height: 22px; }
-    .vm2-form .none { font-weight: 800; color: var(--text-3); }
+
     .vm2-since { display: flex; flex-wrap: wrap; align-items: center; justify-content: center; gap: 4px 8px; margin-top: 10px; font-size: 12.5px; font-weight: 800; color: var(--text-2); }
     .vm2-since .up { color: var(--ok); } .vm2-since .down { color: var(--danger, #B3402F); }
-    /* الكمبيوتر: مبارياتي يمينًا (الأهم)، وأين أنا وأدائي يسارًا */
-    @container vme (min-width: 760px) {
-      .vm2-body { display: grid; grid-template-columns: minmax(0, 1.1fr) minmax(0, 1fr); column-gap: 22px; margin-top: 12px; border-top: 1px solid var(--line); }
-      .vm2-col.b { padding-inline-start: 22px; border-inline-start: 1px solid var(--line); }
-      .vm2-col > .vm2-sec:first-child { border-top: 0; }
-    }
     /* ===== 4.2 — «صفحتي» بمستويين: شريط مختصر في الصفحة الرئيسية، والصفحة الكاملة في نافذة ===== */
     .vme.v2s, .vme.v2s:not(.ask) { display: grid; grid-template-columns: auto minmax(0, 1fr); align-items: center; gap: 10px; padding: 10px 12px; }
     .vms-open { display: grid; grid-template-columns: minmax(0, 1fr) auto auto; align-items: center; gap: 12px; width: 100%; padding: 0; border: 0; background: none; font: inherit; color: var(--text); text-align: start; cursor: pointer; -webkit-tap-highlight-color: transparent; }
@@ -2636,18 +2348,7 @@
     /* داخل النافذة: بلا إطار البطاقة (النافذة هي الإطار) */
     .vme.v2.sheet { padding: 0; border: 0; box-shadow: none; background: none; }
     .vme.v2.sheet .vm2-top .vme-av { width: 42px; height: 42px; }
-    /* «خصومي وشركائي»: ثلاث خانات متجاورة بلا صندوق (نفس أسلوب «أدائي الأخير» وأشرطة الأرقام):
-       الدور بلونه ← الاسم ← السجل، يفصلها خط رفيع. أقل مساحة وأسهل نظرة. */
-    .vm2-rvs { display: grid; grid-auto-flow: column; grid-auto-columns: minmax(0, 1fr); }
-    .vm2-rv { display: flex; flex-direction: column; align-items: center; gap: 2px; padding: 0 6px; text-align: center; min-width: 0; }
-    .vm2-rv + .vm2-rv { border-inline-start: 1px solid var(--line); }
-    .vm2-rv .lb { display: inline-flex; align-items: center; gap: 4px; font-size: 11px; font-weight: 800; }
-    .vm2-rv .lb .ic { width: 11px; height: 11px; margin: 0; }
-    .vm2-rv.nem .lb { color: var(--danger, #B3402F); } .vm2-rv.vic .lb { color: var(--ok); } .vm2-rv.par .lb { color: var(--gold-deep); }
-    .vm2-rv .nm { font-size: 14.5px; font-weight: 800; line-height: 1.3; color: var(--text); overflow-wrap: anywhere; }
-    .vm2-rv .rec { font-size: 11px; font-weight: 700; color: var(--text-3); white-space: nowrap; }
-    .vm2-rv .rec b { color: var(--text-2); font-weight: 800; }
-    @container vme (max-width: 340px) { .vm2-rv .nm { font-size: 13.5px; } .vm2-rv { padding: 0 4px; } }
+
     /* ===== 4.3 — «صفحتي» بهوية واحدة: ثلاثة أحجام خط فقط (عنوان القسم · القيمة · العنوان الصغير)،
        نمط واحد للبيانات (شريط خانات يفصلها خط رفيع)، وسطر ملاحظة هادئ؛ بلا أيقونات أو أسهم زخرفية ===== */
     .vm2-cells { display: grid; grid-auto-flow: column; grid-auto-columns: minmax(0, 1fr); }
@@ -2812,14 +2513,12 @@
     .celeb-orn span { width: 6px; height: 6px; transform: rotate(45deg); background: #E3BF6E; }
     #celebration .celeb-sub { margin-top: 0; font-size: 14.5px; font-weight: 700; color: rgba(246, 238, 223, .72); animation: rise .5s ease 1.25s both; }
     #celebration .celeb-actions { width: 100%; margin-top: 0; padding-top: 28px; gap: 8px; animation: rise .5s ease 1.5s both; }
-    #celebration .celeb-btn { min-height: 50px; font-size: 16px; border-radius: 14px; }
     @media (max-height: 640px) { .celeb-stage { height: 140px; } #celebration .celeb-trophy { width: 92px; height: 92px; } #celebration .celeb-name { font-size: 32px; } }
     @media (min-width: 640px) {
       #celebration .celeb-card { width: 460px; padding: 38px 32px 26px; }
       #celebration .celeb-name { font-size: 42px; }
     }
-    /* الغبار الذهبي داخل منطقة البطاقة */
-    #celebration canvas:not(.celeb-dust) { z-index: 2; }   /* القصاصات تنبثق فوق البطاقة وتغطيها ثم تتساقط (التأثير المعتمد) */
+/* القصاصات تنبثق فوق البطاقة وتغطيها ثم تتساقط (التأثير المعتمد) */
     #celebration canvas.celeb-dust { -webkit-mask-image: radial-gradient(45% 40% at 50% 45%, #000 40%, transparent 100%); mask-image: radial-gradient(45% 40% at 50% 45%, #000 40%, transparent 100%); }
     @media (prefers-reduced-motion: reduce) {
       .celeb-rays { animation: none; opacity: 1; } .celeb-ring { display: none; }
@@ -2841,6 +2540,143 @@
     @media (min-width: 640px) { #celebration .celeb-name.long { font-size: 32px; } }
     #celebration .nw { white-space: nowrap; display: inline-block; }
     #celebration .celeb-name .pl, #celebration .celeb-stats .pl { color: #E3BF6E; -webkit-text-fill-color: #E3BF6E; }
+    /* ===== 5.2 — ملف اللاعب =====
+       رأس بصبغة لون المستوى (تذوب في سطح البطاقة) + خط علوي رفيع بلونه، والنصوص بألوانها المعتادة.
+       بقية الملف بنفس نظام «صفحتي»: أقسام يفصلها خط رفيع، عنوان يمينًا وملخص يسارًا، شريط خانات، قوائم مجمعة بفواصل رفيعة. */
+    .pf-hero { --tc: #BFB4A3; --tw: 20%; position: relative; overflow: hidden; padding: 14px 14px 10px; border-radius: 18px; text-align: start;
+      border: 1px solid color-mix(in srgb, var(--tc) 38%, var(--line));
+      background: linear-gradient(180deg, color-mix(in srgb, var(--tc) var(--tw), var(--surface)) 0%, var(--surface) 82%); }
+    .pf-hero::before { content: ""; position: absolute; inset: 0 0 auto; height: 2px; background: linear-gradient(90deg, transparent, var(--tc) 22%, var(--tc) 78%, transparent); }
+    .pf-hero.t1 { --tc: #C9925F; } .pf-hero.t2 { --tc: #A3ACB4; } .pf-hero.t3 { --tc: #6B5240; --tw: 16%; } .pf-hero.t4 { --tc: #CFA963; --tw: 24%; }
+    body.dark-mode .pf-hero { --tw: 15%; } body.dark-mode .pf-hero.t3 { --tc: #9A7656; } body.dark-mode .pf-hero.t4 { --tw: 16%; }
+    .pf-hero-top { display: grid; grid-template-columns: minmax(0, 1fr) auto; align-items: center; gap: 12px; }
+    .pf-hero .pf-name { font-size: 22px; line-height: 1.3; }
+    .pf-rt { display: flex; align-items: center; flex-wrap: wrap; gap: 6px 8px; margin-top: 4px; }
+    .pf-rt .num { font-size: 30px; font-weight: 800; line-height: 1.05; font-variant-numeric: tabular-nums; color: var(--text); }
+    .pf-rt .pf-tier { padding: 2px 11px; font-size: 12px; line-height: 1.7; }
+    .pf-rank { display: flex; flex-direction: column; align-items: center; justify-content: center; min-width: 66px; padding: 6px 10px; border-radius: 14px;
+      border: 1px solid color-mix(in srgb, var(--tc) 34%, var(--line)); background: color-mix(in srgb, var(--surface) 70%, transparent); }
+    .pf-rank b { font-size: 26px; font-weight: 800; line-height: 1.1; color: var(--text); font-variant-numeric: tabular-nums; }
+    .pf-rank small { font-size: 10.5px; font-weight: 800; color: var(--text-3); line-height: 1.3; }
+    /* التقدم نحو المستوى التالي: سطر واحد + شريط رفيع بلون المستوى القادم */
+    .pf-prog { margin-top: 12px; }
+    .pf-prog-t { display: flex; align-items: center; flex-wrap: wrap; gap: 4px 6px; margin-bottom: 7px; font-size: 12.5px; font-weight: 700; color: var(--text-2); }
+    .pf-prog-t b { color: var(--text); font-weight: 800; font-variant-numeric: tabular-nums; }
+    .pf-prog-t .pf-tier { padding: 0 9px; font-size: 11px; line-height: 1.75; }
+    .pf-bar { height: 6px; border-radius: 99px; background: color-mix(in srgb, var(--text) 9%, transparent); overflow: hidden; }
+    .pf-bar i { display: block; height: 100%; border-radius: inherit; margin-inline-start: 0; }
+    .pf-prog.n1 .pf-bar i { background: linear-gradient(90deg, #D9AE88, #B98352); }
+    .pf-prog.n2 .pf-bar i { background: linear-gradient(90deg, #C3C9CE, #8F99A2); }
+    .pf-prog.n3 .pf-bar i { background: linear-gradient(90deg, #8A6B52, #4A372A); }
+    .pf-prog.n4 .pf-bar i, .pf-prog.top .pf-bar i { background: linear-gradient(90deg, #E3C47E, #B8913F); }
+    body.dark-mode .pf-prog.n3 .pf-bar i { background: linear-gradient(90deg, #A88563, #735A45); }
+    /* مسار التقييم داخل الرأس: خط + مساحة خفيفة تحته، نقطة للحالي وحلقة ذهبية لأعلى تقييم */
+    .pf-trend { margin-top: 12px; padding-top: 10px; border-top: 1px solid color-mix(in srgb, var(--tc) 22%, var(--line)); }
+    .pf-spark-w { position: relative; height: 52px; }
+    .pf-hero .pf-spark { display: block; width: 100%; height: 52px; margin: 0; overflow: visible; }
+    .pf-spark .ln { fill: none; stroke: var(--gold-deep); stroke-width: 2.2; stroke-linejoin: round; stroke-linecap: round; }
+    .pf-spark .area { fill: color-mix(in srgb, var(--gold) 14%, transparent); }
+    .pf-dot { position: absolute; width: 8px; height: 8px; margin: -4px 0 0 -4px; border-radius: 50%; }
+    .pf-dot.last { background: var(--gold-deep); box-shadow: 0 0 0 3px var(--surface); }
+    .pf-dot.peak { width: 9px; height: 9px; margin: -4.5px 0 0 -4.5px; background: var(--surface); border: 2px solid var(--gold); }
+    .pf-trend-cap { display: flex; align-items: center; justify-content: space-between; gap: 8px; margin-top: 6px; font-size: 11.5px; font-weight: 700; color: var(--text-3); }
+    .pf-trend-cap .pk { display: inline-flex; align-items: center; gap: 5px; color: var(--text-2); font-weight: 800; font-variant-numeric: tabular-nums; white-space: nowrap; }
+    .pf-trend-cap .pk i { width: 7px; height: 7px; border-radius: 50%; border: 2px solid var(--gold); }
+    .pf-hero + .pf-excl { margin-top: var(--s3); }
+    /* الأرقام: شريط خانات تحت الرأس مباشرة */
+    .pf-nums { margin-top: 14px; }
+    .pf-nums .vm2-cells .v { font-size: 19px; }
+    .pf-nums .vm2-cells .ttl .v { color: var(--gold-deep); font-size: 21px; }
+    .pf-kinds { display: flex; align-items: center; justify-content: space-between; gap: 8px; margin-top: 10px; padding: 7px 12px; border-radius: 12px; background: var(--surface-2); border: 1px solid var(--line); }
+    .pf-kinds > span { font-size: 11.5px; font-weight: 800; color: var(--text-3); }
+    .pf-kinds .t-caps { margin: 0; gap: 5px; } .pf-kinds .t-cap { font-size: 12.5px; padding: 2px 9px 2px 7px; gap: 4px; } .pf-kinds .t-cap .ic { width: 13px; height: 13px; }
+    .pf-s { margin-top: 14px; }
+    .pf-form2 .vm2-h { align-items: center; margin-bottom: 0; }
+    .pf-form2 .pf-chips { gap: 4px; }
+    .pf-form2 .pf-chip { width: 25px; height: 25px; font-size: 12px; }
+    .pf-form2 .vm2-note { text-align: start; margin-top: 6px; }
+    /* الأرقام القياسية: شبكة 2×2 بفواصل رفيعة داخل إطار واحد */
+    .pf-recs { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); border: 1px solid var(--line); border-radius: 14px; overflow: hidden; background: var(--surface-2); }
+    .pf-rc { display: flex; flex-direction: column; gap: 1px; min-width: 0; padding: 9px 12px; }
+    .pf-rc:nth-child(2n) { border-inline-start: 1px solid var(--line); }
+    .pf-rc:nth-child(n+3) { border-top: 1px solid var(--line); }
+    .pf-rc small { font-size: 11px; font-weight: 800; color: var(--gold-deep); }
+    .pf-rc b { font-size: 16px; font-weight: 800; line-height: 1.35; color: var(--text); font-variant-numeric: tabular-nums; overflow-wrap: anywhere; }
+    .pf-rc b em { display: block; font-style: normal; font-size: 14px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .pf-trend-cap .pk.now { color: var(--gold-deep); }
+    .pf-rc span { font-size: 11px; font-weight: 700; color: var(--text-3); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    /* القوائم المجمعة: إطار واحد وفواصل رفيعة (المسيرة، المواجهات، الشركاء) */
+    .pf-group { border: 1px solid var(--line); border-radius: 14px; overflow: hidden; background: var(--surface-2); }
+    .pf-group > * + * { border-top: 1px solid var(--line); }
+    .pf-s.fold:not(.all) .pf-group > .x { display: none; }
+    .pf-tr { display: grid; grid-template-columns: 76px minmax(0, 1fr) auto; align-items: center; gap: 10px; padding: 8px 12px; }
+    .pf-res { justify-self: start; padding: 0 9px; border-radius: 999px; font-size: 11px; font-weight: 800; line-height: 1.8; white-space: nowrap; color: var(--text-3); background: color-mix(in srgb, var(--text) 6%, transparent); }
+    .pf-res.ch { background: linear-gradient(135deg, #F3DFAE, #CFA963); color: #3A2A0C; }
+    .pf-res.ru { background: linear-gradient(135deg, #F0F2F3, #C3C9CE); color: #2F353B; }
+    .pf-res.sf { color: var(--text-2); }
+    .pf-res.live { background: var(--ok-bg); color: var(--ok); }
+    .pf-tr .nm { display: flex; flex-direction: column; min-width: 0; }
+    .pf-tr .nm b { font-size: 13.5px; font-weight: 800; color: var(--text); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .pf-tr .nm small { font-size: 11px; font-weight: 700; color: var(--text-3); }
+    .pf-tr .dl { font-size: 12.5px; font-weight: 800; font-variant-numeric: tabular-nums; color: var(--text-3); min-width: 34px; text-align: end; }
+    .pf-tr .dl.up { color: var(--ok); } .pf-tr .dl.down { color: var(--danger, #B3402F); }
+    .pf-hr { display: grid; grid-template-columns: minmax(0, 1fr) auto; grid-template-areas: "w r" "b b"; align-items: center; gap: 5px 10px; padding: 8px 12px 9px; }
+    .pf-hr .who { grid-area: w; font-size: 13.5px; font-weight: 800; color: var(--text); overflow-wrap: anywhere; }
+    .pf-hr .rec { grid-area: r; font-size: 12px; font-weight: 700; color: var(--text-3); white-space: nowrap; font-variant-numeric: tabular-nums; }
+    .pf-hr .rec b { color: var(--text); font-weight: 800; } .pf-hr .rec b.w { color: var(--ok); } .pf-hr .rec b.l { color: var(--danger, #B3402F); }
+    .pf-bar2 { grid-area: b; height: 3px; border-radius: 99px; overflow: hidden; background: color-mix(in srgb, var(--danger, #B3402F) 30%, transparent); }
+    .pf-bar2 i { display: block; height: 100%; background: var(--ok); }
+    .pf-hr.par .pf-bar2 { background: color-mix(in srgb, var(--text) 9%, transparent); } .pf-hr.par .pf-bar2 i { background: var(--gold); }
+    .pf-keys .s { white-space: normal; }
+    .pf-more { margin-top: 8px; }
+    .pf-body2 + .pf-note { margin-top: 14px; }
+    /* 5.2 — بروز متدرج حسب المستوى: الثلاثة الأولى صبغة أوضح، النخبة لوحة إسبريسو كاملة، الأسطورة لوحة ذهبية كاملة */
+    .pf-hero { --tw: 30%; } .pf-hero.t1, .pf-hero.t2 { --tw: 34%; }
+    body.dark-mode .pf-hero { --tw: 20%; } body.dark-mode .pf-hero.t1, body.dark-mode .pf-hero.t2 { --tw: 22%; }
+    .pf-hero.t3, .pf-hero.t4 { --hx: #F6EEDF; --hm: rgba(246, 238, 223, .66); --hl: rgba(246, 238, 223, .16); }
+    .pf-hero.t3 { border-color: rgba(227, 191, 110, .4); background: radial-gradient(140% 120% at 85% 0%, #5A4331 0%, #35281D 52%, #221913 100%); }
+    .pf-hero.t3::before { background: linear-gradient(90deg, transparent, rgba(243, 223, 174, .75), transparent); height: 1px; }
+    .pf-hero.t4 { --hx: #2E2008; --hm: rgba(46, 32, 8, .68); --hl: rgba(46, 32, 8, .14); border-color: #C9A257;
+      background: radial-gradient(130% 120% at 85% 0%, #FBEFCF 0%, #EBCF8E 48%, #D2AC5E 100%); }
+    .pf-hero.t4::before { background: linear-gradient(90deg, transparent, rgba(255, 250, 235, .9), transparent); height: 1px; }
+    body.dark-mode .pf-hero.t4 { border-color: #B8913F; background: radial-gradient(130% 120% at 85% 0%, #F1DDA6 0%, #DDBB72 50%, #BF9748 100%); }
+    .pf-hero:is(.t3, .t4) .pf-name, .pf-hero:is(.t3, .t4) .pf-rt .num, .pf-hero:is(.t3, .t4) .pf-rank b, .pf-hero:is(.t3, .t4) .pf-prog-t b { color: var(--hx); }
+    .pf-hero:is(.t3, .t4) .pf-rank small, .pf-hero:is(.t3, .t4) .pf-prog-t, .pf-hero:is(.t3, .t4) .pf-trend-cap { color: var(--hm); }
+    .pf-hero:is(.t3, .t4) .pf-rank { border-color: var(--hl); background: color-mix(in srgb, var(--hx) 7%, transparent); }
+    .pf-hero:is(.t3, .t4) .pf-bar { background: var(--hl); }
+    .pf-hero:is(.t3, .t4) .pf-trend { border-top-color: var(--hl); }
+    .pf-hero.t3 .pf-spark .ln { stroke: #E3BF6E; } .pf-hero.t3 .pf-spark .area { fill: rgba(227, 191, 110, .16); }
+    .pf-hero.t4 .pf-spark .ln { stroke: #5C4214; } .pf-hero.t4 .pf-spark .area { fill: rgba(92, 66, 20, .12); }
+    .pf-hero.t3 .pf-dot.last { background: #E3BF6E; box-shadow: 0 0 0 3px #35281D; } .pf-hero.t4 .pf-dot.last { background: #5C4214; box-shadow: 0 0 0 3px #E6C783; }
+    .pf-hero.t3 .pf-dot.peak, .pf-hero.t3 .pf-trend-cap .pk i { background: #35281D; border-color: #E3BF6E; }
+    .pf-hero.t4 .pf-dot.peak, .pf-hero.t4 .pf-trend-cap .pk i { background: #E6C783; border-color: #5C4214; }
+    .pf-hero.t3 .pf-trend-cap .pk, .pf-hero.t3 .pf-trend-cap .pk.now { color: #E3BF6E; } .pf-hero.t4 .pf-trend-cap .pk, .pf-hero.t4 .pf-trend-cap .pk.now { color: var(--hx); }
+    .pf-hero.t3 .pf-delta.up { color: #7FD39B; } .pf-hero.t3 .pf-delta.down { color: #F09A86; }
+    .pf-hero.t4 .pf-delta.up { color: #1E6B3A; } .pf-hero.t4 .pf-delta.down { color: #8E2E1E; }
+    /* كبسولة الأسطورة فوق اللوحة الذهبية: نفس الكبسولة معكوسة (إسبريسو بنص ذهبي) حتى لا تذوب في الخلفية */
+    .pf-hero.t4 .pf-rt .pf-tier.t4 { background: linear-gradient(135deg, #4A3618, #2E2008); color: #F3DFAE; }
+    .pf-hero.t3 .pf-rt .pf-tier.t3 { background: linear-gradient(135deg, rgba(243, 223, 174, .26), rgba(243, 223, 174, .12)); color: #F3DDAC; }
+    .pf-hero.t4 .pf-prog.top .pf-bar i { background: linear-gradient(90deg, #6B4E1C, #2E2008); }
+    .pf-hero.t3 .pf-prog .pf-bar i { background: linear-gradient(90deg, #F3DFAE, #CFA963); }
+    /* دليل المستويات: رابط هادئ في طرف سطر التقدم يفتح سُلّم المستويات تحته */
+    .pf-guide-btn { display: flex; align-items: center; gap: 3px; margin: 6px 0 -4px; margin-inline-start: auto; padding: 4px 0; border: 0; background: none; font: inherit; font-size: 11.5px; font-weight: 800; color: var(--gold-deep); cursor: pointer; -webkit-tap-highlight-color: transparent; }
+    .pf-guide-btn span { display: inline-block; font-size: 14px; line-height: 1; transition: transform .25s ease; }
+    .pf-hero.guide-open .pf-guide-btn span { transform: rotate(-90deg); }
+    .pf-guide { margin-top: 10px; }
+    .pf-guide-in { padding: 9px 10px 10px; border-radius: 14px; border: 1px solid var(--hl, var(--line)); background: color-mix(in srgb, var(--hx, var(--text)) 4%, transparent); animation: pfGuideIn .28s cubic-bezier(.2, .8, .2, 1); }
+    @keyframes pfGuideIn { from { opacity: 0; transform: translateY(-6px); } to { opacity: 1; transform: none; } }
+    @media (prefers-reduced-motion: reduce) { .pf-guide-in { animation: none; } }
+    .pf-ladder { display: flex; flex-direction: column; gap: 3px; }
+    .pf-lad { display: flex; align-items: center; gap: 10px; padding: 4px 6px; border-radius: 10px; opacity: .7; }
+    .pf-lad.on { opacity: 1; background: color-mix(in srgb, var(--hx, var(--text)) 7%, transparent); }
+    .pf-lad .pf-tier { justify-content: center; min-width: 100px; padding: 0 10px; font-size: 11px; line-height: 1.75; }
+    .pf-lad .rg { font-size: 12px; font-weight: 800; color: var(--hx, var(--text)); font-variant-numeric: tabular-nums; }
+    .pf-lad .me { margin-inline-start: auto; font-size: 10.5px; font-weight: 800; color: var(--gold-deep); }
+    .pf-guide p { margin: 8px 4px 0; font-size: 11.5px; font-weight: 700; line-height: 1.65; color: var(--hm, var(--text-3)); }
+    .pf-hero.t3 .pf-guide-btn, .pf-hero.t3 .pf-lad .me { color: #E3BF6E; } .pf-hero.t4 .pf-guide-btn, .pf-hero.t4 .pf-lad .me { color: var(--hx); }
+    .pf-hero.t3 .pf-lad .pf-tier.t3 { background: linear-gradient(135deg, rgba(243, 223, 174, .26), rgba(243, 223, 174, .12)); color: #F3DDAC; }
+    .pf-hero.t4 .pf-lad .pf-tier.t4 { background: linear-gradient(135deg, #4A3618, #2E2008); color: #F3DFAE; }
+    .pf-prog-t b bdi { font-weight: 800; }
   </style>
 </head>
 <body>
@@ -6328,7 +6164,7 @@ currentScoreWinnerName = null;
       lgStandings: [['played', 'عدد المباريات'], ['wdl', 'فوز / تعادل / خسارة'], ['sets', 'الأشواط له / عليه'], ['diff', 'فارق الأشواط'], ['legend', 'سطر الشرح']],
       stats: [['titlesBy', 'الألقاب حسب النوع'], ['rating', 'التقييم'], ['runnerUps', 'الوصافة'], ['tournaments', 'المشاركات'], ['wins', 'الفوز'], ['losses', 'الخسارة'], ['winRate', 'نسبة الفوز']],
       rating: [['rating', 'التقييم'], ['tier', 'المستوى'], ['delta', 'تغيّر آخر بطولة'], ['games', 'المباريات'], ['rate', 'نسبة الفوز'], ['legend', 'دليل المستويات']],
-      profile: [['chart', 'منحنى التقييم'], ['tiles', 'البطاقات الرقمية'], ['form', 'آخر النتائج'], ['h2h', 'المواجهات المباشرة'], ['partners', 'الشركاء في الفرق']],
+      profile: [['chart', 'منحنى التقييم'], ['tiles', 'الأرقام'], ['form', 'آخر النتائج'], ['records', 'أفضل أرقامه'], ['career', 'المسيرة في البطولات'], ['h2h', 'المواجهات المباشرة'], ['partners', 'الشركاء في الفرق']],
       lgCard: [['sets', 'صفوف الأشواط'], ['last', 'آخر النتائج'], ['ach', 'الإنجازات']],
       lgCompare: [['wdl', 'فوز / تعادل / خسارة'], ['sets', 'صفوف الأشواط'], ['h2h', 'المواجهات المباشرة']],
       lgReport: [['summary', 'ملخص الدوري'], ['leaders', 'الأوائل']],
@@ -10430,6 +10266,57 @@ function buildLeagueStandingsCanvas() {
     const winPct = p => { const d = p.w + p.l; return d ? Math.round(p.w / d * 100) : 0; };
 
     // بيانات الملف الكامل — نفس منطق نافذة ملف اللاعب
+    // مسيرة اللاعب في البطولات (مشتركة بين نافذة الملف وصورة تصديره): نتيجته في كل بطولة وتغيّر تقييمه فيها، الأحدث أولًا. عرض فقط.
+    function playerCareer(name, p) {
+      const inT = t => (t.participants || []).some(s => historyMembers(t, s).includes(name)) || (t.matches || []).some(m => historyMembers(t, m.team1).includes(name) || historyMembers(t, m.team2).includes(name));
+      const has = (t, side) => !!side && historyMembers(t, side).includes(name);
+      const ptKey = x => (x.name || '') + '|' + x.date, ptIdx = {}; p.points.forEach((x, i) => { ptIdx[ptKey(x)] = i; });
+      const career = statsSourceRecords().filter(t => t && inT(t)).slice().sort((a, b) => new Date(b.date) - new Date(a.date)).map(t => {
+        const semi = (t.matches || []).some(m => String(m.roundName).includes('نصف النهائي') && (has(t, m.team1) || has(t, m.team2)));
+        const res = t.live ? ['live', 'جارية'] : has(t, t.champion) ? ['ch', 'بطل'] : has(t, t.runnerUp) ? ['ru', 'وصيف'] : semi ? ['sf', 'نصف نهائي'] : ['pt', 'مشارك'];
+        let i = ptIdx[ptKey(t)]; if (i == null && t.live) { const j = p.points.map(x => x.name).lastIndexOf(t.name); if (j >= 0) i = j; }
+        const dl = i == null ? null : p.points[i].r - (i ? p.points[i - 1].r : ELO_START);
+        return { t, res, dl, kind: t.mode === 'single' ? 'فردي' : t.mode === 'league' ? 'دوري' : 'فرق' };
+      });
+      const done = career.filter(x => !x.t.live), titles = done.filter(x => x.res[0] === 'ch');
+      const best = titles.length ? null : done.find(x => x.res[0] === 'ru') || done.find(x => x.res[0] === 'sf') || null;
+      const peak = p.points.reduce((m, x) => x.r > (m ? m.r : -Infinity) ? x : m, null);
+      // أفضل أرقامه (بنفس تعريفات سجل الأرقام): بلا هزيمة = فوز أو تعادل حتى أول خسارة · الألقاب المتتالية عبر كل الأنواع بترتيب التاريخ (في البطولات التي شارك فيها)
+      // · أكبر قفزة تقييم في بطولة مكتملة · الفوز النظيف = فوز لم يسجل فيه الخصم شوطًا (من المباريات المسجلة بنتيجة فقط)
+      let unb = 0, run = 0; p.seq.forEach(r => { run = r === 'l' ? 0 : run + 1; unb = Math.max(unb, run); });
+      let titleRun = 0, tr = 0; statsSourceRecords().filter(t => t && !t.live && inT(t)).slice().sort((a, b) => new Date(a.date) - new Date(b.date)).forEach(t => { tr = has(t, t.champion) ? tr + 1 : 0; titleRun = Math.max(titleRun, tr); });   // البطولات التي لم يشارك فيها لا تقطع السلسلة
+      const jump = done.filter(x => x.dl != null && x.dl > 0).reduce((m, x) => !m || x.dl > m.dl ? x : m, null);
+      let clean = 0; statsSourceRecords().forEach(t => (t.matches || []).forEach(m => {
+        if (m.forfeit || !has(t, m.winner)) return; const ws = Number(m.winnerScore), ls = m.loserScore;
+        if (ls !== null && ls !== undefined && ls !== '' && Number(ls) === 0 && ws > 0) clean++; }));
+      return { career, done, titles, best, peak, unb, titleRun, jump, clean };
+    }
+    const arTitlesW = n => n === 1 ? 'لقب' : n === 2 ? 'لقبان' : n <= 10 ? 'ألقاب' : 'لقبًا';
+    const arToursW = n => n === 1 ? 'بطولة' : n === 2 ? 'بطولتين' : n <= 10 ? 'بطولات' : 'بطولة';
+    const arPtsW = n => n === 1 ? 'نقطة' : n === 2 ? 'نقطتان' : n <= 10 ? 'نقاط' : 'نقطة';
+    const arMatchesW = n => n === 1 ? 'مباراة' : n === 2 ? 'مباراتان' : n <= 10 ? 'مباريات' : 'مباراة';
+    // «أفضل أرقامه» (نفس القائمة في نافذة الملف وصورة تصديره): [العنوان، القيمة، التفصيل]
+    function playerBests(p, C) {
+      const R = [];
+      R.push(['أعلى تقييم', C.peak ? C.peak.r.toLocaleString('en-US') : '—', C.peak ? C.peak.name || fmtDateNum(C.peak.date) : '']);
+      R.push(['أكبر قفزة في بطولة', C.jump ? '\u200E+' + C.jump.dl : '—', C.jump ? C.jump.t.name || '' : '']);
+      R.push(['أطول سلسلة انتصارات', p.bestWin ? (p.bestWin === 1 ? 'فوز واحد' : `${p.bestWin} ${arWinsW(p.bestWin)}`) : '—', p.bestWin > 1 ? 'متتالية' : '']);
+      R.push(['أطول سلسلة بلا هزيمة', C.unb ? `${C.unb} ${arMatchesW(C.unb)}` : '—', C.unb ? 'فوز أو تعادل' : '']);
+      if (C.titleRun > 1) R.push(['ألقاب متتالية', `${C.titleRun} ${arTitlesW(C.titleRun)}`, 'على التوالي']);
+      else if (C.titles.length) R.push(['آخر لقب', C.titles[0].t.name || C.titles[0].kind, fmtDateNum(C.titles[0].t.date)]);
+      else R.push(['أفضل نتيجة', C.best ? C.best.res[1] : '—', C.best ? C.best.t.name || '' : '']);
+      R.push(['انتصارات نظيفة', C.clean ? `${C.clean} ${arWinsW(C.clean)}` : '—', 'دون أن يسجل الخصم شوطًا']);
+      return R;
+    }
+    const arWinsW = n => n === 1 ? 'فوز' : n === 2 ? 'فوزان' : n <= 10 ? 'انتصارات' : 'انتصارًا';
+    // المستوى التالي ونسبة التقدم نحوه (نفس حساب الملف): null للأسطورة
+    function tierProgress(r) {
+      const tiers = ELO_TIERS.slice().sort((a, b) => a[0] - b[0]);
+      const ci = tiers.reduce((k, x, i) => r >= x[0] ? i : k, 0), cur = tiers[ci], nxt = tiers[ci + 1];
+      if (!nxt) return null;
+      const lo = cur[0] === -Infinity ? nxt[0] - 320 : cur[0];   // المبتدئ بلا حد أدنى: بداية بصرية على بعد 320 نقطة
+      return { level: nxt[2], name: nxt[1], need: nxt[0] - r, pct: Math.max(4, Math.min(100, Math.round((r - lo) / (nxt[0] - lo) * 100))) };
+    }
     function playerProfileData(name) {
       const elo = computePlayerRatings(), p = elo.players[name];
       if (!p || !p.games) return null;
@@ -10502,151 +10389,218 @@ function buildLeagueStandingsCanvas() {
       await downloadCanvasAsPng(canvas, 'Honor-Rating.png');
     }
 
+    // ===== 5.2 — صورة «ملف لاعب كامل»: نفس ترتيب وهوية نافذة الملف =====
+    // رأس بلون المستوى (صبغة للثلاثة الأولى، إسبريسو للنخبة، ذهب للأسطورة) + التقدم نحو المستوى التالي + مسار التقييم،
+    // ثم الأرقام ← آخر النتائج ← الأرقام القياسية ← المسيرة ← المواجهات ← الشركاء. الارتفاع يُقاس بتمريرة أولى ثم يُرسم.
     async function exportPlayerProfile(name) {
       exportChipCtx('profile', { name });
       const d = playerProfileData(name);
       if (!d) { alert('لا توجد مباريات مكتملة لهذا اللاعب بعد.'); return; }
       await exportLoadFonts();
-      const { p, elo, stats, peak } = d;
-      const B = EXPORT_BRAND, W = 1080, M = 56, CW = W - M * 2, GAPS = 26;
+      const { p, elo, stats } = d, C = playerCareer(name, p), peak = C.peak;
+      const B = EXPORT_BRAND, W = 1080, M = 56, CW = W - M * 2, GAPS = 26, TP = EXPORT_TABLE_PAD, RX = M + TP, RW = CW - 2 * TP;
       const meta = [{ icon: 'calendar', label: exportTodayLabel() }];
       const top = M + exportBrandHeaderHeight(meta) + 34;
-      const pts = [{ r: ELO_START, date: null }].concat(p.points);
       const show = exportParts('profile');
-      const hasChart = show.chart && pts.length >= 3;
-      const H2H = show.h2h ? d.h2h.slice(0, 8) : [], PARTS = show.partners ? d.parts.slice(0, 5) : [], RH = 84;
-      const HERO = 318, CHART = 380, TILE = 152, FORM = 150, SEC = 70 + 14, EXC = playerExclusions(name), EXH = 64;
-      const H = Math.ceil(top + HERO + GAPS + (EXC.length ? EXC.length * (EXH + 12) + GAPS - 12 : 0) + (hasChart ? CHART + GAPS : 0) + (show.tiles ? TILE * 2 + 16 + GAPS : 0) + (show.form ? FORM + GAPS : 0) +
-        (H2H.length ? SEC + H2H.length * RH + GAPS + 10 : 0) + (PARTS.length ? SEC + PARTS.length * RH + GAPS + 10 : 0) + 70);   // +10: حواف إطار الجدول
-      const { canvas, ctx } = exportNewCanvas(W, H);
-      exportBrandHeader(ctx, M, M, CW, tournamentName.textContent.trim() || 'بطولة المجلس للكيرم', 'ملف لاعب', meta);
-      const cuts = []; let y = top;
-      const card = (h, fill, line, r) => { drawRoundedRect(ctx, M, y, CW, h, r || 28); ctx.fillStyle = fill || B.paper; ctx.fill(); ctx.strokeStyle = line || B.line; ctx.lineWidth = 2; ctx.stroke(); };
-
-      // البطاقة الرئيسية: الاسم والتقييم والمستوى والمركز
-      const rid = rankIdentity(p.rank);
-      ctx.save(); drawRoundedRect(ctx, M, y, CW, HERO, 32);
-      const hg = ctx.createLinearGradient(0, y, 0, y + HERO); hg.addColorStop(0, B.paper); hg.addColorStop(1, rid ? rankHexToRgba(rid.main, 0.14) : B.surface2);
-      ctx.fillStyle = hg; ctx.fill(); ctx.strokeStyle = rid ? rid.main : B.lineStrong; ctx.lineWidth = rid ? 3 : 2; ctx.stroke(); ctx.restore();
-      exportText(ctx, name, M + CW / 2, y + 66, { size: 60, weight: 800, color: B.ink, maxW: CW - 120, min: 30 });
-      // صف التقييم (من اليمين): الرقم ← المستوى ← التغيير
-      const numTxt = p.rating.toLocaleString('en-US');
-      ctx.save(); ctx.font = `800 112px ${EXPORT_FONT}`; const nw = ctx.measureText(numTxt).width; ctx.font = `800 28px ${EXPORT_FONT}`; const tierW = ctx.measureText(p.tier.name).width + 28 * 0.85 * 2;
-      const dTxt = String(Math.abs(p.lastDelta || 0)); const dw = p.lastDelta ? ctx.measureText(dTxt).width + 28 : 0; ctx.restore();
-      const rowW = nw + 30 + tierW + (p.lastDelta ? 26 + dw : 0); let rx = M + CW / 2 + rowW / 2; const ry = y + 170;
-      exportText(ctx, numTxt, rx, ry, { size: 112, weight: 800, color: B.ink, align: 'right', dir: 'ltr' }); rx -= nw + 30;
-      exportTierPill(ctx, p.tier.level, p.tier.name, rx, ry + 2, 28, 'right'); rx -= tierW + 26;
-      if (p.lastDelta) exportDelta(ctx, p.lastDelta, rx - dw / 2, ry + 2, 30);
-      exportText(ctx, `المركز ${p.rank} من ${elo.ranked.length} في تقييم المجلس`, M + CW / 2, y + 262, { size: 28, weight: 700, color: B.muted, maxW: CW - 80 });
-      y += HERO + GAPS;
-      if (EXC.length) {   // سجل الاستبعاد: سطر هادئ بلون التحذير لكل دوري
-        EXC.forEach((x, i) => { drawRoundedRect(ctx, M, y, CW, EXH, 18); ctx.fillStyle = '#FBEAE6'; ctx.fill();
-          exportText(ctx, `مستبعد من ${x.name}` + (x.date ? ` · ${fmtDayDate(x.date)}` : ''), M + CW / 2, y + EXH / 2, { size: 27, weight: 800, color: '#B3402F', maxW: CW - 60, min: 16 });
-          y += EXH + (i < EXC.length - 1 ? 12 : 0); });
-        y += GAPS;
-      }
-
-      // منحنى تطور التقييم
-      if (hasChart) {
-        cuts.push(y - GAPS / 2); card(CHART);
-        exportText(ctx, 'تطور التقييم', M + CW - 30, y + 42, { size: 28, weight: 800, color: B.goldDeep, align: 'right' });
-        const first = p.points[0], last = p.points[p.points.length - 1];
-        exportText(ctx, `${arCount(p.points.length, 'بطولة', 'بطولتان', 'بطولات')} · ${exportShortDate(first.date)} – ${exportShortDate(last.date)}`, M + 30, y + 42, { size: 21, weight: 700, color: B.faint, align: 'left', maxW: CW * 0.55, min: 14 });
-        const px = M + 70, pw = CW - 140, py = y + 96, ph = CHART - 150;
-        const rs = pts.map(x => x.r), mn = Math.min(...rs, ELO_START), mx = Math.max(...rs, ELO_START), span = Math.max(40, mx - mn);
-        const lo = mn - span * 0.08, hi = mx + span * 0.12;
-        const X = i => px + pw * (i / (pts.length - 1)), Y = r => py + ph - ph * ((r - lo) / (hi - lo));
-        ctx.save(); ctx.setLineDash([6, 8]); ctx.strokeStyle = B.lineStrong; ctx.lineWidth = 2; ctx.beginPath(); ctx.moveTo(px, Y(ELO_START)); ctx.lineTo(px + pw, Y(ELO_START)); ctx.stroke(); ctx.restore();
-        exportText(ctx, '1000', px - 12, Y(ELO_START), { size: 19, weight: 700, color: B.faint, align: 'right', dir: 'ltr' });
-        const up = last.r >= ELO_START, lc = up ? B.ok : B.goldDeep;
-        ctx.save(); ctx.beginPath(); pts.forEach((q, i) => i ? ctx.lineTo(X(i), Y(q.r)) : ctx.moveTo(X(i), Y(q.r)));
-        ctx.lineTo(X(pts.length - 1), py + ph); ctx.lineTo(X(0), py + ph); ctx.closePath();
-        const ag = ctx.createLinearGradient(0, py, 0, py + ph); ag.addColorStop(0, rankHexToRgba(lc, 0.22)); ag.addColorStop(1, rankHexToRgba(lc, 0)); ctx.fillStyle = ag; ctx.fill(); ctx.restore();
-        ctx.save(); ctx.beginPath(); pts.forEach((q, i) => i ? ctx.lineTo(X(i), Y(q.r)) : ctx.moveTo(X(i), Y(q.r)));
-        ctx.strokeStyle = lc; ctx.lineWidth = 4.5; ctx.lineJoin = 'round'; ctx.lineCap = 'round'; ctx.stroke();
-        if (pts.length <= 45) pts.forEach((q, i) => { if (!i) return; ctx.beginPath(); ctx.arc(X(i), Y(q.r), 4.5, 0, Math.PI * 2); ctx.fillStyle = B.paper; ctx.fill(); ctx.lineWidth = 2.5; ctx.strokeStyle = lc; ctx.stroke(); });
-        ctx.restore();
-        // الأعلى (إن لم يكن الحالي) والحالي
-        const pi = pts.indexOf(peak);
-        if (pi > 0 && pi !== pts.length - 1 && peak.r > ELO_START) {
-          ctx.save(); ctx.beginPath(); ctx.arc(X(pi), Y(peak.r), 8, 0, Math.PI * 2); ctx.fillStyle = B.gold; ctx.fill(); ctx.restore();
-          exportText(ctx, `الأعلى ${peak.r}`, X(pi), Y(peak.r) - 28, { size: 21, weight: 800, color: B.goldDeep });
-        }
-        const lx = X(pts.length - 1), ly = Y(last.r);
-        ctx.save(); ctx.beginPath(); ctx.arc(lx, ly, 10, 0, Math.PI * 2); ctx.fillStyle = lc; ctx.fill(); ctx.lineWidth = 4; ctx.strokeStyle = B.paper; ctx.stroke(); ctx.restore();
-        exportText(ctx, String(last.r), lx, ly - 30, { size: 24, weight: 800, color: lc, dir: 'ltr' });
-        exportText(ctx, 'البداية', X(0), py + ph + 26, { size: 19, weight: 700, color: B.faint });
-        exportText(ctx, 'الآن', lx, py + ph + 26, { size: 19, weight: 700, color: B.faint });
-        y += CHART + GAPS;
-      }
-
-      // البطاقات الرقمية
-      if (show.tiles) {
-      cuts.push(y - GAPS / 2);
-      const tiles = [[stats.championships || 0, 'ألقاب', B.goldDeep, titlesBreakdown(stats)], [stats.runnerUps || 0, 'وصافة'], [winPct(p) + '%', 'نسبة الفوز', winPct(p) >= 60 ? B.ok : null], [p.games, 'مباراة'],
-        [p.w, 'فوز'], [p.l, 'خسارة', null, p.d ? (p.d === 1 ? 'وتعادل واحد' : p.d === 2 ? 'وتعادلان' : `و${p.d} ${p.d <= 10 ? 'تعادلات' : 'تعادلًا'}`) : ''], [p.bestWin, 'أطول سلسلة فوز'], [Math.max(peak.r, ELO_START).toLocaleString('en-US'), 'أعلى تقييم']];
-      const tw = (CW - 16 * 3) / 4;
-      tiles.forEach(([v, l, col, note], i) => {
-        const row = Math.floor(i / 4), k = i % 4, tx = M + CW - (k + 1) * tw - k * 16, ty = y + row * (TILE + 16);
-        if (row === 1 && k === 0) cuts.push(ty - 8);
-        drawRoundedRect(ctx, tx, ty, tw, TILE, 24); ctx.fillStyle = B.paper; ctx.fill(); ctx.strokeStyle = B.line; ctx.lineWidth = 1.6; ctx.stroke();
-        exportText(ctx, String(v), tx + tw / 2, ty + 62, { size: 52, weight: 800, color: col || B.ink, dir: 'ltr', maxW: tw - 20, min: 26 });
-        exportText(ctx, l, tx + tw / 2, ty + (note ? 108 : 116), { size: 23, weight: 700, color: B.muted, maxW: tw - 16, min: 14 });
-        if (note) exportText(ctx, note, tx + tw / 2, ty + 134, { size: 18, weight: 700, color: B.faint, maxW: tw - 16, min: 12 });
-      });
-      y += TILE * 2 + 16 + GAPS;
-      }
-
-      // آخر النتائج والسلسلة
-      if (show.form) {
-      cuts.push(y - GAPS / 2); card(FORM, B.paper, B.line, 26);
-      exportText(ctx, 'آخر النتائج', M + CW - 30, y + 50, { size: 28, weight: 800, color: B.text, align: 'right' });
-      exportText(ctx, 'الأقدم ← الأحدث', M + CW - 30, y + 88, { size: 19, weight: 700, color: B.faint, align: 'right' });
-      const recent = p.seq.slice(-5), CH = 62, CG = 12;   // زمنيًا كالكتابة: الأقدم يمينًا والأحدث يسارًا
-      let cx0 = M + 30 + recent.length * CH + (recent.length - 1) * CG;   // أول عنصر (الأقدم) في أقصى يمين المجموعة
-      recent.forEach(r => {
-        const x0 = cx0 - CH, bg = r === 'w' ? B.okBg : r === 'l' ? '#FBEAE6' : B.surface3, fg = r === 'w' ? B.ok : r === 'l' ? '#B3402F' : B.muted;
-        drawRoundedRect(ctx, x0, y + 30, CH, CH, 16); ctx.fillStyle = bg; ctx.fill();
-        exportText(ctx, r === 'w' ? 'ف' : r === 'l' ? 'خ' : 'ت', x0 + CH / 2, y + 30 + CH / 2, { size: 30, weight: 800, color: fg });
-        cx0 -= CH + CG;
-      });
-      const sTxt = profileStreakText(p);
-      exportText(ctx, `${sTxt}  ·  أطول سلسلة انتصارات: ${p.bestWin}`, M + CW / 2, y + FORM - 28, { size: 23, weight: 700, color: B.muted, maxW: CW - 60, min: 15 });
-      y += FORM + GAPS;
-      }
-
-      // صف بنسبة (مواجهة أو شراكة)
-      // الصفوف داخل إطار القسم (العنوان أعلى الإطار نفسه): إزاحة بمقدار حافة الإطار
-      const TP = EXPORT_TABLE_PAD, RX = M + TP, RW = CW - 2 * TP;
-      const listRow = (i, label, tag, rec, ratio) => {
-        if (i > 0) cuts.push(y - 5);
-        drawRoundedRect(ctx, RX, y, RW, RH - 10, 16); ctx.fillStyle = B.paper; ctx.fill(); ctx.strokeStyle = B.line; ctx.lineWidth = 1.2; ctx.stroke();
-        const cy = y + (RH - 10) / 2;
-        const t = exportText(ctx, label, RX + RW - 24, cy, { size: 29, weight: 800, color: B.ink, align: 'right', maxW: 330, min: 17 });
-        if (tag) {
-          const st = tag.kind === 'nem' ? { bg: '#FBEAE6', fg: '#B3402F', line: '#EBC3BA' } : { bg: B.okBg, fg: B.ok, line: B.okLine };
-          ctx.save(); ctx.font = `800 20px ${EXPORT_FONT}`; const w = ctx.measureText(tag.text).width + 30; ctx.restore();
-          const x1 = RX + RW - 24 - t.width - 16;
-          drawRoundedRect(ctx, x1 - w, cy - 19, w, 38, 19); ctx.fillStyle = st.bg; ctx.fill(); ctx.strokeStyle = st.line; ctx.lineWidth = 1.2; ctx.stroke();
-          exportText(ctx, tag.text, x1 - w / 2, cy, { size: 20, weight: 800, color: st.fg });
-        }
-        const bx = RX + 24, bw = 140, bh = 12;
-        exportText(ctx, rec, bx + bw + 24, cy, { size: 25, weight: 800, color: B.text, align: 'left', maxW: 250, min: 15 });
-        drawRoundedRect(ctx, bx, cy - bh / 2, bw, bh, bh / 2); ctx.fillStyle = '#F0D9D3'; ctx.fill();
-        if (ratio > 0) { drawRoundedRect(ctx, bx + bw * (1 - ratio), cy - bh / 2, bw * ratio, bh, bh / 2); ctx.fillStyle = B.ok; ctx.fill(); }
-        y += RH;
+      const ranked = elo.ranked.filter(x => x.games), EXC = playerExclusions(name);
+      const pts = [{ r: ELO_START }].concat(p.points), hasChart = show.chart && pts.length >= 3;
+      const lv = p.tier.level, prog = tierProgress(p.rating);
+      const hex = h => { const n = parseInt(h.slice(1), 16); return [(n >> 16) & 255, (n >> 8) & 255, n & 255]; };
+      const mix = (a, b, t) => { const A = hex(a), Bc = hex(b); return `rgb(${A.map((v, i) => Math.round(v * t + Bc[i] * (1 - t))).join(',')})`; };
+      const TC = ['#BFB4A3', '#C9925F', '#A3ACB4'][lv] || '#BFB4A3';
+      const HS = lv === 3 ? { ink: '#F6EEDF', muted: 'rgba(246,238,223,0.7)', hair: 'rgba(246,238,223,0.16)', line: '#E3BF6E', up: '#7FD39B', down: '#F09A86', bg: '#35281D' }
+        : lv === 4 ? { ink: '#2E2008', muted: 'rgba(46,32,8,0.72)', hair: 'rgba(46,32,8,0.16)', line: '#5C4214', up: '#1E6B3A', down: '#8E2E1E', bg: '#E6C783' }
+        : { ink: B.ink, muted: B.muted, hair: 'rgba(41,38,33,0.11)', line: B.goldDeep, up: B.ok, down: '#B3402F', bg: B.paper };
+      const T = (ctx, s, x, cy, o) => exportText(ctx, s, x, cy - exportOptDy(o.size), o);   // نص عربي على محور العنصر
+      const tw = (ctx, s, size) => { ctx.save(); ctx.font = `800 ${size}px ${EXPORT_FONT}`; const w = ctx.measureText(s).width; ctx.restore(); return w; };
+      const pill = (ctx, level, label, xr, cy, size, inv) => {   // كبسولة المستوى (xr = حافتها اليمنى)؛ inv: معكوسة فوق لوحة النخبة/الأسطورة
+        const s = inv === 4 ? { grad: ['#4A3618', '#2E2008'], fg: '#F3DFAE' } : inv === 3 ? { bg: 'rgba(243,223,174,0.2)', fg: '#F3DDAC' } : exportTierStyle(level);
+        const h = Math.round(size * 1.85), pad = Math.round(size * 0.8), w = tw(ctx, label, size) + pad * 2, x0 = xr - w;
+        ctx.save(); drawRoundedRect(ctx, x0, cy - h / 2, w, h, h / 2);
+        if (s.bg) ctx.fillStyle = s.bg; else { const g = ctx.createLinearGradient(x0, cy - h / 2, x0 + w, cy + h / 2); g.addColorStop(0, s.grad[0]); g.addColorStop(1, s.grad[1]); ctx.fillStyle = g; }
+        ctx.fill(); ctx.restore(); T(ctx, label, x0 + w / 2, cy, { size, weight: 800, color: s.fg }); return w;
       };
-      if (H2H.length) {
-        cuts.push(y - GAPS / 2); y += exportSectionBar(ctx, M, y, CW, 'المواجهات المباشرة', 'users', 'نتيجته أمام كل منافس', H2H.length * RH - 10) + TP;
-        H2H.forEach((x, i) => listRow(i, x.o, x.o === d.nem ? { kind: 'nem', text: 'غريمه' } : x.o === d.vic ? { kind: 'vic', text: 'يتفوق عليه' } : null,
-          `فاز ${x.w} · خسر ${x.l}` + (x.d ? ` · تعادل ${x.d}` : ''), x.g ? x.w / x.g : 0));
-        y += TP - 10 + GAPS;
+      const delta = (ctx, v, xr, cy, size) => {   // سهم + رقم، x = الحافة اليمنى
+        const up = v > 0, col = up ? HS.up : HS.down, s = String(Math.abs(v)), w = tw(ctx, s, size), a = size * 0.6, g = size * 0.3, left = xr - (a + g + w);
+        ctx.save(); ctx.beginPath();
+        if (up) { ctx.moveTo(left + w + g, cy + a * 0.42); ctx.lineTo(left + w + g + a, cy + a * 0.42); ctx.lineTo(left + w + g + a / 2, cy - a * 0.48); }
+        else { ctx.moveTo(left + w + g, cy - a * 0.42); ctx.lineTo(left + w + g + a, cy - a * 0.42); ctx.lineTo(left + w + g + a / 2, cy + a * 0.48); }
+        ctx.closePath(); ctx.fillStyle = col; ctx.fill(); ctx.restore();
+        exportText(ctx, s, left, cy, { size, weight: 800, color: col, align: 'left', dir: 'ltr' });
+      };
+      const bar = (ctx, x, y, w, h, pct, base, fill) => {   // يمتلئ من اليمين (اتجاه القراءة)
+        drawRoundedRect(ctx, x, y, w, h, h / 2); ctx.fillStyle = base; ctx.fill();
+        if (pct > 0) { const fw = Math.max(h, w * pct); drawRoundedRect(ctx, x + w - fw, y, fw, h, h / 2);
+          if (Array.isArray(fill)) { const g = ctx.createLinearGradient(x + w - fw, 0, x + w, 0); g.addColorStop(0, fill[0]); g.addColorStop(1, fill[1]); ctx.fillStyle = g; } else ctx.fillStyle = fill; ctx.fill(); }
+      };
+      const NEXT_FILL = { 1: ['#B98352', '#D9AE88'], 2: ['#8F99A2', '#C3C9CE'], 3: ['#4A372A', '#8A6B52'], 4: ['#B8913F', '#E3C47E'] };
+
+      function draw(ctx) {
+        const cuts = []; let y = top;
+        exportBrandHeader(ctx, M, M, CW, tournamentName.textContent.trim() || 'بطولة المجلس للكيرم', 'ملف لاعب', meta);
+        // (1) الرأس
+        const HB = 352, HERO = HB + (hasChart ? 286 : 0), P = 40;
+        ctx.save(); drawRoundedRect(ctx, M, y, CW, HERO, 34);
+        let g;
+        if (lv === 3) { g = ctx.createRadialGradient(M + CW * 0.85, y, 0, M + CW * 0.85, y, CW * 1.15); g.addColorStop(0, '#5A4331'); g.addColorStop(0.52, '#35281D'); g.addColorStop(1, '#221913'); }
+        else if (lv === 4) { g = ctx.createRadialGradient(M + CW * 0.85, y, 0, M + CW * 0.85, y, CW * 1.1); g.addColorStop(0, '#FBEFCF'); g.addColorStop(0.48, '#EBCF8E'); g.addColorStop(1, '#D2AC5E'); }
+        else { g = ctx.createLinearGradient(0, y, 0, y + HERO); g.addColorStop(0, mix(TC, B.paper, 0.32)); g.addColorStop(Math.min(0.9, 300 / HERO), B.paper); g.addColorStop(1, B.paper); }
+        ctx.fillStyle = g; ctx.fill(); ctx.clip();
+        const ag = ctx.createLinearGradient(M, 0, M + CW, 0), ac = lv === 3 ? 'rgba(243,223,174,0.8)' : lv === 4 ? 'rgba(255,250,235,0.95)' : TC;
+        ag.addColorStop(0, 'rgba(0,0,0,0)'); ag.addColorStop(0.22, ac); ag.addColorStop(0.78, ac); ag.addColorStop(1, 'rgba(0,0,0,0)'); ctx.fillStyle = ag; ctx.fillRect(M, y, CW, lv >= 3 ? 2 : 4);
+        ctx.restore();
+        ctx.save(); drawRoundedRect(ctx, M, y, CW, HERO, 34); ctx.strokeStyle = lv === 3 ? 'rgba(227,191,110,0.45)' : lv === 4 ? '#C9A257' : mix(TC, B.line, 0.5); ctx.lineWidth = 2; ctx.stroke(); ctx.restore();
+        // المركز (يسارًا)
+        const RB = { x: M + P, y: y + 40, w: 152, h: 164 };
+        ctx.save(); drawRoundedRect(ctx, RB.x, RB.y, RB.w, RB.h, 26); ctx.fillStyle = lv >= 3 ? (lv === 3 ? 'rgba(246,238,223,0.07)' : 'rgba(46,32,8,0.06)') : 'rgba(255,253,249,0.7)'; ctx.fill();
+        ctx.strokeStyle = lv >= 3 ? HS.hair : mix(TC, B.line, 0.45); ctx.lineWidth = 2; ctx.stroke(); ctx.restore();
+        T(ctx, 'المركز', RB.x + RB.w / 2, RB.y + 34, { size: 22, weight: 800, color: HS.muted });
+        exportText(ctx, String(p.rank), RB.x + RB.w / 2, RB.y + 86, { size: 64, weight: 800, color: HS.ink, dir: 'ltr' });
+        T(ctx, `من ${ranked.length}`, RB.x + RB.w / 2, RB.y + 134, { size: 22, weight: 800, color: HS.muted });
+        // الاسم والتقييم (يمينًا)
+        const XR = M + CW - P, idW = CW - P * 2 - RB.w - 30;
+        T(ctx, name, XR, y + 82, { size: 58, weight: 800, color: HS.ink, align: 'right', maxW: idW, min: 30 });
+        const num = p.rating.toLocaleString('en-US'), nw = tw(ctx, num, 100), ry = y + 172;
+        exportText(ctx, num, XR, ry, { size: 100, weight: 800, color: HS.ink, align: 'right', dir: 'ltr' });
+        let rx = XR - nw - 26; rx -= pill(ctx, lv, p.tier.name, rx, ry + 4, 28, lv >= 3 ? lv : 0) + 24;
+        if (p.lastDelta) delta(ctx, p.lastDelta, rx, ry + 4, 30);
+        // التقدم نحو المستوى التالي
+        const by = y + 300, bx = M + P, bw = CW - P * 2;
+        if (prog) {
+          const lead = `متبقٍ ${prog.need} ${arPtsW(prog.need)} للوصول إلى`, lw = tw(ctx, lead, 27);
+          T(ctx, lead, XR, y + 262, { size: 27, weight: 700, color: HS.muted, align: 'right' });
+          pill(ctx, prog.level, prog.name, XR - lw - 14, y + 262, 22, lv === 3 && prog.level === 4 ? 0 : 0);
+          bar(ctx, bx, by, bw, 14, prog.pct / 100, lv === 3 ? HS.hair : 'rgba(41,38,33,0.09)', lv === 3 ? ['#CFA963', '#F3DFAE'] : NEXT_FILL[prog.level]);
+        } else {
+          T(ctx, `أعلى مستوى في المجلس · \u200E+${(p.rating - ELO_TIERS[0][0]).toLocaleString('en-US')}\u200F فوق حد الأسطورة`, XR, y + 262, { size: 27, weight: 700, color: HS.muted, align: 'right', maxW: bw });
+          bar(ctx, bx, by, bw, 14, 1, HS.hair, lv === 4 ? ['#2E2008', '#6B4E1C'] : ['#B8913F', '#E3C47E']);
+        }
+        // مسار التقييم داخل الرأس
+        if (hasChart) {
+          ctx.save(); ctx.strokeStyle = HS.hair; ctx.lineWidth = 2; ctx.beginPath(); ctx.moveTo(bx, y + HB); ctx.lineTo(bx + bw, y + HB); ctx.stroke(); ctx.restore();
+          const cx0 = bx + 10, cw = bw - 20, cy0 = y + HB + 34, chh = 176, rs = pts.map(q => q.r), mn = Math.min(...rs), mx = Math.max(...rs), sp = Math.max(30, mx - mn);
+          const X = i => cx0 + cw * (i / (pts.length - 1)), Y = r => cy0 + chh - chh * ((r - mn) / sp);
+          ctx.save(); ctx.beginPath(); pts.forEach((q, i) => i ? ctx.lineTo(X(i), Y(q.r)) : ctx.moveTo(X(i), Y(q.r))); ctx.lineTo(X(pts.length - 1), cy0 + chh + 8); ctx.lineTo(X(0), cy0 + chh + 8); ctx.closePath();
+          const fg = ctx.createLinearGradient(0, cy0, 0, cy0 + chh); fg.addColorStop(0, rankHexToRgba(HS.line, 0.2)); fg.addColorStop(1, rankHexToRgba(HS.line, 0.02)); ctx.fillStyle = fg; ctx.fill(); ctx.restore();
+          ctx.save(); ctx.beginPath(); pts.forEach((q, i) => i ? ctx.lineTo(X(i), Y(q.r)) : ctx.moveTo(X(i), Y(q.r))); ctx.strokeStyle = HS.line; ctx.lineWidth = 4.5; ctx.lineJoin = 'round'; ctx.lineCap = 'round'; ctx.stroke(); ctx.restore();
+          const li = pts.length - 1, pi = peak ? pts.lastIndexOf(peak) : -1;
+          if (pi > 0 && pi !== li) { ctx.save(); ctx.beginPath(); ctx.arc(X(pi), Y(peak.r), 9, 0, Math.PI * 2); ctx.fillStyle = HS.bg; ctx.fill(); ctx.lineWidth = 4; ctx.strokeStyle = lv >= 3 ? HS.line : B.gold; ctx.stroke(); ctx.restore(); }
+          ctx.save(); ctx.beginPath(); ctx.arc(X(li), Y(pts[li].r), 10, 0, Math.PI * 2); ctx.fillStyle = HS.line; ctx.fill(); ctx.lineWidth = 5; ctx.strokeStyle = HS.bg; ctx.stroke(); ctx.restore();
+          const capY = y + HERO - 34, first = p.points[0];
+          T(ctx, `تطور التقييم عبر ${p.points.length} ${arToursW(p.points.length)} · منذ ${fmtDateNum(first.date)}`, XR, capY, { size: 22, weight: 700, color: HS.muted, align: 'right', maxW: bw * 0.66, min: 14 });
+          if (pi > 0 && pi !== li) {
+            const s = `الأعلى ${peak.r.toLocaleString('en-US')}`; T(ctx, s, bx + 26, capY, { size: 22, weight: 800, color: HS.ink, align: 'left' });
+            ctx.save(); ctx.beginPath(); ctx.arc(bx + 8, capY, 7, 0, Math.PI * 2); ctx.fillStyle = HS.bg; ctx.fill(); ctx.lineWidth = 3; ctx.strokeStyle = lv >= 3 ? HS.line : B.gold; ctx.stroke(); ctx.restore();
+          } else T(ctx, 'في أعلى تقييم له الآن', bx, capY, { size: 22, weight: 800, color: lv >= 3 ? HS.ink : B.goldDeep, align: 'left' });
+        }
+        y += HERO + GAPS;
+        if (EXC.length) {   // سجل الاستبعاد: سطر هادئ بلون التحذير لكل دوري
+          EXC.forEach((x, i) => { drawRoundedRect(ctx, M, y, CW, 64, 18); ctx.fillStyle = '#FBEAE6'; ctx.fill();
+            T(ctx, `مستبعد من ${x.name}` + (x.date ? ` · ${fmtDayDate(x.date)}` : ''), M + CW / 2, y + 32, { size: 27, weight: 800, color: '#B3402F', maxW: CW - 60, min: 16 });
+            y += 64 + (i < EXC.length - 1 ? 12 : 0); });
+          y += GAPS;
+        }
+        const card = h => { drawRoundedRect(ctx, M, y, CW, h, 28); ctx.fillStyle = B.paper; ctx.fill(); ctx.strokeStyle = B.line; ctx.lineWidth = 2; ctx.stroke(); };
+        const vline = (x, y1, y2) => { ctx.save(); ctx.strokeStyle = B.line; ctx.lineWidth = 2; ctx.beginPath(); ctx.moveTo(x, y1); ctx.lineTo(x, y2); ctx.stroke(); ctx.restore(); };
+        const hline = (x1, x2, yy) => { ctx.save(); ctx.strokeStyle = B.line; ctx.lineWidth = 2; ctx.beginPath(); ctx.moveTo(x1, yy); ctx.lineTo(x2, yy); ctx.stroke(); ctx.restore(); };
+        // (2) الأرقام: شريط خانات واحد + الألقاب حسب النوع
+        if (show.tiles) {
+          cuts.push(y - GAPS / 2);
+          const KR = stats.championships ? 82 : 0, NH = 152 + KR; card(NH);
+          const cells = [[stats.championships || 0, 'ألقاب', B.goldDeep], [stats.runnerUps || 0, 'وصافة'], [winPct(p) + '%', 'نسبة الفوز'], [p.games, 'مباراة']], cw = CW / 4;
+          cells.forEach(([v, l, col], i) => { const cx = M + CW - cw * (i + 0.5);
+            exportText(ctx, String(v), cx, y + 64, { size: 56, weight: 800, color: col || B.ink, dir: 'ltr', maxW: cw - 24 });
+            T(ctx, l, cx, y + 112, { size: 24, weight: 700, color: B.muted });
+            if (i) vline(M + CW - cw * i, y + 32, y + 128); });
+          if (KR) {
+            hline(M + 28, M + CW - 28, y + 152);
+            const ky = y + 152 + KR / 2; T(ctx, 'الألقاب حسب النوع', M + CW - 32, ky, { size: 23, weight: 800, color: B.muted, align: 'right' });
+            const by2 = stats.titlesBy || {}; let xr = M + 32 + 3 * 108 - 12;
+            TITLE_KINDS.forEach(([k, ic]) => { const n = by2[k] || 0, w = 96, h = 44, x0 = xr - w;
+              ctx.save(); drawRoundedRect(ctx, x0, ky - h / 2, w, h, h / 2); ctx.fillStyle = n ? 'rgba(207,169,99,0.14)' : B.surface2; ctx.fill(); ctx.strokeStyle = n ? B.walnutLine : B.line; ctx.lineWidth = 1.4; ctx.stroke(); ctx.restore();
+              const nwid = tw(ctx, String(n), 24), gw = 22 + 8 + nwid, gr = x0 + w / 2 + gw / 2;
+              exportIcon(ctx, ic, gr - 11, ky, 22, n ? B.walnut : B.faint, 2);
+              exportText(ctx, String(n), gr - 22 - 8, ky, { size: 24, weight: 800, color: n ? B.ink : B.faint, align: 'right', dir: 'ltr' });
+              xr -= 108; });
+          }
+          y += NH + GAPS;
+        }
+        // (3) آخر النتائج: العنوان والسلسلة يمينًا، والنتائج يسارًا (الأقدم يمينًا ← الأحدث يسارًا)
+        if (show.form) {
+          cuts.push(y - GAPS / 2); const FH = 132; card(FH);
+          T(ctx, 'آخر النتائج', M + CW - 32, y + 48, { size: 29, weight: 800, color: B.text, align: 'right' });
+          T(ctx, profileStreakText(p), M + CW - 32, y + 90, { size: 23, weight: 700, color: B.muted, align: 'right', maxW: CW * 0.5, min: 15 });
+          const rec = p.seq.slice(-5), CH = 60, CG = 12; let x = M + 32 + rec.length * CH + (rec.length - 1) * CG;
+          rec.forEach(r => { const x0 = x - CH, bg = r === 'w' ? B.okBg : r === 'l' ? '#FBEAE6' : B.surface3, fg = r === 'w' ? B.ok : r === 'l' ? '#B3402F' : B.muted;
+            drawRoundedRect(ctx, x0, y + (FH - CH) / 2, CH, CH, 16); ctx.fillStyle = bg; ctx.fill();
+            T(ctx, r === 'w' ? 'ف' : r === 'l' ? 'خ' : 'ت', x0 + CH / 2, y + FH / 2, { size: 29, weight: 800, color: fg }); x -= CH + CG; });
+          y += FH + GAPS;
+        }
+        // (4) أفضل أرقامه: شبكة 2×3
+        if (show.records) {
+          const recs = playerBests(p, C);
+          const rows = Math.ceil(recs.length / 2), RHc = 128, G = 10, bodyH = rows * RHc + (rows - 1) * G;
+          cuts.push(y - GAPS / 2); y += exportSectionBar(ctx, M, y, CW, 'أفضل أرقامه', 'star', null, bodyH) + TP;
+          const cw = (RW - G) / 2;
+          recs.forEach(([l, v, s], i) => { const r = Math.floor(i / 2), k = i % 2, x0 = RX + RW - (k + 1) * cw - k * G, y0 = y + r * (RHc + G);
+            drawRoundedRect(ctx, x0, y0, cw, RHc, 18); ctx.fillStyle = B.paper; ctx.fill(); ctx.strokeStyle = B.line; ctx.lineWidth = 1.2; ctx.stroke();
+            T(ctx, l, x0 + cw - 24, y0 + 32, { size: 22, weight: 800, color: B.goldDeep, align: 'right' });
+            T(ctx, v, x0 + cw - 24, y0 + 72, { size: 36, weight: 800, color: B.ink, align: 'right', maxW: cw - 48, min: 20 });
+            if (s) T(ctx, s, x0 + cw - 24, y0 + 106, { size: 20, weight: 700, color: B.faint, align: 'right', maxW: cw - 48, min: 13 }); });
+          y += bodyH + TP + GAPS;
+        }
+        // (5) المسيرة: آخر 6 بطولات
+        const listFrame = (title, icon, note, n, RH) => { cuts.push(y - GAPS / 2); y += exportSectionBar(ctx, M, y, CW, title, icon, note, n * RH - 10) + TP; };
+        const rowBox = (i, RH) => { if (i > 0) cuts.push(y - 5); drawRoundedRect(ctx, RX, y, RW, RH - 10, 16); ctx.fillStyle = B.paper; ctx.fill(); ctx.strokeStyle = B.line; ctx.lineWidth = 1.2; ctx.stroke(); };
+        if (show.career && C.career.length) {
+          const L = C.career.slice(0, 6), RH = 92, nT = C.titles.length;
+          listFrame('مسيرته في البطولات', 'trophy', nT ? `${nT} ${arTitlesW(nT)} من ${C.done.length} ${arToursW(C.done.length)}` : `${C.done.length} ${arToursW(C.done.length)}`, L.length, RH);
+          L.forEach((x, i) => { rowBox(i, RH); const cy = y + (RH - 10) / 2;
+            const RS = { ch: { grad: ['#F3DFAE', '#CFA963'], fg: '#3A2A0C' }, ru: { grad: ['#F0F2F3', '#C3C9CE'], fg: '#2F353B' }, live: { bg: B.okBg, fg: B.ok }, sf: { bg: B.surface3, fg: B.text }, pt: { bg: B.surface2, fg: B.faint } }[x.res[0]];
+            const pw = 128, ph = 42, px = RX + RW - 22 - pw;
+            ctx.save(); drawRoundedRect(ctx, px, cy - ph / 2, pw, ph, ph / 2);
+            if (RS.bg) ctx.fillStyle = RS.bg; else { const g2 = ctx.createLinearGradient(px, 0, px + pw, 0); g2.addColorStop(0, RS.grad[0]); g2.addColorStop(1, RS.grad[1]); ctx.fillStyle = g2; } ctx.fill(); ctx.restore();
+            T(ctx, x.res[1], px + pw / 2, cy, { size: 22, weight: 800, color: RS.fg, maxW: pw - 16 });
+            T(ctx, x.t.name || 'بطولة', px - 22, cy - 15, { size: 27, weight: 800, color: B.ink, align: 'right', maxW: RW - pw - 170, min: 16 });
+            T(ctx, `${fmtDateNum(x.t.date)} · ${x.kind}`, px - 22, cy + 20, { size: 20, weight: 700, color: B.faint, align: 'right' });
+            if (x.dl != null) exportText(ctx, (x.dl > 0 ? '+' : x.dl < 0 ? '−' : '') + Math.abs(x.dl), RX + 26, cy, { size: 28, weight: 800, color: x.dl > 0 ? B.ok : x.dl < 0 ? '#B3402F' : B.faint, align: 'left', dir: 'ltr' });
+            y += RH; });
+          y += TP - 10 + GAPS;
+        }
+        // (6) أبرز المواجهات: غريمه · يتفوق عليه · أفضل شريك
+        const keys = [];
+        if (show.h2h && d.nem) { const x = d.h2h.find(q => q.o === d.nem); keys.push([d.nem, 'غريمه', '#B3402F', `فاز ${x.w} · خسر ${x.l}`]); }
+        if (show.h2h && d.vic) { const x = d.h2h.find(q => q.o === d.vic); keys.push([d.vic, 'يتفوق عليه', B.ok, `فاز ${x.w} · خسر ${x.l}`]); }
+        if ((show.h2h || show.partners) && d.best) { const x = d.parts.find(q => q.o === d.best); keys.push([d.best, 'أفضل شريك', B.goldDeep, `${Math.round(x.w / x.games * 100)}% فوز`]); }
+        if (keys.length) {
+          cuts.push(y - GAPS / 2); const KH = 150; card(KH); const cw = CW / keys.length;
+          keys.forEach(([n, l, col, s], i) => { const cx = M + CW - cw * (i + 0.5);
+            T(ctx, n, cx, y + 48, { size: 31, weight: 800, color: B.ink, maxW: cw - 30, min: 16 });
+            T(ctx, l, cx, y + 88, { size: 23, weight: 800, color: col });
+            T(ctx, s, cx, y + 120, { size: 20, weight: 700, color: B.faint, maxW: cw - 24, min: 13 });
+            if (i) vline(M + CW - cw * i, y + 30, y + KH - 30); });
+          y += KH + GAPS;
+        }
+        // (7) المواجهات والشركاء: الاسم يمينًا والنتيجة يسارًا، وتحتهما شريط نسبة رفيع
+        const pairRow = (i, label, rec, ratio, base, fill) => { const RH = 92; rowBox(i, RH);
+          T(ctx, label, RX + RW - 26, y + 34, { size: 28, weight: 800, color: B.ink, align: 'right', maxW: RW * 0.5, min: 16 });
+          T(ctx, rec, RX + 26, y + 34, { size: 23, weight: 700, color: B.muted, align: 'left', maxW: RW * 0.45, min: 14 });
+          bar(ctx, RX + 26, y + 62, RW - 52, 8, ratio, base, fill); y += RH; };
+        if (show.h2h && d.h2h.length) {
+          const L = d.h2h.slice(0, 8); listFrame('المواجهات المباشرة', 'users', `${d.h2h.length} ${d.h2h.length > 2 && d.h2h.length <= 10 ? 'منافسين' : 'منافسًا'}`, L.length, 92);
+          L.forEach((x, i) => { const dec = x.w + x.l; pairRow(i, x.o, `فاز ${x.w} · خسر ${x.l}` + (x.d ? ` · تعادل ${x.d}` : ''), dec ? x.w / dec : 0.5, '#F0D9D3', B.ok); });
+          y += TP - 10 + GAPS;
+        }
+        if (show.partners && d.parts.length) {
+          const L = d.parts.slice(0, 6); listFrame('الشركاء في الفرق', 'users', `${d.parts.length} ${d.parts.length > 2 && d.parts.length <= 10 ? 'شركاء' : 'شريكًا'}`, L.length, 92);
+          L.forEach((x, i) => pairRow(i, x.o, `فاز ${x.w} من ${x.games} · \u200E${Math.round(x.w / x.games * 100)}%\u200E`, x.w / x.games, B.surface3, ['#B8913F', '#E3C47E']));
+          y += TP - 10 + GAPS;
+        }
+        return { y, cuts };
       }
-      if (PARTS.length) {
-        cuts.push(y - GAPS / 2); y += exportSectionBar(ctx, M, y, CW, 'الشركاء في الفرق', 'users', 'نتيجته مع كل شريك', PARTS.length * RH - 10) + TP;
-        PARTS.forEach((x, i) => listRow(i, x.o, x.o === d.best ? { kind: 'vic', text: 'أفضل شريك' } : null, `فاز ${x.w} من ${x.games} · ${Math.round(x.w / x.games * 100)}%`, x.w / x.games));
-        y += TP - 10 + GAPS;
-      }
+      const H = Math.ceil(draw(exportNewCanvas(W, 4).ctx).y - GAPS + 70);   // تمريرة قياس
+      const { canvas, ctx } = exportNewCanvas(W, H);
+      const { cuts } = draw(ctx);
       exportFooterDivider(ctx, M, H - 40, CW);
       canvas.__cuts = cuts;
       const fn = `Honor-Profile-${safeName(name)}.png`;
@@ -11723,70 +11677,100 @@ function buildLeagueStandingsCanvas() {
           head.appendChild(el('div', 'pf-empty', 'لا توجد مباريات مكتملة لهذا اللاعب بعد. يظهر ملفه وتقييمه بعد أول نتيجة تُسجَّل له.'));
           body.appendChild(head); modal.style.display = 'flex'; return;
         }
-        const rt = el('div', 'pf-rating');
-        rt.appendChild(el('span', 'num', p.rating.toLocaleString('en-US')));
-        { const tp = el('span', 'pf-tier t' + p.tier.level); tp.appendChild(el('span', 'tx', p.tier.name)); rt.appendChild(tp); }
-        if (p.lastDelta) rt.appendChild(el('span', 'pf-delta ' + (p.lastDelta > 0 ? 'up' : 'down'), (p.lastDelta > 0 ? '▲ ' : '▼ ') + Math.abs(p.lastDelta)));
-        head.appendChild(rt);
-        head.appendChild(el('div', 'pf-spark-cap', `المركز ${p.rank} من ${elo.ranked.length} في تقييم المجلس`));
-        const sp = spark([{ r: ELO_START }].concat(p.points)); if (sp) { head.appendChild(sp); head.appendChild(el('div', 'pf-spark-cap', `تطور التقييم عبر ${p.points.length} ${p.points.length === 1 ? 'بطولة' : 'بطولات'}`)); }
-        body.appendChild(head);
+        // ===== 5.2 — ملف اللاعب: رأس بلون المستوى ← التقدم نحو المستوى التالي ← الأرقام ← آخر النتائج ← الأرقام القياسية ← المسيرة ← المواجهات ← الشركاء =====
+        // عرض فقط: كل الأرقام من computePlayerRatings و getStatsData والسجل، بلا أي تعديل على البيانات أو التقييم
+        const H = s => String(s == null ? '' : s).replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
+        const nf = n => Number(n).toLocaleString('en-US');
+        const ptW = n => n === 1 ? 'نقطة' : n === 2 ? 'نقطتان' : n <= 10 ? 'نقاط' : 'نقطة';
+        const tourW = n => n === 1 ? 'بطولة' : n === 2 ? 'بطولتين' : n <= 10 ? 'بطولات' : 'بطولة';
+        const ranked = elo.ranked.filter(x => x.games);
+        const cap = (lv, nm) => `<span class="pf-tier t${lv}"><span class="tx">${H(nm)}</span></span>`;
+        // (1) الرأس: الاسم والتقييم والمستوى يمينًا، المركز يسارًا، ثم شريط التقدم ثم مسار التقييم
+        const tp = tierProgress(p.rating);
+        const guideBtn = '<button type="button" class="pf-guide-btn" aria-expanded="false">دليل المستويات <span aria-hidden="true">‹</span></button>';
+        // دليل المستويات: سُلّم المستويات الخمسة (الأعلى أولًا) ونطاق كل مستوى، ومستواه الحالي مميز
+        const lad = ELO_TIERS.map(([min, nm, lvl], i) => { const up = i ? ELO_TIERS[i - 1][0] - 1 : null;
+          const rng = min === -Infinity ? `أقل من <bdi dir="ltr">${nf(ELO_TIERS[i - 1][0])}</bdi>` : up == null ? `<bdi dir="ltr">${nf(min)}</bdi> فأكثر` : `<bdi dir="ltr">${nf(min)} – ${nf(up)}</bdi>`;
+          return `<div class="pf-lad${lvl === p.tier.level ? ' on' : ''}">${cap(lvl, nm)}<span class="rg">${rng}</span>${lvl === p.tier.level ? '<span class="me">مستواه</span>' : ''}</div>`; }).join('');
+        const guide = `<div class="pf-guide" hidden><div class="pf-guide-in"><div class="pf-ladder">${lad}</div><p>يبدأ كل لاعب من <bdi dir="ltr">${nf(ELO_START)}</bdi>. يرتفع التقييم بالفوز وينخفض بالخسارة، والفوز على لاعب أقوى يرفعه أكثر.</p></div></div>`;
+        let prog;
+        if (tp) {
+          prog = `<div class="pf-prog n${tp.level}"><div class="pf-prog-t"><span>متبقٍ <b>${nf(tp.need)}</b> ${ptW(tp.need)} للوصول إلى</span>${cap(tp.level, tp.name)}</div>
+            <div class="pf-bar" role="img" aria-label="${tp.pct}% من الطريق إلى ${H(tp.name)}"><i style="width:${tp.pct}%"></i></div>${guideBtn}</div>`;
+        } else {
+          const over = p.rating - ELO_TIERS[0][0];
+          prog = `<div class="pf-prog top"><div class="pf-prog-t"><span>أعلى مستوى في المجلس · <b>&lrm;+${nf(over)}&lrm;</b> فوق حد الأسطورة</span></div><div class="pf-bar"><i style="width:100%"></i></div>${guideBtn}</div>`;
+        }
+        const pts = [{ r: ELO_START }].concat(p.points);
+        const peak = p.points.reduce((m, x) => x.r > (m ? m.r : -Infinity) ? x : m, null);
+        let sparkSVG = '';
+        if (pts.length >= 2) {
+          const W = 300, Hh = 52, pad = 6, rs = pts.map(x => x.r), mn = Math.min(...rs), mx = Math.max(...rs), span = Math.max(20, mx - mn);
+          const X = i => pad + (W - pad * 2) * (i / (pts.length - 1)), Y = r => Hh - pad - (Hh - pad * 2) * ((r - mn) / span);
+          const line = pts.map((x, i) => `${X(i).toFixed(1)},${Y(x.r).toFixed(1)}`).join(' ');
+          const pi = peak ? pts.lastIndexOf(peak) : -1, li = pts.length - 1;
+          sparkSVG = `<svg class="pf-spark" viewBox="0 0 ${W} ${Hh}" preserveAspectRatio="none" aria-hidden="true">
+            <polygon points="${X(0).toFixed(1)},${Hh} ${line} ${X(li).toFixed(1)},${Hh}" class="area"/>
+            <polyline points="${line}" class="ln" vector-effect="non-scaling-stroke"/></svg>
+            <span class="pf-dot last" style="left:${(X(li) / W * 100).toFixed(2)}%;top:${(Y(pts[li].r) / Hh * 100).toFixed(2)}%"></span>
+            ${pi > 0 && pi !== li ? `<span class="pf-dot peak" style="left:${(X(pi) / W * 100).toFixed(2)}%;top:${(Y(peak.r) / Hh * 100).toFixed(2)}%"></span>` : ''}`;
+        }
+        const hero = document.createElement('div');
+        hero.className = 'pf-hero t' + p.tier.level;
+        hero.innerHTML = `<div class="pf-hero-top"><div class="pf-id"><div class="pf-name" id="pfName">${H(name)}</div>
+            <div class="pf-rt"><span class="num">${nf(p.rating)}</span>${cap(p.tier.level, p.tier.name)}${p.lastDelta ? `<span class="pf-delta ${p.lastDelta > 0 ? 'up' : 'down'}">${p.lastDelta > 0 ? '▲' : '▼'} ${Math.abs(p.lastDelta)}</span>` : ''}</div></div>
+            <div class="pf-rank"><small>المركز</small><b>${p.rank}</b><small>من ${ranked.length}</small></div></div>
+          ${prog}${guide}
+          ${sparkSVG ? `<div class="pf-trend"><div class="pf-spark-w">${sparkSVG}</div><div class="pf-trend-cap"><span>تطور التقييم عبر ${p.points.length} ${tourW(p.points.length)}</span>${peak && peak !== p.points[p.points.length - 1] ? `<span class="pk"><i></i>الأعلى ${nf(peak.r)}</span>` : peak ? '<span class="pk now">في أعلى تقييم له الآن</span>' : ''}</div></div>` : ''}`;
+        body.appendChild(hero);
+        { const gb = hero.querySelector('.pf-guide-btn'), gp = hero.querySelector('.pf-guide');
+          if (gb && gp) gb.addEventListener('click', () => { const o = gp.hidden; gp.hidden = !o; gb.setAttribute('aria-expanded', String(o)); hero.classList.toggle('guide-open', o); }); }
         playerExclusions(name).forEach(x => { const n = el('div', 'pf-excl'); n.append(el('span', 'ic ic-alert'), el('span', null, `مستبعد من ${x.name}` + (x.date ? ` · ${fmtDayDate(x.date)}` : ''))); n.firstChild.setAttribute('aria-hidden', 'true'); body.appendChild(n); });
-        const grid = el('div', 'pf-grid');
-        const decided = p.w + p.l;
-        [[stats.championships || 0, 'ألقاب', titlesBreakdown(stats)], [stats.runnerUps || 0, 'وصافة'], [decided ? Math.round(p.w / decided * 100) + '%' : '—', 'نسبة الفوز'], [p.games, 'مباراة']]
-          .forEach(([v, l]) => { const c = el('div', 'pf-stat'); c.append(el('b', null, String(v)), el('span', null, l)); grid.appendChild(c); });
-        body.appendChild(grid);
-        if (stats.championships) {   // الألقاب حسب النوع في سطر كامل تحت البطاقات (أوسع من خانة واحدة)
-          const tr = el('div', 'pf-titles'); tr.appendChild(el('span', 'lbl', 'الألقاب حسب النوع'));
-          const w = document.createElement('div'); w.innerHTML = titlesCapsHTML(stats); tr.appendChild(w.firstChild); body.appendChild(tr);
+        // (2) الأرقام: شريط خانات موحد (نفس «صفحتي»)، ثم الألقاب حسب النوع في سطر هادئ
+        const decided = p.w + p.l, sec = (h, side, inner, cls) => `<div class="vm2-sec pf-s${cls ? ' ' + cls : ''}"><div class="vm2-h"><span>${h}</span>${side ? `<small>${side}</small>` : ''}</div>${inner}</div>`;
+        const cl = (v, l, s, cls) => `<span class="cl${cls ? ' ' + cls : ''}"><b class="v">${v}</b><small class="l">${l}</small>${s ? `<span class="s">${s}</span>` : ''}</span>`;
+        let html = `<div class="pf-nums"><div class="vm2-cells">${cl(stats.championships || 0, 'ألقاب', '', 'ttl')}${cl(stats.runnerUps || 0, 'وصافة')}${cl(decided ? Math.round(p.w / decided * 100) + '%' : '—', 'نسبة الفوز')}${cl(p.games, 'مباراة')}</div>
+          ${stats.championships ? `<div class="pf-kinds"><span>الألقاب حسب النوع</span>${titlesCapsHTML(stats)}</div>` : ''}</div>`;
+        // (3) آخر النتائج: العنوان يمينًا والنتائج يسارًا (الأقدم ← الأحدث)، والسلسلة سطر هادئ تحتها
+        html += `<div class="vm2-sec pf-s pf-form2"><div class="vm2-h"><span>آخر النتائج</span><span class="pf-chips" aria-label="الأقدم إلى الأحدث">${p.seq.slice(-5).map(r => `<span class="pf-chip ${r}">${r === 'w' ? 'ف' : r === 'l' ? 'خ' : 'ت'}</span>`).join('')}</span></div><p class="vm2-note">${H(profileStreakText(p))}</p></div>`;
+        // (4) الأرقام القياسية + (5) المسيرة: من سجل البطولات (المكتملة، والجارية إن شارك فيها)
+        const C0 = playerCareer(name, p), { career, done, titles, best } = C0, kindOf = t => t.mode === 'single' ? 'فردي' : t.mode === 'league' ? 'دوري' : 'فرق';
+        const rc = (l, v, s) => `<div class="pf-rc"><small>${l}</small><b>${v}</b>${s ? `<span>${s}</span>` : ''}</div>`;
+        const recs = playerBests(p, C0).map(([l, v, s]) => rc(H(l), H(v), H(s)));
+        html += sec('أفضل أرقامه', '', `<div class="pf-recs">${recs.join('')}</div>`);
+        if (career.length) {
+          const row = (x, i) => `<div class="pf-tr${i >= 5 ? ' x' : ''}"><span class="pf-res ${x.res[0]}">${x.res[1]}</span><span class="nm"><b>${H(x.t.name || 'بطولة')}</b><small>${fmtDateNum(x.t.date)} · ${kindOf(x.t)}</small></span>${x.dl == null ? '' : `<span class="dl ${x.dl > 0 ? 'up' : x.dl < 0 ? 'down' : ''}"><bdi dir="ltr">${x.dl > 0 ? '+' : x.dl < 0 ? '−' : ''}${Math.abs(x.dl)}</bdi></span>`}</div>`;
+          html += sec('مسيرته في البطولات', titles.length ? `${titles.length} ${arTitlesW(titles.length)} من ${done.length}` : `${done.length} ${arToursW(done.length)}`,
+            `<div class="pf-group">${career.map(row).join('')}</div>${career.length > 5 ? `<button type="button" class="vm2-more pf-more" aria-expanded="false">عرض الكل (${career.length})</button>` : ''}`, 'fold');
         }
-        const form = el('div', 'pf-form');
-        { const lb = el('div', 'lbl-wrap'); lb.append(el('span', 'lbl', 'آخر النتائج'), el('span', 'pf-order', 'الأقدم ← الأحدث')); form.appendChild(lb); }
-        const chips = el('div', 'pf-chips');   // تُقرأ زمنيًا كالكتابة: الأقدم يمينًا والأحدث في آخر السطر يسارًا
-        p.seq.slice(-5).forEach(r => chips.appendChild(el('span', 'pf-chip ' + r, r === 'w' ? 'ف' : r === 'l' ? 'خ' : 'ت')));
-        form.appendChild(chips);
-        const sTxt = profileStreakText(p);
-        form.appendChild(el('div', 'pf-streak', `${sTxt} · أطول سلسلة انتصارات: ${p.bestWin}`));
-        body.appendChild(form);
-        // المواجهات المباشرة
+        // (6) المواجهات المباشرة: أبرز ثلاثة في شريط الخانات، ثم القائمة بشريط نسبة رفيع
         const h2h = Object.entries(p.h2h).map(([o, h]) => ({ o, ...h, g: h.w + h.l + h.d })).sort((a, b) => b.g - a.g || (b.w - b.l) - (a.w - a.l));
-        if (h2h.length) {
-          const enough = h2h.filter(x => x.g >= 3);
-          const nem = enough.slice().sort((a, b) => (b.l - b.w) - (a.l - a.w) || b.l - a.l)[0];
-          const vic = enough.slice().sort((a, b) => (b.w - b.l) - (a.w - a.l) || b.w - a.w)[0];
-          const sec = el('section', 'pf-sec'); sec.append(el('h4', null, 'المواجهات المباشرة'), el('p', 'pf-sub', 'نتيجته أمام كل منافس'));
-          const list = el('div', 'pf-list');
-          h2h.slice(0, 12).forEach(x => {
-            const r = el('div', 'pf-row');
-            r.appendChild(el('span', 'who', x.o));
-            if (nem && x.o === nem.o && nem.l > nem.w) r.appendChild(el('span', 'pf-tag nem', 'غريمه'));
-            else if (vic && x.o === vic.o && vic.w > vic.l) r.appendChild(el('span', 'pf-tag vic', 'يتفوق عليه'));
-            r.appendChild(el('span', 'rec', `فاز ${x.w} · خسر ${x.l}` + (x.d ? ` · تعادل ${x.d}` : '')));
-            list.appendChild(r);
-          });
-          sec.appendChild(list); body.appendChild(sec);
-        }
-        // الشركاء في الفرق
         const parts = Object.entries(p.partners).map(([o, q]) => ({ o, ...q })).sort((a, b) => b.games - a.games);
-        if (parts.length) {
-          const best = parts.filter(x => x.games >= 3 && x.w / x.games >= 0.5).sort((a, b) => b.w / b.games - a.w / a.games || b.games - a.games)[0];
-          const sec = el('section', 'pf-sec'); sec.append(el('h4', null, 'الشركاء في الفرق'), el('p', 'pf-sub', 'نتيجته مع كل شريك'));
-          const list = el('div', 'pf-list');
-          parts.slice(0, 6).forEach(x => {
-            const r = el('div', 'pf-row');
-            r.appendChild(el('span', 'who', x.o));
-            if (best && x.o === best.o) r.appendChild(el('span', 'pf-tag best', 'أفضل شريك'));
-            r.appendChild(el('span', 'rec', `فاز ${x.w} من ${x.games} · \u2066${Math.round(x.w / x.games * 100)}%\u2069`));
-            list.appendChild(r);
-          });
-          sec.appendChild(list); body.appendChild(sec);
-        }
+        const enough = h2h.filter(x => x.g >= 3);
+        const nem = enough.slice().sort((a, b) => (b.l - b.w) - (a.l - a.w) || b.l - a.l)[0];
+        const vic = enough.slice().sort((a, b) => (b.w - b.l) - (a.w - a.l) || b.w - a.w)[0];
+        const bp = parts.filter(x => x.games >= 3 && x.w / x.games >= 0.5).sort((a, b) => b.w / b.games - a.w / a.games || b.games - a.games)[0];
+        const keys = [];
+        if (nem && nem.l > nem.w) keys.push(cl(H(nem.o), 'غريمه', `فاز ${nem.w} · خسر ${nem.l}`, 'nem'));
+        if (vic && vic.w > vic.l) keys.push(cl(H(vic.o), 'يتفوق عليه', `فاز ${vic.w} · خسر ${vic.l}`, 'vic'));
+        if (bp) keys.push(cl(H(bp.o), 'أفضل شريك', `${Math.round(bp.w / bp.games * 100)}% فوز`, 'par'));
+        if (keys.length) html += `<div class="vm2-sec pf-s"><div class="vm2-cells pf-keys">${keys.join('').replace(/class="v"/g, 'class="v nm"')}</div></div>`;
+        const listSec = (title, side, rows, n) => sec(title, side, `<div class="pf-group">${rows.join('')}</div>${n > 6 ? `<button type="button" class="vm2-more pf-more" aria-expanded="false">عرض الكل (${n})</button>` : ''}`, 'fold');
+        if (h2h.length) html += listSec('المواجهات المباشرة', `${h2h.length} ${h2h.length <= 10 && h2h.length > 2 ? 'منافسين' : 'منافسًا'}`, h2h.map((x, i) => {
+          const dec = x.w + x.l, pc = dec ? Math.round(x.w / dec * 100) : 50;
+          return `<div class="pf-hr${i >= 6 ? ' x' : ''}"><span class="who">${H(x.o)}</span><span class="rec">فاز <b class="w">${x.w}</b> · خسر <b class="l">${x.l}</b>${x.d ? ` · تعادل ${x.d}` : ''}</span><span class="pf-bar2"><i style="width:${pc}%"></i></span></div>`; }), h2h.length);
+        if (parts.length) html += listSec('الشركاء في الفرق', `${parts.length} ${parts.length <= 10 && parts.length > 2 ? 'شركاء' : 'شريكًا'}`, parts.map((x, i) => {
+          const pc = Math.round(x.w / x.games * 100);
+          return `<div class="pf-hr par${i >= 6 ? ' x' : ''}"><span class="who">${H(x.o)}</span><span class="rec">فاز <b>${x.w}</b> من ${x.games} · <bdi dir="ltr">${pc}%</bdi></span><span class="pf-bar2"><i style="width:${pc}%"></i></span></div>`; }), parts.length);
+        const rest = document.createElement('div'); rest.className = 'pf-body2'; rest.innerHTML = html; body.appendChild(rest);
+        rest.querySelectorAll('.pf-more').forEach(b => b.addEventListener('click', () => { const s = b.closest('.vm2-sec'), o = !s.classList.contains('all'); s.classList.toggle('all', o); b.setAttribute('aria-expanded', String(o)); b.textContent = o ? 'عرض أقل' : b.dataset.t || b.textContent; }));
+        rest.querySelectorAll('.pf-more').forEach(b => { b.dataset.t = b.textContent; });
         { const lm = liveMatchesCount(); body.appendChild(el('div', 'pf-note', lm ? `يشمل التقييم والأرقام ${lm} ${lm === 1 ? 'مباراة' : lm === 2 ? 'مباراتين' : lm <= 10 ? 'مباريات' : 'مباراة'} من البطولة الجارية ويتحدث بعد كل نتيجة. الألقاب والمشاركات تُحتسب عند اكتمال البطولة.` : 'يتحدث التقييم تلقائيًا بعد كل نتيجة تُسجَّل.')); }
         modal.style.display = 'flex';
         modal.querySelector('.modal-content').scrollTop = 0;
       }
-      function close() { modal.style.display = 'none'; }
+      // «تم» داخل ملف أو مباراة فُتحا من «صفحتي» يرجع إليها؛ السحب للأسفل والخلفية و Esc تغلق النافذة كلها
+      function close(e) { const back = window.__pfBack; window.__pfBack = null; if (back && e && e.isTrusted) { try { back(); return; } catch (x) {} } modal.style.display = 'none'; }
       // مشاركة الملف المفتوح كصورة مباشرة (نفس صورة «ملف لاعب كامل» في مركز التصدير)
       shareBtn.addEventListener('click', () => { if (shownName) exportGuardedRun(() => exportPlayerProfile(shownName), shareBtn, 'جارٍ الإنشاء…'); });
       document.getElementById('profileCloseBtn').addEventListener('click', close);
@@ -12063,7 +12047,7 @@ function buildLeagueStandingsCanvas() {
     // ===================================
     // 🧭 سلوك التطبيق: إعادة الوضع للأعلى، تعديل العنوان بالضغط المطوّل، تنبيه التحديث، رقم الإصدار
     // ===================================
-    const APP_VERSION = '5';   // ترقيم الاعتماد: 1 ثم 1.1 … 1.9 ثم 2 — ويُرفع معه رقم الإصدار في sw.js
+    const APP_VERSION = '5.2';   // ترقيم الاعتماد: 1 ثم 1.1 … 1.9 ثم 2 — ويُرفع معه رقم الإصدار في sw.js
     (function setupAppBehaviors() {
       const root = document.documentElement;
 
@@ -12676,36 +12660,21 @@ function buildLeagueStandingsCanvas() {
           if (!mineHTML) return;
           body.innerHTML = mineHTML;
           const sheet = body.querySelector('.vme.sheet');
-          sheet.querySelectorAll('.vme-top, .vm2-key').forEach(el => el.addEventListener('click', () => { try { window.carromOpenProfile(me); } catch (e) {} }));
+          window.__pfBack = null;
+          sheet.querySelectorAll('.vme-top, .vm2-key').forEach(el => el.addEventListener('click', () => { try { const back = backToMine(); window.carromOpenProfile(me); window.__pfBack = back; } catch (e) {} }));
           const more = sheet.querySelector('.vm2-more');
           if (more) more.addEventListener('click', () => { const on = !sheet.classList.contains('all'); sheet.classList.toggle('all', on); more.setAttribute('aria-expanded', String(on)); more.textContent = on ? 'عرض أقل' : `عرض الكل (${mineNx.length})`; });
           sheet.querySelectorAll('.vm2-m').forEach(b => b.addEventListener('click', () => {
-            const m = mineNx[+b.dataset.i]; if (!m) return;
+            const m = mineNx[+b.dataset.i]; if (!m) return; const back = backToMine();
             if (currentMode !== m.mode) { const btn = document.getElementById({ league: 'modeLeagueBtn', single: 'modeSingleBtn', fixed: 'modeFixedBtn' }[m.mode]); if (btn) btn.click(); }
             if (m.mode === 'league') openLeagueScoreModal(m.id); else selectWinner(m.id);   // ورقة المباراة تحل محل «صفحتي» في نفس النافذة
+            window.__pfBack = back;   // «تم» يرجع إلى «صفحتي»
           }));
           modal.style.display = 'flex'; modal.querySelector('.modal-content').scrollTop = 0;
         }
         window.carromOpenMine = openMine;
-        // شريط المباريات القادمة: سحب أفقي أصلي بالتثبيت على كل بطاقة (اللمس ولوحة اللمس)، وسحب بالماوس على الكمبيوتر
-        function setupTrack(track, n) {
-          const w = () => track.clientWidth || 1;
-          const idx = () => Math.round(Math.abs(track.scrollLeft) / w());
-          const go = (i, smooth) => { i = Math.max(0, Math.min(n - 1, i)); const x = i * w() * (getComputedStyle(track).direction === 'rtl' ? -1 : 1);
-            track.scrollTo({ left: x, behavior: smooth && !(window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches) ? 'smooth' : 'auto' }); };
-          requestAnimationFrame(() => go(Math.min(slide, n - 1), false));
-          let t = 0; track.addEventListener('scroll', () => { clearTimeout(t); t = setTimeout(() => { slide = idx(); }, 120); }, { passive: true });
-          // الماوس: اضغط واسحب (بدون أي أزرار إضافية)
-          let down = null;
-          track.addEventListener('pointerdown', e => { if (e.pointerType !== 'mouse' || e.button !== 0) return; down = { x: e.clientX, left: track.scrollLeft, i: idx(), moved: false }; track.dataset.dragged = ''; });
-          window.addEventListener('pointermove', e => { if (!down) return; const dx = e.clientX - down.x; if (Math.abs(dx) > 4) { down.moved = true; track.classList.add('dragging'); } if (down.moved) track.scrollLeft = down.left - dx; });
-          window.addEventListener('pointerup', e => { if (!down) return; const d = down; down = null; track.classList.remove('dragging');
-            if (!d.moved) return; track.dataset.dragged = '1'; setTimeout(() => { track.dataset.dragged = ''; }, 0);
-            const dx = e.clientX - d.x, step = Math.abs(dx) > w() * 0.18 ? 1 : 0;
-            // RTL: السحب لليمين يظهر المباراة التالية
-            go(d.i + (dx > 0 ? step : -step), true); });
-          track.addEventListener('keydown', e => { if (e.key === 'ArrowLeft') { e.preventDefault(); go(idx() + 1, true); } if (e.key === 'ArrowRight') { e.preventDefault(); go(idx() - 1, true); } });
-        }
+        // الرجوع إلى «صفحتي» في نفس موضع التمرير الذي غادرها منه
+        function backToMine() { const mc = modal.querySelector('.modal-content'), y = mc.scrollTop; return () => { openMine(); mc.scrollTop = y; }; }
         function openPicker() {
           const names = allNames();
           body.innerHTML = `<div class="vm-round">صفحتي</div><h3 class="vpick-h">من أنت؟</h3><p class="vpick-sub">يُحفظ اختيارك على جهازك فقط، ويمكنك تغييره في أي وقت.</p>
