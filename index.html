@@ -10487,7 +10487,7 @@ function buildLeagueStandingsCanvas() {
       { k: 'all', ic: 'star', name: 'لقب في كل الأنواع', how: 'لقب واحد على الأقل في الفردي والفرق والدوري' },
       { k: 'duo', ic: 'users', name: 'الثنائي الذهبي', how: 'لقبان أو أكثر في بطولات الفرق مع نفس الشريك' },
       { k: 'hold', ic: 'crown', name: 'حامل رقم قياسي', how: 'يحمل الآن رقمًا في سجل أرقام المجلس. ينتقل لمن يكسر الرقم', kind: 'hold' },
-      { k: 'peak', ic: 'medal', name: 'بلغ الأسطورة / النخبة', how: 'وصل تقييمه يومًا إلى 1,200 أو 1,120. يظهر إذا كان مستواه الآن أقل مما بلغه', kind: 'peak' }
+      { k: 'peak', ic: 'medal', name: 'بلغ الأسطورة / النخبة', how: 'وصل تقييمه يومًا إلى 1,200 (الأسطورة) أو 1,120 (النخبة)، ويبقى الوسام حتى لو نزل مستواه', kind: 'peak' }
     ];
     // recs: نتيجة councilRecords() (اختياري، لحامل الرقم)
     function playerHonors(p, stats, C, recs) {
@@ -10501,8 +10501,8 @@ function buildLeagueStandingsCanvas() {
       const held = (recs || []).filter(r => r.holders.includes(p.name));
       if (held.length) H.push({ k: 'hold', ic: 'crown', t: held.length === 1 ? 'حامل رقم قياسي' : `حامل ${held.length} ${held.length === 2 ? 'رقمين قياسيين' : held.length <= 10 ? 'أرقام قياسية' : 'رقمًا قياسيًا'}`, s: held.length === 1 ? held[0].label : '', lv: 'h' });
       const pk = C.peak ? C.peak.r : 0;
-      if (pk >= 1200 && p.tier.level < 4) H.push({ k: 'peak', ic: 'medal', t: 'بلغ الأسطورة', s: `أعلى تقييم ${pk.toLocaleString('en-US')}`, lv: 'g' });
-      else if (pk >= 1120 && p.tier.level < 3) H.push({ k: 'peak', ic: 'medal', t: 'بلغ النخبة', s: `أعلى تقييم ${pk.toLocaleString('en-US')}`, lv: 's' });
+      if (pk >= 1200) H.push({ k: 'peak', ic: 'medal', t: 'بلغ الأسطورة', s: `أعلى تقييم ${pk.toLocaleString('en-US')}`, lv: 'g' });
+      else if (pk >= 1120) H.push({ k: 'peak', ic: 'medal', t: 'بلغ النخبة', s: `أعلى تقييم ${pk.toLocaleString('en-US')}`, lv: 's' });
       return H;
     }
     const honorTileHTML = (x, esc) => `<div class="hn ${x.lv}"><span class="md" aria-hidden="true"><span class="ic ic-${x.ic}"></span></span><b class="t">${esc(x.t)}</b>${x.s ? `<span class="s">${esc(x.s)}</span>` : ''}</div>`;
@@ -12329,7 +12329,7 @@ function buildLeagueStandingsCanvas() {
     // ===================================
     // 🧭 سلوك التطبيق: إعادة الوضع للأعلى، تعديل العنوان بالضغط المطوّل، تنبيه التحديث، رقم الإصدار
     // ===================================
-    const APP_VERSION = '5.5';   // ترقيم الاعتماد: 1 ثم 1.1 … 1.9 ثم 2 — ويُرفع معه رقم الإصدار في sw.js
+    const APP_VERSION = '5.6';   // ترقيم الاعتماد: 1 ثم 1.1 … 1.9 ثم 2 — ويُرفع معه رقم الإصدار في sw.js
     (function setupAppBehaviors() {
       const root = document.documentElement;
 
