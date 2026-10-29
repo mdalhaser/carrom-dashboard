@@ -2223,8 +2223,12 @@
     .sth-champ b { font-weight: 800; color: var(--text); overflow-wrap: anywhere; }
     .sth-champ .ic { flex: none; width: 15px; height: 15px; margin: 0; color: var(--gold-deep); }
     .sth-sc { grid-area: sc; align-self: center; justify-self: end; font-size: 15px; font-weight: 800; color: var(--text); font-variant-numeric: tabular-nums; white-space: nowrap; }
-    .sth-ru { grid-area: ru; min-width: 0; padding-inline-start: 22px; font-size: 13px; font-weight: 700; line-height: 1.4; color: var(--text-2); overflow-wrap: anywhere; }
-    .sth-ru .l { margin-inline-end: 6px; font-size: 12px; color: var(--text-3); }
+    /* الوصيف: ميدالية فضية ناعمة في نفس عمود كأس البطل (بدل كلمة «الوصيف» الملاصقة للاسم) */
+    .sth-ru { grid-area: ru; display: flex; align-items: center; gap: 7px; min-width: 0; font-size: 13px; font-weight: 700; line-height: 1.4; color: var(--text-2); }
+    .sth-ru .ic { flex: none; width: 15px; height: 15px; margin: 0; color: #9AA3AD; }
+    body.dark-mode .sth-ru .ic { color: #B4BCC3; }
+    .sth-ru .n { min-width: 0; overflow-wrap: anywhere; }
+    .sth-ru .pl { color: var(--text-3); }   /* «+» الوصيف هادئ؛ الذهبي للبطل وحده */
     .sth-mode { flex: none; display: inline-flex; align-items: center; gap: 4px; padding: 1px 9px; border-radius: 999px; font-size: 11.5px; font-weight: 800; line-height: 1.7; white-space: nowrap;
       color: var(--gold-deep); background: color-mix(in srgb, var(--gold) 10%, transparent); border: 1px solid color-mix(in srgb, var(--gold) 35%, transparent); }
     .sth-mode .ic { width: 11px; height: 11px; margin: 0; }
@@ -2591,6 +2595,10 @@
     .cr-tag { margin-top: 3px; padding: 0 8px; border-radius: 999px; font-size: 10.5px; font-weight: 800; line-height: 1.8; background: var(--ok-bg); color: var(--ok); }
     @media (min-width: 640px) { .cr-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); } .cr-c:nth-child(2n) { border-inline-start: 0; } .cr-c:not(:nth-child(3n+1)) { border-inline-start: 1px solid var(--line); } .cr-c:nth-child(n+3) { border-top: 0; } .cr-c:nth-child(n+4) { border-top: 1px solid var(--line); } }
     .toast.record { border-color: rgba(227, 191, 110, .55); } .toast.record .ic { color: #E9C77A; }
+    /* تبويبات «الترتيب والسجل» ثابتة أعلى نافذة الإحصائيات أثناء التمرير (5.6): التنقل بينها من أي موضع بلا صعود للأعلى.
+       هالة بلون أرضية النافذة حولها تخفي ما يمر تحتها */
+    body:not(.dark-mode) #statsModal { --st-bg: var(--bg); } body.dark-mode #statsModal { --st-bg: var(--surface); }
+    #statsModal .st-tabs { position: sticky; top: 0; z-index: 4; box-shadow: 0 -26px 0 6px var(--st-bg), 0 0 0 6px var(--st-bg); }
     /* ===== «الحاضرون الليلة» (الإدارة): بطاقة بنفس هوية «لاعبو الدوري» — سطر ملخص قابل للفتح، أسماء للاختيار، ثم المباريات المتاحة ===== */
     #leagueTonight { display: none; }
     body.lg-focus #leagueTonight:not([hidden]) { display: block; margin: 0 0 var(--s3); padding: 2px 16px; border-radius: 22px; border: 1px solid var(--line); background: var(--surface); box-shadow: var(--sh-1); }
@@ -5355,6 +5363,10 @@ return teamName.replace('غير محدد', replacement);
       statsTab = tab; try { localStorage.setItem(STATS_TAB_KEY, tab); } catch (e) {}
       const isP = t => t === 'titles' || t === 'rating';
       if (isP(tab) && isP(prev)) { statsApplySort(tab); return; }   // نفس القائمة: انزلاق المراكز
+      // التبويبات ثابتة أعلى النافذة أثناء التمرير (5.6): لا قفز للأعلى. إن كانت ملتصقة يبدأ المحتوى الجديد تحتها مباشرة، وإلا يبقى الموضع كما هو
+      const scroller = board.closest('.stats-modal-content'), tabsEl = board.querySelector('.st-tabs');
+      const h4 = board.querySelector('h4');   // ملتصقة = ابتعد عنوان القسم فوقها أكثر من مسافته الطبيعية
+      const stuck = !!(scroller && tabsEl && h4 && tabsEl.getBoundingClientRect().top - h4.getBoundingClientRect().bottom > 30);
       board.querySelectorAll('.st-tabs button').forEach(b => b.setAttribute('aria-pressed', String(b.dataset.sort === tab)));
       if (isP(tab) && statsSortMode !== tab) {   // القائمة مخفية الآن: نحدّثها بلا انزلاق قبل ظهورها
         statsSortMode = tab; const list = board.querySelector('.stp:not([data-sort="pairs"])');
@@ -5363,12 +5375,11 @@ return teamName.replace('غير محدد', replacement);
       const key = isP(tab) ? 'players' : tab;
       let shown = null;
       board.querySelectorAll('.st-pane').forEach(p => { const on = p.dataset.pane === key; p.hidden = !on; if (on) shown = p; });
+      if (stuck && shown) scroller.scrollTop += shown.getBoundingClientRect().top - (tabsEl.getBoundingClientRect().bottom + 10);   // قبل حركة الدخول (المقياس يغيّر الموضع)
       if (shown && !rankFlipReduced()) {   // الدخول من جهة التبويب (RTL: التبويب التالي يسارًا)
         shown.style.setProperty('--dx', (STATS_TABS.indexOf(tab) > STATS_TABS.indexOf(prev) ? -22 : 22) + 'px');
         shown.classList.remove('lg-enter'); void shown.offsetWidth; shown.classList.add('lg-enter');
       }
-      const tabsEl = board.querySelector('.st-tabs'), r = tabsEl.getBoundingClientRect();
-      if (r.top < 0) tabsEl.scrollIntoView({ block: 'start', behavior: rankFlipReduced() ? 'auto' : 'smooth' });
     }
     // السحب أفقيًا على محتوى «الترتيب والسجل» للتنقل بين التبويبات (نفس سلوك جولات الدوري — RTL: لليمين = التبويب التالي)
     (function statsTabSwipe() {
@@ -5468,7 +5479,7 @@ return teamName.replace('غير محدد', replacement);
           return `<div class="sth-row st-item${i >= STATS_FOLD_PEEK ? ' st-extra' : ''}">` +
             `<span class="sth-champ"><span class="ic ic-trophy" aria-hidden="true"></span><b>${namesHTML(sideNames(t, t.champion))}</b>${t.mode === 'league' ? `<span class="sth-mode"><span class="ic ic-${mic}" aria-hidden="true"></span>${ml}</span>` : ''}</span>` +   // النوع واضح من الأسماء (لاعب أو ثنائي)؛ الشارة للدوري فقط
             `<span class="sth-sc">${sc}</span>`   /* بلا اتجاه مفروض: الرقم الأكبر يُقرأ أولًا من اليمين */ +
-            `<span class="sth-ru"><span class="l">الوصيف</span>${namesHTML(sideNames(t, t.runnerUp))}</span>` +
+            `<span class="sth-ru"><span class="ic ic-medal" role="img" aria-label="الوصيف"></span><span class="n">${namesHTML(sideNames(t, t.runnerUp))}</span></span>` +
             (showName ? `<span class="sth-name">${escHTML(nm)}</span>` : '') + `</div>`; }).join('') + `</div>`).join('');
 
       // ===== بطاقة «آخر بطولة مكتملة» (5.3): لوحة نتيجة النهائي كما في تطبيقات الرياضة =====
@@ -12356,7 +12367,7 @@ function buildLeagueStandingsCanvas() {
     // ===================================
     // 🧭 سلوك التطبيق: إعادة الوضع للأعلى، تعديل العنوان بالضغط المطوّل، تنبيه التحديث، رقم الإصدار
     // ===================================
-    const APP_VERSION = '5.6';   // ترقيم الاعتماد: 1 ثم 1.1 … 1.9 ثم 2 — ويُرفع معه رقم الإصدار في sw.js
+    const APP_VERSION = '5.8';   // ترقيم الاعتماد: 1 ثم 1.1 … 1.9 ثم 2 — ويُرفع معه رقم الإصدار في sw.js
     (function setupAppBehaviors() {
       const root = document.documentElement;
 
