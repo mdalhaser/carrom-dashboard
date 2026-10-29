@@ -134,6 +134,7 @@
       --ic-sun: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='1.9' stroke-linecap='round' stroke-linejoin='round'><circle cx='12' cy='12' r='4'/><path d='M12 2.5v2M12 19.5v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2.5 12h2M19.5 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4'/></svg>");
       --ic-sliders: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='1.9' stroke-linecap='round' stroke-linejoin='round'><path d='M3 7h9M17 7h4M3 17h4M12 17h9'/><circle cx='14.5' cy='7' r='2.5'/><circle cx='9.5' cy='17' r='2.5'/></svg>");
       --ic-shield: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='1.9' stroke-linecap='round' stroke-linejoin='round'><path d='M12 3l8 3v6c0 4.5-3.2 7.8-8 9-4.8-1.2-8-4.5-8-9V6z'/><path d='M9 12l2 2 4-4'/></svg>");
+      --ic-crown: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='1.9' stroke-linecap='round' stroke-linejoin='round'><path d='M4.5 18.5h15'/><path d='M5 15.5L3.5 7.5l5 3.5L12 4.5l3.5 6.5 5-3.5-1.5 8z'/></svg>");
       --ic-users: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='1.9' stroke-linecap='round' stroke-linejoin='round'><circle cx='9' cy='8' r='3.2'/><path d='M3 20c0-3.3 2.7-6 6-6s6 2.7 6 6'/><circle cx='17' cy='9' r='2.4'/><path d='M17 14.2c2.4 0 4 1.8 4 4.3'/></svg>");
       --ic-user: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='1.9' stroke-linecap='round' stroke-linejoin='round'><circle cx='12' cy='8' r='3.6'/><path d='M5 20c0-3.9 3.1-7 7-7s7 3.1 7 7'/></svg>");
       --ic-star: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='1.9' stroke-linejoin='round'><path d='M12 3.8l2.5 5.1 5.6.8-4.05 3.95.95 5.6L12 16.6l-5 2.65.95-5.6L3.9 9.7l5.6-.8z'/></svg>");
@@ -243,7 +244,7 @@
     .ic-star { --ic: var(--ic-star); } .ic-rank { --ic: var(--ic-rank); }
     .ic-clock { --ic: var(--ic-clock); } .ic-quote { --ic: var(--ic-quote); } .ic-league { --ic: var(--ic-league); } .ic-flag { --ic: var(--ic-flag); } .ic-medal { --ic: var(--ic-medal); }
     .ic-moon { --ic: var(--ic-moon); } .ic-sun { --ic: var(--ic-sun); } .ic-sliders { --ic: var(--ic-sliders); }
-    .ic-shield { --ic: var(--ic-shield); } .ic-users { --ic: var(--ic-users); } .ic-user { --ic: var(--ic-user); }
+    .ic-shield { --ic: var(--ic-shield); } .ic-users { --ic: var(--ic-users); } .ic-crown { --ic: var(--ic-crown); } .ic-user { --ic: var(--ic-user); }
     .ic-trophy { --ic: var(--ic-trophy); } .ic-table { --ic: var(--ic-table); } .ic-dice { --ic: var(--ic-dice); }
     .ic-bracket { --ic: var(--ic-bracket); } .ic-image { --ic: var(--ic-image); } .ic-chart { --ic: var(--ic-chart); }
     .ic-trash { --ic: var(--ic-trash); } .ic-plus { --ic: var(--ic-plus); } .ic-check { --ic: var(--ic-check); }
@@ -2525,13 +2526,32 @@
     @media (min-width: 640px) { #celebration .celeb-name.long { font-size: 32px; } }
     #celebration .nw { white-space: nowrap; display: inline-block; }
     #celebration .celeb-name .pl, #celebration .celeb-stats .pl { color: #E3BF6E; -webkit-text-fill-color: #E3BF6E; }
-    /* أوسمة اللاعب: كبسولات بتدرج مسطح بلا إطار (نفس كبسولات المستوى): ذهبي · فضي · برونزي */
-    .pf-badges { display: flex; flex-wrap: wrap; gap: 6px; }
-    .pf-bdg { display: inline-flex; align-items: center; gap: 5px; padding: 0 11px 0 10px; border-radius: 999px; font-size: 12px; font-weight: 800; line-height: 2.1; white-space: nowrap; }
-    .pf-bdg .ic { width: 13px; height: 13px; margin: 0; flex: none; }
-    .pf-bdg.g { background: linear-gradient(135deg, #F3DFAE, #CFA963); color: #3A2A0C; }
-    .pf-bdg.s { background: linear-gradient(135deg, #F0F2F3, #C3C9CE); color: #2F353B; }
-    .pf-bdg.b { background: linear-gradient(135deg, #F2DDC8, #D9AE88); color: #4E2E14; }
+    /* ===== أوسمة الشرف: «ميداليات» — شكل خاص بالأوسمة وحدها في المشروع =====
+       بطاقة صغيرة لكل وسام: ميدالية دائرية لامعة بحلقة محفورة وأيقونة داكنة، ثم الاسم وتفصيله. ذهبي دائم · فضي للنخبة · إسبريسو لحامل الرقم */
+    .pf-honors { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; }
+    .hn { display: flex; flex-direction: column; align-items: center; gap: 2px; min-width: 0; padding: 12px 6px 11px; border-radius: 16px; border: 1px solid var(--line); background: var(--surface-2); text-align: center; }
+    .hn .md, .hg-r .md { position: relative; display: grid; place-items: center; flex: none; border-radius: 50%;
+      background: radial-gradient(circle at 34% 28%, #FFF3CF 0%, #E9C77A 48%, #B88A3A 100%); color: #4A3412;
+      box-shadow: inset 0 -3px 5px rgba(90, 60, 20, .3), inset 0 2px 2px rgba(255, 255, 255, .45), 0 4px 10px -5px rgba(90, 60, 20, .55); }
+    .hn .md::after, .hg-r .md::after { content: ""; position: absolute; inset: 4px; border-radius: 50%; border: 1px solid rgba(74, 52, 18, .25); }
+    .hn .md { width: 46px; height: 46px; margin-bottom: 7px; }
+    .hn .md .ic { width: 21px; height: 21px; margin: 0; }
+    .hn.s .md { background: radial-gradient(circle at 34% 28%, #FBFCFD 0%, #D3D8DC 50%, #8F99A2 100%); color: #39414A; box-shadow: inset 0 -3px 5px rgba(40, 50, 60, .25), inset 0 2px 2px rgba(255, 255, 255, .6), 0 4px 10px -5px rgba(40, 50, 60, .5); }
+    .hn.h .md, .hg-r .md.h { background: radial-gradient(circle at 34% 28%, #7A5E48 0%, #3A2A1E 55%, #241911 100%); color: #E9C77A; box-shadow: inset 0 0 0 1.5px rgba(233, 199, 122, .55), 0 4px 10px -5px rgba(0, 0, 0, .6); }
+    .hn.h .md::after, .hg-r .md.h::after { border-color: rgba(233, 199, 122, .35); }
+    .hn .t { font-size: 12px; font-weight: 800; line-height: 1.35; color: var(--text); }
+    .hn .s { max-width: 100%; font-size: 10.5px; font-weight: 700; line-height: 1.35; color: var(--text-3); overflow-wrap: anywhere; }
+    .pf-s.bdg .bg-btn { margin-top: 10px; }
+    .pf-s.bdg.guide-open .bg-btn span { transform: rotate(-90deg); }
+    .hg-rows { display: flex; flex-direction: column; }
+    .hg-r { display: grid; grid-template-columns: 30px minmax(0, 1fr); align-items: center; gap: 10px; padding: 7px 2px; }
+    .hg-r + .hg-r { border-top: 1px solid var(--line); }
+    .hg-r .md { width: 30px; height: 30px; }
+    .hg-r .md::after { inset: 3px; }
+    .hg-r .md .ic { width: 15px; height: 15px; margin: 0; }
+    .hg-r .tx { display: flex; flex-direction: column; min-width: 0; }
+    .hg-r .tx b { font-size: 12.5px; font-weight: 800; color: var(--text); }
+    .hg-r .tx small { font-size: 11px; font-weight: 700; line-height: 1.5; color: var(--text-3); }
     /* ===== أرقام المجلس القياسية: شبكة 2×3 بنفس لغة «أفضل أرقامه» — العنوان ذهبي صغير، الرقم بارز، ثم صاحبه وتاريخه ===== */
     .cr-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); border: 1px solid var(--line); border-radius: 16px; overflow: hidden; background: var(--surface); box-shadow: var(--sh-1); }
     .cr-c { display: flex; flex-direction: column; align-items: flex-start; gap: 1px; min-width: 0; padding: 10px 14px 11px; }
@@ -6529,7 +6549,10 @@ currentScoreWinnerName = null;
       quote: 'M5 4h14a2 2 0 0 1 2 2v9a2 2 0 0 1-2 2h-6l-4.5 3.5V17H5a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2zM10.4 11.6a1.4 1.4 0 1 1-2.8 0 1.4 1.4 0 0 1 2.8 0zM7.6 11.6c0-1.9.9-3.1 2.6-3.5M16.4 11.6a1.4 1.4 0 1 1-2.8 0 1.4 1.4 0 0 1 2.8 0zM13.6 11.6c0-1.9.9-3.1 2.6-3.5',   // نص حر يكتبه المستخدم (عبارة مقتبسة)
       league: 'M20.5 6a1.5 1.5 0 1 1-3 0 1.5 1.5 0 0 1 3 0zM20.5 12a1.5 1.5 0 1 1-3 0 1.5 1.5 0 0 1 3 0zM20.5 18a1.5 1.5 0 1 1-3 0 1.5 1.5 0 0 1 3 0zM14.5 6H3.5M14.5 12H6M14.5 18H8.5',   // الدوري: قائمة ترتيب
       flag: 'M18.5 21V3.5M18.5 4h-12l2.6 4.25L6.5 12.5h12',   // جولة / دور (مرحلة) — الراية باتجاه القراءة العربية
-      medal: 'M17.5 15a5.5 5.5 0 1 1-11 0 5.5 5.5 0 0 1 11 0zM8 3l2.7 6.7M16 3l-2.7 6.7M8 3h8'   // الوصيف
+      medal: 'M17.5 15a5.5 5.5 0 1 1-11 0 5.5 5.5 0 0 1 11 0zM8 3l2.7 6.7M16 3l-2.7 6.7M8 3h8',   // الوصيف
+      shield: 'M12 3l8 3v6c0 4.5-3.2 7.8-8 9-4.8-1.2-8-4.5-8-9V6zM9 12l2 2 4-4',   // أوسمة «بلا هزيمة» (نفس أيقونة التطبيق)
+      crown: 'M4.5 18.5h15M5 15.5L3.5 7.5l5 3.5L12 4.5l3.5 6.5 5-3.5-1.5 8z',   // حامل رقم قياسي
+      lock: 'M7 11h10a2 2 0 0 1 2 2v6a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2v-6a2 2 0 0 1 2-2zM8 11V8a4 4 0 0 1 8 0v3'   // أوسمة «الانتصارات النظيفة"
     };
 
     function drawRoundedRect(ctx, x, y, w, h, r) {
@@ -10456,21 +10479,36 @@ function buildLeagueStandingsCanvas() {
         return { k, label, v: max, txt: fmt(max), holders: hs.map(x => x.n), date: hs[0].d || null, live: !!hs[0].live, cur: hs.some(x => x.cur) };
       }).filter(Boolean);
     }
-    // ===== أوسمة اللاعب (5.4): إنجازات دائمة من بياناته، بألوان الكبسولات المعتمدة (برونزي ← فضي ← ذهبي) =====
-    // لكل سلسلة وسام واحد فقط: أعلى درجة بلغها. holder: أسماء أصحاب أرقام المجلس (اختياري)
-    function playerBadges(p, stats, C, holder) {
-      const B = [], tier = (v, steps) => { let r = null; steps.forEach(([min, lv, t]) => { if (v >= min) r = { lv, t }; }); return r; };
-      const add = (x, ic) => { if (x) B.push({ ...x, ic }); };
-      const nT = stats.championships || 0, by = stats.titlesBy || {};
-      add(tier(nT, [[1, 'b', 'أول لقب'], [5, 's', '5 ألقاب'], [10, 'g', '10 ألقاب'], [25, 'g', '25 لقبًا']]), 'trophy');
-      add(tier(C.titleRun, [[2, 's', 'لقبان متتاليان'], [3, 'g', 'ثلاثية الألقاب'], [5, 'g', `${C.titleRun} ألقاب متتالية`]]), 'trophy');
-      if (by.single && by.team && by.league) add({ lv: 'g', t: 'لقب في كل الأنواع' }, 'star');
-      add(tier(p.bestWin, [[5, 'b', '5 انتصارات متتالية'], [10, 's', '10 انتصارات متتالية'], [15, 'g', `${p.bestWin} انتصارًا متتاليًا`]]), 'check');
-      add(tier(C.unb, [[10, 's', '10 بلا هزيمة'], [20, 'g', `${C.unb} بلا هزيمة`]]), 'shield');
-      add(tier(C.peak ? C.peak.r : 0, [[1120, 's', 'بلغ النخبة'], [1200, 'g', 'بلغ الأسطورة']]), 'medal');
-      add(tier(p.games, [[25, 'b', '25 مباراة'], [50, 's', '50 مباراة'], [100, 'g', '100 مباراة'], [200, 'g', '200 مباراة']]), 'flag');
-      if (holder && holder.has(p.name)) add({ lv: 'g', t: 'صاحب رقم قياسي' }, 'star');
-      const rank = { g: 0, s: 1, b: 2 }; return B.sort((a, b) => rank[a.lv] - rank[b.lv]);
+    // ===== أوسمة الشرف (5.5): إنجازات نادرة بلا أرقام، لا تظهر في أي مكان آخر من الملف فلا تتعارض مع أرقامه =====
+    // لكل وسام شكل «ميدالية» خاص لا يُستخدم لغيره: ذهبي (إنجاز دائم) · فضي (بلغ النخبة) · إسبريسو (حامل رقم: لقب يُدافَع عنه وينتقل لمن يكسره)
+    const HONOR_DEFS = [
+      { k: 'league', ic: 'league', name: 'بطل الدوري', how: 'الفوز بدوري مكتمل (المركز الأول في الترتيب النهائي). ويُضاف عدد المرات مع كل دوري جديد يفوز به' },
+      { k: 'treble', ic: 'trophy', name: 'ثلاثية الألقاب', how: '3 ألقاب متتالية أو أكثر من أي نوع. البطولة التي لم يشارك فيها لا تقطع السلسلة' },
+      { k: 'all', ic: 'star', name: 'لقب في كل الأنواع', how: 'لقب واحد على الأقل في الفردي والفرق والدوري' },
+      { k: 'duo', ic: 'users', name: 'الثنائي الذهبي', how: 'لقبان أو أكثر في بطولات الفرق مع نفس الشريك' },
+      { k: 'hold', ic: 'crown', name: 'حامل رقم قياسي', how: 'يحمل الآن رقمًا في سجل أرقام المجلس. ينتقل لمن يكسر الرقم', kind: 'hold' },
+      { k: 'peak', ic: 'medal', name: 'بلغ الأسطورة / النخبة', how: 'وصل تقييمه يومًا إلى 1,200 أو 1,120. يظهر إذا كان مستواه الآن أقل مما بلغه', kind: 'peak' }
+    ];
+    // recs: نتيجة councilRecords() (اختياري، لحامل الرقم)
+    function playerHonors(p, stats, C, recs) {
+      const by = stats.titlesBy || {}, H = [];
+      if (by.league) H.push({ k: 'league', ic: 'league', t: 'بطل الدوري', s: by.league > 1 ? (by.league === 2 ? 'مرتان' : by.league <= 10 ? `${by.league} مرات` : `${by.league} مرة`) : '', lv: 'g' });
+      if (C.titleRun >= 3) H.push({ k: 'treble', ic: 'trophy', t: 'ثلاثية الألقاب', s: '', lv: 'g' });
+      if (by.single && by.team && by.league) H.push({ k: 'all', ic: 'star', t: 'لقب في كل الأنواع', s: '', lv: 'g' });
+      const duo = {}; C.titles.forEach(x => { const t = x.t; if (t.mode === 'single' || t.mode === 'league') return; historyMembers(t, t.champion).forEach(m => { if (m !== p.name) duo[m] = (duo[m] || 0) + 1; }); });
+      const d = Object.entries(duo).sort((a, b) => b[1] - a[1])[0];
+      if (d && d[1] >= 2) H.push({ k: 'duo', ic: 'users', t: 'الثنائي الذهبي', s: `مع ${d[0]}`, lv: 'g' });
+      const held = (recs || []).filter(r => r.holders.includes(p.name));
+      if (held.length) H.push({ k: 'hold', ic: 'crown', t: held.length === 1 ? 'حامل رقم قياسي' : `حامل ${held.length} ${held.length === 2 ? 'رقمين قياسيين' : held.length <= 10 ? 'أرقام قياسية' : 'رقمًا قياسيًا'}`, s: held.length === 1 ? held[0].label : '', lv: 'h' });
+      const pk = C.peak ? C.peak.r : 0;
+      if (pk >= 1200 && p.tier.level < 4) H.push({ k: 'peak', ic: 'medal', t: 'بلغ الأسطورة', s: `أعلى تقييم ${pk.toLocaleString('en-US')}`, lv: 'g' });
+      else if (pk >= 1120 && p.tier.level < 3) H.push({ k: 'peak', ic: 'medal', t: 'بلغ النخبة', s: `أعلى تقييم ${pk.toLocaleString('en-US')}`, lv: 's' });
+      return H;
+    }
+    const honorTileHTML = (x, esc) => `<div class="hn ${x.lv}"><span class="md" aria-hidden="true"><span class="ic ic-${x.ic}"></span></span><b class="t">${esc(x.t)}</b>${x.s ? `<span class="s">${esc(x.s)}</span>` : ''}</div>`;
+    function honorGuideHTML() {
+      return `<div class="hg-rows">${HONOR_DEFS.map(d => `<div class="hg-r"><span class="md ${d.kind === 'hold' ? 'h' : 'g'}" aria-hidden="true"><span class="ic ic-${d.ic}"></span></span>` +
+        `<span class="tx"><b>${d.name}</b><small>${d.how}</small></span></div>`).join('')}</div>`;
     }
     function councilRecordHolders() { const h = new Set(); try { councilRecords().forEach(r => r.holders.forEach(n => h.add(n))); } catch (e) {} return h; }
     function councilRecordsHTML() {
@@ -10709,23 +10747,25 @@ function buildLeagueStandingsCanvas() {
             T(ctx, r === 'w' ? 'ف' : r === 'l' ? 'خ' : 'ت', x0 + CH / 2, y + FH / 2, { size: 29, weight: 800, color: fg }); x -= CH + CG; });
           y += FH + GAPS;
         }
-        // (3ب) الأوسمة: كبسولات ذهبية/فضية/برونزية تلتف في أسطر من اليمين
+        // (3ب) الأوسمة: نفس «ميداليات» الملف — بطاقات متجاورة، في كل منها ميدالية بأيقونة محفورة ثم الاسم وتفصيله
         if (show.badges) {
-          const bd = playerBadges(p, stats, C, councilRecordHolders());
-          if (bd.length) {
-            const PH = 50, G = 10, PAD = 20, IC = 22, FS = 23, maxW = CW - 56, STY = { g: ['#F3DFAE', '#CFA963', '#3A2A0C'], s: ['#F0F2F3', '#C3C9CE', '#2F353B'], b: ['#F2DDC8', '#D9AE88', '#4E2E14'] };
-            const ws = bd.map(x => tw(ctx, x.t, FS) + PAD * 2 + IC + 8), lines = [[]]; let lw = 0;
-            ws.forEach((w, i) => { if (lw && lw + G + w > maxW) { lines.push([]); lw = 0; } lines[lines.length - 1].push(i); lw += (lw ? G : 0) + w; });
-            const BH = 78 + lines.length * PH + (lines.length - 1) * G + 26;
+          let recsAll = []; try { recsAll = councilRecords(); } catch (e) {}
+          const hn = playerHonors(p, stats, C, recsAll);
+          if (hn.length) {
+            const COLS = Math.min(3, hn.length), G = 14, TWd = (CW - 56 - G * (COLS - 1)) / COLS, TH = 196, rows = Math.ceil(hn.length / COLS);
+            const BH = 78 + rows * TH + (rows - 1) * G + 28;
             cuts.push(y - GAPS / 2); card(BH);
             T(ctx, 'أوسمته', M + CW - 28, y + 44, { size: 28, weight: 800, color: B.text, align: 'right' });
-            T(ctx, (bd.length === 1 ? 'وسام واحد' : `${bd.length} ${bd.length === 2 ? 'وسامان' : bd.length <= 10 ? 'أوسمة' : 'وسامًا'}`), M + 28, y + 44, { size: 21, weight: 700, color: B.faint, align: 'left' });
-            lines.forEach((ln, r) => { let xr = M + CW - 28; const py = y + 78 + r * (PH + G);
-              ln.forEach(i => { const x = bd[i], w = ws[i], st = STY[x.lv], x0 = xr - w;
-                ctx.save(); drawRoundedRect(ctx, x0, py, w, PH, PH / 2); const g2 = ctx.createLinearGradient(x0, py, x0 + w, py + PH); g2.addColorStop(0, st[0]); g2.addColorStop(1, st[1]); ctx.fillStyle = g2; ctx.fill(); ctx.restore();
-                exportIcon(ctx, EXPORT_ICONS[x.ic] ? x.ic : 'star', xr - PAD - IC / 2, py + PH / 2, IC, st[2], 2.2);
-                T(ctx, x.t, xr - PAD - IC - 8, py + PH / 2, { size: FS, weight: 800, color: st[2], align: 'right' });
-                xr -= w + G; }); });
+            T(ctx, hn.length === 1 ? 'وسام واحد' : `${hn.length} ${hn.length === 2 ? 'وسامان' : hn.length <= 10 ? 'أوسمة' : 'وسامًا'}`, M + 28, y + 44, { size: 21, weight: 700, color: B.faint, align: 'left' });
+            const MED = { g: ['#FFF3CF', '#E9C77A', '#B88A3A', '#4A3412'], s: ['#FBFCFD', '#D3D8DC', '#8F99A2', '#39414A'], h: ['#6B5240', '#3A2A1E', '#241911', '#E9C77A'] };
+            hn.forEach((x, i) => { const r = Math.floor(i / COLS), c = i % COLS, x0 = M + CW - 28 - (c + 1) * TWd - c * G, y0 = y + 78 + r * (TH + G), cx = x0 + TWd / 2, m = MED[x.lv];
+              drawRoundedRect(ctx, x0, y0, TWd, TH, 22); ctx.fillStyle = B.surface2; ctx.fill(); ctx.strokeStyle = B.line; ctx.lineWidth = 1.4; ctx.stroke();
+              const R = 38, my = y0 + 24 + R; ctx.save(); ctx.beginPath(); ctx.arc(cx, my, R, 0, Math.PI * 2);
+              const g2 = ctx.createRadialGradient(cx - R * .3, my - R * .4, 2, cx, my, R); g2.addColorStop(0, m[0]); g2.addColorStop(.55, m[1]); g2.addColorStop(1, m[2]); ctx.fillStyle = g2; ctx.fill();
+              ctx.beginPath(); ctx.arc(cx, my, R - 7, 0, Math.PI * 2); ctx.strokeStyle = x.lv === 'h' ? 'rgba(233,199,122,.55)' : 'rgba(60,40,10,.25)'; ctx.lineWidth = 1.6; ctx.stroke(); ctx.restore();
+              exportIcon(ctx, EXPORT_ICONS[x.ic] ? x.ic : 'star', cx, my, 34, m[3], 2.2);
+              T(ctx, x.t, cx, y0 + 24 + R * 2 + 30, { size: 23, weight: 800, color: B.ink, maxW: TWd - 20, min: 15 });
+              if (x.s) T(ctx, x.s, cx, y0 + 24 + R * 2 + 62, { size: 19, weight: 700, color: B.faint, maxW: TWd - 20, min: 13 }); });
             y += BH + GAPS;
           }
         }
@@ -11955,9 +11995,11 @@ function buildLeagueStandingsCanvas() {
         const C0 = playerCareer(name, p), { career, done, titles, best } = C0, kindOf = t => t.mode === 'single' ? 'فردي' : t.mode === 'league' ? 'دوري' : 'فرق';
         const rc = (l, v, s, tx) => `<div class="pf-rc"><small>${l}</small><b${tx ? ' class="tx"' : ''}>${v}</b>${s ? `<span>${s}</span>` : ''}</div>`;
         const recs = playerBests(p, C0).map(([l, v, s]) => rc(H(l), H(v), H(s), !/\d/.test(v) && v !== '—'));   // قيمة نصية (اسم بطولة/نتيجة): سطر واحد أصغر
-        { const bd = playerBadges(p, stats, C0, councilRecordHolders());
-          if (bd.length) html += sec('أوسمته', (bd.length === 1 ? 'وسام واحد' : `${bd.length} ${bd.length === 2 ? 'وسامان' : bd.length <= 10 ? 'أوسمة' : 'وسامًا'}`),
-            `<div class="pf-badges">${bd.map(x => `<span class="pf-bdg ${x.lv}"><span class="ic ic-${x.ic}" aria-hidden="true"></span>${H(x.t)}</span>`).join('')}</div>`); }
+        { let recsAll = []; try { recsAll = councilRecords(); } catch (e) {}
+          const hn = playerHonors(p, stats, C0, recsAll);   // القسم يختفي تمامًا لمن لا يملك وسامًا
+          if (hn.length) html += sec('أوسمته', hn.length === 1 ? 'وسام واحد' : `${hn.length} ${hn.length === 2 ? 'وسامان' : hn.length <= 10 ? 'أوسمة' : 'وسامًا'}`,
+            `<div class="pf-honors">${hn.map(x => honorTileHTML(x, H)).join('')}</div>` +
+            `<button type="button" class="pf-guide-btn bg-btn" aria-expanded="false">دليل الأوسمة <span aria-hidden="true">‹</span></button><div class="pf-guide bg-guide" hidden><div class="pf-guide-in">${honorGuideHTML()}</div></div>`, 'bdg'); }
         html += sec('أفضل أرقامه', '', `<div class="pf-recs">${recs.join('')}</div>`);
         if (career.length) {
           const row = (x, i) => `<div class="pf-tr${i >= 5 ? ' x' : ''}"><span class="pf-res ${x.res[0]}">${x.res[1]}</span><span class="nm"><b>${H(x.t.name || 'بطولة')}</b><small>${fmtDateNum(x.t.date)} · ${kindOf(x.t)}</small></span>${x.dl == null ? '' : `<span class="dl ${x.dl > 0 ? 'up' : x.dl < 0 ? 'down' : ''}"><bdi dir="ltr">${x.dl > 0 ? '+' : x.dl < 0 ? '−' : ''}${Math.abs(x.dl)}</bdi></span>`}</div>`;
@@ -11986,6 +12028,8 @@ function buildLeagueStandingsCanvas() {
         const rest = document.createElement('div'); rest.className = 'pf-body2'; rest.innerHTML = html; body.appendChild(rest);
         rest.querySelectorAll('.pf-more').forEach(b => b.addEventListener('click', () => { const s = b.closest('.vm2-sec'), o = !s.classList.contains('all'); softToggle(s, 'all', o, '.pf-group > .x', s.querySelector('.pf-group')); b.setAttribute('aria-expanded', String(o)); b.textContent = o ? 'عرض أقل' : b.dataset.t || b.textContent; }));
         rest.querySelectorAll('.pf-more').forEach(b => { b.dataset.t = b.textContent; });
+        { const gb = rest.querySelector('.bg-btn'), gp = rest.querySelector('.bg-guide');   // دليل الأوسمة: نفس سلوك دليل المستويات
+          if (gb && gp) gb.addEventListener('click', () => { const o = gp.hidden; gp.hidden = !o; gb.setAttribute('aria-expanded', String(o)); gb.closest('.vm2-sec').classList.toggle('guide-open', o); }); }
         { const lm = liveMatchesCount(); body.appendChild(el('div', 'pf-note', lm ? `يشمل التقييم والأرقام ${lm} ${lm === 1 ? 'مباراة' : lm === 2 ? 'مباراتين' : lm <= 10 ? 'مباريات' : 'مباراة'} من البطولة الجارية ويتحدث بعد كل نتيجة. الألقاب والمشاركات تُحتسب عند اكتمال البطولة.` : 'يتحدث التقييم تلقائيًا بعد كل نتيجة تُسجَّل.')); }
         modal.style.display = 'flex';
         modal.querySelector('.modal-content').scrollTop = 0;
@@ -12285,7 +12329,7 @@ function buildLeagueStandingsCanvas() {
     // ===================================
     // 🧭 سلوك التطبيق: إعادة الوضع للأعلى، تعديل العنوان بالضغط المطوّل، تنبيه التحديث، رقم الإصدار
     // ===================================
-    const APP_VERSION = '5.4';   // ترقيم الاعتماد: 1 ثم 1.1 … 1.9 ثم 2 — ويُرفع معه رقم الإصدار في sw.js
+    const APP_VERSION = '5.5';   // ترقيم الاعتماد: 1 ثم 1.1 … 1.9 ثم 2 — ويُرفع معه رقم الإصدار في sw.js
     (function setupAppBehaviors() {
       const root = document.documentElement;
 
