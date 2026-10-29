@@ -2525,6 +2525,53 @@
     @media (min-width: 640px) { #celebration .celeb-name.long { font-size: 32px; } }
     #celebration .nw { white-space: nowrap; display: inline-block; }
     #celebration .celeb-name .pl, #celebration .celeb-stats .pl { color: #E3BF6E; -webkit-text-fill-color: #E3BF6E; }
+    /* أوسمة اللاعب: كبسولات بتدرج مسطح بلا إطار (نفس كبسولات المستوى): ذهبي · فضي · برونزي */
+    .pf-badges { display: flex; flex-wrap: wrap; gap: 6px; }
+    .pf-bdg { display: inline-flex; align-items: center; gap: 5px; padding: 0 11px 0 10px; border-radius: 999px; font-size: 12px; font-weight: 800; line-height: 2.1; white-space: nowrap; }
+    .pf-bdg .ic { width: 13px; height: 13px; margin: 0; flex: none; }
+    .pf-bdg.g { background: linear-gradient(135deg, #F3DFAE, #CFA963); color: #3A2A0C; }
+    .pf-bdg.s { background: linear-gradient(135deg, #F0F2F3, #C3C9CE); color: #2F353B; }
+    .pf-bdg.b { background: linear-gradient(135deg, #F2DDC8, #D9AE88); color: #4E2E14; }
+    /* ===== أرقام المجلس القياسية: شبكة 2×3 بنفس لغة «أفضل أرقامه» — العنوان ذهبي صغير، الرقم بارز، ثم صاحبه وتاريخه ===== */
+    .cr-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); border: 1px solid var(--line); border-radius: 16px; overflow: hidden; background: var(--surface); box-shadow: var(--sh-1); }
+    .cr-c { display: flex; flex-direction: column; align-items: flex-start; gap: 1px; min-width: 0; padding: 10px 14px 11px; }
+    .cr-c:nth-child(2n) { border-inline-start: 1px solid var(--line); }
+    .cr-c:nth-child(n+3) { border-top: 1px solid var(--line); }
+    .cr-c small { font-size: 11px; font-weight: 800; color: var(--gold-deep); }
+    .cr-c b { font-size: 19px; font-weight: 800; line-height: 1.35; color: var(--text); font-variant-numeric: tabular-nums; }
+    .cr-c .h { max-width: 100%; font-size: 13px; font-weight: 800; color: var(--text-2); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .cr-c .cr-sub { font-size: 11px; font-weight: 700; color: var(--text-3); }
+    .cr-tag { margin-top: 3px; padding: 0 8px; border-radius: 999px; font-size: 10.5px; font-weight: 800; line-height: 1.8; background: var(--ok-bg); color: var(--ok); }
+    @media (min-width: 640px) { .cr-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); } .cr-c:nth-child(2n) { border-inline-start: 0; } .cr-c:not(:nth-child(3n+1)) { border-inline-start: 1px solid var(--line); } .cr-c:nth-child(n+3) { border-top: 0; } .cr-c:nth-child(n+4) { border-top: 1px solid var(--line); } }
+    .toast.record { border-color: rgba(227, 191, 110, .55); } .toast.record .ic { color: #E9C77A; }
+    /* ===== «الحاضرون الليلة» (الإدارة): بطاقة بنفس هوية «لاعبو الدوري» — سطر ملخص قابل للفتح، أسماء للاختيار، ثم المباريات المتاحة ===== */
+    #leagueTonight { display: none; }
+    body.lg-focus #leagueTonight:not([hidden]) { display: block; margin: 0 0 var(--s3); padding: 2px 16px; border-radius: 22px; border: 1px solid var(--line); background: var(--surface); box-shadow: var(--sh-1); }
+    html.view-mode #leagueTonight, body.lg-focus #leagueMainPanel[data-tab="standings"] #leagueTonight { display: none !important; }
+    .tn-sum { display: flex; align-items: center; gap: 10px; width: 100%; min-height: 52px; padding: 0 2px; margin: 0; border: 0; background: none; font: inherit; color: var(--text); text-align: start; cursor: pointer; -webkit-tap-highlight-color: transparent; }
+    .tn-sum > .ic { width: 18px; height: 18px; flex: none; color: var(--gold-deep); }
+    .tn-sum .t { font-size: var(--fs-md); font-weight: 800; white-space: nowrap; }
+    .tn-sum .d { margin-inline-start: auto; font-size: var(--fs-xs); font-weight: 700; color: var(--text-2); text-align: end; }
+    .tn-sum .d b { font-weight: 800; color: var(--text); }
+    .tn-sum .chev { flex: none; width: 18px; height: 18px; color: var(--text-3); transition: transform var(--t-sheet) var(--ease); }
+    .tn.open .tn-sum .chev { transform: rotate(180deg); }
+    .tn-pick { display: grid; grid-template-rows: 0fr; opacity: 0; transition: grid-template-rows var(--t-sheet) var(--ease), opacity var(--t-base) ease; }
+    .tn.open .tn-pick { grid-template-rows: 1fr; opacity: 1; }
+    .tn-pick > .in { min-height: 0; overflow: hidden; }
+    .tn-chips { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 6px; padding: 4px 0 10px; }
+    .tn-chips button { min-height: 42px; padding: 4px 6px; border-radius: var(--r-md); border: 1px solid var(--line); background: var(--surface-2); font: inherit; font-size: 13px; font-weight: 800; color: var(--text-2);
+      cursor: pointer; overflow-wrap: anywhere; line-height: 1.3; -webkit-tap-highlight-color: transparent; transition: background var(--t-fast) ease, border-color var(--t-fast) ease, color var(--t-fast) ease, transform var(--t-fast) var(--ease); }
+    .tn-chips button:active { transform: scale(.97); }
+    .tn-chips button.on { border-color: var(--gold); background: var(--warn-bg); color: var(--text); }
+    .tn-acts { display: flex; justify-content: space-between; gap: 10px; padding: 0 2px 12px; }
+    .tn-acts button { padding: 4px 0; border: 0; background: none; font: inherit; font-size: 12.5px; font-weight: 800; color: var(--gold-deep); cursor: pointer; }
+    .tn-acts button:disabled { color: var(--text-3); opacity: .6; cursor: default; }
+    .tn-list { padding: 12px 0 14px; border-top: 1px solid var(--line); }
+    .tn.open .tn-list { border-top-color: var(--line); }
+    .tn-grid .match-title .tn-r { color: var(--gold-deep); font-weight: 800; }
+    .tn-grid .match-status { display: none; }   /* كلها جاهزة للتسجيل: رقم الجولة أهم من الحالة */
+    .tn-sum .d { white-space: nowrap; }
+    .tn-none { margin: 0; padding: 6px 0 2px; text-align: center; font-size: 12.5px; font-weight: 700; color: var(--text-3); }
     /* ===== 5.2 — ملف اللاعب =====
        رأس بصبغة لون المستوى (تذوب في سطح البطاقة) + خط علوي رفيع بلونه، والنصوص بألوانها المعتادة.
        بقية الملف بنفس نظام «صفحتي»: أقسام يفصلها خط رفيع، عنوان يمينًا وملخص يسارًا، شريط خانات، قوائم مجمعة بفواصل رفيعة. */
@@ -3195,7 +3242,7 @@
       el.className = 'toast ' + type;
       el.setAttribute('role', type === 'error' ? 'alert' : 'status');
       const icon = document.createElement('span');
-      icon.className = 'ic ' + (type === 'ok' ? 'ic-check' : (type === 'info' ? 'ic-info' : 'ic-alert'));
+      icon.className = 'ic ' + (type === 'ok' ? 'ic-check' : type === 'info' ? 'ic-info' : type === 'record' ? 'ic-star' : 'ic-alert');
       icon.setAttribute('aria-hidden', 'true');
       const text = document.createElement('div');
       text.textContent = String(message);
@@ -5417,6 +5464,7 @@ return teamName.replace('غير محدد', replacement);
           ${d.liveMatches ? `<p class="st-over-live"><span class="dot" aria-hidden="true"></span><span>الأرقام والتقييم تشمل ${d.liveMatches} ${d.liveMatches === 1 ? 'مباراة' : d.liveMatches === 2 ? 'مباراتين' : d.liveMatches <= 10 ? 'مباريات' : 'مباراة'} من البطولة الجارية، وتتحدث بعد كل نتيجة. الألقاب والمشاركات تُضاف عند اكتمالها.</span></p>` : ''}
         </section>
 
+        ${councilRecordsHTML()}
         <div class="stats-section st-board"><h4><span class="ic ic-rank" aria-hidden="true"></span>الترتيب والسجل</h4>
           <div class="st-sort st-tabs" role="group" aria-label="عرض الترتيب والسجل">${[['titles', 'الألقاب'], ['rating', 'التقييم'], ['pairs', 'الشراكات'], ['hist', 'السجل']].map(([k, l]) => `<button type="button" data-sort="${k}" aria-pressed="${statsTab === k}">${l}</button>`).join('')}</div>
           <div class="st-pane" data-pane="players"${statsTab === 'titles' || statsTab === 'rating' ? '' : ' hidden'}><p class="st-hint">اضغط على أي لاعب لعرض ملفه الكامل</p><div class="stp-wrap"><div class="stp" data-sort="${byRating ? 'rating' : 'titles'}">${statsPlayersListHTML(d, byRating)}</div></div></div>
@@ -6223,7 +6271,7 @@ currentScoreWinnerName = null;
       lgStandings: [['played', 'عدد المباريات'], ['wdl', 'فوز / تعادل / خسارة'], ['sets', 'الأشواط له / عليه'], ['diff', 'فارق الأشواط'], ['legend', 'سطر الشرح']],
       stats: [['titlesBy', 'الألقاب حسب النوع'], ['rating', 'التقييم'], ['runnerUps', 'الوصافة'], ['tournaments', 'المشاركات'], ['wins', 'الفوز'], ['losses', 'الخسارة'], ['winRate', 'نسبة الفوز']],
       rating: [['rating', 'التقييم'], ['tier', 'المستوى'], ['delta', 'تغيّر آخر بطولة'], ['games', 'المباريات'], ['rate', 'نسبة الفوز'], ['legend', 'دليل المستويات']],
-      profile: [['chart', 'منحنى التقييم'], ['tiles', 'الأرقام'], ['form', 'آخر النتائج'], ['records', 'أفضل أرقامه'], ['career', 'المسيرة في البطولات'], ['h2h', 'المواجهات المباشرة'], ['partners', 'الشركاء في الفرق']],
+      profile: [['chart', 'منحنى التقييم'], ['tiles', 'الأرقام'], ['form', 'آخر النتائج'], ['badges', 'الأوسمة'], ['records', 'أفضل أرقامه'], ['career', 'المسيرة في البطولات'], ['h2h', 'المواجهات المباشرة'], ['partners', 'الشركاء في الفرق']],
       lgCard: [['sets', 'صفوف الأشواط'], ['last', 'آخر النتائج'], ['ach', 'الإنجازات']],
       lgCompare: [['wdl', 'فوز / تعادل / خسارة'], ['sets', 'صفوف الأشواط'], ['h2h', 'المواجهات المباشرة']],
       lgReport: [['summary', 'ملخص الدوري'], ['leaders', 'الأوائل']],
@@ -10376,12 +10424,62 @@ function buildLeagueStandingsCanvas() {
       R.push(['أعلى تقييم', C.peak ? C.peak.r.toLocaleString('en-US') : '—', C.peak ? (liveNames.has(C.peak.name) ? 'البطولة الجارية' : fmtDateNum(C.peak.date)) : '']);
       R.push(['أكبر قفزة في بطولة', C.jump ? '\u200E+' + C.jump.dl : '—', C.jump ? fmtDateNum(C.jump.t.date) : '']);
       R.push(['أطول سلسلة انتصارات', p.bestWin ? (p.bestWin === 1 ? 'فوز واحد' : `${p.bestWin} ${arWinsW(p.bestWin)}`) : '—', p.bestWin > 1 ? 'متتالية' : '']);
-      R.push(['أطول سلسلة بلا هزيمة', C.unb ? `${C.unb} ${arMatchesW(C.unb)}` : '—', C.unb ? 'فوز أو تعادل' : '']);
+      R.push(['أطول سلسلة بلا هزيمة', C.unb ? (C.unb === 1 ? 'مباراة واحدة' : `${C.unb} ${arMatchesW(C.unb)}`) : '—', C.unb ? 'فوز أو تعادل' : '']);
       if (C.titleRun > 1) R.push(['ألقاب متتالية', `${C.titleRun} ${arTitlesW(C.titleRun)}`, 'على التوالي']);
       else if (C.titles.length) R.push(['آخر لقب', C.titles[0].t.name || C.titles[0].kind, fmtDateNum(C.titles[0].t.date)]);
       else R.push(['أفضل نتيجة', C.best ? C.best.res[1] : '—', C.best ? C.best.t.name || '' : '']);
-      R.push(['انتصارات نظيفة', C.clean ? `${C.clean} ${arWinsW(C.clean)}` : '—', 'دون أن يسجل الخصم شوطًا']);
+      R.push(['انتصارات نظيفة', C.clean ? (C.clean === 1 ? 'فوز واحد' : `${C.clean} ${arWinsW(C.clean)}`) : '—', 'دون أن يسجل الخصم شوطًا']);
       return R;
+    }
+    // ===== أرقام المجلس القياسية (5.4): أفضل قيمة لكل رقم بين كل اللاعبين، بنفس تعريفات «أفضل أرقامه» =====
+    // صاحب الرقم: كل من بلغ القيمة نفسها (مشترك). «مستمرة»: السلسلة ما زالت قائمة الآن ويمكن أن تطول.
+    function councilRecords() {
+      const elo = computePlayerRatings(), live = new Set(statsSourceRecords().filter(t => t && t.live).map(t => t.name));
+      const K = { peak: [], jump: [], win: [], unb: [], titles: [], clean: [] };
+      elo.ranked.filter(p => p.games).forEach(p => {
+        const C = playerCareer(p.name, p), n = p.name;
+        let curU = 0; for (let i = p.seq.length - 1; i >= 0 && p.seq[i] !== 'l'; i--) curU++;
+        const doneAsc = C.done.slice().reverse(); let curT = 0; for (let i = doneAsc.length - 1; i >= 0 && doneAsc[i].res[0] === 'ch'; i--) curT++;
+        if (C.peak) K.peak.push({ n, v: C.peak.r, d: live.has(C.peak.name) ? null : C.peak.date, live: live.has(C.peak.name) });
+        if (C.jump) K.jump.push({ n, v: C.jump.dl, d: C.jump.t.date });
+        K.win.push({ n, v: p.bestWin, cur: p.streak.type === 'w' && p.streak.len === p.bestWin });
+        K.unb.push({ n, v: C.unb, cur: curU === C.unb });
+        K.titles.push({ n, v: C.titleRun, cur: curT === C.titleRun });
+        K.clean.push({ n, v: C.clean });
+      });
+      const L = [['peak', 'أعلى تقييم', v => v.toLocaleString('en-US')], ['jump', 'أكبر قفزة في بطولة', v => '\u200E+' + v],
+        ['win', 'أطول سلسلة انتصارات', v => `${v} ${arWinsW(v)}`], ['unb', 'أطول سلسلة بلا هزيمة', v => `${v} ${arMatchesW(v)}`],
+        ['titles', 'أكثر ألقاب متتالية', v => `${v} ${arTitlesW(v)}`], ['clean', 'أكثر انتصارات نظيفة', v => `${v} ${arWinsW(v)}`]];
+      return L.map(([k, label, fmt]) => {
+        const max = Math.max(0, ...K[k].map(x => x.v)); if (!max) return null;
+        const hs = K[k].filter(x => x.v === max).sort((a, b) => (a.d ? new Date(a.d) : Infinity) - (b.d ? new Date(b.d) : Infinity));
+        return { k, label, v: max, txt: fmt(max), holders: hs.map(x => x.n), date: hs[0].d || null, live: !!hs[0].live, cur: hs.some(x => x.cur) };
+      }).filter(Boolean);
+    }
+    // ===== أوسمة اللاعب (5.4): إنجازات دائمة من بياناته، بألوان الكبسولات المعتمدة (برونزي ← فضي ← ذهبي) =====
+    // لكل سلسلة وسام واحد فقط: أعلى درجة بلغها. holder: أسماء أصحاب أرقام المجلس (اختياري)
+    function playerBadges(p, stats, C, holder) {
+      const B = [], tier = (v, steps) => { let r = null; steps.forEach(([min, lv, t]) => { if (v >= min) r = { lv, t }; }); return r; };
+      const add = (x, ic) => { if (x) B.push({ ...x, ic }); };
+      const nT = stats.championships || 0, by = stats.titlesBy || {};
+      add(tier(nT, [[1, 'b', 'أول لقب'], [5, 's', '5 ألقاب'], [10, 'g', '10 ألقاب'], [25, 'g', '25 لقبًا']]), 'trophy');
+      add(tier(C.titleRun, [[2, 's', 'لقبان متتاليان'], [3, 'g', 'ثلاثية الألقاب'], [5, 'g', `${C.titleRun} ألقاب متتالية`]]), 'trophy');
+      if (by.single && by.team && by.league) add({ lv: 'g', t: 'لقب في كل الأنواع' }, 'star');
+      add(tier(p.bestWin, [[5, 'b', '5 انتصارات متتالية'], [10, 's', '10 انتصارات متتالية'], [15, 'g', `${p.bestWin} انتصارًا متتاليًا`]]), 'check');
+      add(tier(C.unb, [[10, 's', '10 بلا هزيمة'], [20, 'g', `${C.unb} بلا هزيمة`]]), 'shield');
+      add(tier(C.peak ? C.peak.r : 0, [[1120, 's', 'بلغ النخبة'], [1200, 'g', 'بلغ الأسطورة']]), 'medal');
+      add(tier(p.games, [[25, 'b', '25 مباراة'], [50, 's', '50 مباراة'], [100, 'g', '100 مباراة'], [200, 'g', '200 مباراة']]), 'flag');
+      if (holder && holder.has(p.name)) add({ lv: 'g', t: 'صاحب رقم قياسي' }, 'star');
+      const rank = { g: 0, s: 1, b: 2 }; return B.sort((a, b) => rank[a.lv] - rank[b.lv]);
+    }
+    function councilRecordHolders() { const h = new Set(); try { councilRecords().forEach(r => r.holders.forEach(n => h.add(n))); } catch (e) {} return h; }
+    function councilRecordsHTML() {
+      let R = []; try { R = councilRecords(); } catch (e) { return ''; }
+      if (!R.length) return '';
+      const who = h => h.length === 1 ? escHTML(h[0]) : h.length === 2 ? `${escHTML(h[0])} و${escHTML(h[1])}` : `${escHTML(h[0])} و${h.length - 1} آخرون`;
+      return `<div class="stats-section cr"><h4><span class="ic ic-star" aria-hidden="true"></span>أرقام المجلس القياسية</h4>
+        <div class="cr-grid">${R.map(r => `<div class="cr-c"><small>${r.label}</small><b>${escHTML(r.txt)}</b><span class="h">${who(r.holders)}</span>` +
+          `${r.cur ? '<span class="cr-tag">مستمرة</span>' : r.live ? '<span class="cr-sub">البطولة الجارية</span>' : r.date ? `<span class="cr-sub">${fmtDateNum(r.date)}</span>` : ''}</div>`).join('')}</div></div>`;
     }
     const arWinsW = n => n === 1 ? 'فوز' : n === 2 ? 'فوزان' : n <= 10 ? 'انتصارات' : 'انتصارًا';
     // المستوى التالي ونسبة التقدم نحوه (نفس حساب الملف): null للأسطورة
@@ -10610,6 +10708,26 @@ function buildLeagueStandingsCanvas() {
             drawRoundedRect(ctx, x0, y + (FH - CH) / 2, CH, CH, 16); ctx.fillStyle = bg; ctx.fill();
             T(ctx, r === 'w' ? 'ف' : r === 'l' ? 'خ' : 'ت', x0 + CH / 2, y + FH / 2, { size: 29, weight: 800, color: fg }); x -= CH + CG; });
           y += FH + GAPS;
+        }
+        // (3ب) الأوسمة: كبسولات ذهبية/فضية/برونزية تلتف في أسطر من اليمين
+        if (show.badges) {
+          const bd = playerBadges(p, stats, C, councilRecordHolders());
+          if (bd.length) {
+            const PH = 50, G = 10, PAD = 20, IC = 22, FS = 23, maxW = CW - 56, STY = { g: ['#F3DFAE', '#CFA963', '#3A2A0C'], s: ['#F0F2F3', '#C3C9CE', '#2F353B'], b: ['#F2DDC8', '#D9AE88', '#4E2E14'] };
+            const ws = bd.map(x => tw(ctx, x.t, FS) + PAD * 2 + IC + 8), lines = [[]]; let lw = 0;
+            ws.forEach((w, i) => { if (lw && lw + G + w > maxW) { lines.push([]); lw = 0; } lines[lines.length - 1].push(i); lw += (lw ? G : 0) + w; });
+            const BH = 78 + lines.length * PH + (lines.length - 1) * G + 26;
+            cuts.push(y - GAPS / 2); card(BH);
+            T(ctx, 'أوسمته', M + CW - 28, y + 44, { size: 28, weight: 800, color: B.text, align: 'right' });
+            T(ctx, (bd.length === 1 ? 'وسام واحد' : `${bd.length} ${bd.length === 2 ? 'وسامان' : bd.length <= 10 ? 'أوسمة' : 'وسامًا'}`), M + 28, y + 44, { size: 21, weight: 700, color: B.faint, align: 'left' });
+            lines.forEach((ln, r) => { let xr = M + CW - 28; const py = y + 78 + r * (PH + G);
+              ln.forEach(i => { const x = bd[i], w = ws[i], st = STY[x.lv], x0 = xr - w;
+                ctx.save(); drawRoundedRect(ctx, x0, py, w, PH, PH / 2); const g2 = ctx.createLinearGradient(x0, py, x0 + w, py + PH); g2.addColorStop(0, st[0]); g2.addColorStop(1, st[1]); ctx.fillStyle = g2; ctx.fill(); ctx.restore();
+                exportIcon(ctx, EXPORT_ICONS[x.ic] ? x.ic : 'star', xr - PAD - IC / 2, py + PH / 2, IC, st[2], 2.2);
+                T(ctx, x.t, xr - PAD - IC - 8, py + PH / 2, { size: FS, weight: 800, color: st[2], align: 'right' });
+                xr -= w + G; }); });
+            y += BH + GAPS;
+          }
         }
         // (4) أفضل أرقامه: شبكة 2×3
         if (show.records) {
@@ -11837,6 +11955,9 @@ function buildLeagueStandingsCanvas() {
         const C0 = playerCareer(name, p), { career, done, titles, best } = C0, kindOf = t => t.mode === 'single' ? 'فردي' : t.mode === 'league' ? 'دوري' : 'فرق';
         const rc = (l, v, s, tx) => `<div class="pf-rc"><small>${l}</small><b${tx ? ' class="tx"' : ''}>${v}</b>${s ? `<span>${s}</span>` : ''}</div>`;
         const recs = playerBests(p, C0).map(([l, v, s]) => rc(H(l), H(v), H(s), !/\d/.test(v) && v !== '—'));   // قيمة نصية (اسم بطولة/نتيجة): سطر واحد أصغر
+        { const bd = playerBadges(p, stats, C0, councilRecordHolders());
+          if (bd.length) html += sec('أوسمته', (bd.length === 1 ? 'وسام واحد' : `${bd.length} ${bd.length === 2 ? 'وسامان' : bd.length <= 10 ? 'أوسمة' : 'وسامًا'}`),
+            `<div class="pf-badges">${bd.map(x => `<span class="pf-bdg ${x.lv}"><span class="ic ic-${x.ic}" aria-hidden="true"></span>${H(x.t)}</span>`).join('')}</div>`); }
         html += sec('أفضل أرقامه', '', `<div class="pf-recs">${recs.join('')}</div>`);
         if (career.length) {
           const row = (x, i) => `<div class="pf-tr${i >= 5 ? ' x' : ''}"><span class="pf-res ${x.res[0]}">${x.res[1]}</span><span class="nm"><b>${H(x.t.name || 'بطولة')}</b><small>${fmtDateNum(x.t.date)} · ${kindOf(x.t)}</small></span>${x.dl == null ? '' : `<span class="dl ${x.dl > 0 ? 'up' : x.dl < 0 ? 'down' : ''}"><bdi dir="ltr">${x.dl > 0 ? '+' : x.dl < 0 ? '−' : ''}${Math.abs(x.dl)}</bdi></span>`}</div>`;
@@ -12164,7 +12285,7 @@ function buildLeagueStandingsCanvas() {
     // ===================================
     // 🧭 سلوك التطبيق: إعادة الوضع للأعلى، تعديل العنوان بالضغط المطوّل، تنبيه التحديث، رقم الإصدار
     // ===================================
-    const APP_VERSION = '5.3';   // ترقيم الاعتماد: 1 ثم 1.1 … 1.9 ثم 2 — ويُرفع معه رقم الإصدار في sw.js
+    const APP_VERSION = '5.4';   // ترقيم الاعتماد: 1 ثم 1.1 … 1.9 ثم 2 — ويُرفع معه رقم الإصدار في sw.js
     (function setupAppBehaviors() {
       const root = document.documentElement;
 
@@ -12466,6 +12587,78 @@ function buildLeagueStandingsCanvas() {
       const _renderLeague = renderLeague;
       renderLeague = function () { sync(); const r = _renderLeague.apply(this, arguments); sync(); return r; };
       sync(); if (document.body.classList.contains('lg-focus')) { renderLeagueRounds(); renderLeagueStandings(); }
+    })();
+    // ===== «الحاضرون الليلة» (5.4 — الإدارة فقط): اختر الحاضرين فتظهر كل المباريات المتبقية بينهم من كل الجولات =====
+    // عرض فقط: لا يغيّر جدول الدوري ولا ترتيبه. الاختيار يُحفظ على الجهاز لليلة اللعب الحالية ويُمسح مع بداية يوم لعب جديد.
+    (function setupLeagueTonight() {
+      if (window.CARROM_VIEW || !leagueRoundsEl) return;
+      const KEY = '__carrom_tonight_v1', host = leagueRoundsEl.parentElement;
+      const dayKey = () => { try { return nightKeyOf(Date.now()); } catch (e) { return new Date().toDateString(); } };
+      const read = () => { try { const o = JSON.parse(localStorage.getItem(KEY) || 'null'); return o && o.day === dayKey() && Array.isArray(o.names) ? o.names : []; } catch (e) { return []; } };
+      const write = names => { try { localStorage.setItem(KEY, JSON.stringify({ day: dayKey(), names })); } catch (e) {} };
+      const esc = x => String(x == null ? '' : x).replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
+      const chev = '<svg class="chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg>';
+      const box = document.createElement('section'); box.id = 'leagueTonight'; box.className = 'tn'; box.setAttribute('aria-label', 'الحاضرون الليلة');
+      host.insertBefore(box, leagueRoundsEl);
+      let open = false;
+      function paint(anim) {
+        const players = (leaguePlayers || []).filter(n => !leagueIsExcluded(n));
+        const live = !!(leagueStarted && !leagueFixtureError && !leagueCompleted);
+        box.hidden = !live; if (!live) return;
+        const sel = read().filter(n => players.includes(n)), set = new Set(sel);
+        const avail = sel.length >= 2 ? leagueMatches.filter(m => !m.auto && !isLeagueMatchSettled(m) && set.has(m.playerA) && set.has(m.playerB))
+          .sort((a, b) => a.round - b.round || String(a.id).localeCompare(String(b.id), 'en', { numeric: true })) : [];
+        const sum = sel.length >= 2 ? `<b>${sel.length}</b> ${sel.length <= 10 ? 'حاضرين' : 'حاضرًا'} · <b>${avail.length}</b> ${avail.length === 1 || avail.length > 10 ? 'مباراة' : avail.length === 2 ? 'مباراتان' : 'مباريات'}`
+          : 'لم يُحدَّد بعد';
+        box.classList.toggle('open', open);
+        box.innerHTML = `<button type="button" class="tn-sum" aria-expanded="${open}"><span class="ic ic-users" aria-hidden="true"></span><span class="t">الحاضرون الليلة</span><span class="d">${sum}</span>${chev}</button>
+          <div class="tn-pick"><div class="in"><div class="tn-chips">${players.map(n => `<button type="button" class="${set.has(n) ? 'on' : ''}" aria-pressed="${set.has(n)}" data-n="${esc(n)}">${esc(n)}</button>`).join('')}</div>
+            <div class="tn-acts"><button type="button" data-act="all">تحديد الكل</button><button type="button" data-act="none"${sel.length ? '' : ' disabled'}>مسح الاختيار</button></div></div></div>
+          ${sel.length >= 2 ? `<div class="tn-list">${avail.length ? `<div class="league-matches tn-grid"></div>` : '<p class="tn-none">لا توجد مباريات متبقية بين الحاضرين</p>'}</div>` : ''}`;
+        const grid = box.querySelector('.tn-grid');
+        if (grid) {
+          avail.forEach(m => { const c = createLeagueMatchCard(m), t = c.querySelector('.match-title'), seq = (String(m.id).match(/M(\d+)$/) || [])[1] || '';
+            if (t) t.innerHTML = `<span class="tn-r">الجولة ${m.round}</span> · مباراة ${seq}`; grid.appendChild(c); });
+          if (avail.length % 2 === 1) grid.lastElementChild.classList.add('lg-wide');   // لا يبقى نصف السطر فارغًا
+          if (anim && grid.animate && !(window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches))
+            [...grid.children].forEach((c, i) => c.animate([{ opacity: 0, transform: 'translateY(-6px)' }, { opacity: 1, transform: 'none' }], { duration: 220, delay: Math.min(i, 6) * 30, easing: 'cubic-bezier(.2, .8, .2, 1)', fill: 'backwards' }));
+        }
+      }
+      box.addEventListener('click', e => {
+        if (e.target.closest('.tn-sum')) { open = !open; box.classList.toggle('open', open); e.target.closest('.tn-sum').setAttribute('aria-expanded', String(open)); return; }
+        const chip = e.target.closest('.tn-chips button'), act = e.target.closest('.tn-acts button');
+        if (!chip && !act) return;
+        const players = (leaguePlayers || []).filter(n => !leagueIsExcluded(n));
+        let sel = read().filter(n => players.includes(n));
+        if (chip) { const n = chip.dataset.n; sel = sel.includes(n) ? sel.filter(x => x !== n) : sel.concat(n); }
+        else sel = act.dataset.act === 'all' ? players.slice() : [];
+        write(sel); paint(true);
+      });
+      const _rr = renderLeagueRounds;
+      renderLeagueRounds = function () { const r = _rr.apply(this, arguments); try { paint(false); } catch (e) { console.error(e); } return r; };
+      try { paint(false); } catch (e) {}
+    })();
+    // ===== تنبيه «رقم قياسي جديد» (5.4) =====
+    // الإدارة: بعد كل نتيجة تُعتمد يُقارن سجل الأرقام بما قبلها. نسخة اللاعبين: عند الفتح يُقارن بآخر ما رآه اللاعب على جهازه (مرة واحدة لكل رقم).
+    (function setupRecordWatch() {
+      const snap = () => { const o = {}; try { councilRecords().forEach(r => { o[r.k] = { v: r.v, h: r.holders, label: r.label, txt: r.txt }; }); } catch (e) {} return o; };
+      // تنبيه واحد فقط مهما تعددت الأرقام المكسورة (لا تتكدس التنبيهات)
+      const say = list => { if (!list.length) return; const r = list[0];
+        uiToast(list.length === 1 ? `رقم قياسي جديد — ${r.label}: ${r.h.length > 2 ? r.h[0] + ' وآخرون' : r.h.join(' و')} (${r.txt})`
+          : `${list.length} ${list.length <= 10 ? 'أرقام قياسية جديدة' : 'رقمًا قياسيًا جديدًا'} — ${list.map(x => x.label).join('، ')}`, 'record', 6500); };
+      if (window.CARROM_VIEW) {   // بعد استقرار البيانات المنشورة (قد تُعاد الصفحة بعد جلبها)، ثم يُحفظ ما رآه اللاعب
+        setTimeout(() => {
+          const KEY = '__carrom_seen_rec_v1', now = snap();
+          let seen = null; try { seen = JSON.parse(localStorage.getItem(KEY) || 'null'); } catch (e) {}
+          if (seen) say(Object.keys(now).filter(k => seen[k] != null && now[k].v > seen[k]).map(k => now[k]));
+          try { localStorage.setItem(KEY, JSON.stringify(Object.fromEntries(Object.entries(now).map(([k, r]) => [k, r.v])))); } catch (e) {}
+        }, 1600);
+        return;
+      }
+      let prev = snap();
+      const check = () => { const now = snap(), up = Object.keys(now).filter(k => prev[k] && now[k].v > prev[k].v).map(k => now[k]); if (up.length) setTimeout(() => say(up), 900); prev = now; };
+      const _cw = confirmWinner; confirmWinner = function () { const r = _cw.apply(this, arguments); setTimeout(check, 60); return r; };
+      const _sl = saveLeagueMatchResult; saveLeagueMatchResult = function () { const r = _sl.apply(this, arguments); setTimeout(check, 60); return r; };
     })();
 
     // ===================================
