@@ -2675,7 +2675,25 @@
     .tr-outlist { display: grid; grid-template-rows: 0fr; opacity: 0; transition: grid-template-rows var(--t-sheet) var(--ease), opacity var(--t-base) ease; }
     .tr-out.open .tr-outlist { grid-template-rows: 1fr; opacity: 1; }
     .tr-outlist > .in { min-height: 0; overflow: hidden; display: flex; flex-direction: column; border-top: 1px solid var(--line); }
-        @media (prefers-reduced-motion: reduce) { .tr-sum .sub, .tr-body, .tr-outlist, .tr-sum .chev, .tr-outsum .chev { transition: none; } }
+        /* دليل سباق اللقب: الرابط والسُّلّم من نمط دليل المستويات، والفتح والإغلاق بانتقال ناعم في الاتجاهين */
+    .tr-g { padding-bottom: 12px; margin-top: -2px; }
+    .tr-g .pf-guide-btn { margin: 2px 0 0; margin-inline-start: auto; }
+    .tr-g .pf-guide-btn span { display: inline-block; transition: transform var(--t-base) var(--ease); }
+    .tr-g.open .pf-guide-btn span { transform: rotate(-90deg); }
+    .tr-guide { display: grid; grid-template-rows: 0fr; opacity: 0; transition: grid-template-rows var(--t-sheet) var(--ease), opacity var(--t-base) ease; }
+    .tr-g.open .tr-guide { grid-template-rows: 1fr; opacity: 1; }
+    .tr-guide > .in { min-height: 0; overflow: hidden; }
+    .tr-guide .pf-guide-in { margin-top: 8px; animation: none; }
+    .tr-lad .tr-ph { justify-content: center; min-width: 108px; flex: none; }
+    .tr-lad .rg { font-size: 11.5px; font-weight: 700; line-height: 1.5; color: var(--text-2); font-variant-numeric: normal; }
+    .tr-lad .me { flex: none; }
+    .tr-terms { margin: 10px 0 0; padding: 8px 6px 0; border-top: 1px solid var(--line); display: flex; flex-direction: column; gap: 5px; }
+    .tr-terms > div { display: grid; grid-template-columns: 76px minmax(0, 1fr); gap: 8px; align-items: baseline; }
+    .tr-terms dt { font-size: 11.5px; font-weight: 800; color: var(--text); }
+    .tr-terms dd { margin: 0; font-size: 11.5px; font-weight: 700; line-height: 1.6; color: var(--text-2); }
+    .tr-guide .pf-guide-in > p.tr-gnote { margin: 8px 6px 0; padding: 0; border: 0; }
+    .tr-guide .pf-guide-in > p { margin: 10px 6px 0; padding-top: 8px; border-top: 1px solid var(--line); font-size: 11.5px; font-weight: 700; line-height: 1.65; color: var(--text-3); }
+    @media (prefers-reduced-motion: reduce) { .tr-guide, .tr-g .pf-guide-btn span, .tr-sum .sub, .tr-body, .tr-outlist, .tr-sum .chev, .tr-outsum .chev { transition: none; } }
     /* ===== 5.2 — ملف اللاعب =====
        رأس بصبغة لون المستوى (تذوب في سطح البطاقة) + خط علوي رفيع بلونه، والنصوص بألوانها المعتادة.
        بقية الملف بنفس نظام «صفحتي»: أقسام يفصلها خط رفيع، عنوان يمينًا وملخص يسارًا، شريط خانات، قوائم مجمعة بفواصل رفيعة. */
@@ -12424,7 +12442,7 @@ function buildLeagueStandingsCanvas() {
     // ===================================
     // 🧭 سلوك التطبيق: إعادة الوضع للأعلى، تعديل العنوان بالضغط المطوّل، تنبيه التحديث، رقم الإصدار
     // ===================================
-    const APP_VERSION = '6';   // ترقيم الاعتماد: 1 ثم 1.1 … 1.9 ثم 2 — ويُرفع معه رقم الإصدار في sw.js
+    const APP_VERSION = '6.1';   // ترقيم الاعتماد: 1 ثم 1.1 … 1.9 ثم 2 — ويُرفع معه رقم الإصدار في sw.js
     (function setupAppBehaviors() {
       const root = document.documentElement;
 
@@ -12836,11 +12854,19 @@ function buildLeagueStandingsCanvas() {
 
       const box = document.createElement('section'); box.id = 'leagueRace'; box.className = 'tr'; box.setAttribute('aria-label', 'سباق اللقب');
       host.insertBefore(box, leagueStandingsEl);
-      let open = false, outOpen = false;   // حالة الطي في الذاكرة فقط
+      let open = false, outOpen = false, gOpen = false;   // حالة الطي في الذاكرة فقط
+      // دليل سباق اللقب: نفس نمط «دليل المستويات» و«دليل الأوسمة» (رابط ذهبي هادئ يفتح لوحة تحته)، والمرحلة الحالية مميزة
+      const PH_DESC = ['', '6 منافسين فأكثر', '4 أو 5 منافسين', 'منافسان أو 3', 'منافس واحد', 'لا أحد يلحق بالمتصدر'];
+      const TERMS = [['متبقي', 'مبارياته التي لم تُلعب بعد'], ['الأقصى', 'رصيده لو فاز في كل مبارياته المتبقية'], ['منافس', 'أقصاه يبلغ نقاط المتصدر الحالية'],
+        ['بلا هامش', 'أي خسارة تخرجه من السباق'], ['خرج حسابيًا', 'لا يبلغ نقاط المتصدر مهما فاز']];
+      const guideHTML = phase => `<div class="pf-guide-in"><div class="pf-ladder">${[1, 2, 3, 4, 5].map(i => `<div class="pf-lad tr-lad${i === phase ? ' on' : ''}"><span class="tr-ph p${i}">${PH[i]}</span><span class="rg">${PH_DESC[i]}</span>${i === phase ? '<span class="me">الآن</span>' : ''}</div>`).join('')}</div>
+          <p class="tr-gnote">وتتقدّم المرحلة أيضًا كلما اقترب المتصدر من الضمان: «منافسة محصورة» إذا كفته 3 انتصارات، و«المتصدر يقترب» إذا كفته 3 نقاط.</p>
+          <dl class="tr-terms">${TERMS.map(([t, d]) => `<div><dt>${t}</dt><dd>${d}</dd></div>`).join('')}</dl>
+          <p>التساوي في النقاط يُبقي اللاعب منافسًا حتى يُحسم بفارق الأشواط والمواجهات، فلا يُعلن الحسم مبكرًا. والخروج نهائي ما لم تُعدَّل نتيجة.</p></div>`;
       const row = (r, kind) => {
         // الحالة للاستثناءات فقط: المتصدر، ومن تُخرجه أي خسارة. بقية القائمة منافسون بطبيعتها
-        const st = kind === 'lead' ? 'المتصدر' : kind === 'out' ? 'خارج السباق' : r.hot ? 'تحت الضغط' : 'منافس';
-        const pill = kind === 'lead' ? '<span class="tr-st lead">المتصدر</span>' : !kind && r.hot ? '<span class="tr-st hot">تحت الضغط</span>' : '<span></span>';
+        const st = kind === 'lead' ? 'المتصدر' : kind === 'out' ? 'خارج السباق' : r.hot ? 'بلا هامش' : 'منافس';
+        const pill = kind === 'lead' ? '<span class="tr-st lead">المتصدر</span>' : !kind && r.hot ? '<span class="tr-st hot">بلا هامش</span>' : '<span></span>';
         return `<button type="button" class="tr-row${kind === 'out' ? ' out' : ''}" data-player="${esc(r.name)}" aria-label="${esc(r.name)}: ${st}، ${r.left} متبقية، أقصى رصيد ${r.max}">
           <span class="n">${esc(r.name)}</span><span class="c">${r.left}</span><span class="mx">${r.max}</span>${pill}</button>`;
       };
@@ -12865,6 +12891,8 @@ function buildLeagueStandingsCanvas() {
               ${out.length ? `<div class="tr-out${outOpen ? ' open' : ''}"><button type="button" class="tr-outsum" aria-expanded="${outOpen}">خرج من السباق حسابيًا · ${nPlayers(out.length)}${chev}</button>
                 <div class="tr-outlist"><div class="in">${out.map(r => row(r, 'out')).join('')}</div></div></div>` : ''}
             </div>
+            <div class="tr-g${gOpen ? ' open' : ''}"><button type="button" class="pf-guide-btn tr-gbtn" aria-expanded="${gOpen}">دليل سباق اللقب <span aria-hidden="true">‹</span></button>
+              <div class="tr-guide"><div class="in">${guideHTML(phase)}</div></div></div>
           </div></div>`;
       }
       box.addEventListener('click', e => {
@@ -12872,6 +12900,8 @@ function buildLeagueStandingsCanvas() {
         if (s) { open = !open; box.classList.toggle('open', open); s.setAttribute('aria-expanded', String(open)); return; }
         const o = e.target.closest('.tr-outsum');
         if (o) { outOpen = !outOpen; o.parentElement.classList.toggle('open', outOpen); o.setAttribute('aria-expanded', String(outOpen)); return; }
+        const g = e.target.closest('.tr-gbtn');
+        if (g) { gOpen = !gOpen; g.parentElement.classList.toggle('open', gOpen); g.setAttribute('aria-expanded', String(gOpen)); return; }
         const r = e.target.closest('.tr-row');
         if (r) openLeaguePlayerHistory(r.dataset.player);
       });
