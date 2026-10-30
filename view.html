@@ -84,6 +84,12 @@
       /* الهوية */
       --wood: #30251F;
       --wood-2: #3A2D26;
+      /* 6: وصفة واحدة لكل شريط ثابت يمر تحته المحتوى (شريط الأوضاع، تبويبات الإحصائيات، رأس أوراق التصدير):
+         زجاج شبه مصمت + تمويه + ظل ناعم يظهر مع التمرير + خط رفيع */
+      --stick-alpha: 92%;
+      --stick-blur: saturate(1.4) blur(14px);
+      --stick-shadow-rgb: 20, 14, 10;
+      --stick-shadow: 0 10px 22px -16px rgba(var(--stick-shadow-rgb), .7);
       --ink: #191919;
       --ivory: #F7F3EA;
       --paper: #FFFEFB;
@@ -385,9 +391,9 @@
       z-index: 90;
       padding: var(--s3) var(--s4);
       padding-top: max(var(--s3), var(--safe-top));
-      background: color-mix(in srgb, var(--bg) 92%, transparent);
-      -webkit-backdrop-filter: saturate(1.4) blur(14px);
-      backdrop-filter: saturate(1.4) blur(14px);
+      background: color-mix(in srgb, var(--bg) var(--stick-alpha), transparent);
+      -webkit-backdrop-filter: var(--stick-blur);
+      backdrop-filter: var(--stick-blur);
       border-bottom: 1px solid var(--line);
     }
     #modeSelection {
@@ -1594,7 +1600,7 @@
     .header-title h2 { transition: none; }
     /* أزرار الأوضاع: مفتاح تبديل مدمج يلتصق تحت الشريط الخشبي */
     .mode-nav { top: var(--hdr-c, 0px); padding-top: var(--s2); padding-bottom: var(--s2); z-index: 94;
-      box-shadow: 0 10px 22px -16px rgba(20, 14, 10, calc(.7 * var(--hdr-p, 0))); }
+      box-shadow: 0 10px 22px -16px rgba(var(--stick-shadow-rgb), calc(.7 * var(--hdr-p, 0))); }
     .btn.mode-switch { min-height: 38px; border-radius: 10px; }
     #modeSelection { padding: 3px; gap: 3px; border-radius: 13px; }
     html { scroll-padding-top: var(--top-stack, 0px); }
@@ -1646,8 +1652,8 @@
       position: fixed; left: 0; right: 0; margin: 0 auto; bottom: calc(14px + var(--safe-bottom)); z-index: 99001;
       width: max-content; max-width: calc(100vw - 24px); min-height: 50px; box-sizing: border-box;
       display: flex; align-items: center; gap: 8px; padding: 6px; padding-inline-start: 12px; border-radius: 999px; direction: rtl;
-      background: rgba(255, 253, 248, .9); color: var(--text);
-      -webkit-backdrop-filter: blur(22px) saturate(1.8); backdrop-filter: blur(22px) saturate(1.8);
+      background: rgba(255, 253, 248, .92); color: var(--text);   /* 6: نفس مادة الزجاج المشتركة (--stick-*) وظل عائم خاص بها */
+      -webkit-backdrop-filter: var(--stick-blur); backdrop-filter: var(--stick-blur);
       border: 1px solid rgba(48, 37, 31, .08);
       box-shadow: 0 14px 34px -12px rgba(30, 22, 17, .32), 0 2px 6px rgba(30, 22, 17, .06);
       transform: translateY(calc(100% + 30px)) scale(.94); opacity: 0;
@@ -1656,7 +1662,7 @@
     }
     body.dark-mode .card, body.dark-mode .teams, body.dark-mode #leagueSetupPanel,
     body.dark-mode .cd-card, body.dark-mode .cd-metric, body.dark-mode .export-center-card, body.dark-mode .cd-history-card { box-shadow: inset 0 1px 0 rgba(255, 245, 230, .04), var(--sh-1); }
-    body.dark-mode .capsule { background: rgba(46, 39, 33, .9); border-color: rgba(255, 255, 255, .08); box-shadow: 0 14px 34px -12px rgba(0, 0, 0, .7); }
+    body.dark-mode .capsule { background: rgba(46, 39, 33, .92); border-color: rgba(255, 255, 255, .08); box-shadow: 0 14px 34px -12px rgba(0, 0, 0, .7); }
     .capsule.in { transform: none; opacity: 1; }
     .capsule.out { opacity: 0; transform: translateY(14px) scale(.96); transition: transform var(--t-base) var(--ease-in), opacity var(--t-base) ease; pointer-events: none; }
     .capsule.dragging { transition: none; }
@@ -1950,14 +1956,13 @@
     .lgf i.w { background: var(--ok-bg); color: var(--ok); } .lgf i.l { background: var(--danger-bg, #FBEAE6); color: var(--danger, #B3402F); } .lgf i.d { background: var(--surface-3); color: var(--text-2); }
     /* تنبيه «نتائج جديدة» أسفل الشاشة */
     .vlive { position: fixed; z-index: 60; left: 50%; bottom: calc(16px + env(safe-area-inset-bottom, 0px)); transform: translate(-50%, 140%); display: flex; align-items: center; gap: 10px;
-      padding: 6px 6px 6px 14px; padding-inline-start: 14px; padding-inline-end: 6px; border-radius: 999px; background: var(--surface); border: 1px solid var(--gold); box-shadow: 0 10px 30px rgba(0,0,0,.18);
-      font-size: var(--fs-sm); font-weight: 800; color: var(--text); white-space: nowrap; opacity: 0; pointer-events: none; transition: transform var(--t-slow) var(--ease), opacity var(--t-base) ease; }
+      padding: 6px 6px 6px 14px; padding-inline-start: 14px; padding-inline-end: 6px; border-radius: 999px; background: var(--wood); border: 1px solid rgba(207, 169, 99, .5); box-shadow: 0 12px 30px -10px rgba(0, 0, 0, .55);
+      font-size: var(--fs-sm); font-weight: 700; color: var(--on-wood); white-space: nowrap; opacity: 0; pointer-events: none; transition: transform var(--t-slow) var(--ease), opacity var(--t-base) ease; }
     .vlive.show { transform: translate(-50%, 0); opacity: 1; pointer-events: auto; }
     .vlive .dot { width: 8px; height: 8px; border-radius: 50%; background: var(--gold); box-shadow: 0 0 0 0 rgba(207,169,99,.6); animation: vlivePulse 1.8s ease-out infinite; }
     @keyframes vlivePulse { to { box-shadow: 0 0 0 8px rgba(207,169,99,0); } }
-    .vlive button { min-height: 36px; padding: 0 16px; border: 0; border-radius: 999px; background: var(--wood); color: var(--on-wood); font: inherit; font-size: var(--fs-sm); font-weight: 800; cursor: pointer; -webkit-tap-highlight-color: transparent; }
-    body.dark-mode .vlive { box-shadow: 0 10px 30px rgba(0,0,0,.5); }
-    body.dark-mode .vlive button { background: var(--gold-fill); color: #1A140F; }
+    /* 6: «نُشرت نتائج جديدة» بنفس مادة التنبيهات (خشب داكن بحافة ذهبية) مطابقة لكبسولة «تحديث متوفر» */
+    .vlive button { min-height: 36px; padding: 0 16px; border: 0; border-radius: 999px; background: var(--gold); color: #1d1610; font: inherit; font-size: var(--fs-sm); font-weight: 800; cursor: pointer; -webkit-tap-highlight-color: transparent; }
     .vlive.busy button { opacity: .7; }
     @media (prefers-reduced-motion: reduce) { .vlive { transition: opacity .2s ease; } .vlive .dot { animation: none; } }
     /* «نتائج اليوم» */
@@ -2599,7 +2604,17 @@
        هالة بلون أرضية النافذة حولها تخفي ما يمر تحتها */
     body:not(.dark-mode) #statsModal { --st-bg: var(--bg); } body.dark-mode #statsModal { --st-bg: var(--surface); }
     #statsModal .stats-modal-content { position: relative; }   /* مرجع حساب مواضع الأقسام داخل النافذة */
-    #statsModal .st-tabs { position: -webkit-sticky; position: sticky; top: 0; z-index: 4; box-shadow: 0 -26px 0 6px var(--st-bg), 0 0 0 6px var(--st-bg); }
+    #statsModal .st-tabs { position: -webkit-sticky; position: sticky; top: 0; z-index: 4; }
+    /* 6: عند التثبيت فقط يظهر خلف التبويبات شريط بعرض النافذة بوصفة شريط الأوضاع (زجاج + ظل + خط). في مكانها الطبيعي لا شيء خلفها،
+       فلا يغطي عنوان «الترتيب والسجل». حدود الشريط الأفقية تُحسب من موضع التبويبات داخل النافذة (--gl / --gr) */
+    #statsModal .st-tabs::before { content: ''; position: absolute; z-index: -2; top: -60px; bottom: -8px; left: calc(-1 * var(--gl, 20px)); right: calc(-1 * var(--gr, 20px));
+      background: color-mix(in srgb, var(--st-bg) var(--stick-alpha), transparent); -webkit-backdrop-filter: var(--stick-blur); backdrop-filter: var(--stick-blur);
+      border-bottom: 1px solid var(--line); box-shadow: var(--stick-shadow); opacity: 0; pointer-events: none; transition: opacity var(--t-base) ease; }
+    #statsModal .st-tabs.stuck::before { opacity: 1; }
+    /* أرضية الكبسولة نفسها في طبقة فوق الشريط (الطبقة السالبة تُرسم فوق خلفية العنصر) */
+    #statsModal .st-tabs { background: transparent; }
+    #statsModal .st-tabs::after { content: ''; position: absolute; z-index: -1; inset: 0; border-radius: inherit; background: var(--surface-3); pointer-events: none; }
+    @media (prefers-reduced-motion: reduce) { #statsModal .st-tabs::before { transition: none; } }
     /* ===== «الحاضرون الليلة» (الإدارة): بطاقة بنفس هوية «لاعبو الدوري» — سطر ملخص قابل للفتح، أسماء للاختيار، ثم المباريات المتاحة ===== */
     #leagueTonight { display: none; }
     body.lg-focus #leagueTonight:not([hidden]) { display: block; margin: 0 0 var(--s3); padding: 2px 16px; border-radius: 22px; border: 1px solid var(--line); background: var(--surface); box-shadow: var(--sh-1); }
@@ -2628,6 +2643,66 @@
     .tn-grid .match-status { display: none; }   /* كلها جاهزة للتسجيل: رقم الجولة أهم من الحالة */
     .tn-sum .d { white-space: nowrap; }
     .tn-none { margin: 0; padding: 6px 0 2px; text-align: center; font-size: 12.5px; font-weight: 700; color: var(--text-3); }
+    /* ===== «سباق اللقب» (6 — الإدارة فقط): بطاقة واحدة فوق ترتيب الدوري — المرحلة وعدد المنافسين، جملة الضمان، ثم المنافسون =====
+       عرض فقط: يُحسب لحظيًا من بيانات الدوري ولا يُخزَّن ولا يُنشر ولا يُرسم في صفحة المشاهدة */
+    #leagueRace { display: none; }
+    body.lg-focus #leagueRace:not([hidden]) { display: block; margin: 0 0 var(--s3); padding: 2px 16px; border-radius: 22px; border: 1px solid var(--line); background: var(--surface); box-shadow: var(--sh-1); }
+    html.view-mode #leagueRace { display: none !important; }
+    .tr-sum { display: grid; grid-template-columns: auto minmax(0, 1fr) auto auto; align-items: center; column-gap: 10px; width: 100%; min-height: 52px; padding: 8px 2px; margin: 0; border: 0; background: none; font: inherit; color: var(--text); text-align: start; cursor: pointer; -webkit-tap-highlight-color: transparent; }
+    .tr-sum > .ic { width: 18px; height: 18px; flex: none; color: var(--gold-deep); }
+    .tr-sum .t { font-size: var(--fs-md); font-weight: 800; white-space: nowrap; }
+    .tr-sum .tr-ph { justify-self: end; }
+    /* سطر الخلاصة تحت العنوان (والبطاقة مطوية): أهم رقم دون فتحها، ويذوب عند الفتح لأن الجملة الكاملة تظهر في الداخل */
+    .tr-sum .sub { grid-column: 2 / -1; display: grid; grid-template-rows: 1fr; opacity: 1; transition: grid-template-rows var(--t-sheet) var(--ease), opacity var(--t-base) ease; }
+    .tr-sum .sub > .in { min-height: 0; overflow: hidden; padding-top: 2px; font-size: 12.5px; font-weight: 700; color: var(--text-2); white-space: nowrap; text-overflow: ellipsis; }
+    .tr-sum .sub b { font-weight: 800; color: var(--text); }
+    .tr-sum .sub b.k { color: var(--gold-deep); }
+    .tr.open .tr-sum .sub { grid-template-rows: 0fr; opacity: 0; }
+    .tr-cap { display: block; padding: 7px 2px 0; font-size: 11.5px; font-weight: 700; color: var(--text-3); }
+    .tr-cap b { font-weight: 800; color: var(--text-2); }
+    .tr-sum .chev { flex: none; width: 18px; height: 18px; color: var(--text-3); transition: transform var(--t-sheet) var(--ease); }
+    .tr.open .tr-sum .chev { transform: rotate(180deg); }
+    /* كبسولة المرحلة: نفس أسلوب كبسولات المستوى (تدرج مسطح بلا إطار ولا ظل) — حجري · برونزي · فضي · إسبريسو · ذهبي */
+    .tr-ph { flex: none; display: inline-flex; align-items: center; min-height: 24px; padding: 0 10px; border-radius: 999px; font-size: 11.5px; font-weight: 800; line-height: 1; white-space: nowrap; }
+    .tr-ph.p1 { background: linear-gradient(135deg, #EEE8DE, #DCD3C5); color: #5E584E; }
+    .tr-ph.p2 { background: linear-gradient(135deg, #F2DDC8, #D9AE88); color: #4E2E14; }
+    .tr-ph.p3 { background: linear-gradient(135deg, #F0F2F3, #C3C9CE); color: #2F353B; }
+    .tr-ph.p4 { background: linear-gradient(135deg, #5A4535, #33261D); color: #F1D9A6; }
+    .tr-ph.p5 { background: linear-gradient(135deg, #F3DFAE, #CFA963); color: #3A2A0C; }
+    body.dark-mode .tr-ph.p1 { background: linear-gradient(135deg, #DCD3C5, #BFB4A3); color: #3A342D; }
+    body.dark-mode .tr-ph.p4 { background: linear-gradient(135deg, #735A45, #4C3A2C); color: #F3DDAC; }
+    .tr-body { display: grid; grid-template-rows: 0fr; opacity: 0; transition: grid-template-rows var(--t-sheet) var(--ease), opacity var(--t-base) ease; }
+    .tr.open .tr-body { grid-template-rows: 1fr; opacity: 1; }
+    .tr-body > .in { min-height: 0; overflow: hidden; }
+    /* مؤشر المراحل الخمس: خمسة مقاطع رفيعة تمتلئ حتى المرحلة الحالية */
+    .tr-steps { display: grid; grid-template-columns: repeat(5, 1fr); gap: 4px; padding: 0 2px; }
+    .tr-steps i { height: 4px; border-radius: 2px; background: var(--surface-3); }
+    .tr-steps i.on { background: var(--gold); }
+    .tr-say { margin: 0; padding: 8px 2px 12px; font-size: 13.5px; font-weight: 700; line-height: 1.75; color: var(--text-2); }
+    .tr-say b { font-weight: 800; color: var(--text); }
+    .tr-say .k { color: var(--gold-deep); }
+    .tr-list { display: flex; flex-direction: column; padding: 0 0 8px; }
+    .tr-head, .tr-row { display: grid; grid-template-columns: minmax(0, 1fr) 40px 44px 76px; align-items: center; gap: 4px; }
+    .tr-head { padding: 0 2px 6px; border-bottom: 1px solid var(--line); font-size: 11.5px; font-weight: 800; color: var(--text-3); text-align: center; }
+    .tr-head .n, .tr-row .n { text-align: start; }
+    .tr-row { width: 100%; min-height: 46px; padding: 4px 2px; margin: 0; border: 0; border-bottom: 1px solid var(--line); border-radius: 0; background: none; font: inherit; color: var(--text); text-align: center; cursor: pointer; -webkit-tap-highlight-color: transparent; transition: background-color var(--t-fast) var(--ease); }
+    .tr-row:active { background: var(--surface-2); }
+    .tr-list > .tr-row:last-of-type, .tr-outlist .tr-row:last-child { border-bottom: 0; }
+    .tr-row .n { font-size: 15px; font-weight: 800; overflow-wrap: anywhere; }
+    .tr-row .c { font-size: 14px; font-weight: 700; color: var(--text-2); font-variant-numeric: tabular-nums; }
+    .tr-row .mx { font-size: 16px; font-weight: 800; color: var(--text); font-variant-numeric: tabular-nums; }
+    .tr-st { justify-self: center; display: inline-flex; align-items: center; justify-content: center; min-width: 72px; min-height: 24px; padding: 0 8px; border-radius: 999px; font-size: 11.5px; font-weight: 800; line-height: 1; white-space: nowrap; background: var(--surface-3); color: var(--text-2); }
+    .tr-st.lead { background: var(--warn-bg); color: var(--gold-deep); }
+    .tr-st.hot { background: transparent; box-shadow: inset 0 0 0 1px var(--line-strong); color: var(--text); }
+    .tr-st.out { background: transparent; color: var(--text-3); }
+        .tr-row.out .n, .tr-row.out .mx { color: var(--text-3); }
+    .tr-outsum { display: flex; align-items: center; gap: 8px; width: 100%; min-height: 44px; margin: 0; padding: 0 2px; border: 0; border-top: 1px solid var(--line); background: none; font: inherit; font-size: 12.5px; font-weight: 800; color: var(--text-2); text-align: start; cursor: pointer; -webkit-tap-highlight-color: transparent; }
+    .tr-outsum .chev { width: 16px; height: 16px; margin-inline-start: auto; color: var(--text-3); transition: transform var(--t-sheet) var(--ease); }
+    .tr-out.open .tr-outsum .chev { transform: rotate(180deg); }
+    .tr-outlist { display: grid; grid-template-rows: 0fr; opacity: 0; transition: grid-template-rows var(--t-sheet) var(--ease), opacity var(--t-base) ease; }
+    .tr-out.open .tr-outlist { grid-template-rows: 1fr; opacity: 1; }
+    .tr-outlist > .in { min-height: 0; overflow: hidden; display: flex; flex-direction: column; border-top: 1px solid var(--line); }
+        @media (prefers-reduced-motion: reduce) { .tr-sum .sub, .tr-body, .tr-outlist, .tr-sum .chev, .tr-outsum .chev { transition: none; } }
     /* ===== 5.2 — ملف اللاعب =====
        رأس بصبغة لون المستوى (تذوب في سطح البطاقة) + خط علوي رفيع بلونه، والنصوص بألوانها المعتادة.
        بقية الملف بنفس نظام «صفحتي»: أقسام يفصلها خط رفيع، عنوان يمينًا وملخص يسارًا، شريط خانات، قوائم مجمعة بفواصل رفيعة. */
@@ -7385,7 +7460,8 @@ currentScoreWinnerName = null;
       #xsRoot .xs-scrim{position:absolute;inset:0;background:rgba(0,0,0,.5);z-index:3}
       #xsRoot .xs-side{position:fixed;left:0;right:0;bottom:0;max-height:74vh;overflow:auto;background:#3A2D26;border-radius:22px 22px 0 0;border-top:1px solid rgba(207,169,99,.5);padding:0 14px calc(18px + env(safe-area-inset-bottom,0px));transform:translateY(105%);transition:transform .22s ease;z-index:4;display:grid;gap:14px;align-content:start;visibility:hidden}
       #xsRoot .xs-side.open{transform:translateY(0);visibility:visible}
-      #xsRoot .xs-sheet-head{position:sticky;top:0;display:flex;align-items:center;justify-content:space-between;padding:14px 0 8px;background:#3A2D26;z-index:1}
+      #xsRoot .xs-sheet-head{position:sticky;top:0;display:flex;align-items:center;justify-content:space-between;margin:0 -14px;padding:14px 14px 8px;background:rgba(58,45,38,.92);-webkit-backdrop-filter:var(--stick-blur);backdrop-filter:var(--stick-blur);border-bottom:1px solid transparent;z-index:1;transition:box-shadow var(--t-base) ease,border-color var(--t-base) ease}
+      #xsRoot .xs-side.scrolled .xs-sheet-head{border-bottom-color:rgba(207,169,99,.3);box-shadow:0 10px 22px -16px rgba(0,0,0,.85)}
       #xsRoot .xs-sheet-head strong{font-size:17px}
       #xsRoot .xs-sheet-head button{min-height:44px;padding:0 20px;border-radius:12px;border:0;background:#CFA963;color:#30251F;font-weight:800;font-size:15px}
       #xsRoot .xs-side[data-tab="format"] #xsEditBlock,#xsRoot .xs-side[data-tab="edit"] #xsFormatBlock{display:none}
@@ -12375,7 +12451,7 @@ function buildLeagueStandingsCanvas() {
     // ===================================
     // 🧭 سلوك التطبيق: إعادة الوضع للأعلى، تعديل العنوان بالضغط المطوّل، تنبيه التحديث، رقم الإصدار
     // ===================================
-    const APP_VERSION = '5.9';   // ترقيم الاعتماد: 1 ثم 1.1 … 1.9 ثم 2 — ويُرفع معه رقم الإصدار في sw.js
+    const APP_VERSION = '6';   // ترقيم الاعتماد: 1 ثم 1.1 … 1.9 ثم 2 — ويُرفع معه رقم الإصدار في sw.js
     (function setupAppBehaviors() {
       const root = document.documentElement;
 
@@ -12727,6 +12803,108 @@ function buildLeagueStandingsCanvas() {
       const _rr = renderLeagueRounds;
       renderLeagueRounds = function () { const r = _rr.apply(this, arguments); try { paint(false); } catch (e) { console.error(e); } return r; };
       try { paint(false); } catch (e) {}
+    })();
+    // ===== الأشرطة الثابتة (6): وصفة شريط الأوضاع للتبويبات الثابتة في الإحصائيات ورأس أوراق التصدير =====
+    // التبويبات «مثبتة» حين تنفصل عن مكانها الطبيعي تحت العنوان، ورأس ورقة التصدير يأخذ الظل بعد أول تمرير
+    document.addEventListener('scroll', e => { const t = e.target; if (t && t.id === 'xsSide') t.classList.toggle('scrolled', t.scrollTop > 2); }, true);
+    (function statsTabsStuck() {
+      const m = document.getElementById('statsModal'); if (!m) return;
+      let raf = 0;
+      const upd = () => { raf = 0; const t = m.querySelector('.st-tabs'), h = t && t.previousElementSibling, sc = t && t.closest('.stats-modal-content'); if (!t || !h || !sc) return;
+        const r = t.getBoundingClientRect(), s = sc.getBoundingClientRect();
+        t.style.setProperty('--gl', Math.max(0, r.left - s.left - sc.clientLeft) + 'px');
+        t.style.setProperty('--gr', Math.max(0, s.right - r.right - (sc.offsetWidth - sc.clientWidth - sc.clientLeft)) + 'px');
+        t.classList.toggle('stuck', r.top - h.getBoundingClientRect().bottom > 14); };   // المسافة الطبيعية 10px
+      const ask = () => { if (!raf) raf = requestAnimationFrame(upd); };
+      m.addEventListener('scroll', ask, true);
+      new MutationObserver(ask).observe(m, { childList: true, subtree: true });
+    })();
+    // ===== «سباق اللقب» (6 — الإدارة فقط): قراءة المنافسة على لقب الدوري =====
+    // عرض فقط: يُحسب لحظيًا من بيانات الدوري نفسها (calculateLeagueStandings + isLeagueMatchSettled + leagueClinch) مع كل رسم للترتيب،
+    // فيتبع تلقائيًا أي نتيجة أو تعديل أو تراجع أو استبعاد أو استعادة نسخة. لا يُخزَّن شيء ولا يدخل data.json ولا التصدير، ولا يُرسم في صفحة المشاهدة.
+    // المنافس: أقصى رصيده (نقاطه + 3 × مبارياته غير المحسومة) يساوي نقاط المتصدر أو يتجاوزها — التساوي يُبقيه منافسًا لأن كسر التعادل لم يُحسم بعد.
+    // الحسم: من leagueClinch() نفسها (نفس قاعدة سطر «اللقب محسوم» عند اللاعبين)، فلا تختلف القراءة عن المعلن أبدًا.
+    (function setupTitleRace() {
+      if (window.CARROM_VIEW || !leagueStandingsEl) return;
+      const host = leagueStandingsEl.parentElement;
+      const esc = x => String(x == null ? '' : x).replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
+      const chev = '<svg class="chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg>';
+      const PH = ['', 'منافسة مفتوحة', 'الصدارة تتضح', 'منافسة محصورة', 'المتصدر يقترب', 'حُسم اللقب'];
+      // العدد والمعدود
+      const byPts = n => n === 1 ? 'بنقطة واحدة' : n === 2 ? 'بنقطتين' : n <= 10 ? `بـ${n} نقاط` : `بـ${n} نقطة`;
+      const nLeft = n => n === 1 ? 'مباراة واحدة متبقية' : n === 2 ? 'مباراتين متبقيتين' : n <= 10 ? `${n} مباريات متبقية` : `${n} مباراة متبقية`;
+      const nWins = n => n === 1 ? 'انتصار واحد يكفيه' : n === 2 ? 'انتصاران يكفيانه' : n <= 10 ? `${n} انتصارات تكفيه` : `${n} انتصارًا تكفيه`;
+      const nRivals = n => n === 0 ? 'بلا منافس' : n === 1 ? 'منافس واحد' : n === 2 ? 'منافسان' : n <= 10 ? `<b>${n}</b> منافسين` : `<b>${n}</b> منافسًا`;
+      const nPlayers = n => n === 1 ? 'لاعب واحد' : n === 2 ? 'لاعبان' : n <= 10 ? `${n} لاعبين` : `${n} لاعبًا`;
+
+      function compute() {
+        if (!leagueStarted || leagueFixtureError || leagueCompleted || !leagueMatches.length) return null;
+        const st = calculateLeagueStandings().filter(r => !r.excluded);
+        if (st.length < 2 || !st.some(r => r.played > 0)) return null;
+        const left = {};
+        leagueMatches.forEach(m => { if (!isLeagueMatchSettled(m)) { left[m.playerA] = (left[m.playerA] || 0) + 1; left[m.playerB] = (left[m.playerB] || 0) + 1; } });
+        const rows = st.map(r => ({ name: r.name, points: r.points, left: left[r.name] || 0 }));
+        rows.forEach(r => { r.max = r.points + 3 * r.left; });
+        const L = rows[0], others = rows.slice(1);
+        const rivals = others.filter(r => r.max >= L.points), out = others.filter(r => r.max < L.points);
+        const cl = leagueClinch(), clinched = !!(cl && !cl.final && cl.name === L.name);
+        // أقوى منافس = صاحب أعلى رصيد ممكن (وعند التساوي الأعلى ترتيبًا)
+        const best = others.reduce((a, b) => (!a || b.max > a.max) ? b : a, null);
+        const need = best ? Math.max(0, best.max + 1 - L.points) : 0;   // نقاط الضمان دون الاعتماد على نتائج غيره
+        const selfOk = need <= 3 * L.left;
+        // المرحلة = الأكثر تقدمًا بين قراءتين: عدد المنافسين، وقرب المتصدر من الضمان بنتائجه وحدها (3 انتصارات أو أقل · ثم 3 نقاط أو أقل)
+        const byCount = rivals.length <= 1 ? 4 : rivals.length <= 3 ? 3 : rivals.length <= 5 ? 2 : 1;
+        const byNeed = !selfOk ? 1 : need <= 3 ? 4 : need <= 9 ? 3 : 1;
+        const phase = clinched ? 5 : Math.max(byCount, byNeed);
+        rivals.forEach(r => { r.hot = r.max - L.points <= 2; });   // أي خسارة تخرجه: أقصاه ينقص 3 فيصبح دون نقاط المتصدر
+        rivals.sort((a, b) => b.max - a.max); out.sort((a, b) => b.max - a.max);   // sort ثابت: عند التساوي يبقى ترتيب الدوري
+        return { L, rivals, out, need, selfOk, phase, cl: clinched ? cl : null };
+      }
+
+      const box = document.createElement('section'); box.id = 'leagueRace'; box.className = 'tr'; box.setAttribute('aria-label', 'سباق اللقب');
+      host.insertBefore(box, leagueStandingsEl);
+      let open = false, outOpen = false;   // حالة الطي في الذاكرة فقط
+      const row = (r, kind) => {
+        // الحالة للاستثناءات فقط: المتصدر، ومن تُخرجه أي خسارة. بقية القائمة منافسون بطبيعتها
+        const st = kind === 'lead' ? 'المتصدر' : kind === 'out' ? 'خارج السباق' : r.hot ? 'تحت الضغط' : 'منافس';
+        const pill = kind === 'lead' ? '<span class="tr-st lead">المتصدر</span>' : !kind && r.hot ? '<span class="tr-st hot">تحت الضغط</span>' : '<span></span>';
+        return `<button type="button" class="tr-row${kind === 'out' ? ' out' : ''}" data-player="${esc(r.name)}" aria-label="${esc(r.name)}: ${st}، ${r.left} متبقية، أقصى رصيد ${r.max}">
+          <span class="n">${esc(r.name)}</span><span class="c">${r.left}</span><span class="mx">${r.max}</span>${pill}</button>`;
+      };
+      function paint() {
+        const R = compute();
+        box.hidden = !R; if (!R) return;
+        const { L, rivals, out, need, selfOk, phase, cl } = R;
+        const say = phase === 5
+          ? `لم يعد بإمكان أي لاعب اللحاق بـ<b>${esc(L.name)}</b>، حُسم اللقب قبل ${arRounds(cl.roundsLeft)} من النهاية.`
+          : selfOk
+            ? `يضمن <b>${esc(L.name)}</b> اللقب <b class="k">${byPts(need)}</b> من ${nLeft(L.left)} · ${need === 1 ? 'تعادل واحد يكفيه' : nWins(Math.ceil(need / 3))}`
+            : `لا يستطيع <b>${esc(L.name)}</b> ضمان اللقب بنتائجه وحدها؛ ${L.left ? `أقصى ما يبلغه <b>${L.max}</b> نقطة، ويحتاج إلى تعثّر منافسيه.` : 'انتهت مبارياته، والحسم بيد منافسيه.'}`;
+        box.classList.toggle('open', open);
+        box.innerHTML = `<button type="button" class="tr-sum" aria-expanded="${open}"><span class="ic ic-flag" aria-hidden="true"></span><span class="t">سباق اللقب</span><span class="tr-ph p${phase}">${PH[phase]}</span>${chev}<span class="sub"><span class="in">${phase === 5 ? `<b>${esc(L.name)}</b> · قبل ${arRounds(cl.roundsLeft)} من النهاية` : selfOk ? `<b>${esc(L.name)}</b> يحتاج <b class="k">${need}</b> ${need === 1 ? 'نقطة' : need === 2 ? 'نقطتين' : need <= 10 ? 'نقاط' : 'نقطة'} للضمان` : `<b>${esc(L.name)}</b> لا يضمنه بنتائجه وحدها`}</span></span></button>
+          <div class="tr-body"><div class="in">
+            <div class="tr-steps" aria-hidden="true">${[1, 2, 3, 4, 5].map(i => `<i${i <= phase ? ' class="on"' : ''}></i>`).join('')}</div>
+            ${phase < 5 ? `<div class="tr-cap">المتصدر و${nRivals(rivals.length)}</div>` : ''}
+            <p class="tr-say">${say}</p>
+            <div class="tr-list">
+              <div class="tr-head" aria-hidden="true"><span class="n">اللاعب</span><span>متبقي</span><span>الأقصى</span><span></span></div>
+              ${row(L, 'lead')}${rivals.map(r => row(r)).join('')}
+              ${out.length ? `<div class="tr-out${outOpen ? ' open' : ''}"><button type="button" class="tr-outsum" aria-expanded="${outOpen}">خرج من السباق حسابيًا · ${nPlayers(out.length)}${chev}</button>
+                <div class="tr-outlist"><div class="in">${out.map(r => row(r, 'out')).join('')}</div></div></div>` : ''}
+            </div>
+          </div></div>`;
+      }
+      box.addEventListener('click', e => {
+        const s = e.target.closest('.tr-sum');
+        if (s) { open = !open; box.classList.toggle('open', open); s.setAttribute('aria-expanded', String(open)); return; }
+        const o = e.target.closest('.tr-outsum');
+        if (o) { outOpen = !outOpen; o.parentElement.classList.toggle('open', outOpen); o.setAttribute('aria-expanded', String(outOpen)); return; }
+        const r = e.target.closest('.tr-row');
+        if (r) openLeaguePlayerHistory(r.dataset.player);
+      });
+      const _rs = renderLeagueStandings;
+      renderLeagueStandings = function () { const r = _rs.apply(this, arguments); try { paint(); } catch (e) { console.error(e); } return r; };
+      try { paint(); } catch (e) {}
     })();
     // ===== تنبيه «رقم قياسي جديد» (5.4) =====
     // الإدارة: بعد كل نتيجة تُعتمد يُقارن سجل الأرقام بما قبلها. نسخة اللاعبين: عند الفتح يُقارن بآخر ما رآه اللاعب على جهازه (مرة واحدة لكل رقم).
