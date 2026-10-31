@@ -3307,14 +3307,14 @@
       const one = rankOf(rank) === 1;   // التمييز الوحيد: رقم «1» بذهبي مميز
       k = k || 1; exportText(ctx, label != null ? String(label) : String(rank), cx, cy, { size: Math.round((one ? 32 : 30) * k), weight: 800, color: one ? '#B8892E' : EXPORT_BRAND.faint, dir: 'ltr' });
     }
-    // 6.3: صفوف الجداول كتلة واحدة بلا صناديق — ورق عاجي، وصف ثانٍ مظلل خفيفًا، وخط رفيع بين الصفوف (نفس صور قوائم المباريات)
-    function exportZebraRows(ctx, x, y, w, rowH, n) {
-      const B = EXPORT_BRAND; if (!n) return;
-      ctx.save(); drawRoundedRect(ctx, x, y, w, n * rowH, 14); ctx.clip();
-      for (let i = 0; i < n; i++) { ctx.fillStyle = i % 2 ? '#F8F1E6' : B.paper; ctx.fillRect(x, y + i * rowH, w, rowH); }
-      ctx.strokeStyle = B.line; ctx.lineWidth = 1.2;
-      for (let i = 1; i < n; i++) { const yy = y + i * rowH; ctx.beginPath(); ctx.moveTo(x + 14, yy); ctx.lineTo(x + w - 14, yy); ctx.stroke(); }
-      ctx.restore();
+    // 6.5: كل صف بطاقة مستقلة (ورق عاجي + حد رفيع، بلا ظل) داخل خانة الصف نفسها؛ الفراغ يفصل الصفوف فتبقى العين على صفها
+    // المحتوى يُرسم في منتصف الخانة كما هو، فلا يتغير أي قياس أو محاذاة؛ البطاقة أقصر من الخانة بمقدار الفراغ فقط
+    function exportRowCard(ctx, x, y, w, h) {
+      const B = EXPORT_BRAND; ctx.save(); drawRoundedRect(ctx, x, y, w, h, 14); ctx.fillStyle = B.paper; ctx.fill(); ctx.strokeStyle = B.line; ctx.lineWidth = 1.5; ctx.stroke(); ctx.restore();
+    }
+    function exportZebraRows(ctx, x, y, w, rowH, n, gap) {
+      if (!n) return; const g = gap == null ? 10 : gap;
+      for (let i = 0; i < n; i++) exportRowCard(ctx, x, y + i * rowH + g / 2, w, rowH - g);
     }
     // ميدالية مرسومة بمسارات SVG (Path2D) داخل Canvas: شريطان + قرص معدني + حلقة داخلية + رقم المركز.
     // لا تعتمد على صور خارجية أو إيموجي، فلا تختفي ولا يتغير لونها أو حجمها عند التحويل إلى PNG.
@@ -5808,7 +5808,7 @@ async function exportStatsImage() {
     exportZebraRows(ctx, M + TP, y, CW - 2 * TP, ROW, players.length);
     players.forEach((p, i) => {
       if (i > 0) cuts.push(y - GAP / 2);
-      const rank = i + 1, cy0 = y + ROW / 2, cy = C.titles ? cy0 - 13 : cy0, sy = cy0 + 26;   // cy: السطر الرئيسي لكل الصف، sy: سطر كبسولات الألقاب
+      const rank = i + 1, cy0 = y + ROW / 2, cy = C.titles ? cy0 - 18 : cy0, sy = cy0 + 21;   // cy: السطر الرئيسي لكل الصف، sy: سطر كبسولات الألقاب
       if (C.rank) exportRankNum(ctx, C.rank.c, cy, rank, null, 1.12);
       if (C.name) exportText(ctx, p.name || 'غير محدد', C.name.r - 24, cy, { size: nameSz, weight: 800, color: B.ink, align: 'right', maxW: C.name.w - 34, min: 16 });
       const num = (k, v, o) => { if (C[k]) exportText(ctx, String(v), C[k].c, cy, Object.assign({ size: 34, weight: 700, color: B.text, dir: 'ltr', maxW: C[k].w - 10 }, o || {})); };
@@ -9758,7 +9758,7 @@ function buildLeagueStandingsCanvas() {
         y += HEAD + (framed ? TP : 14);
         if (sec.matches) { y = drawMatchCards(ctx, sec.matches, IM, y, ICW, cuts) + TP - 12 + 14; return; }
         if (sec.honor) { y = drawHonorRows(ctx, sec.honor, IM, y, ICW, cuts) + TP + 14; if (sec.legend) { cuts.push(y - 6); drawTitlesLegend(ctx, M + CW / 2, y + 30); y += 82 - 14; } return; }
-        exportZebraRows(ctx, IM, y, ICW, ROW, sec.rows.length);
+        exportZebraRows(ctx, IM, y, ICW, ROW, sec.rows.length, 8);
         const lSz = Math.min(34, Math.round(ROW * 0.43)), vSz = Math.min(36, Math.round(ROW * 0.46));
         // نتيجة المباراة في السجلات: التمييز باللون فقط (فوز بلون كامل، خسارة وغير الملعوبة رمادي)
         const vCol = v => v === 'خسارة' || v === 'لم تُلعب' || v === 'ملغاة' || v === '—' ? B.faint : v === 'تعادل' ? B.text : B.ink;
@@ -9812,10 +9812,9 @@ function buildLeagueStandingsCanvas() {
     }
     function drawCompactRows(ctx, items, IX, y0, IW, rowH, cols, cuts) {
       const B = EXPORT_BRAND, n = items.length, rows = Math.ceil(n / cols), GAP = cols > 1 ? 14 : 0, colW = (IW - GAP) / cols;
-      ctx.save(); drawRoundedRect(ctx, IX, y0, IW, rows * rowH, 14); ctx.clip();
+      const CG = rowH < 72 ? 6 : 8;   // 6.5: بطاقة لكل مباراة، بفراغ أصغر من جداول اللاعبين لأن القوائم قد تطول
       for (let c = 0; c < cols; c++) { const cx0 = IX + IW - (c + 1) * colW - c * GAP;
-        for (let r = 0; r < rows; r++) { if (c * rows + r >= n) break; ctx.fillStyle = r % 2 ? '#F8F1E6' : B.paper; ctx.fillRect(cx0, y0 + r * rowH, colW, rowH); } }
-      ctx.restore();
+        for (let r = 0; r < rows; r++) { if (c * rows + r >= n) break; exportRowCard(ctx, cx0, y0 + r * rowH + CG / 2, colW, rowH - CG); } }
       const nameSize = cols > 1 ? Math.min(33, Math.round(rowH * 0.5)) : Math.min(42, Math.round(rowH * 0.53));   // 6.3: ~20% أكبر مع بقاء الصف مريحًا
       const scoreSize = cols > 1 ? Math.min(37, Math.round(rowH * 0.57)) : Math.min(48, Math.round(rowH * 0.6));
       const sGap = Math.round(scoreSize * 0.78), nameW = colW / 2 - 20 - (sGap + scoreSize * 0.45 + 18);   // مسافة واضحة بين الاسم والنتيجة
@@ -9831,13 +9830,12 @@ function buildLeagueStandingsCanvas() {
       items.forEach((it, i) => {
         const c = Math.floor(i / rows), r = i % rows, cx0 = IX + IW - (c + 1) * colW - c * GAP, y = y0 + r * rowH, cy = y + rowH / 2, mid = cx0 + colW / 2;
         if (c === 0 && r > 0) cuts.push(y);
-        if (r > 0) { ctx.save(); ctx.strokeStyle = B.line; ctx.lineWidth = 1.2; ctx.beginPath(); ctx.moveTo(cx0 + 14, y); ctx.lineTo(cx0 + colW - 14, y); ctx.stroke(); ctx.restore(); }
         if (it.bye) { exportText(ctx, `راحة: ${it.bye}`, mid, cy, { size: Math.round(nameSize * 0.85), weight: 700, color: B.muted, maxW: colW - 60, min: 16 }); return; }
         const voided = !!it.annul, draw = it.done && !it.win;
         const nameColor = side => voided ? B.faint : draw || !it.done ? B.text : it.win === side ? B.ink : B.faint;   // التمييز باللون فقط
         const tag = it.annul ? '' : it.ff ? (it.auto ? 'استبعاد' : 'انسحاب') : '';
         // صف فيه «انسحاب»: الاسمان والنتيجة معًا على سطر رئيسي أعلى قليلًا، والكلمة على سطر ثانوي تحته (لا يخرج أي عنصر عن سطره)
-        const sy = tag ? cy - Math.round(rowH * 0.12) : cy;
+        const sy = tag ? cy - Math.round(rowH * 0.14) : cy;
         drawName(it.a, cx0 + colW - 20, sy, 'right', nameColor('a'));
         drawName(it.b, cx0 + 20, sy, 'left', nameColor('b'));
         if (voided) {
@@ -9848,7 +9846,7 @@ function buildLeagueStandingsCanvas() {
           exportText(ctx, String(it.sa), mid + sGap, sy, { size: scoreSize, weight: 800, color: sc('a'), dir: 'ltr', maxW: 70, min: 20 });
           exportText(ctx, String(it.sb), mid - sGap, sy, { size: scoreSize, weight: 800, color: sc('b'), dir: 'ltr', maxW: 70, min: 20 });
           exportText(ctx, '-', mid, sy, { size: Math.round(scoreSize * 0.8), weight: 700, color: B.muted, dir: 'ltr' });
-          if (tag) exportText(ctx, tag, mid, cy + Math.round(rowH * 0.27) - exportOptDy(Math.max(17, Math.round(rowH * 0.28))), { size: Math.max(17, Math.round(rowH * 0.28)), weight: 800, color: B.walnut });
+          if (tag) exportText(ctx, tag, mid, cy + Math.round(rowH * 0.22) - exportOptDy(Math.max(17, Math.round(rowH * 0.28))), { size: Math.max(17, Math.round(rowH * 0.28)), weight: 800, color: B.walnut });
         } else drawVsPill(ctx, mid, cy, Math.min(1.15, rowH / 80));
       });
       if (cols > 1) { const x = IX + IW - colW - GAP / 2; ctx.save(); ctx.strokeStyle = B.lineStrong; ctx.lineWidth = 2; ctx.beginPath(); ctx.moveTo(x, y0 + 6); ctx.lineTo(x, y0 + rows * rowH - 6); ctx.stroke(); ctx.restore(); }
@@ -10548,7 +10546,7 @@ function buildLeagueStandingsCanvas() {
       exportZebraRows(ctx, M, y, CW, H, items.length);
       items.forEach((it, i) => {
         if (i > 0) cuts.push(y);
-        const cy = y + H / 2, my = cy - 13, sy = cy + 26;   // my: السطر الرئيسي (المركز · الاسم · المجموع · الوصافة) — sy: السطر الثانوي
+        const cy = y + H / 2, my = cy - 18, sy = cy + 21;   // my: السطر الرئيسي (المركز · الاسم · المجموع · الوصافة) — sy: السطر الثانوي
         const cx = M + CW - 24 - 28;
         exportRankNum(ctx, cx, my, it.rank, null, 1.2);
         const by = it.byObj && !it.hideBy;   // الألقاب حسب النوع بأيقونات بدل سطر نصي تحت الاسم
@@ -10586,7 +10584,7 @@ function buildLeagueStandingsCanvas() {
     // كبسولة المستوى؛ x هي الحافة اليمنى (anchor='right') أو المركز (anchor='center'). تُرجع العرض.
     // 6.4: uniform=true ⇒ عرض موحّد لكل الكبسولات = عرض أطول اسم مستوى، والنص في المنتصف
     function exportTierPill(ctx, level, name, x, cy, size, anchor, uniform) {
-      const s = exportTierStyle(level), h = Math.round(size * 1.9), pad = Math.round(size * 0.85);
+      const s = exportTierStyle(level), h = Math.round(size * 1.9), pad = Math.round(size * (uniform ? 0.7 : 0.85));
       ctx.save(); ctx.font = `800 ${size}px ${EXPORT_FONT}`; const tw = uniform ? Math.max(...ELO_TIERS.map(t => ctx.measureText(t[1]).width)) : ctx.measureText(name).width; ctx.restore();
       const w = tw + pad * 2, x0 = anchor === 'center' ? x - w / 2 : x - w;
       ctx.save();
@@ -10799,7 +10797,7 @@ function buildLeagueStandingsCanvas() {
       const show = exportParts('rating');
       const gapC = ctxRes.shown ? 52 : 6, HEAD = 66, GAP = 0, LEG = show.legend ? 150 : 0, TP = EXPORT_TABLE_PAD;
       const two = show.rating !== false && show.tier !== false;   // 6.4: التقييم وتحته المستوى في خانة واحدة (سطر رئيسي + سطر فرعي)
-      const ROW = Math.max(two ? 116 : 88, Math.min(two ? 126 : 112, Math.floor((2150 - (top + gapC + HEAD + 2 * TP + 12 + (LEG ? 24 + LEG : 0) + 80)) / Math.max(1, list.length))));   // 6.3: صفوف متصلة تملأ الستوري
+      const ROW = Math.max(two ? 120 : 88, Math.min(two ? 128 : 112, Math.floor((2150 - (top + gapC + HEAD + 2 * TP + 12 + (LEG ? 24 + LEG : 0) + 80)) / Math.max(1, list.length))));   // 6.3: صفوف متصلة تملأ الستوري
       const frameH = HEAD + TP + list.length * ROW + TP;
       const H = Math.ceil(top + gapC + frameH + 12 + (LEG ? 24 + LEG : 0) + 80);
       const { canvas, ctx } = exportNewCanvas(W, H);
@@ -10817,11 +10815,11 @@ function buildLeagueStandingsCanvas() {
       exportZebraRows(ctx, M + TP, y, CW - 2 * TP, ROW, list.length);
       list.forEach((p, i) => {
         if (i > 0) cuts.push(y - GAP / 2);
-        const cy0 = y + ROW / 2, cy = two ? cy0 - 20 : cy0, sy = cy0 + 28;   // السطر الرئيسي لكل الأعمدة، والمستوى وحده على السطر الفرعي
+        const cy0 = y + ROW / 2, cy = two ? cy0 - 22 : cy0, sy = cy0 + 25;   // السطر الرئيسي لكل الأعمدة، والمستوى وحده على السطر الفرعي
         exportRankNum(ctx, C.rank.c, cy, p.rank, null, 1.2);
         exportText(ctx, p.name, C.name.r - 24, cy, { size: 40, weight: 800, color: B.ink, align: 'right', maxW: C.name.w - 32, min: 17 });
         if (C.rating && hasR) exportText(ctx, p.rating.toLocaleString('en-US'), C.rating.c, cy, { size: 44, weight: 800, color: B.ink, dir: 'ltr', maxW: C.rating.w - 16, min: 28 });
-        if (C.rating && hasT) exportTierPill(ctx, p.tier.level, p.tier.name, C.rating.c, two ? sy : cy, 23, 'center', true);
+        if (C.rating && hasT) exportTierPill(ctx, p.tier.level, p.tier.name, C.rating.c, two ? sy : cy, 22, 'center', true);
         if (C.delta) exportDelta(ctx, p.lastDelta, C.delta.c, cy + exportOptDy(36), 34);   // على المركز البصري لأرقام السطر الرئيسي
         if (C.games) exportText(ctx, String(p.games), C.games.c, cy, { size: 36, weight: 700, color: B.text, dir: 'ltr' });
         const wr = winPct(p);
@@ -10835,7 +10833,7 @@ function buildLeagueStandingsCanvas() {
       exportText(ctx, 'المستويات', M + CW - 28, y + 36, { size: 24, weight: 800, color: B.muted, align: 'right' });
       const tiers = ELO_TIERS.slice().reverse(), slot = (CW - 40) / tiers.length;
       // العرض الموحّد يجب أن يترك فراغًا ثابتًا بين الكبسولات: نصغّر الخط حتى يتسع أطول اسم في خانته
-      let lsz = 21; ctx.save(); while (lsz > 15) { ctx.font = `800 ${lsz}px ${EXPORT_FONT}`; if (Math.max(...ELO_TIERS.map(t => ctx.measureText(t[1]).width)) + Math.round(lsz * 0.85) * 2 <= slot - 26) break; lsz--; } ctx.restore();
+      let lsz = 21; ctx.save(); while (lsz > 15) { ctx.font = `800 ${lsz}px ${EXPORT_FONT}`; if (Math.max(...ELO_TIERS.map(t => ctx.measureText(t[1]).width)) + Math.round(lsz * 0.7) * 2 <= slot - 16) break; lsz--; } ctx.restore();
       tiers.forEach(([min, nm, lvl], i) => {
         const cx = M + CW - 20 - slot * (i + 0.5);
         exportTierPill(ctx, lvl, nm, cx, y + 86, lsz, 'center', true);
@@ -12578,7 +12576,7 @@ function buildLeagueStandingsCanvas() {
     // ===================================
     // 🧭 سلوك التطبيق: إعادة الوضع للأعلى، تعديل العنوان بالضغط المطوّل، تنبيه التحديث، رقم الإصدار
     // ===================================
-    const APP_VERSION = '6.4';   // ترقيم الاعتماد: 1 ثم 1.1 … 1.9 ثم 2 — ويُرفع معه رقم الإصدار في sw.js
+    const APP_VERSION = '6.5';   // ترقيم الاعتماد: 1 ثم 1.1 … 1.9 ثم 2 — ويُرفع معه رقم الإصدار في sw.js
     (function setupAppBehaviors() {
       const root = document.documentElement;
 
