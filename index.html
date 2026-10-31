@@ -2573,6 +2573,38 @@
     .cr-tag { margin-top: 3px; padding: 0 8px; border-radius: 999px; font-size: 10.5px; font-weight: 800; line-height: 1.8; background: var(--ok-bg); color: var(--ok); }
     @media (min-width: 640px) { .cr-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); } .cr-c:nth-child(2n) { border-inline-start: 0; } .cr-c:not(:nth-child(3n+1)) { border-inline-start: 1px solid var(--line); } .cr-c:nth-child(n+3) { border-top: 0; } .cr-c:nth-child(n+4) { border-top: 1px solid var(--line); } }
     .toast.record { border-color: rgba(227, 191, 110, .55); } .toast.record .ic { color: #E9C77A; }
+    /* ===== بطاقة الإنجاز (6.2): مادة التنبيهات (خشب داكن بحافة ذهبية) تحت شريط الأوضاع — الأرقام القياسية والترقيات والأوسمة ===== */
+    .ach-host { position: fixed; z-index: 97; left: 0; right: 0; top: calc(var(--nav-bottom, 120px) + 8px); display: flex; flex-direction: column; align-items: center; padding: 0 12px; pointer-events: none; }
+    .ach { pointer-events: auto; width: fit-content; min-width: min(250px, 100%); max-width: min(440px, 100%); box-sizing: border-box; padding: 8px 14px 8px; border-radius: 18px; direction: rtl;
+      background: var(--wood); color: var(--on-wood); border: 1px solid rgba(207, 169, 99, .5); box-shadow: 0 14px 34px -12px rgba(0, 0, 0, .6);
+      opacity: 0; transform: translateY(-12px) scale(.98); transition: transform var(--t-sheet) var(--ease), opacity var(--t-base) ease; touch-action: none; -webkit-user-select: none; user-select: none; cursor: pointer; }
+    .ach.in { opacity: 1; transform: none; }
+    .ach.out { opacity: 0; transform: translateY(-8px) scale(.98); transition: transform var(--t-base) var(--ease-in, ease-in), opacity var(--t-fast) ease; }
+    .ach.out.up { transform: translateY(-40px); }
+    .ach.mine { border-color: rgba(227, 191, 110, .85); }
+    /* تركيز إنجازي (نسخة اللاعبين): أخف بوضوح من خلفية احتفال التتويج */
+    .ach-scrim { position: fixed; inset: 0; z-index: 96; background: rgba(20, 14, 10, .38); -webkit-backdrop-filter: blur(6px); backdrop-filter: blur(6px); opacity: 0; transition: opacity var(--t-sheet) ease; }
+    .ach-scrim.in { opacity: 1; }
+    .ach-scrim.out { opacity: 0; transition: opacity var(--t-base) ease; }
+    .ach-h { display: flex; align-items: center; gap: 8px; min-height: 28px; margin-bottom: 2px; }
+    .ach-h > .ic { width: 16px; height: 16px; flex: none; color: #E9C77A; }
+    .ach-h .t { font-size: 12.5px; font-weight: 800; line-height: 1; padding-top: 4px; color: #E3CCA0; }   /* Tajawal أعلى من الوسط الهندسي: حشوة علوية لمحاذاة النص مع النجمة و✕ */
+    .ach-x { margin-inline-start: auto; display: grid; place-items: center; width: 28px; height: 28px; padding: 0; border: 0; border-radius: 50%; background: rgba(255, 255, 255, .08); color: var(--on-wood); font: inherit; font-size: 12px; cursor: pointer; }
+    .ach-g { padding: 7px 0 0; border-top: 1px solid rgba(207, 169, 99, .16); }
+    .ach-g:first-child { border-top: 0; padding-top: 0; }
+    .ach-p { display: flex; align-items: center; gap: 6px; margin-bottom: 2px; font-size: 15px; font-weight: 800; line-height: 1.5; color: var(--on-wood); overflow-wrap: anywhere; }
+    .ach-p .you { display: inline-flex; align-items: center; padding: 4px 8px 1px; border-radius: 999px; background: var(--gold); color: #2A1E10; font-size: 10.5px; font-weight: 800; line-height: 1.35; }
+    .ach-r { display: block; width: 100%; padding: 0 0 7px; margin: 0; border: 0; background: none; font: inherit; color: inherit; text-align: start; line-height: 1.75; cursor: pointer; }
+    .ach-r .lb { font-size: 13px; font-weight: 700; color: rgba(247, 243, 234, .78); }
+    .ach-r .v { font-size: 15px; font-weight: 800; color: #F3DFAE; font-variant-numeric: tabular-nums; white-space: nowrap; }
+    .ach-r .v small { margin-inline-start: 3px; font-size: 12px; font-weight: 700; opacity: .85; }
+    .ach-r.ext .v { color: var(--on-wood); }
+    .ach-r em { display: block; margin-top: -2px; font-style: normal; font-size: 11.5px; font-weight: 700; line-height: 1.5; color: rgba(247, 243, 234, .5); }   /* الملاحظة سطر مستقل تحت الإنجاز، رمادي هادئ لا ينافس القيمة */
+    .ach-r + .ach-r { padding-top: 7px; border-top: 1px solid rgba(207, 169, 99, .16); }   /* كل إنجازين يفصلهما خط رفيع */
+    .ach-r .pf-tier { padding: 4px 10px 1px; font-size: 11.5px; line-height: 1.35; }   /* نفس معالجة الحشوة العلوية */
+    .ach-r .pf-tier.t3 { background: linear-gradient(135deg, rgba(243, 223, 174, .26), rgba(243, 223, 174, .12)); color: #F3DDAC; }   /* النخبة على الخشب: نفس معالجة رأس ملف النخبة */
+    .ach-more { padding: 7px 0 1px; border-top: 1px solid rgba(207, 169, 99, .16); text-align: center; font-size: 11.5px; font-weight: 700; color: #CDBB97; }
+    @media (prefers-reduced-motion: reduce) { .ach, .ach.out { transform: none !important; transition: opacity var(--t-fast) ease; } }
     /* تبويبات «الترتيب والسجل» ثابتة أعلى نافذة الإحصائيات أثناء التمرير (5.6): التنقل بينها من أي موضع بلا صعود للأعلى.
        هالة بلون أرضية النافذة حولها تخفي ما يمر تحتها */
     body:not(.dark-mode) #statsModal { --st-bg: var(--bg); } body.dark-mode #statsModal { --st-bg: var(--surface); }
@@ -12442,7 +12474,7 @@ function buildLeagueStandingsCanvas() {
     // ===================================
     // 🧭 سلوك التطبيق: إعادة الوضع للأعلى، تعديل العنوان بالضغط المطوّل، تنبيه التحديث، رقم الإصدار
     // ===================================
-    const APP_VERSION = '6.1';   // ترقيم الاعتماد: 1 ثم 1.1 … 1.9 ثم 2 — ويُرفع معه رقم الإصدار في sw.js
+    const APP_VERSION = '6.2';   // ترقيم الاعتماد: 1 ثم 1.1 … 1.9 ثم 2 — ويُرفع معه رقم الإصدار في sw.js
     (function setupAppBehaviors() {
       const root = document.documentElement;
 
@@ -12909,25 +12941,159 @@ function buildLeagueStandingsCanvas() {
       renderLeagueStandings = function () { const r = _rs.apply(this, arguments); try { paint(); } catch (e) { console.error(e); } return r; };
       try { paint(); } catch (e) {}
     })();
-    // ===== تنبيه «رقم قياسي جديد» (5.4) =====
-    // الإدارة: بعد كل نتيجة تُعتمد يُقارن سجل الأرقام بما قبلها. نسخة اللاعبين: عند الفتح يُقارن بآخر ما رآه اللاعب على جهازه (مرة واحدة لكل رقم).
-    (function setupRecordWatch() {
-      const snap = () => { const o = {}; try { councilRecords().forEach(r => { o[r.k] = { v: r.v, h: r.holders, label: r.label, txt: r.txt }; }); } catch (e) {} return o; };
-      // تنبيه واحد فقط مهما تعددت الأرقام المكسورة (لا تتكدس التنبيهات)
-      const say = list => { if (!list.length) return; const r = list[0];
-        uiToast(list.length === 1 ? `رقم قياسي جديد — ${r.label}: ${r.h.length > 2 ? r.h[0] + ' وآخرون' : r.h.join(' و')} (${r.txt})`
-          : `${list.length} ${list.length <= 10 ? 'أرقام قياسية جديدة' : 'رقمًا قياسيًا جديدًا'} — ${list.map(x => x.label).join('، ')}`, 'record', 6500); };
-      if (window.CARROM_VIEW) {   // بعد استقرار البيانات المنشورة (قد تُعاد الصفحة بعد جلبها)، ثم يُحفظ ما رآه اللاعب
+    // ===== بطاقة الإنجاز (6.2): الأرقام القياسية + الترقية لمستوى أعلى + أوسمة الشرف — بدل تنبيه «رقم قياسي جديد» (5.4) =====
+    // الإدارة: بعد كل نتيجة تُعتمد يُقارن ما قبلها بما بعدها. نسخة اللاعبين: عند الفتح يُقارن بآخر ما رآه هذا الجهاز (مرة واحدة لكل إنجاز).
+    // الترقية = أعلى مستوى بلغه اللاعب يومًا (لا تتكرر إن نزل ثم صعد). الأوسمة: ثلاثية الألقاب · لقب في كل الأنواع · الثنائي الذهبي
+    // (بطل الدوري له احتفاله، وحامل الرقم وبلغ الأسطورة/النخبة تغطيهما الأرقام والترقية).
+    // مدّ صاحب الرقم لرقمه تنبيه أهدأ، ويُعلن في الإدارة مرة واحدة لكل رقم في يوم اللعب.
+    (function setupAchievements() {
+      const VIEW = !!window.CARROM_VIEW;
+      const H = x => String(x == null ? '' : x).replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
+      const HON = { treble: 1, all: 1, duo: 1 };
+      const tierOf = r => ELO_TIERS.find(t => r >= t[0]);
+      function snap() {
+        const o = { rec: {}, tier: {}, hon: {} };
+        let recs = []; try { recs = councilRecords(); } catch (e) {}
+        recs.forEach(r => { o.rec[r.k] = { v: r.v, h: r.holders.slice(), label: r.label, txt: r.txt }; });
+        try {
+          const elo = computePlayerRatings(), S = getStatsData().players || {};
+          elo.ranked.filter(p => p.games).forEach(p => {
+            const peak = p.points.reduce((m, x) => Math.max(m, x.r), ELO_START);
+            o.tier[p.name] = { l: tierOf(peak)[2], r: peak };
+            const C = playerCareer(p.name, p);
+            o.hon[p.name] = playerHonors(p, S[p.name] || {}, C, recs).filter(x => HON[x.k]).map(x => ({ k: x.k, t: x.t, s: x.s }));
+          });
+        } catch (e) {}
+        return o;
+      }
+      const who = h => h.length === 1 ? h[0] : h.length === 2 ? `${h[0]} و${h[1]}` : `${h[0]} و${h.length - 1} آخرون`;
+      // الفروق بين لقطتين → قائمة إنجازات مرتبة: كسر رقم، ترقية، وسام، ثم معادلة رقم، ثم مدّ الرقم
+      function diff(a, b) {
+        const out = [];
+        Object.keys(b.rec).forEach(k => { const n = b.rec[k], o = a.rec[k];
+          if (!o) return;
+          const hs = Array.isArray(o.h) ? o.h : null;
+          if (n.v > o.v) {
+            const same = hs && n.h.some(x => hs.includes(x));
+            out.push({ kind: same ? 'ext' : 'rec', k, label: n.label, name: who(n.h), names: n.h, val: n.txt, note: same ? `الرقم السابق ${o.v.toLocaleString('en-US')}` : hs && hs.length ? `الرقم السابق ${String(o.txt || o.v.toLocaleString('en-US')).split(' ')[0]} · ${who(hs)}` : `الرقم السابق ${o.v.toLocaleString('en-US')}` });   // الصيغة القديمة بلا أصحاب
+          } else if (n.v === o.v && hs) {
+            const fresh = n.h.filter(x => !hs.includes(x));
+            if (fresh.length) out.push({ kind: 'tie', k, label: n.label, name: who(fresh), names: fresh, val: n.txt, note: `معادلًا رقم ${who(hs)}` });
+          } });
+        Object.keys(b.tier).forEach(n => { const o = a.tier && a.tier[n]; if (!o || b.tier[n].l <= o.l) return;
+          const t = ELO_TIERS.find(x => x[2] === b.tier[n].l);
+          out.push({ kind: 'tier', name: n, names: [n], label: 'مستوى جديد', lvl: t[2], val: t[1], note: `تقييمه ${b.tier[n].r.toLocaleString('en-US')}` }); });
+        Object.keys(b.hon).forEach(n => { const had = new Set(((a.hon && a.hon[n]) || []).map(x => x.k)); if (!a.hon || !a.hon[n]) return;
+          b.hon[n].filter(x => !had.has(x.k)).forEach(x => out.push({ kind: 'hon', name: n, names: [n], label: 'وسام شرف', val: x.t, note: x.s || '' })); });
+        const rank = { rec: 0, tier: 1, hon: 2, tie: 3, ext: 4 };
+        return out.sort((x, y) => rank[x.kind] - rank[y.kind]);
+      }
+      // ===== العرض =====
+      const host = document.createElement('div'); host.className = 'ach-host'; host.setAttribute('aria-live', 'polite'); document.body.appendChild(host);
+      const me = () => { if (!VIEW) return null; try { const m = JSON.parse(localStorage.getItem('__carrom_me_v1') || 'null'); return m && typeof m === 'object' ? m.name || null : m; } catch (e) { return null; } };
+      const reduce = () => window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches;
+      const busy = () => document.documentElement.classList.contains('sheet-open') || !!document.getElementById('celebration') || (() => { const l = document.getElementById('launchScreen'); return l && !l.classList.contains('done') && getComputedStyle(l).display !== 'none'; })();
+      const queue = []; let showing = false;
+      function title(list, mine) {
+        if (list.every(x => x.kind === 'ext')) return list.length === 1 ? 'رقم قياسي مُمدَّد' : 'أرقام قياسية مُمدَّدة';
+        const k = new Set(list.map(x => x.kind === 'ext' || x.kind === 'tie' ? 'rec' : x.kind));
+        if (k.size > 1) return mine ? 'إنجازات جديدة لك' : 'إنجازات جديدة';
+        const n = list.length, only = [...k][0];
+        if (only === 'rec') return n === 1 ? 'رقم قياسي جديد' : n === 2 ? 'رقمان قياسيان جديدان' : 'أرقام قياسية جديدة';
+        if (only === 'tier') return n === 1 ? (mine ? 'مبروك! مستوى جديد' : 'مستوى جديد') : 'مستويات جديدة';
+        return n === 1 ? (mine ? 'مبروك! وسام شرف جديد' : 'وسام شرف جديد') : 'أوسمة شرف جديدة';
+      }
+      // التسلسل: العنوان ← اسم اللاعب (مرة واحدة لمجموعته) ← سطر الإنجاز (اسم الرقم وقيمته بجانبه) ← الملاحظة سطرًا أصغر تحته. عرض البطاقة بقدر محتواها.
+      // القيمة ذهبية للحدث الكبير (كسر/معادلة/ترقية/وسام)، وبلون النص للمدّ؛ والرقم بارز والوحدة أصغر.
+      function valHTML(x) {
+        if (x.kind === 'tier') return `<span class="pf-tier t${x.lvl}">${H(x.val)}</span>`;
+        if (x.kind === 'hon') return `<span class="v w">${H(x.val)}</span>`;
+        const i = String(x.val).indexOf(' ');
+        return i < 0 ? `<span class="v">${H(x.val)}</span>` : `<span class="v">${H(x.val.slice(0, i))}<small>${H(x.val.slice(i + 1))}</small></span>`;
+      }
+      function groupsHTML(list, m) {
+        const G = new Map(); list.forEach(x => { if (!G.has(x.name)) G.set(x.name, []); G.get(x.name).push(x); });
+        return [...G].map(([name, xs]) => `<div class="ach-g"><div class="ach-p">${H(name)}${m && xs[0].names.includes(m) ? '<span class="you">أنت</span>' : ''}</div>${xs.map(x =>
+          `<button type="button" class="ach-r${x.kind === 'ext' ? ' ext' : ''}" data-kind="${x.kind}" data-n="${H(x.names[0])}"><span class="lb">${H(x.label)}</span> ${valHTML(x)}${x.note ? `<em>${H(x.note)}</em>` : ''}</button>`).join('')}</div>`).join('');
+      }
+      function show(list) {
+        if (!list.length) return;
+        queue.push(list); if (!showing) next();
+      }
+      function next() {
+        const list = queue.shift(); if (!list) { showing = false; return; }
+        showing = true;
+        if (busy()) { queue.unshift(list); setTimeout(next, 400); return; }
+        const m = me(), mine = !!m && list.some(x => x.names.includes(m)), soft = list.every(x => x.kind === 'ext');
+        const shown = list.slice(0, 3), more = list.length - shown.length;
+        const card = document.createElement('div'); card.className = 'ach' + (soft ? ' soft' : '') + (mine ? ' mine' : ''); card.setAttribute('role', 'status');
+        card.innerHTML = `<div class="ach-h"><span class="ic ic-star" aria-hidden="true"></span><span class="t">${title(list, mine)}</span><button type="button" class="ach-x" aria-label="إغلاق">✕</button></div>
+          <div class="ach-list">${groupsHTML(shown, m)}</div>${more > 0 ? `<div class="ach-more">و${more === 1 ? 'إنجاز آخر' : more === 2 ? 'إنجازان آخران' : `${more} ${more <= 10 ? 'إنجازات أخرى' : 'إنجازًا آخر'}`} في الإحصائيات</div>` : ''}`;
+        // إنجاز اللاعب نفسه (نسخة اللاعبين فقط): تركيز هادئ — تعتيم وضبابية خفيفة خلف البطاقة، أخف من احتفال التتويج؛ اللمس خارجها يغلقها
+        let scrim = null;
+        if (VIEW && mine) { scrim = document.createElement('div'); scrim.className = 'ach-scrim'; scrim.setAttribute('aria-hidden', 'true'); document.body.appendChild(scrim); scrim.addEventListener('click', () => close()); }
+        host.appendChild(card);
+        requestAnimationFrame(() => { card.classList.add('in'); if (scrim) scrim.classList.add('in'); });
+        // المدة بقدر المحتوى للقراءة المتأنية: 6 ث + 3 ث لكل إنجاز (9/12/15)، والممدَّد 4 ث + 2 ث لكل إنجاز (6/8/10)؛ وتتوقف ما دام الإصبع أو المؤشر عليها
+        let left = soft ? 4000 + 2000 * shown.length : 6000 + 3000 * shown.length, t0 = Date.now(), timer = setTimeout(close, left), held = false;
+        const pause = () => { if (held) return; held = true; clearTimeout(timer); left -= Date.now() - t0; };
+        const resume = () => { if (!held) return; held = false; t0 = Date.now(); timer = setTimeout(close, Math.max(1500, left)); };
+        let closed = false;
+        function close(dir) {
+          if (closed) return; closed = true; clearTimeout(timer);
+          card.classList.add('out'); if (dir === 'up') card.classList.add('up');
+          if (scrim) { scrim.classList.remove('in'); scrim.classList.add('out'); }
+          setTimeout(() => { card.remove(); if (scrim) scrim.remove(); setTimeout(next, 180); }, reduce() ? 120 : 220);
+        }
+        card.addEventListener('pointerenter', e => { if (e.pointerType === 'mouse') pause(); });
+        card.addEventListener('pointerleave', e => { if (e.pointerType === 'mouse') resume(); });
+        // السحب للأعلى للإغلاق (كإشعارات iOS)، واللمس يفتح التفاصيل
+        // الالتقاط يبدأ فقط عند بدء السحب فعلًا؛ لو التُقط من أول لمسة لنُسب اللمس للبطاقة كلها بدل زر ✕ أو السطر الملموس
+        let y0 = null, dy = 0, moved = false;
+        card.addEventListener('pointerdown', e => { pause(); y0 = e.clientY; dy = 0; moved = false; });
+        card.addEventListener('pointermove', e => { if (y0 == null) return; dy = Math.min(0, e.clientY - y0);
+          if (!moved && dy < -4) { moved = true; card.style.transition = 'none'; try { card.setPointerCapture(e.pointerId); } catch (_) {} }
+          if (moved) { card.style.transform = `translateY(${dy}px)`; card.style.opacity = String(Math.max(.3, 1 + dy / 120)); } });
+        const up = e => { if (y0 == null) return; y0 = null; card.style.transition = ''; card.style.transform = ''; card.style.opacity = '';
+          if (dy < -36) { close('up'); return; } if (e.pointerType !== 'mouse') resume(); };
+        card.addEventListener('pointerup', up); card.addEventListener('pointercancel', up);
+        card.addEventListener('click', e => {
+          if (moved) return;
+          if (e.target.closest('.ach-x')) { close(); return; }
+          const it = e.target.closest('.ach-r') || card.querySelector('.ach-r'); close();
+          if (!it) return;
+          if (it.dataset.kind === 'tier' || it.dataset.kind === 'hon') { try { window.carromOpenProfile(it.dataset.n); } catch (_) {} return; }
+          try { openStats(); setTimeout(() => { const sc = document.querySelector('#statsModal .stats-modal-content'), cr = sc && sc.querySelector('.cr');
+            if (sc && cr) sc.scrollTo({ top: cr.offsetTop - 12, behavior: reduce() ? 'auto' : 'smooth' }); }, 320); } catch (_) {}
+        });
+      }
+      window.__carromAch = { show, snap, diff };   // للعينات والاختبار فقط (لا يغيّر شيئًا)
+      // ===== نسخة اللاعبين: مقارنة بما رآه هذا الجهاز (نفس المفتاح السابق، بصيغة أغنى؛ الصيغة القديمة تُقرأ كأرقام بلا أصحاب) =====
+      if (VIEW) {
         setTimeout(() => {
           const KEY = '__carrom_seen_rec_v1', now = snap();
           let seen = null; try { seen = JSON.parse(localStorage.getItem(KEY) || 'null'); } catch (e) {}
-          if (seen) say(Object.keys(now).filter(k => seen[k] != null && now[k].v > seen[k]).map(k => now[k]));
-          try { localStorage.setItem(KEY, JSON.stringify(Object.fromEntries(Object.entries(now).map(([k, r]) => [k, r.v])))); } catch (e) {}
-        }, 1600);
+          if (seen && !seen.v2) seen = { rec: Object.fromEntries(Object.entries(seen).map(([k, v]) => [k, { v: Number(v), h: null }])), tier: null, hon: null };
+          if (seen) show(diff(seen, now));
+          try { localStorage.setItem(KEY, JSON.stringify({ v2: 1, rec: Object.fromEntries(Object.entries(now.rec).map(([k, r]) => [k, { v: r.v, h: r.h, txt: r.txt }])), tier: now.tier, hon: now.hon })); } catch (e) {}
+        }, 1800);
         return;
       }
+      // ===== الإدارة: بعد كل نتيجة تُعتمد =====
+      const DKEY = '__carrom_ach_day_v1';
+      const day = () => { try { return nightKeyOf(Date.now()); } catch (e) { return new Date().toDateString(); } };
       let prev = snap();
-      const check = () => { const now = snap(), up = Object.keys(now).filter(k => prev[k] && now[k].v > prev[k].v).map(k => now[k]); if (up.length) setTimeout(() => say(up), 900); prev = now; };
+      const check = () => {
+        const now = snap(); let list = diff(prev, now); prev = now;
+        if (list.some(x => x.kind === 'ext')) {   // المدّ: مرة واحدة لكل رقم في يوم اللعب
+          let d = null; try { d = JSON.parse(localStorage.getItem(DKEY) || 'null'); } catch (e) {}
+          if (!d || d.day !== day()) d = { day: day(), k: [] };
+          list = list.filter(x => x.kind !== 'ext' || !d.k.includes(x.k));
+          list.forEach(x => { if (x.kind === 'ext') d.k.push(x.k); });
+          try { localStorage.setItem(DKEY, JSON.stringify(d)); } catch (e) {}
+        }
+        if (list.length) setTimeout(() => show(list), 700);
+      };
       const _cw = confirmWinner; confirmWinner = function () { const r = _cw.apply(this, arguments); setTimeout(check, 60); return r; };
       const _sl = saveLeagueMatchResult; saveLeagueMatchResult = function () { const r = _sl.apply(this, arguments); setTimeout(check, 60); return r; };
     })();
