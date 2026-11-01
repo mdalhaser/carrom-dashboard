@@ -2645,7 +2645,15 @@
     .tn-list { padding: 12px 0 14px; border-top: 1px solid var(--line); }
     .tn.open .tn-list { border-top-color: var(--line); }
     .tn-grid .match-title .tn-r { color: var(--gold-deep); font-weight: 800; }
-    .tn-grid .match-status { display: none; }   /* كلها جاهزة للتسجيل: رقم الجولة أهم من الحالة */
+    .tn-grid .match-status { display: none; }
+    /* 6.6: رقم الترتيب المقترح + «التالية» على الأولى. Tajawal أعلى من الوسط الهندسي: حشوة علوية لمحاذاة الرقم داخل الدائرة */
+    .tn-grid .match-title { display: inline-flex; align-items: center; gap: 6px; }
+    .tn-n { display: inline-flex; align-items: center; justify-content: center; flex: none; min-width: 22px; height: 22px; padding: 0 5px; border-radius: 999px; background: var(--surface-3); color: var(--text-2); font-size: 12px; font-weight: 800; line-height: 1; }
+    .tn-n .tx { padding-top: 3px; }
+    .tn-t { padding-top: 4px; }   /* النص على نفس خط الرقم والكبسولة (مقاس بالبكسل) */
+    .tn-first .tn-n { background: var(--gold); color: #fff; }
+    .tn-grid .match-status.tn-next { display: inline-flex; }
+    .tn-hint { margin: 0 2px 10px; font-size: 12px; font-weight: 700; color: var(--text-3); }   /* كلها جاهزة للتسجيل: رقم الجولة أهم من الحالة */
     .tn-sum .d { white-space: nowrap; }
     .tn-none { margin: 0; padding: 6px 0 2px; text-align: center; font-size: 12.5px; font-weight: 700; color: var(--text-3); }
     /* ===== «سباق اللقب» (6 — الإدارة فقط): بطاقة واحدة فوق ترتيب الدوري — المرحلة وعدد المنافسين، جملة الضمان، ثم المنافسون =====
@@ -12576,7 +12584,7 @@ function buildLeagueStandingsCanvas() {
     // ===================================
     // 🧭 سلوك التطبيق: إعادة الوضع للأعلى، تعديل العنوان بالضغط المطوّل، تنبيه التحديث، رقم الإصدار
     // ===================================
-    const APP_VERSION = '6.5';   // ترقيم الاعتماد: 1 ثم 1.1 … 1.9 ثم 2 — ويُرفع معه رقم الإصدار في sw.js
+    const APP_VERSION = '6.7';   // ترقيم الاعتماد: 1 ثم 1.1 … 1.9 ثم 2 — ويُرفع معه رقم الإصدار في sw.js
     (function setupAppBehaviors() {
       const root = document.documentElement;
 
@@ -12695,6 +12703,7 @@ function buildLeagueStandingsCanvas() {
         btns = ['themeSwitch', 'openControlDashboard', 'viewStatsBtn', 'hdrStatsBtn'].map(id => document.getElementById(id)).filter(b => b && b.getClientRects().length);
         // القياس بلا أي تحويلات حتى تكون المواضع الأصلية
         [h2, h1, ...btns].forEach(el => { if (el) el.style.transform = ''; });
+        h1.style.opacity = ''; h1.style.visibility = '';
         safeTop = parseFloat(getComputedStyle(header).paddingTop) || 0;
         const H = header.offsetHeight, C = safeTop + BAR;
         D = Math.max(0, H - C);
@@ -12717,7 +12726,10 @@ function buildLeagueStandingsCanvas() {
         const e = ease(p);
         root.style.setProperty('--hdr-p', e.toFixed(3));
         h2.style.transform = `translateY(${(targets.h2 * p).toFixed(2)}px) scale(${(1 - (1 - TITLE_SCALE) * e).toFixed(4)})`;
-        h1.style.transform = `translateY(${(targets.h1 * p).toFixed(2)}px) scale(${(1 - .2 * e).toFixed(4)})`;
+        // 6.6: العنوان الفرعي يتلاشى في النصف الأول من الانكماش (يصعد مع العنوان ويصغر قليلًا) فلا يتراكب معه أبدًا؛ الشريط الرفيع للعنوان الرئيسي وحده
+        const f = Math.max(0, 1 - p / 0.45);
+        h1.style.transform = `translateY(${(targets.h1 * p * 0.6).toFixed(2)}px) scale(${(1 - .12 * e).toFixed(4)})`;
+        h1.style.opacity = f.toFixed(3); h1.style.visibility = f > 0 ? '' : 'hidden';
         btns.forEach((b, i) => { if (b) b.style.transform = `translateY(${(targets.btns[i] * p).toFixed(2)}px) scale(${(1 - .14 * e).toFixed(4)})`; });
         header.classList.toggle('is-collapsed', p >= 1);
         root.style.setProperty('--nav-bottom', Math.round(nav.getBoundingClientRect().bottom) + 'px');
@@ -12892,25 +12904,51 @@ function buildLeagueStandingsCanvas() {
       const box = document.createElement('section'); box.id = 'leagueTonight'; box.className = 'tn'; box.setAttribute('aria-label', 'الحاضرون الليلة');
       host.insertBefore(box, leagueRoundsEl);
       let open = false;
+      // 6.6: الترتيب المقترح لطاولة واحدة — «التساوي أولًا بحد مباراتين متتاليتين» (مقاس على كل تركيبات الحاضرين):
+      //  0) لا يلعب لاعب أكثر من مباراتين متتاليتين (يُتجاوز الحد فقط إذا لم يبقَ غيره)
+      //  1) أقل مجموع مباريات للاعبَين (العدد يشمل ما سبقها في ترتيب الليلة) = أسرع اقتراب لتساوي عدد المباريات بين الحاضرين
+      //  2) عند التساوي: مباراة بلا تتالٍ، ثم الأقل لعبًا بينهما، ثم الجولة الأقدم ورقم المباراة
+      //  سلسلة كل لاعب تبدأ من نتائج الليلة المسجلة فعلًا. قراءة فقط: لا يغيّر الجدول ولا الترتيب ولا التخزين.
+      const CAP = 2;
+      const seqOf = m => Number((String(m.id).match(/M(\d+)$/) || [])[1]) || 0;
+      const lt = (x, y) => { for (let j = 0; j < x.length; j++) if (x[j] !== y[j]) return x[j] < y[j]; return false; };   // مقارنة معجمية
+      function order(list) {
+        const cnt = {}, run = {}; try { calculateLeagueStandings().forEach(r => { cnt[r.name] = Number(r.played) || 0; }); } catch (e) {}
+        let prev = new Set();
+        const step = (a, b) => { Object.keys(run).forEach(n => { if (n !== a && n !== b) run[n] = 0; }); [a, b].forEach(n => { run[n] = prev.has(n) ? (run[n] || 0) + 1 : 1; }); prev = new Set([a, b]); };
+        try { const tk = dayKey(); readMatchLog().filter(e => e.k === 'lg' && e.at && nightKeyOf(e.at) === tk && matchLogStillValid(e)).sort((a, b) => a.at - b.at).forEach(e => step(e.a, e.b)); } catch (e) {}
+        const pool = list.slice(), out = [];
+        while (pool.length) {
+          let bi = 0, bk = null;
+          pool.forEach((m, i) => { const a = cnt[m.playerA] || 0, b = cnt[m.playerB] || 0;
+            const over = [m.playerA, m.playerB].some(n => prev.has(n) && (run[n] || 0) >= CAP) ? 1 : 0;
+            const k = [over, a + b, prev.has(m.playerA) || prev.has(m.playerB) ? 1 : 0, Math.min(a, b), m.round, seqOf(m)];
+            if (!bk || lt(k, bk)) { bk = k; bi = i; } });
+          const m = pool.splice(bi, 1)[0]; out.push(m);
+          cnt[m.playerA] = (cnt[m.playerA] || 0) + 1; cnt[m.playerB] = (cnt[m.playerB] || 0) + 1; step(m.playerA, m.playerB);
+        }
+        return out;
+      }
       function paint(anim) {
         const players = (leaguePlayers || []).filter(n => !leagueIsExcluded(n));
         const live = !!(leagueStarted && !leagueFixtureError && !leagueCompleted);
         box.hidden = !live; if (!live) return;
         const sel = read().filter(n => players.includes(n)), set = new Set(sel);
-        const avail = sel.length >= 2 ? leagueMatches.filter(m => !m.auto && !isLeagueMatchSettled(m) && set.has(m.playerA) && set.has(m.playerB))
-          .sort((a, b) => a.round - b.round || String(a.id).localeCompare(String(b.id), 'en', { numeric: true })) : [];
+        const avail = sel.length >= 2 ? order(leagueMatches.filter(m => !m.auto && !isLeagueMatchSettled(m) && set.has(m.playerA) && set.has(m.playerB))) : [];
         const sum = sel.length >= 2 ? `<b>${sel.length}</b> ${sel.length <= 10 ? 'حاضرين' : 'حاضرًا'} · <b>${avail.length}</b> ${avail.length === 1 || avail.length > 10 ? 'مباراة' : avail.length === 2 ? 'مباراتان' : 'مباريات'}`
           : 'لم يُحدَّد بعد';
         box.classList.toggle('open', open);
         box.innerHTML = `<button type="button" class="tn-sum" aria-expanded="${open}"><span class="ic ic-users" aria-hidden="true"></span><span class="t">الحاضرون الليلة</span><span class="d">${sum}</span>${chev}</button>
           <div class="tn-pick"><div class="in"><div class="tn-chips">${players.map(n => `<button type="button" class="${set.has(n) ? 'on' : ''}" aria-pressed="${set.has(n)}" data-n="${esc(n)}">${esc(n)}</button>`).join('')}</div>
             <div class="tn-acts"><button type="button" data-act="all">تحديد الكل</button><button type="button" data-act="none"${sel.length ? '' : ' disabled'}>مسح الاختيار</button></div></div></div>
-          ${sel.length >= 2 ? `<div class="tn-list">${avail.length ? `<div class="league-matches tn-grid"></div>` : '<p class="tn-none">لا توجد مباريات متبقية بين الحاضرين</p>'}</div>` : ''}`;
+          ${sel.length >= 2 ? `<div class="tn-list">${avail.length ? `${avail.length > 1 ? '<p class="tn-hint">مرتّبة ليتساوى عدد المباريات بين الحاضرين</p>' : ''}<div class="league-matches tn-grid"></div>` : '<p class="tn-none">لا توجد مباريات متبقية بين الحاضرين</p>'}</div>` : ''}`;
         const grid = box.querySelector('.tn-grid');
         if (grid) {
-          avail.forEach(m => { const c = createLeagueMatchCard(m), t = c.querySelector('.match-title'), seq = (String(m.id).match(/M(\d+)$/) || [])[1] || '';
-            if (t) t.innerHTML = `<span class="tn-r">الجولة ${m.round}</span> · مباراة ${seq}`; grid.appendChild(c); });
-          if (avail.length % 2 === 1) grid.lastElementChild.classList.add('lg-wide');   // لا يبقى نصف السطر فارغًا
+          avail.forEach((m, i) => { const c = createLeagueMatchCard(m), t = c.querySelector('.match-title'), seq = seqOf(m) || '';
+            if (t) t.innerHTML = `<span class="tn-n"><span class="tx">${i + 1}</span></span><span class="tn-t"><span class="tn-r">الجولة ${m.round}</span> · مباراة ${seq}</span>`;
+            if (i === 0) { const st = c.querySelector('.match-status'); if (st) { st.className = 'match-status ready tn-next'; st.innerHTML = '<span class="tx">التالية</span>'; } c.classList.add('tn-first', 'lg-wide'); }
+            grid.appendChild(c); });
+          if (avail.length > 1 && (avail.length - 1) % 2 === 1) grid.lastElementChild.classList.add('lg-wide');   // الأولى بعرض كامل؛ لا يبقى نصف السطر فارغًا بعدها
           if (anim && grid.animate && !(window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches))
             [...grid.children].forEach((c, i) => c.animate([{ opacity: 0, transform: 'translateY(-6px)' }, { opacity: 1, transform: 'none' }], { duration: 220, delay: Math.min(i, 6) * 30, easing: 'cubic-bezier(.2, .8, .2, 1)', fill: 'backwards' }));
         }
