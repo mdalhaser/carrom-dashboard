@@ -1939,12 +1939,6 @@
     @container mcard (min-width: 560px) {
       .match-card:not(.vs) > .match-body { width: 100%; max-width: 300px; margin-inline: auto; }
     }
-    /* 7.9 — المكتملة: نفس بطاقة المواجهة؛ النتيجة في كبسولة المنتصف بلون النص، والفائز بلون الفوز فقط (بلا صندوق ولا علامة) */
-    .match-card.vs.res .score-badge { display: none; }
-    .match-card.vs.res .match-team.winner { background: transparent; border-color: transparent; color: var(--ok); }
-    .match-card.vs.res .match-team.winner > span:first-child::before { display: none; }
-    .match-card.vs.res .vs-sep span { color: var(--text); font-size: 12px; font-weight: 900; font-variant-numeric: tabular-nums; white-space: nowrap; }
-    .lg-match.annulled.vs .match-team { background: transparent; }
     /* 6.9 — بطاقة المباراة زر واحد: تأثير الضغط للبطاقة كاملة، والأسماء بلا تمييز مستقل */
     .match-card.tap, .match-card.lg-match { cursor: pointer; -webkit-tap-highlight-color: transparent; transition: transform var(--t-fast) var(--ease), border-color var(--t-fast) ease, box-shadow var(--t-fast) ease; }
     .match-card.tap .match-team, .match-card.lg-match .match-team { cursor: inherit; pointer-events: none; }
@@ -6563,7 +6557,7 @@ currentScoreWinnerName = null;
                         </div>
                     </div>
                 `;
-          if (isPlayable && !String(match.team1).includes('Bye') && !String(match.team2).includes('Bye')) vsDecorate(matchDiv, match.winner ? resultScoreText(match.winnerScore, match.loserScore) : null);
+          if (isPlayable && !match.winner && !String(match.team1).includes('Bye') && !String(match.team2).includes('Bye')) vsDecorate(matchDiv);
           // 6.9: البطاقة كلها زر واحد — الضغط في أي مكان منها يفتح التسجيل (أو ورقة المباراة للاعبين)، والأسماء بلا ضغط مستقل
           const rowTaps = matchDiv.querySelectorAll('.match-body > .match-team[onclick]');
           if (rowTaps.length) {
@@ -9359,17 +9353,13 @@ function changeScore(inputId, amount){
     // بطاقة المباراة القادمة بشكل مواجهة: الطرفان متقابلان وبينهما «ضد» (الأسماء فقط؛ التقييم والفرص في نافذة المباراة عند الضغط).
     // البطاقة العريضة: الطرفان جنبًا إلى جنب؛ الضيقة (جدول خروج المغلوب على الهاتف): فوق بعض وبينهما فاصل «ضد».
     // الأسماء تبقى أول عنصر في صفها (يعتمد عليه تمييز «أنا» في صفحة اللاعبين)، والضغط كما هو.
-    // 7.9: المباراة المكتملة بنفس التصميم — النتيجة («2 - 0»، الأكبر أولًا) مكان «ضد»، والفائز يتميّز باللون فقط
-    function vsDecorate(card, score) {
+    function vsDecorate(card) {
       const rows = card.querySelectorAll('.match-body > .match-team');
       if (rows.length !== 2) return card;
-      card.classList.add('vs'); if (score != null) card.classList.add('res');
-      rows[0].insertAdjacentHTML('afterend', score != null
-        ? `<div class="vs-sep" aria-label="النتيجة ${escHTML(score)}"><span><i class="tx">${escHTML(score)}</i></span></div>`
-        : '<div class="vs-sep" aria-hidden="true"><span><i class="tx">ضد</i></span></div>');
+      card.classList.add('vs');
+      rows[0].insertAdjacentHTML('afterend', '<div class="vs-sep" aria-hidden="true"><span><i class="tx">ضد</i></span></div>');
       return card;
     }
-    const resultScoreText = (a, b) => (a == null || b == null || a === '' || b === '') ? '—' : `${Math.max(+a, +b)} - ${Math.min(+a, +b)}`;
     function createLeagueMatchCard(m) {
       const done = isLeagueMatchCompleted(m), annul = isLeagueMatchAnnulled(m);
       const d = done && !annul ? deriveLeagueResult(m.scoreA, m.scoreB) : null;
@@ -9399,7 +9389,7 @@ function changeScore(inputId, amount){
           ${row(m.playerB, done && !annul ? m.scoreB : null, !!d && d.result === 'B', 'B')}
         </div>`;
 
-      vsDecorate(card, done && !annul ? resultScoreText(m.scoreA, m.scoreB) : null);
+      if (!done && !annul) vsDecorate(card);
       const go = () => { if (annul && !done && !window.CARROM_VIEW) { uiToast(`مباراة ملغاة: ${leagueExcluded.find(n => n === m.playerA || n === m.playerB)} مستبعد من الدوري`, 'warn'); return; } openLeagueScoreModal(m.id); };
       card.addEventListener('click', go);
       card.addEventListener('keydown', e => {
