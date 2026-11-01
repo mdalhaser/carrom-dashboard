@@ -499,7 +499,7 @@
     #manualPlayersList {
       width: 100%;
       display: flex; flex-wrap: wrap; gap: var(--s2);
-      min-height: 56px; max-height: 260px; overflow-y: auto;
+      min-height: 56px;   /* 6.9: بلا ارتفاع أقصى — كان آخر صف يظهر نصفه داخل صندوق تمرير */
       padding: var(--s3);
       border-radius: var(--r-md);
       background: var(--surface-2);
@@ -709,15 +709,7 @@
       .vs-sep > span { display: inline-flex; align-items: center; justify-content: center; }
     }
     .vs-sep span { padding: 1px 9px; border-radius: 999px; border: 1px solid var(--line); background: var(--surface); font-size: 11px; font-weight: 800; line-height: 1.5; color: var(--text-2); }
-    @container (min-width: 300px) {
-      .match-card.vs .match-body { display: grid; grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr); align-items: center; gap: 6px; }
-      .match-card.vs .match-team { flex-direction: column; flex-wrap: nowrap; align-items: center; justify-content: center; text-align: center; gap: 4px; padding: 8px 6px; min-height: 52px; }
-      .match-card.vs .match-team > span:first-child { flex: none; width: 100%; }
-      .match-card.vs .vs-sep { margin: 0; }
-      .match-card.vs .vs-sep::before, .match-card.vs .vs-sep::after { display: none; }
-      .match-card.vs .vs-sep span { display: grid; place-items: center; width: 40px; height: 40px; padding: 0; border-radius: 50%;
-        background: var(--warn-bg); border-color: transparent; color: var(--warn); font-size: 13px; }
-    }
+    /* 6.9: لا تخطيط جانبي للبطاقة العريضة — كل بطاقات المواجهة بنفس التصميم المكدّس (اسم ← «ضد» بين خطين ← اسم) */
     .match-team {
       display: flex; align-items: center; justify-content: space-between; gap: var(--s2);
       min-height: 50px;
@@ -769,10 +761,11 @@
     }
     .final-winner .match-title { font-size: var(--fs-lg) !important; font-weight: 800 !important; color: var(--gold-soft) !important; display: flex; align-items: center; gap: 10px; }
     .final-winner .match-body { width: 100%; margin-top: var(--s3) !important; }
-    .final-winner .match-team.winner {
-      justify-content: center; min-height: 64px; background: var(--paper); color: var(--ink);
-      border: 0; font-size: var(--fs-xl) !important; font-weight: 800 !important;
+    .final-winner .match-team.winner {   /* 6.9: الاسم مباشرة على الجوز بالعاجي — بلا صندوق فاتح داخل البطاقة الداكنة */
+      justify-content: center; min-height: 0; padding: 0; background: transparent; color: #F6EEDF; box-shadow: none;
+      border: 0; font-size: var(--fs-2xl) !important; font-weight: 800 !important; line-height: 1.35;
     }
+    .final-winner .match-team.winner .pl, .final-winner .match-team.winner > span { color: inherit; }
     .final-winner .match-team.winner > span:first-child::before { display: none; }
 
     /* ---------- 5) وضع الدوري ---------- */
@@ -1169,6 +1162,7 @@
     .cd-metric .label { font-size: var(--fs-xs); font-weight: 600; color: var(--text-2); margin-bottom: 4px; }
     .cd-metric .value { font-size: var(--fs-base); font-weight: 800; overflow-wrap: anywhere; }
     .cd-grid { display: grid; grid-template-columns: 1fr 1fr; gap: var(--s3); }
+    .cd-grid > :last-child:nth-child(odd) { grid-column: 1 / -1; }   /* 6.9: الوحيدة في صفها بعرض كامل */
     .cd-card, .cd-history-card { min-width: 0; padding: var(--s4); border-radius: var(--r-lg); background: var(--surface); border: 1px solid var(--line); box-shadow: var(--sh-1); }
     .cd-card-head, .cd-history-head { display: flex; align-items: center; gap: var(--s3); margin-bottom: var(--s2); }
     .cd-icon { width: 42px; height: 42px; flex: 0 0 auto; display: flex; align-items: center; justify-content: center; border-radius: 13px; font-size: 21px; background: var(--surface-3); color: var(--wood); }
@@ -1201,6 +1195,7 @@
     .xh-chip { min-height:46px; padding:0 16px; border-radius:999px; border:1px solid var(--gold); background:rgba(207,169,99,.10); color:var(--text); font:700 var(--fs-sm) Tajawal,sans-serif; cursor:pointer; }
     .xh-chip:disabled { opacity:.55; cursor:wait; }
     .xh-cats { display:grid; gap:var(--s3); grid-template-columns:1fr; align-items:start; }
+    .xh-cats > :last-child:nth-child(odd) { grid-column: 1 / -1; }   /* 6.9 */
     @container (min-width:680px) { .xh-cats { grid-template-columns:repeat(2,minmax(0,1fr)); } .xh-fields { grid-template-columns:repeat(2,minmax(0,1fr)) !important; } }
     .xh-cat { display:grid; gap:var(--s2); border:1px solid var(--line); border-radius:var(--r-lg); padding:var(--s3); background:var(--surface); }
     .xh-item { display:grid; grid-template-columns:auto 1fr auto; gap:10px; align-items:center; width:100%; min-height:58px; padding:10px 12px; border:1px solid var(--line); border-radius:var(--r-md); background:var(--surface-2); color:var(--text); text-align:right; cursor:pointer; font-family:Tajawal,sans-serif; }
@@ -1354,10 +1349,15 @@
     @media (min-width: 1100px) {
       .round-matches { grid-template-columns: repeat(2, minmax(0, 1fr)); }
     }
+    @media (min-width: 960px) {   /* 6.9: الجدول بعرض كامل أثناء البطولة ⇒ عمودان على الأقل (لا بطاقة بعرض الشاشة) */
+      body.ko-focus .round-matches { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+      body.ko-focus .round-matches > :last-child:nth-child(odd) { grid-column: 1 / -1; justify-self: center; width: 100%; max-width: calc(50% - var(--s3) / 2); }
+    }
     @media (max-width: 639px) {
       .players-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); max-height: 360px; }
-      .player-card { padding: 8px 10px; gap: 8px; }
-      .player-avatar { width: 32px; height: 32px; font-size: 12px; }
+      .player-card { padding: 8px 6px; gap: 6px; }   /* 6.9: مساحة أوسع للاسم في عمودي الهاتف (كانت 62px فتنكسر أسماء قصيرة) */
+      .player-avatar { width: 28px; height: 28px; font-size: 11px; }
+      .players-grid .player-name { font-size: 13px; }
       .player-card { font-size: var(--fs-sm); }
       .header-title h2 { font-size: 22px; }
       .cd-grid { grid-template-columns: 1fr; }
@@ -1496,7 +1496,7 @@
       .bracket { gap: var(--s4); }
       .round { gap: 8px; }
       .round-matches { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 6px; }
-      .round-matches > .match-card:only-child { grid-column: 1 / -1; }
+      .round-matches > .match-card:only-child, .round-matches > .match-card:last-child:nth-child(odd) { grid-column: 1 / -1; }   /* 6.9: الوحيدة في صفها بعرض كامل */
       .match-card { min-width: 0; gap: 4px; padding: 5px; border-radius: 11px; }
       .match-head { padding: 1px 3px 0; gap: 4px; flex-wrap: wrap; }
       .match-head .match-status { white-space: nowrap; }   /* الكبسولة لا تنكسر داخلها؛ رأس البطاقة بارتفاع واحد في كل البطاقات */
@@ -1860,6 +1860,83 @@
       html body.lg-focus #leagueMainPanel[data-tab] #leagueStandings:empty, html body.lg-focus #leagueMainPanel[data-tab] #leagueFinal:empty { display: none; }
       body.lg-focus #leagueMainPanel .lv-main { flex: 1 1 0; }
       body.lg-focus #leagueMainPanel .lv-side { flex: 0 0 400px; }
+    }
+    /* 6.9 — خروج المغلوب */
+    .tmn { white-space: nowrap; }
+    .tools-card[hidden] { display: none !important; }
+    /* «إعادة ضبط»: إجراء خطِر لا يكون أبرز ما في الصفحة — زر نصي هادئ بلون التحذير */
+    .tools-card #clearDataBtn { background: transparent; border-color: transparent; box-shadow: none; min-height: 40px; font-size: var(--fs-sm); color: var(--danger, #B3402F); }
+    .tools-card #clearDataBtn:hover { background: color-mix(in srgb, var(--danger, #B3402F) 8%, transparent); }
+    .tools-card.solo-reset { background: none !important; border-color: transparent !important; box-shadow: none !important; padding: 0 !important; align-items: center; }
+    .tools-card.solo-reset #clearWrap { margin: 0 auto !important; }
+    .tools-card.solo-reset #clearDataBtn { width: auto; padding-inline: 14px; }
+    /* المباراة القادمة بجانب مكتملة في نفس الصف: المحتوى في منتصف البطاقة بدل فراغ أسفلها */
+    .match-card.vs > .match-body { flex: 1 1 auto; align-content: center; justify-content: center; }
+    /* 6.9 — بطاقة البطل الموحدة: محتوى متمركز بتسلسل القراءة، وعرضها على قدر محتواها */
+    .st-last.kc { display: block; width: 100%; max-width: 520px; margin-inline: auto; padding: 18px 20px 16px; text-align: center; font: inherit; }
+    .kc .kc-t { font-size: 12.5px; font-weight: 800; color: var(--lk-gold); line-height: 1.5; }
+    .kc .kc-n { margin-top: 6px; font-size: 27px; font-weight: 800; line-height: 1.3; color: var(--lk-ivory); text-wrap: balance; }
+    .kc .kc-n bdi, .kc .kc-n .ht-p { white-space: nowrap; }
+    .kc .kc-n .pl { display: inline-block; margin: 0 10px; color: var(--lk-gold); }   /* ذيول بعض الحروف (ر، و) تقترب من «+» */
+    .kc .kc-m { margin-top: 6px; font-size: 13.5px; font-weight: 800; color: rgba(246, 238, 223, .82); }
+    .kc .kc-s { margin-top: 3px; font-size: 12px; font-weight: 700; color: var(--lk-muted); }
+    .kc.kc-btn { border-width: 1px; cursor: pointer; -webkit-tap-highlight-color: transparent; transition: transform var(--t-fast) ease; }
+    .kc.kc-btn:active, .kc.ht-open:active { transform: scale(.985); }
+    /* المركزان الثاني والثالث: جدول صغير بمحاذاة واحدة — المركز ← الاسم ← النقاط، كلها على خط واحد */
+    .kc-rest { margin-top: 14px; padding-top: 4px; border-top: 1px solid rgba(246, 238, 223, .14); text-align: start; }
+    .kc-r { display: grid; grid-template-columns: 22px minmax(0, 1fr) auto; align-items: center; gap: 10px; min-height: 40px; }
+    .kc-r + .kc-r { border-top: 1px solid rgba(246, 238, 223, .08); }
+    .kc-r .rk { font-size: 15px; font-weight: 800; color: var(--lk-muted); text-align: center; }
+    .kc-r .n { min-width: 0; font-size: 16px; font-weight: 800; color: rgba(246, 238, 223, .9); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .kc-r .p { font-size: 13.5px; font-weight: 800; color: var(--lk-muted); white-space: nowrap; }
+    #leagueFinal > .st-last.kc { margin: 0 auto; max-width: none; }
+    .bracket .st-last.ko-champ { margin-top: var(--s5); margin-bottom: 0; animation: rise var(--t-slow) var(--ease) both; }
+    /* 6.9 — البطاقة العريضة (مباراة وحيدة في صفها، ≥ 560px): المحتوى بعرض مريح في منتصفها بدل أطرافها
+       القادمة: الاسمان متقابلان حول «ضد» مباشرة. المكتملة: صفّا الاسم والنتيجة بعرض بطاقة عادية في المنتصف. */
+    @container (min-width: 300px) {   /* نفس تصميم البطاقة العادية (اسم ← «ضد» بين خطين ← اسم) بعرض بطاقة عادية في المنتصف */
+      .match-card.vs .match-body { display: flex; flex-direction: column; align-items: stretch; gap: 0; width: 100%; }   /* الخط الفاصل يمتد حتى قرب حافة البطاقة كما في البطاقة الصغيرة */
+      .match-card.vs .match-team { flex-direction: row; flex-wrap: wrap; align-items: center; justify-content: center; text-align: center; gap: 2px 6px; padding: 4px 8px; min-height: 38px; }
+      .match-card.vs .match-team > span:first-child { width: auto; }
+      .match-card.vs .vs-sep { margin: 0 8px; }
+      .match-card.vs .vs-sep::before, .match-card.vs .vs-sep::after { display: block; }
+      .match-card.vs .vs-sep span { display: inline-flex; width: auto; height: auto; padding: 1px 9px; border-radius: 999px; border: 1px solid var(--line); background: var(--surface); color: var(--text-2); font-size: 11px; }
+    }
+    .match-card { container: mcard / inline-size; }
+    .match-card.vs { container-type: inline-size; }
+    @container mcard (min-width: 560px) {
+      .match-card:not(.vs) > .match-body { width: 100%; max-width: 300px; margin-inline: auto; }
+    }
+    /* 6.9 — بطاقة المباراة زر واحد: تأثير الضغط للبطاقة كاملة، والأسماء بلا تمييز مستقل */
+    .match-card.tap, .match-card.lg-match { cursor: pointer; -webkit-tap-highlight-color: transparent; transition: transform var(--t-fast) var(--ease), border-color var(--t-fast) ease, box-shadow var(--t-fast) ease; }
+    .match-card.tap .match-team, .match-card.lg-match .match-team { cursor: inherit; pointer-events: none; }
+    .match-card.tap .match-team .edit-icon { pointer-events: auto; }
+    @media (hover: hover) { .match-card.tap:hover, .match-card.lg-match:hover { border-color: var(--gold-soft); } }
+    .match-card.tap:active, .match-card.lg-match:active { transform: scale(.985); border-color: var(--gold); }
+    .match-card.tap:focus-visible, .match-card.lg-match:focus-visible { outline: 2px solid var(--gold); outline-offset: 2px; }
+    .ko-row { display: none; }
+    .ko-st { display: flex; flex-direction: column; justify-content: center; gap: 10px; min-height: 72px; box-sizing: border-box; padding: 12px 18px; border-radius: var(--r-lg); border: 1px solid var(--line); background: var(--surface); box-shadow: var(--sh-1); }
+    .ko-st-h { display: flex; align-items: center; gap: 8px; min-width: 0; }
+    .ko-st-h .ic { flex: none; width: 18px; height: 18px; margin: 0; color: var(--gold-deep); }
+    .ko-st-h .k { font-size: var(--fs-xs); font-weight: 700; color: var(--text-3); padding-top: 2px; }
+    .ko-st-h b { font-size: var(--fs-md); font-weight: 800; color: var(--text); }
+    .ko-st-h .d { margin-inline-start: auto; font-size: var(--fs-xs); font-weight: 700; color: var(--text-2); white-space: nowrap; }
+    .ko-st-h .d b { font-size: inherit; }
+    .ko-st .league-bar { margin: 0; }
+    @media (min-width: 960px) {
+      .ko-row:not([hidden]) { display: flex; align-items: stretch; gap: var(--s5); margin-bottom: var(--s4); }
+      .ko-row > .ko-st { flex: 1 1 0; min-width: 0; }
+      .ko-row > #viewMeCard, .ko-row > .ko-setup { flex: 0 0 400px; min-width: 0; margin: 0; }
+      .ko-row > #viewMeCard { min-height: 72px; box-sizing: border-box; align-content: center; }
+      .ko-row > .ko-setup > .ko-sum { min-height: 72px; }
+      .ko-row > .ko-setup:not(.open) { align-self: flex-start; }
+      /* الأدوات: صف واحد مدمج بدل أزرار عملاقة متراكبة؛ «إعادة ضبط» في الطرف */
+      .tools-card { flex-direction: row !important; flex-wrap: wrap; align-items: center; }
+      .tools-card #exportWrap .btn, .tools-card #clearWrap .btn, .tools-card #newTournamentWrap .btn, .tools-card #statsBtn { width: auto; padding-inline: 18px; }
+      .tools-card #clearWrap { margin-inline-start: auto; }
+    }
+    @media (min-width: 1200px) {   /* المباريات بثلاثة أعمدة: الاسم قريب من نتيجته، وكل صف متمركز مهما كان عدد مبارياته (2 · 3 · النهائي وحده) */
+      .bracket .round-matches, html.view-mode .bracket .round-matches { display: flex; flex-wrap: wrap; justify-content: center; }
+      .bracket .round-matches > *, html.view-mode .bracket .round-matches > * { flex: 0 1 calc((100% - 2 * var(--s3)) / 3); min-width: 0; max-width: none; grid-column: auto; justify-self: auto; }
     }
     /* 6.8 — توزيع الكمبيوتر: تقدم الدوري بطاقة في العمود الجانبي، وأول بطاقة في كل عمود بارتفاع واحد (الصف الأول خط واحد) */
     @media (min-width: 960px) {
@@ -2626,7 +2703,8 @@
     #celebration .celeb-name .pl, #celebration .celeb-stats .pl { color: #E3BF6E; -webkit-text-fill-color: #E3BF6E; }
     /* ===== أوسمة الشرف: «ميداليات» — شكل خاص بالأوسمة وحدها في المشروع =====
        بطاقة صغيرة لكل وسام: ميدالية دائرية لامعة بحلقة محفورة وأيقونة داكنة، ثم الاسم وتفصيله. ذهبي دائم · فضي للنخبة · إسبريسو لحامل الرقم */
-    .pf-honors { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; }
+    .pf-honors { display: flex; flex-wrap: wrap; justify-content: center; gap: 8px; }   /* 6.9: الأوسمة بثلاثة أعمدة، والصف الأخير متمركز بدل وسام وحيد على اليمين */
+    .pf-honors > * { flex: 0 1 calc((100% - 16px) / 3); min-width: 0; }
     .hn { display: flex; flex-direction: column; align-items: center; gap: 2px; min-width: 0; padding: 12px 6px 11px; border-radius: 16px; border: 1px solid var(--line); background: var(--surface-2); text-align: center; }
     .hn .md, .hg-r .md { position: relative; display: grid; place-items: center; flex: none; border-radius: 50%;
       background: radial-gradient(circle at 34% 28%, #FFF3CF 0%, #E9C77A 48%, #B88A3A 100%); color: #4A3412;
@@ -3766,6 +3844,8 @@ return teamName.replace('غير محدد', replacement);
     }
     function getDisplayTeamHTML(teamName, includeEditIcon, teamId) {
       if (!teamName || !teamName.includes('غير محدد')) {
+        const parts = String(teamName || '').split(' + ');
+        if (parts.length === 2 && parts[0] && parts[1]) return `<span><span class="tmn">${escHTML(parts[0])}&nbsp;+</span> <span class="tmn">${escHTML(parts[1])}</span></span>`;   // 6.9
         return `<span>${escHTML(teamName)}</span>`;
       }
       if (!teamId) {
@@ -5194,6 +5274,11 @@ return teamName.replace('غير محدد', replacement);
       return map;
     }
 
+    // 6.9 — بطاقة البطل الموحدة (إسبريسو، محتوى متمركز): العنوان ← اسم البطل ← المعلومة الأهم ← تفصيل هادئ
+    // تُستخدم في: جدول الفردي/الفرق، «بطل آخر بطولة/دوري» في الإحصائيات، ورقة البطولة السابقة، وبطاقة بطل الدوري للاعبين
+    function champCardHTML(title, nameHTML, meta, sub) {
+      return `<div class="kc-t">${title}</div><div class="kc-n">${nameHTML}</div>${meta ? `<div class="kc-m">${meta}</div>` : ''}${sub ? `<div class="kc-s">${sub}</div>` : ''}`;
+    }
     function isFinalMatch(match) {
       return !!match && (String(match.roundName).includes('المباراة النهائية') || String(match.roundName).includes('🏆 المباراة النهائية 🏆'));
     }
@@ -5710,13 +5795,9 @@ return teamName.replace('غير محدد', replacement);
         const tag = (k, l) => `<span class="sb-tag ${k}">${l}</span>`;
         const ruRow = !isLg && t.runnerUp ?   // الدوري: البطاقة للبطل وحده
           `<div class="sb-row l">${tag('ru', 'الوصيف')}<span class="nm"><span>${names(t.runnerUp)}</span></span>${lSc}</div>` : '';
-        return `<section class="st-last ht-open" data-tid="${escHTML(t.id)}" role="button" tabindex="0" title="عرض البطولة" aria-label="آخر بطولة مكتملة: البطل ${escHTML(sideNames(t, t.champion).join(' و'))}">
-          <div class="st-last-top"><span class="tag">${isLg ? 'بطل آخر دوري' : 'بطل آخر بطولة'}</span><span class="meta">${isLg ? '' : (hasSc ? 'النهائي · ' : '')}${escHTML(fmtDate(t.date))}</span><span class="ht-chev" aria-hidden="true"></span></div>
-          <div class="st-sb">
-            <div class="sb-row w${isLg ? ' solo' : ''}">${tag('ch', 'البطل')}<span class="nm"><b>${names(t.champion)}</b>${rec}</span>${wSc}</div>
-            ${ruRow}
-          </div>
-        </section>`;
+        const meta = isLg ? `${L.pts} ${ptsW(L.pts)}` : hasSc ? `النهائي · ${Math.max(fs.winner, fs.loser)} - ${Math.min(fs.winner, fs.loser)}` : '';
+        const sub = isLg ? `فوز ${L.w} · تعادل ${L.d} · خسارة ${L.l}` : escHTML(fmtDate(t.date));   // سطر واحد لمعلومة واحدة: سجل الدوري، أو تاريخ البطولة
+        return `<section class="st-last kc ht-open" data-tid="${escHTML(t.id)}" role="button" tabindex="0" title="عرض البطولة" aria-label="${isLg ? 'بطل آخر دوري' : 'بطل آخر بطولة'}: ${escHTML(sideNames(t, t.champion).join(' و'))}">${champCardHTML(isLg ? 'بطل آخر دوري' : 'بطل آخر بطولة', names(t.champion), meta, sub)}</section>`;
       })();
 
       statsContent.innerHTML = `
@@ -6275,6 +6356,15 @@ currentScoreWinnerName = null;
                     </div>
                 `;
           if (isPlayable && !match.winner && !String(match.team1).includes('Bye') && !String(match.team2).includes('Bye')) vsDecorate(matchDiv);
+          // 6.9: البطاقة كلها زر واحد — الضغط في أي مكان منها يفتح التسجيل (أو ورقة المباراة للاعبين)، والأسماء بلا ضغط مستقل
+          const rowTaps = matchDiv.querySelectorAll('.match-body > .match-team[onclick]');
+          if (rowTaps.length) {
+            rowTaps.forEach(r => { r.removeAttribute('onclick'); r.removeAttribute('role'); r.removeAttribute('tabindex'); });
+            const mid = match.id; matchDiv.classList.add('tap'); matchDiv.setAttribute('role', 'button'); matchDiv.tabIndex = 0;
+            matchDiv.title = match.winner ? 'اضغط لتعديل النتيجة' : 'اضغط لتسجيل النتيجة';
+            matchDiv.addEventListener('click', () => selectWinner(mid));
+            matchDiv.addEventListener('keydown', e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); selectWinner(mid); } });
+          }
           roundGrid.appendChild(matchDiv);
         });
         bracketArea.appendChild(roundSection);
@@ -6284,19 +6374,13 @@ currentScoreWinnerName = null;
       const verifiedChamp = getVerifiedTournamentChampion();
       const finalMatch = verifiedChamp ? { winner: verifiedChamp.champion } : null;
       if (finalMatch) {
-        const finalWinner = document.createElement('div');
-        finalWinner.className = 'match-card final-winner';
-        finalWinner.style.marginTop = '25px';
+        // 6.9: بطاقة البطل بهوية الإسبريسو الموحدة (نفس بطاقة «بطل آخر بطولة» في الإحصائيات) — البطل وحده، ونتيجة النهائي في سطرها العلوي
         const winnerDisplay = getDisplayTeamName(finalMatch.winner);
-        finalWinner.innerHTML = `
-                <div class="match-title"><span class="ic ic-trophy" aria-hidden="true"></span>بطل البطولة</div>
-                <div class="match-body">
-                    <div class="match-team winner">
-                        <span>${escHTML(winnerDisplay)}</span>
-                       
-                    </div>
-                </div>
-            `;
+        const fm = Object.values(bracketState).find(isFinalMatch), hasSc = fm && fm.winnerScore != null && fm.loserScore != null;
+        const nm = String(winnerDisplay).split(' + ').map(x => `<bdi>${escHTML(x)}</bdi>`).join('<span class="pl" aria-hidden="true">+</span>');
+        const finalWinner = document.createElement('section');
+        finalWinner.className = 'st-last kc ko-champ'; finalWinner.setAttribute('aria-label', 'بطل البطولة: ' + winnerDisplay);
+        finalWinner.innerHTML = champCardHTML('بطل البطولة', nm, hasSc ? `النهائي · ${Math.max(fm.winnerScore, fm.loserScore)} - ${Math.min(fm.winnerScore, fm.loserScore)}` : '');
         bracketArea.appendChild(finalWinner);
       }
     }
@@ -8972,19 +9056,12 @@ function changeScore(inputId, amount){
     function renderLeagueFinal() {
       leagueFinalEl.innerHTML = '';
       if (!leagueCompleted) return;
-      const labels = ['المركز الأول', 'المركز الثاني', 'المركز الثالث'];
-      const cards = leagueStandings.slice(0, 3).map((r, i) => `
-        <div class="podium-card p${i + 1}">
-          <div class="podium-medal">${i + 1}</div>
-          <div class="podium-label">${labels[i]}</div>
-          <div class="podium-name">${leagueEscape(r.name)}</div>
-          <div class="podium-pts">${pointsLabel(r.points)}</div>
-        </div>`).join('');
-      leagueFinalEl.innerHTML = `
-        <div class="league-final">
-          <div class="league-final-title">اكتمل الدوري</div>
-          <div class="league-podium">${cards}</div>
-        </div>`;
+      // 6.9: بطاقة البطل الموحدة + المركزان الثاني والثالث صفّان هادئان داخلها (بلا صناديق داخل صندوق)
+      const ptsW = n => `${n} ${n === 1 ? 'نقطة' : n === 2 ? 'نقطتان' : n >= 3 && n <= 10 ? 'نقاط' : 'نقطة'}`;
+      const top = leagueStandings.filter(r => !r.excluded).slice(0, 3), c = top[0];
+      if (!c) return;
+      const rest = top.slice(1).map(r => `<div class="kc-r"><span class="rk">${r.rank}</span><span class="n"><bdi>${leagueEscape(r.name)}</bdi></span><span class="p">${ptsW(r.points)}</span></div>`).join('');
+      leagueFinalEl.innerHTML = `<section class="st-last kc lg-final-kc" aria-label="بطل الدوري: ${leagueEscape(c.name)}">${champCardHTML('بطل الدوري', `<bdi>${leagueEscape(c.name)}</bdi>`, ptsW(c.points), `فوز ${c.wins} · تعادل ${c.draws} · خسارة ${c.losses}`)}${rest ? `<div class="kc-rest">${rest}</div>` : ''}</section>`;
     }
 
     function renderLeagueRounds() {
@@ -12513,15 +12590,14 @@ function buildLeagueStandingsCanvas() {
           <div class="ht-meta">${H(fmtDayDate(t.date))} · ${partW} · ${cnt(nM, 'مباراة واحدة', 'مباراتان', 'مباريات', 'مباراة')}</div>${nm && nm !== proj ? `<div class="ht-name">${H(nm)}</div>` : ''}</div>`;
         if (lg) {
           const rows = leagueTable(t), c = rows[0];
-          if (c) h += `<section class="st-last ht-card"><div class="st-last-top"><span class="tag">بطل الدوري</span></div><div class="st-sb"><div class="sb-row w solo"><span class="sb-tag ch">البطل</span><span class="nm"><b>${names(t, c.name)}</b><small class="rec">فوز ${c.w} · تعادل ${c.d} · خسارة ${c.l} · الفارق <bdi dir="ltr">${c.f - c.a > 0 ? '+' : ''}${c.f - c.a}</bdi></small></span><span class="sc"><b>${c.pts}</b><small>${ptsW(c.pts)}</small></span></div></div></section>`;
+          if (c) h += `<section class="st-last kc ht-card">${champCardHTML('بطل الدوري', names(t, c.name), `${c.pts} ${ptsW(c.pts)}`, `فوز ${c.w} · تعادل ${c.d} · خسارة ${c.l}`)}</section>`;
           h += `<div class="ht-sec"><div class="ht-sec-h">الترتيب النهائي</div><div class="ht-tbl" role="table">
             <div class="ht-tr hd" role="row"><span class="rk">#</span><span class="pn">اللاعب</span><span>لعب</span><span>ف</span><span>ت</span><span>خ</span><span>الفارق</span><span class="pt">النقاط</span></div>` +
             rows.map(r => { const df = r.f - r.a; return `<div class="ht-tr${r.rank === 1 ? ' one' : ''}" role="row"><span class="rk">${r.rank}</span><span class="pn">${names(t, r.name)}</span><span>${r.p}</span><span>${r.w}</span><span>${r.d}</span><span>${r.l}</span><span class="df ${df > 0 ? 'up' : df < 0 ? 'dn' : ''}"><bdi dir="ltr">${df > 0 ? '+' : ''}${df}</bdi></span><span class="pt">${r.pts}</span></div>`; }).join('') +
             `</div>${(t.excluded || []).length ? `<p class="ht-note">مستبعد من الدوري: ${t.excluded.map(H).join('، ')}</p>` : ''}</div>`;
         } else {
           const fs = t.finalScore || {}, hasSc = fs.winner != null && fs.loser != null;
-          h += `<section class="st-last ht-card"><div class="st-last-top"><span class="tag">النهائي</span></div><div class="st-sb"><div class="sb-row w"><span class="sb-tag ch">البطل</span><span class="nm"><b>${names(t, t.champion)}</b></span>${hasSc ? `<span class="sc"><b>${Math.max(fs.winner, fs.loser)}</b></span>` : ''}</div>` +
-            (t.runnerUp ? `<div class="sb-row l"><span class="sb-tag ru">الوصيف</span><span class="nm"><span>${names(t, t.runnerUp)}</span></span>${hasSc ? `<span class="sc"><b>${Math.min(fs.winner, fs.loser)}</b></span>` : ''}</div>` : '') + `</div></section>`;
+          h += `<section class="st-last kc ht-card">${champCardHTML('بطل البطولة', names(t, t.champion), hasSc ? `النهائي · ${Math.max(fs.winner, fs.loser)} - ${Math.min(fs.winner, fs.loser)}` : '')}</section>`;
           h += `<div class="ht-sec"><div class="ht-sec-h">المسار</div>` + koRounds(t).map(r => `<div class="ht-round${r.final ? ' fin' : ''}"><div class="ht-rh">${H(r.name)}</div>` +
             r.ms.map(m => { const { sa, sb } = scoreOf(m), w = m.winner;
               const noSc = !Number.isFinite(Number(sa)) || !Number.isFinite(Number(sb)) || sa == null || sb == null;
@@ -12825,7 +12901,7 @@ function buildLeagueStandingsCanvas() {
     // ===================================
     // 🧭 سلوك التطبيق: إعادة الوضع للأعلى، تعديل العنوان بالضغط المطوّل، تنبيه التحديث، رقم الإصدار
     // ===================================
-    const APP_VERSION = '6.8';   // ترقيم الاعتماد: 1 ثم 1.1 … 1.9 ثم 2 — ويُرفع معه رقم الإصدار في sw.js
+    const APP_VERSION = '7';   // ترقيم الاعتماد: 1 ثم 1.1 … 1.9 ثم 2 — ويُرفع معه رقم الإصدار في sw.js
     (function setupAppBehaviors() {
       const root = document.documentElement;
 
@@ -13066,6 +13142,7 @@ function buildLeagueStandingsCanvas() {
           if (grid) {
             const cards = [...grid.children], pend = cards.filter(c => !c.classList.contains('done')), done = cards.filter(c => c.classList.contains('done'));
             if (pend.length % 2 === 1) pend[pend.length - 1].classList.add('lg-wide');   // لا يبقى نصف السطر فارغًا
+            if (done.length % 2 === 1) done[done.length - 1].classList.add('lg-wide');   // 6.9: نفس القاعدة للمكتملة — الوحيدة بعرض كامل، والتنسيق يتغير بعددها
             if (pend.length && done.length) { const sep = document.createElement('div'); sep.className = 'lg-done-sep'; sep.textContent = 'المباريات المكتملة'; grid.replaceChildren(...pend, sep, ...done); }
             if (roundDir) animate(grid, roundDir > 0 ? -22 : 22);
           }
@@ -13911,13 +13988,12 @@ function buildLeagueStandingsCanvas() {
         if (!host || !cl) return;
         let me1 = null; try { me1 = (JSON.parse(localStorage.getItem('__carrom_me_v1') || 'null') || {}).name || null; } catch (e) {}
         const totalRounds = (() => { try { return getLeagueProgress().totalRounds; } catch (e) { return 0; } })();
-        const note = cl.final ? `${arRounds(totalRounds)} · ${exportPointsLabel(cl.points)}` : `حُسم قبل ${arRounds(cl.roundsLeft)}`;
-        const card = document.createElement('button'); card.type = 'button'; card.className = 'vchamp-card'; card.id = 'viewChampion';
+        const note = cl.final ? `${exportPointsLabel(cl.points)} · ${arRounds(totalRounds)}` : `حُسم قبل ${arRounds(cl.roundsLeft)}`;   // الأهم (النقاط) أولًا
+        const card = document.createElement('button'); card.type = 'button'; card.className = 'st-last kc kc-btn'; card.id = 'viewChampion';
         card.setAttribute('aria-label', `بطل الدوري: ${cl.name}، ${note}`);
-        card.innerHTML = `<span class="cup"><span class="ic ic-trophy" aria-hidden="true"></span></span>
-          <span class="who"><small>بطل الدوري</small><b>${esc(cl.name)}</b></span><span class="note">${esc(note)}</span>`;
+        card.innerHTML = champCardHTML(cl.final ? 'بطل الدوري' : 'حسم لقب الدوري', `<bdi>${esc(cl.name)}</bdi>`, esc(note));
         card.addEventListener('click', () => { try { window.carromOpenProfile(cl.name); } catch (e) {} });
-        host.prepend(card);
+        if (!cl.final) host.prepend(card);   // 6.9: الدوري المكتمل يعرض بطله في بطاقة «بطل الدوري» الموحدة (بلا تكرار)
         // شارة «البطل» بجانب اسمه في الترتيب
         const mark = () => document.querySelectorAll('.lgc-row').forEach(r => { const b = r.querySelector('.n b'); if (!b) return;
           const has = b.querySelector('.vchamp'); if (r.dataset.player === cl.name && !has) { const t = document.createElement('span'); t.className = 'vchamp'; t.textContent = 'البطل'; b.appendChild(t); } });
@@ -14102,16 +14178,58 @@ function buildLeagueStandingsCanvas() {
       const prog = document.getElementById('leagueProgress'), stand = document.getElementById('leagueStandings');
       const side = document.querySelector('#leagueMainPanel .lv-side'), mainEl = document.querySelector('section.main');
       if (!mq || !prog || !stand || !side || !mainEl) return;
+      const VIEW = !!window.CARROM_VIEW;
       const progMark = document.createComment('lg-progress'); prog.before(progMark);
       const me = document.getElementById('viewMeCard'), meMark = me ? document.createComment('vme') : null; if (me) me.before(meMark);
-      function apply() {
-        const desk = mq.matches, lg = mainEl.classList.contains('league-mode');
-        document.documentElement.classList.toggle('lg-desk', desk);
-        if (desk) { if (prog.nextElementSibling !== stand) stand.before(prog); } else if (progMark.nextSibling !== prog) progMark.after(prog);
-        if (me) { if (desk && lg) { if (side.firstElementChild !== me) side.prepend(me); } else if (meMark.nextSibling !== me) meMark.after(me); }
+      // 6.9 — خروج المغلوب على الكمبيوتر: صف أول (حالة البطولة ← بطاقة الهوية) فوق الجدول بنفس منطق الدوري
+      const bracketCard = document.querySelector('.bracket-card'), tools = document.querySelector('.tools-card');
+      const row = document.createElement('div'); row.className = 'ko-row'; row.hidden = true;
+      const st = document.createElement('section'); st.className = 'ko-st'; st.id = 'koStatus'; st.setAttribute('aria-label', 'حالة البطولة'); row.appendChild(st);
+      if (bracketCard) bracketCard.before(row);
+      const isBye = n => /Bye/.test(String(n || ''));
+      function paintStatus() {
+        const ms = Object.values(bracketState || {}).filter(m => m && !isBye(m.team1) && !isBye(m.team2)).sort((a, b) => (a.matchNumber || 0) - (b.matchNumber || 0));
+        const done = ms.filter(m => m.winner).length, total = ms.length, pct = total ? Math.round(done / total * 100) : 0;
+        const fin = ms.find(m => isFinalMatch(m)), over = !!(fin && fin.winner), cur = ms.find(m => !m.winner);
+        const label = over ? 'اكتملت البطولة' : cur ? cleanRound(cur.roundName) : '';
+        const html = `<div class="ko-st-h"><span class="ic ic-${over ? 'trophy' : 'flag'}" aria-hidden="true"></span>${over ? '' : '<span class="k">الدور الحالي</span>'}<b>${escHTML(label)}</b><span class="d"><b>${done}</b> من ${total} ${arMatchW(total)} مكتملة</span></div><div class="league-bar"><div style="width:${pct}%"></div></div>`;
+        if (st.innerHTML !== html) st.innerHTML = html;
       }
+      function syncTools() {   // البطاقة تختفي إن لم يكن فيها زر ظاهر (كانت تظهر إطارًا فارغًا)
+        if (!tools) return;
+        const vis = b => { for (let e = b; e && e !== tools; e = e.parentElement) { if (e.hidden || getComputedStyle(e).display === 'none') return false; } return true; };
+        const shown = [...tools.querySelectorAll('button')].filter(vis), hide = !shown.length; if (tools.hidden !== hide) tools.hidden = hide;
+        const solo = shown.length === 1 && shown[0].id === 'clearDataBtn'; if (tools.classList.contains('solo-reset') !== solo) tools.classList.toggle('solo-reset', solo);   // رابط وحده: بلا إطار بطاقة
+      }
+      let busy = false;
+      function apply() {
+        if (busy) return; busy = true;
+        try {
+          const desk = mq.matches, lg = mainEl.classList.contains('league-mode');
+          document.documentElement.classList.toggle('lg-desk', desk);
+          if (desk) { if (prog.nextElementSibling !== stand) stand.before(prog); } else if (progMark.nextSibling !== prog) progMark.after(prog);
+          const koOn = desk && !lg && !!document.querySelector('#bracketArea .match-card');
+          row.hidden = !koOn; if (koOn) paintStatus();
+          const ks = !VIEW ? document.getElementById('koSetup') : null;
+          if (ks) { if (koOn) { if (ks.parentElement !== row) row.appendChild(ks); } else if (ks.parentElement === row && bracketCard) bracketCard.after(ks); }
+          const vc = document.getElementById('viewChampion');
+          if (vc) { if (!vc.__mark) { vc.__mark = document.createComment('vchamp'); vc.before(vc.__mark); }
+            if (desk && lg) { const after = me && side.contains(me) ? me : null; if (after ? after.nextElementSibling !== vc : side.firstElementChild !== vc) (after ? after.after(vc) : side.prepend(vc)); }
+            else if (vc.__mark.nextSibling !== vc) vc.__mark.after(vc); }
+          if (me) {
+            if (desk && lg) { if (side.firstElementChild !== me) side.prepend(me); }
+            else if (koOn) { if (me.parentElement !== row) row.appendChild(me); }
+            else if (meMark.nextSibling !== me) meMark.after(me);
+          }
+          syncTools();
+        } finally { busy = false; }
+      }
+      let raf = 0; const ask = () => { if (!raf) raf = requestAnimationFrame(() => { raf = 0; apply(); }); };
       if (mq.addEventListener) mq.addEventListener('change', apply); else if (mq.addListener) mq.addListener(apply);
-      new MutationObserver(apply).observe(mainEl, { attributes: true, attributeFilter: ['class'] });
+      new MutationObserver(ask).observe(mainEl, { attributes: true, attributeFilter: ['class'] });
+      const ba = document.getElementById('bracketArea'); if (ba) new MutationObserver(ask).observe(ba, { childList: true, subtree: true });
+      if (tools) new MutationObserver(ask).observe(tools, { childList: true, subtree: true, attributes: true, attributeFilter: ['style', 'class'] });
+      new MutationObserver(ask).observe(document.body, { attributes: true, attributeFilter: ['class'] });
       apply();
     }, 0);
     })();
