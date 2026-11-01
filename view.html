@@ -1939,6 +1939,12 @@
     @container mcard (min-width: 560px) {
       .match-card:not(.vs) > .match-body { width: 100%; max-width: 300px; margin-inline: auto; }
     }
+    /* 7.9 — المكتملة: نفس بطاقة المواجهة؛ النتيجة في كبسولة المنتصف بلون النص، والفائز بلون الفوز فقط (بلا صندوق ولا علامة) */
+    .match-card.vs.res .score-badge { display: none; }
+    .match-card.vs.res .match-team.winner { background: transparent; border-color: transparent; color: var(--ok); }
+    .match-card.vs.res .match-team.winner > span:first-child::before { display: none; }
+    .match-card.vs.res .vs-sep span { color: var(--text); font-size: 12px; font-weight: 900; font-variant-numeric: tabular-nums; white-space: nowrap; }
+    .lg-match.annulled.vs .match-team { background: transparent; }
     /* 6.9 — بطاقة المباراة زر واحد: تأثير الضغط للبطاقة كاملة، والأسماء بلا تمييز مستقل */
     .match-card.tap, .match-card.lg-match { cursor: pointer; -webkit-tap-highlight-color: transparent; transition: transform var(--t-fast) var(--ease), border-color var(--t-fast) ease, box-shadow var(--t-fast) ease; }
     .match-card.tap .match-team, .match-card.lg-match .match-team { cursor: inherit; pointer-events: none; }
@@ -2842,6 +2848,9 @@
     .pf-honors .hn { justify-content: flex-start; padding: 13px 4px 11px; }
     .pf-honors .hn .t { white-space: nowrap; max-width: 100%; overflow: hidden; text-overflow: ellipsis; font-size: 11.5px; }
     .pf-honors .hn .s { min-height: 1.35em; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    /* 7.9: «صاحب الرقم القياسي» أطول اسم وسام — حين يظهر تُصغَّر أسماء الصف كلها معًا بقدر عرض البطاقة (لا قص، ونفس المقاس للجميع) */
+    .pf-honors { container-type: inline-size; }
+    .pf-honors:has(.hn[data-hk="hold"]) .hn .t { font-size: clamp(10px, (100cqi / 3 - 16px) * .1055, 11.5px); }
     button.hn { -webkit-appearance: none; appearance: none; font: inherit; color: inherit; cursor: pointer; -webkit-tap-highlight-color: transparent; transition: transform var(--t-fast) var(--ease); }
     button.hn:active { transform: scale(.97); }
     .hn .md.nm { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 1px; padding-top: 2.5px; }   /* Tajawal يرسم الأرقام أعلى من الوسط: إزاحة مقيسة */
@@ -5487,6 +5496,16 @@ return teamName.replace('غير محدد', replacement);
         .sort((a, b) => a.k - b.k || a.i - b.i).map(o => o.x);
     }
     function leagueMatchTimes() { const at = {}; try { readMatchLog().forEach(e => { if (e.k === 'lg' && matchLogStillValid(e)) at[e.id] = e.at; }); } catch (e) {} return at; }
+    // آخر 5 نتائج للاعب في الدوري بتوقيت اللعب الفعلي (المؤجلة تُحسب حين لُعبت): 'w' · 'd' · 'l'. قراءة فقط — للنسختين (7.9)
+    function leagueFormOf(name, times) {
+      const at = times || leagueMatchTimes();
+      return sortByPlayedTime((Array.isArray(leagueMatches) ? leagueMatches : [])
+        .filter(m => isLeagueMatchCompleted(m) && !isLeagueMatchAnnulled(m) && (m.playerA === name || m.playerB === name))
+        .sort((a, b) => a.round - b.round || String(a.id).localeCompare(String(b.id), 'en', { numeric: true })), m => at[m.id])
+        .slice(-5).map(m => { const d = deriveLeagueResult(m.scoreA, m.scoreB); return d.result === 'draw' ? 'd' : (d.result === 'A') === (m.playerA === name) ? 'w' : 'l'; });
+    }
+    // سطر مستقل تحت الاسم، يُقرأ زمنيًا كالكتابة: الأقدم يمينًا والأحدث في آخر السطر يسارًا
+    const leagueFormHTML = seq => seq.length ? `<span class="lgf" aria-label="آخر النتائج: ${seq.map(x => x === 'w' ? 'فوز' : x === 'l' ? 'خسارة' : 'تعادل').join('، ')}">${seq.map(x => `<i class="${x}">${x === 'w' ? 'ف' : x === 'l' ? 'خ' : 'ت'}</i>`).join('')}</span>` : '';
     function knockoutParticipantsOf(bs) {
       const participants = new Set();
       Object.values(bs || {}).forEach(m => [m.team1, m.team2].forEach(name => {
@@ -6544,7 +6563,7 @@ currentScoreWinnerName = null;
                         </div>
                     </div>
                 `;
-          if (isPlayable && !match.winner && !String(match.team1).includes('Bye') && !String(match.team2).includes('Bye')) vsDecorate(matchDiv);
+          if (isPlayable && !String(match.team1).includes('Bye') && !String(match.team2).includes('Bye')) vsDecorate(matchDiv, match.winner ? resultScoreText(match.winnerScore, match.loserScore) : null);
           // 6.9: البطاقة كلها زر واحد — الضغط في أي مكان منها يفتح التسجيل (أو ورقة المباراة للاعبين)، والأسماء بلا ضغط مستقل
           const rowTaps = matchDiv.querySelectorAll('.match-body > .match-team[onclick]');
           if (rowTaps.length) {
@@ -9340,13 +9359,17 @@ function changeScore(inputId, amount){
     // بطاقة المباراة القادمة بشكل مواجهة: الطرفان متقابلان وبينهما «ضد» (الأسماء فقط؛ التقييم والفرص في نافذة المباراة عند الضغط).
     // البطاقة العريضة: الطرفان جنبًا إلى جنب؛ الضيقة (جدول خروج المغلوب على الهاتف): فوق بعض وبينهما فاصل «ضد».
     // الأسماء تبقى أول عنصر في صفها (يعتمد عليه تمييز «أنا» في صفحة اللاعبين)، والضغط كما هو.
-    function vsDecorate(card) {
+    // 7.9: المباراة المكتملة بنفس التصميم — النتيجة («2 - 0»، الأكبر أولًا) مكان «ضد»، والفائز يتميّز باللون فقط
+    function vsDecorate(card, score) {
       const rows = card.querySelectorAll('.match-body > .match-team');
       if (rows.length !== 2) return card;
-      card.classList.add('vs');
-      rows[0].insertAdjacentHTML('afterend', '<div class="vs-sep" aria-hidden="true"><span><i class="tx">ضد</i></span></div>');
+      card.classList.add('vs'); if (score != null) card.classList.add('res');
+      rows[0].insertAdjacentHTML('afterend', score != null
+        ? `<div class="vs-sep" aria-label="النتيجة ${escHTML(score)}"><span><i class="tx">${escHTML(score)}</i></span></div>`
+        : '<div class="vs-sep" aria-hidden="true"><span><i class="tx">ضد</i></span></div>');
       return card;
     }
+    const resultScoreText = (a, b) => (a == null || b == null || a === '' || b === '') ? '—' : `${Math.max(+a, +b)} - ${Math.min(+a, +b)}`;
     function createLeagueMatchCard(m) {
       const done = isLeagueMatchCompleted(m), annul = isLeagueMatchAnnulled(m);
       const d = done && !annul ? deriveLeagueResult(m.scoreA, m.scoreB) : null;
@@ -9376,7 +9399,7 @@ function changeScore(inputId, amount){
           ${row(m.playerB, done && !annul ? m.scoreB : null, !!d && d.result === 'B', 'B')}
         </div>`;
 
-      if (!done && !annul) vsDecorate(card);
+      vsDecorate(card, done && !annul ? resultScoreText(m.scoreA, m.scoreB) : null);
       const go = () => { if (annul && !done && !window.CARROM_VIEW) { uiToast(`مباراة ملغاة: ${leagueExcluded.find(n => n === m.playerA || n === m.playerB)} مستبعد من الدوري`, 'warn'); return; } openLeagueScoreModal(m.id); };
       card.addEventListener('click', go);
       card.addEventListener('keydown', e => {
@@ -11130,7 +11153,7 @@ function buildLeagueStandingsCanvas() {
       const d = Object.entries(duo).sort((a, b) => b[1] - a[1])[0];
       if (d && d[1] >= 2) add('duo', '', `مع ${d[0]}`);
       const held = (recs || []).filter(r => r.holders.includes(p.name));
-      if (held.length) add('hold', held.length === 1 ? '' : `صاحب ${held.length} ${held.length === 2 ? 'رقمين قياسيين' : held.length <= 10 ? 'أرقام قياسية' : 'رقمًا قياسيًا'}`, held.length === 1 ? held[0].label : '');
+      if (held.length) add('hold', '', held.length === 1 ? held[0].label : `${held.length} ${held.length === 2 ? 'رقمان قياسيان' : held.length <= 10 ? 'أرقام قياسية' : 'رقمًا قياسيًا'}`);   // 7.9: الاسم ثابت «صاحب الرقم القياسي»، والعدد سطر فرعي مثل بقية الأوسمة
       const pk = C.peak ? C.peak.r : 0;   // الأسطورة أعلى من النخبة: لا يجمعهما لاعب
       if (pk >= 1200) add('legend', '', `أعلى تقييم ${pk.toLocaleString('en-US')}`);
       else if (pk >= 1120) add('elite', '', `أعلى تقييم ${pk.toLocaleString('en-US')}`);
@@ -13201,7 +13224,7 @@ function buildLeagueStandingsCanvas() {
     // ===================================
     // 🧭 سلوك التطبيق: إعادة الوضع للأعلى، تعديل العنوان بالضغط المطوّل، تنبيه التحديث، رقم الإصدار
     // ===================================
-    const APP_VERSION = '7.8';   // ترقيم الاعتماد: 1 ثم 1.1 … 1.9 ثم 2 — ويُرفع معه رقم الإصدار في sw.js
+    const APP_VERSION = '7.9';   // ترقيم الاعتماد: 1 ثم 1.1 … 1.9 ثم 2 — ويُرفع معه رقم الإصدار في sw.js
     (function setupAppBehaviors() {
       const root = document.documentElement;
 
@@ -13477,13 +13500,14 @@ function buildLeagueStandingsCanvas() {
         const r = _renderStandings.apply(this, arguments), el = leagueStandingsEl;
         if (!leaguePlayers.length) return r;
         const any = leagueStandings.some(x => x.played > 0), box = document.createElement('div'); box.className = 'lgc', moves = leagueRankMoves(), hasMv = Object.values(moves).some(v => v);
+        const formAt = leagueMatchTimes();
         box.innerHTML = '<div class="lgc-head" aria-hidden="true"><span>#</span><span class="n">اللاعب</span><span>لعب</span><span>الفارق</span><span>النقاط</span></div>' +
           leagueStandings.map(x => { const top = any && x.played > 0 && x.rank <= 3, sd = x.setDifference;
             const nf = x.excluded ? 0 : leagueForfeitCount(x.name), dlt = x.excluded ? 0 : (moves[x.name] || 0);
             const pill = x.excluded ? '<span class="lgc-pill ex">مستبعد</span>' : nf ? `<span class="lgc-pill">انسحاب ${nf}</span>` : '';
             return `<button type="button" class="lgc-row${top && !x.excluded ? ' rank-' + x.rank : ''}${x.excluded ? ' excluded' : ''}" data-player="${leagueEscape(x.name)}" aria-label="${leagueEscape(x.name)}: ${x.excluded ? 'مستبعد' : 'المركز ' + x.rank}، ${x.points} نقطة">
               <span class="r"><span class="rk">${x.excluded ? '—' : top ? `<span class="rank-badge rb-${x.rank}"><span class="tx">${x.rank}</span></span>` : x.rank}</span>${hasMv && !x.excluded ? `<span class="mv${dlt > 0 ? ' up' : dlt < 0 ? ' down' : ' same'}"${dlt ? ` aria-label="${dlt > 0 ? 'تقدّم' : 'تراجع'} ${Math.abs(dlt)}"` : ''}>${dlt ? `<i aria-hidden="true"></i><b>${Math.abs(dlt)}</b>` : '–'}</span>` : ''}</span>
-              <span class="n"><b>${leagueEscape(x.name)}${pill}</b><small>ف ${x.wins}\u2009·\u2009ت ${x.draws}\u2009·\u2009خ ${x.losses} <i class="sep"></i> له ${x.setsFor}\u2009·\u2009عليه ${x.setsAgainst}</small></span>
+              <span class="n"><b>${leagueEscape(x.name)}${pill}</b>${leagueFormHTML(leagueFormOf(x.name, formAt))}<small>ف ${x.wins}\u2009·\u2009ت ${x.draws}\u2009·\u2009خ ${x.losses} <i class="sep"></i> له ${x.setsFor}\u2009·\u2009عليه ${x.setsAgainst}</small></span>
               <span class="c">${x.played}</span><span class="c sd ${sd > 0 ? 'up' : sd < 0 ? 'down' : ''}"><bdi dir="ltr">${sd > 0 ? '+' + sd : sd}</bdi></span><span class="pts">${x.points}</span></button>`; }).join('');
         box.addEventListener('click', e => { const b = e.target.closest('.lgc-row'); if (b) openLeaguePlayerHistory(b.dataset.player); });
         const legend = document.createElement('div'); legend.className = 'lgc-legend'; legend.innerHTML = '<span class="key">ف = فوز · ت = تعادل · خ = خسارة</span><span class="key">له/عليه = الأشواط · الفارق = فارق الأشواط</span><span class="hint">اضغط على اللاعب لعرض سجله</span>';
@@ -13988,11 +14012,6 @@ function buildLeagueStandingsCanvas() {
         }
 
         // 2) تمييز البطاقات: «جديد» على النتائج الجديدة، واسمي باللون الذهبي
-        const lgTimes = leagueMatchTimes();
-        const leagueFormOf = name => sortByPlayedTime((Array.isArray(leagueMatches) ? leagueMatches : [])
-          .filter(m => isLeagueMatchCompleted(m) && !isLeagueMatchAnnulled(m) && (m.playerA === name || m.playerB === name))
-          .sort((a, b) => a.round - b.round || String(a.id).localeCompare(String(b.id), 'en', { numeric: true })), m => lgTimes[m.id])   // بتوقيت اللعب الفعلي: المؤجلة تُحسب حين لُعبت
-          .slice(-5).map(m => { const d = deriveLeagueResult(m.scoreA, m.scoreB); return d.result === 'draw' ? 'd' : (d.result === 'A') === (m.playerA === name) ? 'w' : 'l'; });
         const isMine = name => !!me && String(name || '').split(' + ').map(x => x.trim()).includes(me);
         let busy = false;
         function decorate() {
@@ -14009,15 +14028,7 @@ function buildLeagueStandingsCanvas() {
               card.querySelectorAll('.match-team').forEach(r => { const n = r.querySelector('span'); r.classList.toggle('is-me', !!n && isMine(n.textContent)); });
               card.classList.toggle('has-me', !sig && !!card.querySelector('.match-team.is-me'));   // الإطار الذهبي لمبارياتي القادمة فقط
             });
-            document.querySelectorAll('.lgc-row').forEach(r => {
-              r.classList.toggle('is-me', !!me && r.dataset.player === me);
-              // آخر 5 نتائج في الدوري: تُقرأ زمنيًا كالكتابة — الأقدم يمينًا والأحدث في آخر السطر يسارًا
-              const n = r.querySelector('.n'); if (!n || n.querySelector('.lgf')) return;
-              const seq = leagueFormOf(r.dataset.player); if (!seq.length) return;
-              const row = document.createElement('span'); row.className = 'lgf'; row.setAttribute('aria-label', 'آخر النتائج: ' + seq.map(x => x === 'w' ? 'فوز' : x === 'l' ? 'خسارة' : 'تعادل').join('، '));
-              row.innerHTML = seq.map(x => `<i class="${x}">${x === 'w' ? 'ف' : x === 'l' ? 'خ' : 'ت'}</i>`).join('');
-              n.querySelector('b').after(row);   // سطر مستقل تحت الاسم: لا يضغط الاسم ولا يكسره
-            });
+            document.querySelectorAll('.lgc-row').forEach(r => r.classList.toggle('is-me', !!me && r.dataset.player === me));   // آخر 5 نتائج يرسمها الترتيب نفسه (7.9)
             document.querySelectorAll('#statsContent .stp-row').forEach(r => r.classList.toggle('is-me', !!me && r.dataset.player === me));
           } finally { busy = false; }
         }
@@ -14246,6 +14257,22 @@ function buildLeagueStandingsCanvas() {
         if (strip) strip.addEventListener('click', e => { const d = e.target.closest('.vday-d'); if (!d || d.dataset.k === sel) return;
           const dir = d.dataset.k > sel ? 1 : -1; sel = d.dataset.k; paint(dir); });   // الأحدث يسارًا: الانتقال إليه يدخل من اليسار
         paint(0);
+        // 7.9 — الكمبيوتر: أول بطاقتين بارتفاع واحد مهما كان محتواهما (مثل «من أنت؟» بسطرين). رأس «آخر يوم لعب» يأخذ ارتفاع بطاقة «أنا» أو العكس؛
+        // القائمة المفتوحة تمتد تحت الرأس كما هي. عرض فقط، والجوال لا يتأثر.
+        const wide = window.matchMedia && matchMedia('(min-width: 960px)');
+        function syncHead() {
+          const mc = document.getElementById('viewMeCard');
+          h.style.minHeight = ''; if (mc) mc.style.minHeight = '';
+          if (!wide || !wide.matches || !mc || mc.hidden || !mc.closest('.lv-side') || !box.closest('.lv-main')) return;
+          const edge = box.offsetHeight - box.clientHeight, T = Math.max(mc.offsetHeight, h.offsetHeight + edge);
+          if (h.offsetHeight + edge < T) h.style.minHeight = (T - edge) + 'px';
+          if (mc.offsetHeight < T) mc.style.minHeight = T + 'px';
+        }
+        if (wide && window.ResizeObserver) {
+          const ro = new ResizeObserver(() => syncHead()); ro.observe(h);
+          const mc = document.getElementById('viewMeCard'); if (mc) { ro.observe(mc); new MutationObserver(() => syncHead()).observe(mc, { childList: true, attributes: true, attributeFilter: ['class', 'hidden'] }); }
+          if (wide.addEventListener) wide.addEventListener('change', syncHead);
+        }
       })();
       // ===== بطل الفردي/الفرق (خروج المغلوب): احتفال مرة واحدة لكل جهاز، ومن جديد إذا تغيّر البطل بتصحيح نتيجة النهائي =====
       (function setupKoChampion() {
