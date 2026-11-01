@@ -2887,6 +2887,11 @@
     .cr-c .cr-sub { font-size: 11px; font-weight: 700; color: var(--text-3); }
     .cr-tag { margin-top: 3px; padding: 0 8px; border-radius: 999px; font-size: 10.5px; font-weight: 800; line-height: 1.8; background: var(--ok-bg); color: var(--ok); }
     @media (min-width: 640px) { .cr-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); } .cr-c:nth-child(2n) { border-inline-start: 0; } .cr-c:not(:nth-child(3n+1)) { border-inline-start: 1px solid var(--line); } .cr-c:nth-child(n+3) { border-top: 0; } .cr-c:nth-child(n+4) { border-top: 1px solid var(--line); } }
+    /* 7.8: ثمانية أرقام — عمودان في الجوال، وأربعة أعمدة في الكمبيوتر (لا خانة فارغة)؛ والرقم الوحيد في صفه يأخذ العرض كاملًا */
+    .cr-c:last-child:nth-child(odd) { grid-column: 1 / -1; }
+    @media (min-width: 640px) { .cr-c:last-child:nth-child(odd) { grid-column: auto; }
+      .cr-grid.c4 { grid-template-columns: repeat(4, minmax(0, 1fr)); } .cr-grid.c4 .cr-c { border-inline-start: 0; border-top: 0; }
+      .cr-grid.c4 .cr-c:not(:nth-child(4n+1)) { border-inline-start: 1px solid var(--line); } .cr-grid.c4 .cr-c:nth-child(n+5) { border-top: 1px solid var(--line); } }
     .toast.record { border-color: rgba(227, 191, 110, .55); } .toast.record .ic { color: #E9C77A; }
     /* ===== بطاقة الإنجاز (6.2): مادة التنبيهات (خشب داكن بحافة ذهبية) تحت شريط الأوضاع — الأرقام القياسية والترقيات والأوسمة ===== */
     .ach-host { position: fixed; z-index: 97; left: 0; right: 0; top: calc(var(--nav-bottom, 120px) + 8px); display: flex; flex-direction: column; align-items: center; padding: 0 12px; pointer-events: none; }
@@ -11067,7 +11072,7 @@ function buildLeagueStandingsCanvas() {
     // صاحب الرقم: كل من بلغ القيمة نفسها (مشترك). «مستمرة»: السلسلة ما زالت قائمة الآن ويمكن أن تطول.
     function councilRecords() {
       const elo = computePlayerRatings(), live = new Set(statsSourceRecords().filter(t => t && t.live).map(t => t.name));
-      const K = { peak: [], jump: [], win: [], unb: [], titles: [], clean: [] };
+      const K = { ttot: [], wtot: [], peak: [], jump: [], win: [], unb: [], titles: [], clean: [] };
       elo.ranked.filter(p => p.games).forEach(p => {
         const C = playerCareer(p.name, p), n = p.name;
         let curU = 0; for (let i = p.seq.length - 1; i >= 0 && p.seq[i] !== 'l'; i--) curU++;
@@ -11078,8 +11083,11 @@ function buildLeagueStandingsCanvas() {
         K.unb.push({ n, v: C.unb, cur: curU === C.unb });
         K.titles.push({ n, v: C.titleRun, cur: curT === C.titleRun });
         K.clean.push({ n, v: C.clean });
+        // 7.8: أكثر الألقاب وأكثر الانتصارات — التاريخ تاريخ بلوغ القيمة الحالية (آخر لقب · آخر فوز)
+        if (C.titles.length) K.ttot.push({ n, v: C.titles.length, d: C.titles[0].t.date });
+        if (p.w) { const sq = honorSeqDated(n), lw = sq.filter(e => e.r === 'w').pop(); K.wtot.push({ n, v: p.w, d: lw && !lw.live ? lw.date : null, live: !!(lw && lw.live) }); }
       });
-      const L = [['peak', 'أعلى تقييم', v => v.toLocaleString('en-US')], ['jump', 'أكبر قفزة في بطولة', v => '\u200E+' + v],
+      const L = [['ttot', 'أكثر الألقاب', v => `${v} ${arTitlesW(v)}`], ['wtot', 'أكثر الانتصارات', v => `${v} ${arWinsW(v)}`], ['peak', 'أعلى تقييم', v => v.toLocaleString('en-US')], ['jump', 'أكبر قفزة في بطولة', v => '\u200E+' + v],
         ['win', 'أطول سلسلة انتصارات', v => `${v} ${arWinsW(v)}`], ['unb', 'أطول سلسلة بلا هزيمة', v => `${v} ${arMatchesW(v)}`],
         ['titles', 'أكثر ألقاب متتالية', v => `${v} ${arTitlesW(v)}`], ['clean', 'أكثر انتصارات نظيفة', v => `${v} ${arWinsW(v)}`]];
       return L.map(([k, label, fmt]) => {
@@ -11149,7 +11157,7 @@ function buildLeagueStandingsCanvas() {
           else if (m.winner == null && Number(m.scoreA) === Number(m.scoreB) && m.scoreA != null) sa = 0.5; else return;
           loc.push({ r: sa === 0.5 ? 'd' : (sa === 1) === inA ? 'w' : 'l', at: m.at });
         });
-        sortByPlayedTime(loc, e => e.at).forEach(e => out.push({ r: e.r, date: t.date }));
+        sortByPlayedTime(loc, e => e.at).forEach(e => out.push({ r: e.r, date: t.date, live: !!t.live }));
       });
       return out;
     }
@@ -11189,7 +11197,7 @@ function buildLeagueStandingsCanvas() {
       if (!R.length) return '';
       const who = h => h.length === 1 ? escHTML(h[0]) : h.length === 2 ? `${escHTML(h[0])} و${escHTML(h[1])}` : `${escHTML(h[0])} و${h.length - 1} آخرون`;
       return `<div class="stats-section cr"><h4><span class="ic ic-star" aria-hidden="true"></span>أرقام المجلس القياسية</h4>
-        <div class="cr-grid">${R.map(r => `<div class="cr-c"><small>${r.label}</small><b>${escHTML(r.txt)}</b><span class="h">${who(r.holders)}</span>` +
+        <div class="cr-grid${R.length % 3 && !(R.length % 4) ? ' c4' : ''}">${R.map(r => `<div class="cr-c"><small>${r.label}</small><b>${escHTML(r.txt)}</b><span class="h">${who(r.holders)}</span>` +
           `${r.cur ? '<span class="cr-tag">مستمرة</span>' : r.live ? '<span class="cr-sub">البطولة الجارية</span>' : r.date ? `<span class="cr-sub">${fmtDateNum(r.date)}</span>` : ''}</div>`).join('')}</div></div>`;
     }
     const arWinsW = n => n === 1 ? 'فوز' : n === 2 ? 'فوزان' : n <= 10 ? 'انتصارات' : 'انتصارًا';
@@ -13193,7 +13201,7 @@ function buildLeagueStandingsCanvas() {
     // ===================================
     // 🧭 سلوك التطبيق: إعادة الوضع للأعلى، تعديل العنوان بالضغط المطوّل، تنبيه التحديث، رقم الإصدار
     // ===================================
-    const APP_VERSION = '7.7';   // ترقيم الاعتماد: 1 ثم 1.1 … 1.9 ثم 2 — ويُرفع معه رقم الإصدار في sw.js
+    const APP_VERSION = '7.8';   // ترقيم الاعتماد: 1 ثم 1.1 … 1.9 ثم 2 — ويُرفع معه رقم الإصدار في sw.js
     (function setupAppBehaviors() {
       const root = document.documentElement;
 
