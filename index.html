@@ -11766,14 +11766,16 @@ function buildLeagueStandingsCanvas() {
         // (4) أفضل أرقامه: شبكة 2×3
         if (show.records) {
           const recs = playerBests(p, C);
-          const rows = Math.ceil(recs.length / 2), RHc = 128, G = 10, bodyH = rows * RHc + (rows - 1) * G;
+          const rows = Math.ceil(recs.length / 2), RHc = 216, G = 10, bodyH = rows * RHc + (rows - 1) * G;   // 8.2: بطاقة ثلاث مناطق (مثل التطبيق)
           cuts.push(y - GAPS / 2); y += exportSectionBar(ctx, M, y, CW, 'أفضل أرقامه', 'star', null, bodyH) + TP;
           const cw = (RW - G) / 2;
-          recs.forEach(([l, v, s], i) => { const r = Math.floor(i / 2), k = i % 2, x0 = RX + RW - (k + 1) * cw - k * G, y0 = y + r * (RHc + G);
+          // 8.2: نفس بطاقة التطبيق بتقسيم ثلاث مناطق: اسم الإنجاز في الأعلى ← الرقم مع عبارته في المركز الهندسي للبطاقة ← البطولة ثم اليوم والتاريخ أو الملاحظة في الأسفل
+          recs.forEach(([l, v, s, t], i) => { const r = Math.floor(i / 2), k = i % 2, x0 = RX + RW - (k + 1) * cw - k * G, y0 = y + r * (RHc + G), cx = x0 + cw / 2, PAD = 22, mw = cw - 40;
             drawRoundedRect(ctx, x0, y0, cw, RHc, 18); ctx.fillStyle = B.paper; ctx.fill(); ctx.strokeStyle = B.line; ctx.lineWidth = 1.2; ctx.stroke();
-            T(ctx, l, x0 + cw - 24, y0 + 32, { size: 22, weight: 800, color: B.goldDeep, align: 'right' });
-            T(ctx, v, x0 + cw - 24, y0 + 72, { size: 36, weight: 800, color: B.ink, align: 'right', maxW: cw - 48, min: 20 });
-            if (s) T(ctx, s, x0 + cw - 24, y0 + 106, { size: 20, weight: 700, color: B.faint, align: 'right', maxW: cw - 48, min: 13 }); });
+            T(ctx, l, cx, y0 + PAD + 12, { size: 22, weight: 800, color: B.goldDeep, align: 'center', maxW: mw, min: 14 });
+            T(ctx, v, cx, y0 + RHc / 2, { size: 40, weight: 900, color: B.ink, align: 'center', maxW: mw, min: 20 });
+            const low = [t && [t, { size: 22, weight: 700, color: B.muted }], s && [s, { size: 19, weight: 700, color: B.faint }]].filter(Boolean);
+            low.reverse().forEach(([txt, o], j) => T(ctx, txt, cx, y0 + RHc - PAD - 11 - j * 28, Object.assign({ align: 'center', maxW: mw, min: 13 }, o))); });
           y += bodyH + TP + GAPS;
         }
         // (5) المسيرة: آخر 6 بطولات
@@ -13499,7 +13501,7 @@ function buildLeagueStandingsCanvas() {
     // ===================================
     // 🧭 سلوك التطبيق: إعادة الوضع للأعلى، تعديل العنوان بالضغط المطوّل، تنبيه التحديث، رقم الإصدار
     // ===================================
-    const APP_VERSION = '8.2';   // ترقيم الاعتماد: 1 ثم 1.1 … 1.9 ثم 2 — ويُرفع معه رقم الإصدار في sw.js
+    const APP_VERSION = '8.3';   // ترقيم الاعتماد: 1 ثم 1.1 … 1.9 ثم 2 — ويُرفع معه رقم الإصدار في sw.js
     (function setupAppBehaviors() {
       const root = document.documentElement;
 
