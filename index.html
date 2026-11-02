@@ -2945,10 +2945,10 @@
     .cr-c:nth-child(2n), .pf-rc:nth-child(2n) { border-inline-start-width: 1px; }
     .cr-c:nth-child(n+3), .pf-rc:nth-child(n+3) { border-top-width: 1px; }
     .rc-t { font-size: 12px; font-weight: 800; line-height: 1.4; color: var(--gold-deep); }
-    .rc-n { margin-top: 2px; font-size: 24px; font-weight: 900; line-height: 1.15; color: var(--text); font-variant-numeric: tabular-nums; white-space: nowrap; }
-    .rc-n small { margin-inline-start: 4px; font-size: 13px; font-weight: 800; color: var(--text-2); }
+    .rc-n { margin-top: 2px; font-size: 26px; font-weight: 900; line-height: 1.15; color: var(--text); font-variant-numeric: tabular-nums; white-space: nowrap; }
+    .rc-n small { font: inherit; color: inherit; }   /* 8.2: الرقم والعبارة بحجم واحد ولون واحد («15 لقبًا») */
     .rc-n.tx { font-size: 15px; font-weight: 800; white-space: normal; text-wrap: balance; }
-    .rc-h { margin-top: 6px; max-width: 100%; font-size: 13px; font-weight: 700; line-height: 1.4; color: var(--text-2); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .rc-h { margin-top: 6px; max-width: 100%; font-size: 15px; font-weight: 700; line-height: 1.4; color: var(--text-2); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
     .rc-s { margin-top: 2px; font-size: 12px; font-weight: 700; line-height: 1.4; color: var(--text-3); }
     .rc-n + .rc-s { margin-top: 6px; }
     .cr-tag { margin-top: 4px; padding: 0 8px; border-radius: 999px; font-size: 11px; font-weight: 800; line-height: 1.8; background: var(--ok-bg); color: var(--ok); }
@@ -11462,7 +11462,7 @@ function buildLeagueStandingsCanvas() {
     // 8.2: قيمة الرقم: العدد كبيرًا والوحدة أصغر بجانبه («63» + «انتصارًا»)؛ والقيمة النصية أصغر وتلتف بتوازن
     function recValueHTML(txt, esc) {
       const t = String(txt == null ? '' : txt).trim(), m = t.match(/^([\u200E+\-−]*[\d,.٫]+)\s+(.+)$/);
-      if (m) return `<b class="rc-n">${esc(m[1])}<small>${esc(m[2])}</small></b>`;
+      if (m) return `<b class="rc-n">${esc(m[1])} ${esc(m[2])}</b>`;
       return `<b class="rc-n${/\d/.test(t) || t === '—' ? '' : ' tx'}">${esc(t)}</b>`;
     }
     function councilRecordsHTML() {
