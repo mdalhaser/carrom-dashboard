@@ -2874,11 +2874,20 @@
     .hns .hn.hns-hero.x .md .lr { inset: -16px; width: calc(100% + 32px); height: calc(100% + 32px); }
     .hns .hn.hns-hero.x .md { margin: 16px 0 10px; }
     /* لمعة تعبر الميدالية مرة واحدة لحظة فتح النافذة (كشف المعنى) — في النافذة فقط؛ بطاقات الملف ثابتة، واللمعة الدائمة في الملف للبطل الذهبي وحده */
-    .hns .hns-shine { position: absolute; inset: 0; z-index: 2; border-radius: 50%; overflow: hidden; pointer-events: none; }
-    .hns .hns-shine::before { content: ""; position: absolute; top: -25%; bottom: -25%; left: -60%; width: 38%; transform: rotate(18deg);
-      background: linear-gradient(90deg, transparent, rgba(255, 252, 235, .95), transparent); animation: kcShine 1.6s var(--ease) .35s 1 both; }
-    .hns .hn.s .hns-shine::before { background: linear-gradient(90deg, transparent, rgba(255, 255, 255, .85), transparent); }
-    .hns .hn.h .hns-shine::before { background: linear-gradient(90deg, transparent, rgba(255, 236, 190, .35), transparent); }
+    .hns .hns-shine { position: absolute; inset: 0; z-index: 2; border-radius: 50%; overflow: hidden; pointer-events: none; mix-blend-mode: overlay; }   /* الدمج على الحاوية: يضيء الميدالية تحتها */
+    /* 8 — لمعة الوسام بنفس لغة لمعة بطاقة البطل: شريط ضوء ثابت العرض (قلب ساطع وأطراف ناعمة) مائل، يعبر بـ transform
+       ويُدمج بـ overlay فيضيء المعدن ولا يغسل الأيقونة. حركة خاصة بالوسام (لا تشارك بطاقة البطل). الشدة حسب المعدن: ذهبي · فضي أنصع · إسبريسو خافت. */
+    .hns .hns-shine::before { content: ""; position: absolute; top: -10%; bottom: -10%; left: 0; width: 64px; pointer-events: none;
+      background: linear-gradient(90deg, transparent 0, rgba(255, 255, 255, .4) 30%, #FFF 50%, rgba(255, 255, 255, .4) 70%, transparent 100%);
+      transform: translateX(-72px) skewX(-18deg); opacity: 0; animation: hnsShine .95s cubic-bezier(.45, 0, .25, 1) .3s 1 both; }
+    .hns .hn.s .hns-shine::before { --hns-o: 1; }
+    .hns .hn.h .hns-shine::before { --hns-o: .55; }
+    /* بريق رفيع بدمج عادي فوق شريط الـ overlay: يجعل اللمعة مقروءة على الفضي والذهبي الفاتح دون غسل الأيقونة (قلب ضيق وشفافية محدودة) */
+    .hns .hns-shine.hns-glint { mix-blend-mode: normal; }
+    .hns .hns-glint::before { width: 22px; background: linear-gradient(90deg, transparent, rgba(255, 255, 255, .5) 50%, transparent); transform: translateX(-51px) skewX(-18deg); animation-name: hnsGlint; }
+    .hns .hn.h .hns-glint::before { background: linear-gradient(90deg, transparent, rgba(255, 236, 196, .28) 50%, transparent); }
+    @keyframes hnsGlint { from { transform: translateX(-51px) skewX(-18deg); opacity: 1; } to { transform: translateX(137px) skewX(-18deg); opacity: 1; } }
+    @keyframes hnsShine { from { transform: translateX(-72px) skewX(-18deg); opacity: var(--hns-o, .9); } to { transform: translateX(116px) skewX(-18deg); opacity: var(--hns-o, .9); } }
     @media (prefers-reduced-motion: reduce) { .hns .hns-shine { display: none; } }
     .hns h3 { margin: 0 0 6px; }
     .hns .ui-dialog-actions { grid-template-columns: 1fr; margin-top: var(--s4); }   /* زر واحد بعرض النافذة، ثانوي هادئ: الإغلاق باللمس خارجها أيضًا */
@@ -11249,7 +11258,7 @@ function buildLeagueStandingsCanvas() {
       const H = escHTML; let at = null;
       if (pn && k !== 'hold') { try { const p = computePlayerRatings().ranked.find(x => x.name === pn); if (p) at = honorDateOf(k, p, playerCareer(pn, p)); } catch (e) {} }
       const bd = document.createElement('div'); bd.className = 'ui-backdrop open hns'; bd.setAttribute('role', 'presentation');
-      bd.innerHTML = `<div class="ui-dialog" role="dialog" aria-modal="true" aria-labelledby="hnsT"><div class="hn hns-hero ${d.lv}">${honorMedalHTML({ ic: d.ic, num: d.num || '', lv: d.lv }).replace(/<\/span>$/, '<span class="hns-shine" aria-hidden="true"></span></span>')}</div>
+      bd.innerHTML = `<div class="ui-dialog" role="dialog" aria-modal="true" aria-labelledby="hnsT"><div class="hn hns-hero ${d.lv}">${honorMedalHTML({ ic: d.ic, num: d.num || '', lv: d.lv }).replace(/<\/span>$/, '<span class="hns-shine" aria-hidden="true"></span><span class="hns-shine hns-glint" aria-hidden="true"></span></span>')}</div>
         <h3 id="hnsT">${H(d.name)}</h3><p class="hns-how">${H(d.how)}</p>${at ? `<p class="hns-first">ناله في ${H(fmtDateNum(at))}</p>` : ''}
         <div class="ui-dialog-actions"><button type="button" class="btn" data-act="ok">تم</button></div></div>`;
       const close = () => { if (bd.classList.contains('out')) return; bd.classList.add('out'); document.removeEventListener('keydown', onKey, true); setTimeout(() => bd.remove(), 160); };
