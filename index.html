@@ -2934,22 +2934,25 @@
     .hns .hns-how { margin: 0 0 12px; font-size: 13px; font-weight: 700; line-height: 1.7; color: var(--text-2); }
     .hns .hns-first { margin: 8px 0 0; font-size: 12px; font-weight: 700; color: var(--text-3); }
     @media (prefers-reduced-motion: reduce) { button.hn, .hns.out { transition: none; animation: none; } }
-    /* ===== أرقام المجلس القياسية: شبكة 2×3 بنفس لغة «أفضل أرقامه» — العنوان ذهبي صغير، الرقم بارز، ثم صاحبه وتاريخه ===== */
-    .cr-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); border: 1px solid var(--line); border-radius: 16px; overflow: hidden; background: var(--surface); box-shadow: var(--sh-1); }
-    .cr-c { display: flex; flex-direction: column; align-items: flex-start; gap: 1px; min-width: 0; padding: 12px 16px 12px; }
-    .cr-c:nth-child(2n) { border-inline-start: 1px solid var(--line); }
-    .cr-c:nth-child(n+3) { border-top: 1px solid var(--line); }
-    .cr-c small { font-size: 11px; font-weight: 800; color: var(--gold-deep); }
-    .cr-c b { font-size: 20px; font-weight: 800; line-height: 1.35; color: var(--text); font-variant-numeric: tabular-nums; }
-    .cr-c .h { max-width: 100%; font-size: 13px; font-weight: 800; color: var(--text-2); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-    .cr-c .cr-sub { font-size: 11px; font-weight: 700; color: var(--text-3); }
-    .cr-tag { margin-top: 3px; padding: 0 8px; border-radius: 999px; font-size: 11px; font-weight: 800; line-height: 1.8; background: var(--ok-bg); color: var(--ok); }
-    @media (min-width: 640px) { .cr-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); } .cr-c:nth-child(2n) { border-inline-start: 0; } .cr-c:not(:nth-child(3n+1)) { border-inline-start: 1px solid var(--line); } .cr-c:nth-child(n+3) { border-top: 0; } .cr-c:nth-child(n+4) { border-top: 1px solid var(--line); } }
-    /* 7.8: ثمانية أرقام — عمودان في الجوال، وأربعة أعمدة في الكمبيوتر (لا خانة فارغة)؛ والرقم الوحيد في صفه يأخذ العرض كاملًا */
-    .cr-c:last-child:nth-child(odd) { grid-column: 1 / -1; }
-    @media (min-width: 640px) { .cr-c:last-child:nth-child(odd) { grid-column: auto; }
-      .cr-grid.c4 { grid-template-columns: repeat(4, minmax(0, 1fr)); } .cr-grid.c4 .cr-c { border-inline-start: 0; border-top: 0; }
-      .cr-grid.c4 .cr-c:not(:nth-child(4n+1)) { border-inline-start: 1px solid var(--line); } .cr-grid.c4 .cr-c:nth-child(n+5) { border-top: 1px solid var(--line); } }
+    /* ===== 8.2 — أرقام المجلس القياسية و«أفضل أرقامه»: بطاقات شبكة بعمودين، كلها بمقاس واحد، والمحتوى في الوسط بتسلسل:
+       اسم الإنجاز (ذهبي هادئ) ← الرقم (أكبر عنصر، والوحدة أصغر بجانبه) ← فراغ ← صاحب الرقم ← اليوم والتاريخ أو العبارة (ثانوي).
+       فواصل رفيعة جدًا، ولا أيقونات داخل البطاقات (النجمة في العنوان تكفي). ===== */
+    .cr-grid, .pf-recs { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); grid-auto-rows: 1fr; border: 1px solid var(--line); border-radius: 16px; overflow: hidden; }
+    .cr-grid { background: var(--surface); box-shadow: var(--sh-1); }
+    .pf-recs { background: var(--surface-2); }
+    .cr-c, .pf-rc { display: flex; flex-direction: column; align-items: center; justify-content: center; min-width: 0; padding: 12px 8px; text-align: center;
+      border-color: color-mix(in srgb, var(--line) 70%, transparent); border-style: solid; border-width: 0; }
+    .cr-c:nth-child(2n), .pf-rc:nth-child(2n) { border-inline-start-width: 1px; }
+    .cr-c:nth-child(n+3), .pf-rc:nth-child(n+3) { border-top-width: 1px; }
+    .rc-t { font-size: 12px; font-weight: 800; line-height: 1.4; color: var(--gold-deep); }
+    .rc-n { margin-top: 2px; font-size: 24px; font-weight: 900; line-height: 1.15; color: var(--text); font-variant-numeric: tabular-nums; white-space: nowrap; }
+    .rc-n small { margin-inline-start: 4px; font-size: 13px; font-weight: 800; color: var(--text-2); }
+    .rc-n.tx { font-size: 15px; font-weight: 800; white-space: normal; text-wrap: balance; }
+    .rc-h { margin-top: 6px; max-width: 100%; font-size: 13px; font-weight: 700; line-height: 1.4; color: var(--text-2); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .rc-s { margin-top: 2px; font-size: 12px; font-weight: 700; line-height: 1.4; color: var(--text-3); }
+    .rc-n + .rc-s { margin-top: 6px; }
+    .cr-tag { margin-top: 4px; padding: 0 8px; border-radius: 999px; font-size: 11px; font-weight: 800; line-height: 1.8; background: var(--ok-bg); color: var(--ok); }
+    .cr-c:last-child:nth-child(odd), .pf-rc:last-child:nth-child(odd) { grid-column: 1 / -1; }
     .toast.record { border-color: rgba(227, 191, 110, .55); } .toast.record .ic { color: #E9C77A; }
     /* ===== بطاقة الإنجاز (6.2): مادة التنبيهات (خشب داكن بحافة ذهبية) تحت شريط الأوضاع — الأرقام القياسية والترقيات والأوسمة ===== */
     .ach-host { position: fixed; z-index: 97; left: 0; right: 0; top: calc(var(--nav-bottom, 120px) + 8px); display: flex; flex-direction: column; align-items: center; padding: 0 12px; pointer-events: none; }
@@ -3168,16 +3171,7 @@
     .pf-form2 .pf-chip { width: 25px; height: 25px; font-size: 12px; }
     .pf-form2 .vm2-note { text-align: start; margin-top: 6px; }
     /* الأرقام القياسية: شبكة 2×2 بفواصل رفيعة داخل إطار واحد */
-    .pf-recs { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); border: 1px solid var(--line); border-radius: 16px; overflow: hidden; background: var(--surface-2); }
-    .pf-rc { display: flex; flex-direction: column; gap: 1px; min-width: 0; padding: 9px 12px; }
-    .pf-rc:nth-child(2n) { border-inline-start: 1px solid var(--line); }
-    .pf-rc:nth-child(n+3) { border-top: 1px solid var(--line); }
-    .pf-rc small { font-size: 11px; font-weight: 800; color: var(--gold-deep); }
-    .pf-rc b { font-size: 17px; font-weight: 800; line-height: 1.35; color: var(--text); font-variant-numeric: tabular-nums; overflow-wrap: anywhere; }
-    .pf-rc b.tx { font-size: 15px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-    .pf-rc b em { display: block; font-style: normal; font-size: 15px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
     .pf-trend-cap .pk.now { color: var(--gold-deep); }
-    .pf-rc span { font-size: 11px; font-weight: 700; color: var(--text-3); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
     /* القوائم المجمعة: إطار واحد وفواصل رفيعة (المسيرة، المواجهات، الشركاء) */
     .pf-group { border: 1px solid var(--line); border-radius: 16px; overflow: hidden; background: var(--surface-2); }
     .pf-group > * + * { border-top: 1px solid var(--line); }
@@ -4046,8 +4040,10 @@
     let currentTournamentId = null;
     let tournamentHistory = [];
     // ===== تنسيق التاريخ الموحد في النظام وصور التصدير: «الجمعة، 02.10.2026» (أرقام فقط، يوم وشهر بخانتين) =====
-    function fmtDateNum(v) { const d = new Date(v); if (isNaN(d)) return ''; const p = n => String(n).padStart(2, '0'); return `${p(d.getDate())}.${p(d.getMonth() + 1)}.${d.getFullYear()}`; }
-    function fmtDayDate(v) { const d = new Date(v); if (isNaN(d)) return ''; return `${['الأحد', 'الاثنين', 'الثلاثاء', 'الأربعاء', 'الخميس', 'الجمعة', 'السبت'][d.getDay()]}، ${fmtDateNum(d)}`; }
+    // 8.2: قاعدة التاريخ الموحدة في كل المشروع — اليوم دائمًا مع التاريخ: «الجمعة، 02.11.2026». لا تاريخ بلا يوم في أي مكان.
+    function fmtDateDigits(v) { const d = new Date(v); if (isNaN(d)) return ''; const p = n => String(n).padStart(2, '0'); return `${p(d.getDate())}.${p(d.getMonth() + 1)}.${d.getFullYear()}`; }
+    function fmtDayDate(v) { const d = new Date(v); if (isNaN(d)) return ''; return `${['الأحد', 'الاثنين', 'الثلاثاء', 'الأربعاء', 'الخميس', 'الجمعة', 'السبت'][d.getDay()]}، ${fmtDateDigits(d)}`; }
+    function fmtDateNum(v) { return fmtDayDate(v); }   // الاسم القديم يبقى للتوافق، ويعرض اليوم مع التاريخ
     function fmtTimeNum(v) { const d = new Date(v); if (isNaN(d)) return ''; try { return new Intl.DateTimeFormat('ar-OM-u-nu-latn', { hour: 'numeric', minute: '2-digit' }).format(d); } catch (e) { return ''; } }
 
     // ======== عناصر DOM ========
@@ -11463,13 +11459,19 @@ function buildLeagueStandingsCanvas() {
     window.carromOpenHonor = openHonorSheet;
     document.addEventListener('click', e => { const b = e.target.closest('[data-hk]'); if (!b || !b.closest('#profileModal')) return; openHonorSheet(b.dataset.hk, b.dataset.pn); });
     function councilRecordHolders() { const h = new Set(); try { councilRecords().forEach(r => r.holders.forEach(n => h.add(n))); } catch (e) {} return h; }
+    // 8.2: قيمة الرقم: العدد كبيرًا والوحدة أصغر بجانبه («63» + «انتصارًا»)؛ والقيمة النصية أصغر وتلتف بتوازن
+    function recValueHTML(txt, esc) {
+      const t = String(txt == null ? '' : txt).trim(), m = t.match(/^([\u200E+\-−]*[\d,.٫]+)\s+(.+)$/);
+      if (m) return `<b class="rc-n">${esc(m[1])}<small>${esc(m[2])}</small></b>`;
+      return `<b class="rc-n${/\d/.test(t) || t === '—' ? '' : ' tx'}">${esc(t)}</b>`;
+    }
     function councilRecordsHTML() {
       let R = []; try { R = councilRecords(); } catch (e) { return ''; }
       if (!R.length) return '';
       const who = h => h.length === 1 ? escHTML(h[0]) : h.length === 2 ? `${escHTML(h[0])} و${escHTML(h[1])}` : `${escHTML(h[0])} و${h.length - 1} آخرون`;
       return `<div class="stats-section cr"><h4><span class="ic ic-star" aria-hidden="true"></span>أرقام المجلس القياسية</h4>
-        <div class="cr-grid${R.length % 3 && !(R.length % 4) ? ' c4' : ''}">${R.map(r => `<div class="cr-c"><small>${r.label}</small><b>${escHTML(r.txt)}</b><span class="h">${who(r.holders)}</span>` +
-          `${r.cur ? '<span class="cr-tag">مستمرة</span>' : r.live ? '<span class="cr-sub">البطولة الجارية</span>' : r.date ? `<span class="cr-sub">${fmtDateNum(r.date)}</span>` : ''}</div>`).join('')}</div></div>`;
+        <div class="cr-grid">${R.map(r => `<div class="cr-c"><span class="rc-t">${r.label}</span>${recValueHTML(r.txt, escHTML)}<span class="rc-h">${who(r.holders)}</span>` +
+          `${r.cur ? '<span class="cr-tag">مستمرة</span>' : r.live ? '<span class="rc-s">البطولة الجارية</span>' : r.date ? `<span class="rc-s">${fmtDayDate(r.date)}</span>` : ''}</div>`).join('')}</div></div>`;
     }
     const arWinsW = n => n === 1 ? 'فوز' : n === 2 ? 'فوزان' : n <= 10 ? 'انتصارات' : 'انتصارًا';
     // المستوى التالي ونسبة التقدم نحوه (نفس حساب الملف): null للأسطورة
@@ -13005,8 +13007,9 @@ function buildLeagueStandingsCanvas() {
         html += `<div class="vm2-sec pf-s pf-form2"><div class="vm2-h"><span>آخر النتائج</span><span class="pf-chips" aria-label="الأقدم إلى الأحدث">${p.seq.slice(-5).map(r => `<span class="pf-chip ${r}">${r === 'w' ? 'ف' : r === 'l' ? 'خ' : 'ت'}</span>`).join('')}</span></div><p class="vm2-note">${H(profileStreakText(p))}</p></div>`;
         // (4) الأرقام القياسية + (5) المسيرة: من سجل البطولات (المكتملة، والجارية إن شارك فيها)
         const C0 = playerCareer(name, p), { career, done, titles, best } = C0, kindOf = t => t.mode === 'single' ? 'فردي' : t.mode === 'league' ? 'دوري' : 'فرق';
-        const rc = (l, v, s, tx) => `<div class="pf-rc"><small>${l}</small><b${tx ? ' class="tx"' : ''}>${v}</b>${s ? `<span>${s}</span>` : ''}</div>`;
-        const recs = playerBests(p, C0).map(([l, v, s]) => rc(H(l), H(v), H(s), !/\d/.test(v) && v !== '—'));   // قيمة نصية (اسم بطولة/نتيجة): سطر واحد أصغر
+        // 8.2: نفس بطاقة «أرقام المجلس»: اسم الإنجاز ← الرقم ← اليوم والتاريخ أو العبارة (الملف خاص باللاعب، فلا سطر اسم)
+        const rc = (l, v, s) => `<div class="pf-rc"><span class="rc-t">${H(l)}</span>${recValueHTML(v, H)}${s ? `<span class="rc-s">${H(s)}</span>` : ''}</div>`;
+        const recs = playerBests(p, C0).map(([l, v, s]) => rc(l, v, s));
         { let recsAll = []; try { recsAll = councilRecords(); } catch (e) {}
           const hn = playerHonors(p, stats, C0, recsAll);   // القسم يختفي تمامًا لمن لا يملك وسامًا
           if (hn.length) html += sec('أوسمته', hn.length === 1 ? 'وسام واحد' : `${hn.length} ${hn.length === 2 ? 'وسامان' : hn.length <= 10 ? 'أوسمة' : 'وسامًا'}`,
@@ -13488,7 +13491,7 @@ function buildLeagueStandingsCanvas() {
     // ===================================
     // 🧭 سلوك التطبيق: إعادة الوضع للأعلى، تعديل العنوان بالضغط المطوّل، تنبيه التحديث، رقم الإصدار
     // ===================================
-    const APP_VERSION = '8.1';   // ترقيم الاعتماد: 1 ثم 1.1 … 1.9 ثم 2 — ويُرفع معه رقم الإصدار في sw.js
+    const APP_VERSION = '8.2';   // ترقيم الاعتماد: 1 ثم 1.1 … 1.9 ثم 2 — ويُرفع معه رقم الإصدار في sw.js
     (function setupAppBehaviors() {
       const root = document.documentElement;
 
@@ -14489,7 +14492,7 @@ function buildLeagueStandingsCanvas() {
         const sigOf = m => `lg|${m.id}|${m.playerA}|${m.playerB}|${m.scoreA}|${m.scoreB}`;
         const matchesOf = k => days.get(k).slice().sort((a, b) => b.at - a.at).map(e => leagueMatches.find(m => m.id === e.id)).filter(Boolean);
         const hasNew = k => matchesOf(k).some(m => fresh.has(sigOf(m)));
-        const short = k => { const [, mo, d] = k.split('-'); return `${d}.${mo}`; };
+        const short = k => nightLabel(k);   // 8.2: اليوم مع التاريخ حتى في شريط الأيام
         const countTxt = n => n === 1 ? 'مباراة واحدة' : n === 2 ? 'مباراتان' : n <= 10 ? `${n} مباريات` : `${n} مباراة`;
         const nm = (name, tag) => `<span class="nm${me0 && name === me0 ? ' me' : ''}">${esc(name)}${tag ? `<small class="ffl">${tag}</small>` : ''}</span>`;
         const ffTag = (m, side) => isLeagueMatchAnnulled(m) ? (leagueIsExcluded(side === 'A' ? m.playerA : m.playerB) ? 'مستبعد' : '') : m.forfeit === side ? (m.auto ? 'مستبعد' : 'انسحب') : '';
