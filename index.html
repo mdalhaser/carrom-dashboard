@@ -2472,6 +2472,8 @@
     .ht-m .t.a { text-align: right; } .ht-m .t.b { text-align: left; }
     .ht-m .t.w { color: var(--text); }   /* التمييز باللون فقط، بنفس الوزن (هوية صور التصدير) */
     .ht-m .t .pl { margin: 0 3px; color: var(--text-3); }
+    /* 8.1: اسم الفريق ينكسر دائمًا بعد «+» (عضو في كل سطر)، فتتساوى صفوف المسار والنتيجة على محور ثابت في منتصفها */
+    .ht-m .t .ht-p { white-space: nowrap; }
     .ht-m .sc { display: flex; flex-direction: column; align-items: center; font-size: 17px; font-weight: 800; color: var(--text); font-variant-numeric: tabular-nums; white-space: nowrap; }
     .ht-m .sc .nos { color: var(--text-3); font-weight: 700; }
     .ht-m .sc small { font-size: 11px; font-weight: 800; color: var(--gold-deep); line-height: 1.2; }
@@ -3259,6 +3261,22 @@
     #controlDashboard [data-pane].cd-in { animation: cdPaneIn var(--t-base) var(--ease) both; }
     @keyframes cdPaneIn { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: none; } }
     @media (prefers-reduced-motion: reduce) { #controlDashboard [data-pane].cd-in { animation: none; } }
+    /* 8.1 — ملف اللاعب على الكمبيوتر (960 فأكثر): عمودان. الأيمن: الرأس ← الأرقام ← آخر النتائج ← الأوسمة ← أفضل الأرقام،
+       والأيسر: المسيرة ← الغريم/الشريك ← المواجهات ← الشركاء. الجوال لا يتغير. */
+    @media (min-width: 960px) {
+      #profileModal .modal-content { max-width: 1040px; }
+      #profileBody:has(> .pf-body2) { column-count: 2; column-gap: 32px; column-fill: balance; }
+      #profileBody > .pf-hero, #profileBody .pf-body2 > * { break-inside: avoid; -webkit-column-break-inside: avoid; }
+      #profileBody .pf-body2 > .pf-s.fold:first-of-type { break-before: column; -webkit-column-break-before: always; }
+      #profileBody .pf-body2 > .pf-s.fold:first-of-type { margin-top: 0; padding-top: 0; border-top: 0; }   /* رأس العمود الأيسر على خط رأس الملف */
+      #profileBody > .pf-note { column-span: all; }
+    }
+    /* 8.1 — ألوان المعنى في الملف: الأخضر والأحمر للفوز والخسارة فقط. «غريمه/يتفوق عليه/أفضل شريك» بلون مرجعي واحد،
+       والمسيرة نمطان: كبسولتا «بطل/وصيف» بأسلوبهما المعتمد، وبقية المراحل نص هادئ («جارية» بنقطة خضراء صغيرة كمؤشر حي) */
+    .vm2-cells .nem .l, .vm2-cells .vic .l, .vm2-cells .par .l { color: var(--text-3); }
+    .pf-res.sf, .pf-res.pt, .pf-res.live { padding: 0; background: none; box-shadow: none; color: var(--text-3); font-weight: 700; }
+    .pf-res.live { display: inline-flex; align-items: center; gap: 5px; color: var(--text-2); }
+    .pf-res.live::before { content: ""; width: 6px; height: 6px; border-radius: 50%; background: var(--ok); }
     /* ===== 8.1 — المرحلة 2: نظام الأزرار ومساحات اللمس =====
        الارتفاعات: 40 مضغوط · 44 قياسي · 52 للإجراء الرئيسي في الشاشة. الأنواع: رئيسي ذهبي · ثانوي بإطار · هادئ (تعبئة خفيفة بلا إطار) · تحذير نصي.
        الإطار المنقط لمعنى واحد: مكان فارغ (حالة فارغة، منطقة الإضافة). «تم» إغلاق لا إجراء: ثانوي في كل الأوراق. */
@@ -11769,9 +11787,9 @@ function buildLeagueStandingsCanvas() {
         }
         // (6) أبرز المواجهات: غريمه · يتفوق عليه · أفضل شريك
         const keys = [];
-        if (show.h2h && d.nem) { const x = d.h2h.find(q => q.o === d.nem); keys.push([d.nem, 'غريمه', '#B3402F', `فاز ${x.w} · خسر ${x.l}`]); }
-        if (show.h2h && d.vic) { const x = d.h2h.find(q => q.o === d.vic); keys.push([d.vic, 'يتفوق عليه', B.ok, `فاز ${x.w} · خسر ${x.l}`]); }
-        if ((show.h2h || show.partners) && d.best) { const x = d.parts.find(q => q.o === d.best); keys.push([d.best, 'أفضل شريك', B.goldDeep, `${Math.round(x.w / x.games * 100)}% فوز`]); }
+        if (show.h2h && d.nem) { const x = d.h2h.find(q => q.o === d.nem); keys.push([d.nem, 'غريمه', B.faint, `فاز ${x.w} · خسر ${x.l}`]); }
+        if (show.h2h && d.vic) { const x = d.h2h.find(q => q.o === d.vic); keys.push([d.vic, 'يتفوق عليه', B.faint, `فاز ${x.w} · خسر ${x.l}`]); }
+        if ((show.h2h || show.partners) && d.best) { const x = d.parts.find(q => q.o === d.best); keys.push([d.best, 'أفضل شريك', B.faint, `${Math.round(x.w / x.games * 100)}% فوز`]); }
         if (keys.length) {
           cuts.push(y - GAPS / 2); const KH = 150; card(KH); const cw = CW / keys.length;
           keys.forEach(([n, l, col, s], i) => { const cx = M + CW - cw * (i + 0.5);
@@ -13169,7 +13187,8 @@ function buildLeagueStandingsCanvas() {
           h += `<div class="ht-sec"><div class="ht-sec-h">المسار</div>` + koRounds(t).map(r => `<div class="ht-round${r.final ? ' fin' : ''}"><div class="ht-rh">${H(r.name)}</div>` +
             r.ms.map(m => { const { sa, sb } = scoreOf(m), w = m.winner;
               const noSc = !Number.isFinite(Number(sa)) || !Number.isFinite(Number(sb)) || sa == null || sb == null;
-              return `<div class="ht-m${m.forfeit ? ' ff' : ''}"><span class="t a${w === m.team1 ? ' w' : ''}">${names(t, m.team1)}</span><span class="sc">${noSc ? '<span class="nos" title="النتيجة غير مسجلة">—</span>' : `<bdi dir="ltr">${sb} - ${sa}</bdi>`}${m.forfeit ? '<small>انسحاب</small>' : ''}</span><span class="t b${w === m.team2 ? ' w' : ''}">${names(t, m.team2)}</span></div>`; }).join('') + `</div>`).join('') + `</div>`;
+              const nb = side => names(t, side).split('<span class="pl" aria-hidden="true">+</span>').join('<span class="pl" aria-hidden="true">+</span><br>');   // 8.1: سطر لكل عضو
+              return `<div class="ht-m${m.forfeit ? ' ff' : ''}"><span class="t a${w === m.team1 ? ' w' : ''}">${nb(m.team1)}</span><span class="sc">${noSc ? '<span class="nos" title="النتيجة غير مسجلة">—</span>' : `<bdi dir="ltr">${sb} - ${sa}</bdi>`}${m.forfeit ? '<small>انسحاب</small>' : ''}</span><span class="t b${w === m.team2 ? ' w' : ''}">${nb(m.team2)}</span></div>`; }).join('') + `</div>`).join('') + `</div>`;
         }
         return h + `</div>`;
       }
