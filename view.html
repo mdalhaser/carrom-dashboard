@@ -1947,55 +1947,40 @@
     .match-card.tap:active, .match-card.lg-match:active { transform: scale(.985); border-color: var(--gold); }
     .match-card.tap:focus-visible, .match-card.lg-match:focus-visible { outline: 2px solid var(--gold); outline-offset: 2px; }
     /* ===== «البطل الذهبي»: هوية خاصة بهذا الإنجاز وحده — ذهب معدني متعدد الطبقات (إضاءة ← عمق ← انعكاس) بملمس مصقول وحافة بارزة ===== */
-    .st-last.kc.kc-gold { --lk-ivory: #24170A; --lk-gold: #5A3B0C; --lk-muted: rgba(36, 23, 10, .7); overflow: hidden;
+    /* 8: ذهب «البطل الذهبي» لكل بطاقات البطل (كان خاصًا به) */
+    .st-last.kc { --lk-ivory: #24170A; --lk-gold: #5A3B0C; --lk-muted: rgba(36, 23, 10, .7); overflow: hidden;
       background: repeating-linear-gradient(112deg, rgba(255, 255, 255, .06) 0 1px, transparent 1px 5px),
         radial-gradient(130% 85% at 18% -10%, rgba(255, 251, 230, .95) 0%, rgba(255, 246, 214, .35) 32%, transparent 58%),
         radial-gradient(90% 70% at 100% 110%, rgba(110, 70, 15, .45) 0%, transparent 60%),
         linear-gradient(132deg, #F9E7AC 0%, #E6C067 20%, #C39339 42%, #EACB7E 60%, #A97526 82%, #DDB25C 100%);
       border: 1px solid rgba(110, 72, 18, .65);
       box-shadow: inset 0 0 0 1px rgba(255, 244, 205, .5), inset 0 2px 0 rgba(255, 255, 255, .75), inset 0 -4px 10px rgba(105, 65, 12, .38), inset 0 10px 24px -14px rgba(255, 252, 235, .9), 0 20px 40px -16px rgba(120, 78, 18, .7), 0 3px 8px rgba(120, 78, 18, .28); }
-    body.dark-mode .st-last.kc.kc-gold { border-color: rgba(250, 224, 150, .55);
+    body.dark-mode .st-last.kc { border-color: rgba(250, 224, 150, .55);
       box-shadow: inset 0 0 0 1px rgba(255, 244, 205, .5), inset 0 2px 0 rgba(255, 255, 255, .75), inset 0 -4px 10px rgba(105, 65, 12, .38), inset 0 10px 24px -14px rgba(255, 252, 235, .9), 0 22px 46px -16px rgba(0, 0, 0, .85), 0 0 36px -6px rgba(227, 185, 95, .45); }
-    .st-last.kc.kc-gold::before { height: 1.5px; background: linear-gradient(90deg, transparent, rgba(255, 255, 255, .95), transparent); }
-    .st-last.kc.kc-gold::after { content: ""; position: absolute; inset: -40% auto -40% -60%; width: 38%; transform: rotate(18deg); pointer-events: none;
+    .st-last.kc::before { height: 1.5px; background: linear-gradient(90deg, transparent, rgba(255, 255, 255, .95), transparent); }
+    .st-last.kc::after { content: ""; position: absolute; inset: -40% auto -40% -60%; width: 38%; transform: rotate(18deg); pointer-events: none;
       background: linear-gradient(90deg, transparent, rgba(255, 255, 255, .6), transparent); animation: kcShine 1.6s var(--ease) .5s 1 both; }
     @keyframes kcShine { from { left: -60%; } to { left: 130%; } }
-    .kc-gold .kc-t { letter-spacing: .2px; text-shadow: 0 1px 0 rgba(255, 245, 210, .6); }
-    .kc-gold .kc-n { text-shadow: 0 1px 0 rgba(255, 244, 205, .7), 0 -1px 0 rgba(90, 55, 10, .25); }
+    .st-last.kc .kc-t { letter-spacing: .2px; text-shadow: 0 1px 0 rgba(255, 245, 210, .6); }
+    .st-last.kc .kc-n { text-shadow: 0 1px 0 rgba(255, 244, 205, .7), 0 -1px 0 rgba(90, 55, 10, .25); }
     .kc-gold .kc-emb { display: grid; place-items: center; width: 40px; height: 40px; margin: 0 auto 8px; border-radius: 50%; position: relative;
       background: radial-gradient(circle at 34% 26%, #FFFBEA 0%, rgba(255, 251, 234, 0) 42%), conic-gradient(from 210deg, #FFF3CC, #E5BC62, #A06D20, #F2D488, #8A5B18, #F8E2A2, #FFF3CC);
       color: #3A2508; box-shadow: inset 0 0 0 1.5px rgba(255, 246, 214, .65), inset 0 -3px 5px rgba(90, 55, 10, .45), 0 0 0 3px rgba(120, 78, 18, .22), 0 6px 12px -4px rgba(90, 55, 10, .6); }
     .kc-gold .kc-emb::after { content: ""; position: absolute; inset: 5px; border-radius: 50%; border: 1px dashed rgba(70, 42, 8, .35); }
     .kc-gold .kc-emb .ic { width: 19px; height: 19px; margin: 0; }
-    .kc-gold .kc-n .pl { color: #7A5212; }
-    .kc-gold .kc-m { color: rgba(36, 23, 10, .9); }
-    .kc-gold .kc-rest { border-top-color: rgba(70, 42, 8, .22); box-shadow: 0 1px 0 rgba(255, 246, 214, .45) inset; }
-    .kc-gold .kc-r + .kc-r { border-top-color: rgba(70, 42, 8, .12); }
-    .kc-gold .kc-r .n { color: rgba(36, 23, 10, .9); }
-    @media (prefers-reduced-motion: reduce) { .st-last.kc.kc-gold::after { display: none; } }
-    /* ===== 8 — بطاقة البطل (غير الذهبي): نفس بناء بطاقة «البطل الذهبي» وعمقها (طبقات معدنية، خطوط مصقولة، حواف بارزة،
-       ولمعة تعبرها مرة) لكن بلون إسبريسو معدني داكن ونص عاجي، وميدالية كأس ذهبية. البطل الذهبي نفسه لا يتغير. */
-    .st-last.kc:not(.kc-gold) { /* لون جوز إطار لوح الكيرم */ --lk-ivory: #FBF3E3; --lk-gold: #EBC97A; --lk-muted: rgba(251, 243, 227, .66); overflow: hidden;
-      background: repeating-linear-gradient(112deg, rgba(255, 240, 210, .045) 0 1px, transparent 1px 5px),
-        radial-gradient(130% 85% at 18% -10%, rgba(255, 222, 160, .42) 0%, rgba(255, 210, 140, .12) 32%, transparent 58%),
-        radial-gradient(90% 70% at 100% 110%, rgba(0, 0, 0, .5) 0%, transparent 60%),
-        linear-gradient(132deg, #9A5E38 0%, #6A3B22 20%, #3A1C0F 42%, #7A4729 60%, #2C140A 82%, #63361E 100%);
-      border: 1px solid rgba(214, 172, 96, .7);
-      box-shadow: inset 0 0 0 1px rgba(255, 222, 160, .2), inset 0 2px 0 rgba(255, 236, 200, .32), inset 0 -4px 10px rgba(0, 0, 0, .5), inset 0 10px 24px -14px rgba(255, 222, 160, .5), 0 20px 40px -16px rgba(38, 24, 12, .75), 0 3px 8px rgba(38, 24, 12, .3); }
-    body.dark-mode .st-last.kc:not(.kc-gold) { border-color: rgba(235, 201, 122, .6);
-      box-shadow: inset 0 0 0 1px rgba(255, 222, 160, .2), inset 0 2px 0 rgba(255, 236, 200, .32), inset 0 -4px 10px rgba(0, 0, 0, .5), inset 0 10px 24px -14px rgba(255, 222, 160, .5), 0 22px 46px -16px rgba(0, 0, 0, .85), 0 0 36px -8px rgba(227, 185, 95, .28); }
-    .st-last.kc:not(.kc-gold)::before { height: 1.5px; background: linear-gradient(90deg, transparent, rgba(255, 232, 185, .85), transparent); }
-    .st-last.kc:not(.kc-gold)::after { content: ""; position: absolute; inset: -40% auto -40% -60%; width: 38%; transform: rotate(18deg); pointer-events: none;
-      background: linear-gradient(90deg, transparent, rgba(255, 236, 196, .2), transparent); animation: kcShine 1.6s var(--ease) .5s 1 both; }
-    .st-last.kc:not(.kc-gold) .kc-t { letter-spacing: .2px; text-shadow: 0 1px 0 rgba(0, 0, 0, .45); }
-    .st-last.kc:not(.kc-gold) .kc-n { text-shadow: 0 1px 0 rgba(0, 0, 0, .55), 0 -1px 0 rgba(255, 230, 180, .12); }
-    .st-last.kc:not(.kc-gold) .kc-m { color: rgba(251, 243, 227, .9); text-shadow: 0 1px 0 rgba(0, 0, 0, .4); }
-    .st-last.kc:not(.kc-gold) .kc-rest { border-top-color: rgba(235, 201, 122, .24); box-shadow: 0 1px 0 rgba(0, 0, 0, .3) inset; }
-    .st-last.kc:not(.kc-gold) .kc-r + .kc-r { border-top-color: rgba(235, 201, 122, .12); }
-    /* ميدالية الكأس: نفس ميدالية البطل الذهبي (ذهب مصقول بحلقة منقطة) */
+    .st-last.kc .kc-n .pl { color: #7A5212; }
+    .st-last.kc .kc-m { color: rgba(36, 23, 10, .9); }
+    .st-last.kc .kc-rest { border-top-color: rgba(70, 42, 8, .22); box-shadow: 0 1px 0 rgba(255, 246, 214, .45) inset; }
+    .st-last.kc .kc-r + .kc-r { border-top-color: rgba(70, 42, 8, .12); }
+    .st-last.kc .kc-r .n { color: rgba(36, 23, 10, .9); }
+    @media (prefers-reduced-motion: reduce) { .st-last.kc::after { display: none; } }
+    /* ===== 8 — بطاقة البطل: كل بطاقات البطل بذهب «البطل الذهبي» وعمقه (القواعد أعلاه صارت للبطاقة كلها).
+       الفرق في التفاصيل: البطل الذهبي بشعار الدرع واسم محفور؛ البطل بشعار نجمة اللوح و«الملكة» الحمراء واسم بارز. */
+    .st-last.kc:not(.kc-gold) .kc-n { text-shadow: 0 -1px 0 rgba(255, 250, 228, .85), 0 1.5px 0 rgba(90, 55, 10, .38), 0 3px 6px rgba(90, 55, 10, .22); }
+    /* ميدالية نجمة اللوح: نفس ميدالية البطل الذهبي (ذهب مصقول بحلقة منقطة) */
     .kc-cup { display: grid; place-items: center; width: 40px; height: 40px; margin: 0 auto 8px; border-radius: 50%; position: relative;
       background: radial-gradient(circle at 34% 26%, #FFFBEA 0%, rgba(255, 251, 234, 0) 42%), conic-gradient(from 210deg, #FFF3CC, #E5BC62, #A06D20, #F2D488, #8A5B18, #F8E2A2, #FFF3CC);
-      color: #3A2508; box-shadow: inset 0 0 0 1.5px rgba(255, 246, 214, .65), inset 0 -3px 5px rgba(90, 55, 10, .45), 0 0 0 3px rgba(235, 201, 122, .18), 0 6px 12px -4px rgba(0, 0, 0, .6); }
+      color: #3A2508; box-shadow: inset 0 0 0 1.5px rgba(255, 246, 214, .65), inset 0 -3px 5px rgba(90, 55, 10, .45), 0 0 0 3px rgba(120, 78, 18, .22), 0 6px 12px -4px rgba(90, 55, 10, .6); }
     .kc-cup::after { content: ""; position: absolute; inset: 5px; border-radius: 50%; border: 1px dashed rgba(70, 42, 8, .35); }
     .kc-cup .kc-star { position: relative; z-index: 1; width: 27px; height: 27px; filter: drop-shadow(0 1px 0 rgba(255, 238, 190, .6)); }
     /* التتويج عند نهاية البطولة: الميدالية ثم الاسم (اللمعة كما في البطاقة الذهبية) */
@@ -2004,7 +1989,6 @@
     @keyframes kcCupIn { from { opacity: 0; transform: scale(.82); } to { opacity: 1; transform: none; } }
     @keyframes kcUp { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: none; } }
     @media (prefers-reduced-motion: reduce) {
-      .st-last.kc:not(.kc-gold)::after { display: none; }
       .kc-enter .kc-cup, .kc-enter .kc-t, .kc-enter .kc-n, .kc-enter .kc-m, .kc-enter .kc-s, .kc-enter .kc-rest { animation: none; }
     }
     /* الوسام: ميدالية معدنية دوّارة الضوء بحلقة منقوشة داخل إكليل غار، وخلفها أشعة ذهبية على بطاقة ذهبية عميقة */
