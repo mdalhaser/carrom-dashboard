@@ -1975,11 +1975,11 @@
     @media (prefers-reduced-motion: reduce) { .st-last.kc.kc-gold::after { display: none; } }
     /* ===== 8 — بطاقة البطل (غير الذهبي): نفس بناء بطاقة «البطل الذهبي» وعمقها (طبقات معدنية، خطوط مصقولة، حواف بارزة،
        ولمعة تعبرها مرة) لكن بلون إسبريسو معدني داكن ونص عاجي، وميدالية كأس ذهبية. البطل الذهبي نفسه لا يتغير. */
-    .st-last.kc:not(.kc-gold) { --lk-ivory: #FBF3E3; --lk-gold: #EBC97A; --lk-muted: rgba(251, 243, 227, .66); overflow: hidden;
+    .st-last.kc:not(.kc-gold) { /* لون جوز إطار لوح الكيرم */ --lk-ivory: #FBF3E3; --lk-gold: #EBC97A; --lk-muted: rgba(251, 243, 227, .66); overflow: hidden;
       background: repeating-linear-gradient(112deg, rgba(255, 240, 210, .045) 0 1px, transparent 1px 5px),
         radial-gradient(130% 85% at 18% -10%, rgba(255, 222, 160, .42) 0%, rgba(255, 210, 140, .12) 32%, transparent 58%),
         radial-gradient(90% 70% at 100% 110%, rgba(0, 0, 0, .5) 0%, transparent 60%),
-        linear-gradient(132deg, #7A5A3E 0%, #4E3725 20%, #2B1D13 42%, #5E4430 60%, #21160E 82%, #4A3423 100%);
+        linear-gradient(132deg, #9A5E38 0%, #6A3B22 20%, #3A1C0F 42%, #7A4729 60%, #2C140A 82%, #63361E 100%);
       border: 1px solid rgba(214, 172, 96, .7);
       box-shadow: inset 0 0 0 1px rgba(255, 222, 160, .2), inset 0 2px 0 rgba(255, 236, 200, .32), inset 0 -4px 10px rgba(0, 0, 0, .5), inset 0 10px 24px -14px rgba(255, 222, 160, .5), 0 20px 40px -16px rgba(38, 24, 12, .75), 0 3px 8px rgba(38, 24, 12, .3); }
     body.dark-mode .st-last.kc:not(.kc-gold) { border-color: rgba(235, 201, 122, .6);
@@ -1997,7 +1997,7 @@
       background: radial-gradient(circle at 34% 26%, #FFFBEA 0%, rgba(255, 251, 234, 0) 42%), conic-gradient(from 210deg, #FFF3CC, #E5BC62, #A06D20, #F2D488, #8A5B18, #F8E2A2, #FFF3CC);
       color: #3A2508; box-shadow: inset 0 0 0 1.5px rgba(255, 246, 214, .65), inset 0 -3px 5px rgba(90, 55, 10, .45), 0 0 0 3px rgba(235, 201, 122, .18), 0 6px 12px -4px rgba(0, 0, 0, .6); }
     .kc-cup::after { content: ""; position: absolute; inset: 5px; border-radius: 50%; border: 1px dashed rgba(70, 42, 8, .35); }
-    .kc-cup .ic { width: 19px; height: 19px; margin: 0; }
+    .kc-cup .kc-star { position: relative; z-index: 1; width: 27px; height: 27px; filter: drop-shadow(0 1px 0 rgba(255, 238, 190, .6)); }
     /* التتويج عند نهاية البطولة: الميدالية ثم الاسم (اللمعة كما في البطاقة الذهبية) */
     .kc-enter .kc-cup { animation: kcCupIn var(--t-slow) var(--ease) both; }
     .kc-enter .kc-t, .kc-enter .kc-n, .kc-enter .kc-m, .kc-enter .kc-s, .kc-enter .kc-rest { animation: kcUp var(--t-slow) var(--ease) .12s both; }
@@ -5482,9 +5482,16 @@ return teamName.replace('غير محدد', replacement);
       } catch (e) { return null; }
     }
     const goldenLine = g => `دوري كامل بلا خسارة · فوز ${g.w}${g.d ? ` · تعادل ${g.d}` : ''}`;
+    // 8: شعار بطاقة البطل — نجمة منتصف لوح الكيرم (ثمانية رؤوس محفورة، والرئيسية بوجهين للعمق) و«الملكة» الحمراء في مركزها
+    const KC_STAR_SVG = '<svg class="kc-star" viewBox="0 0 24 24" aria-hidden="true">'
+      + '<path fill="#5C3A0E" d="M12 12L10.52 10.52L17.66 6.34ZM12 12L13.48 10.52L17.66 17.66ZM12 12L13.48 13.48L6.34 17.66ZM12 12L10.52 13.48L6.34 6.34Z"/>'
+      + '<path fill="#3A2508" d="M12 12L17.66 6.34L13.48 13.48ZM12 12L17.66 17.66L10.52 13.48ZM12 12L6.34 17.66L10.52 10.52ZM12 12L6.34 6.34L13.48 10.52Z"/>'
+      + '<path fill="#4A2E08" d="M12 12L9.50 12L12 1.60ZM12 12L12 9.50L22.40 12ZM12 12L14.50 12L12 22.40ZM12 12L12 14.50L1.60 12Z"/>'
+      + '<path fill="#24170A" d="M12 12L12 1.60L14.50 12ZM12 12L22.40 12L12 14.50ZM12 12L12 22.40L9.50 12ZM12 12L1.60 12L12 9.50Z"/>'
+      + '<circle cx="12" cy="12" r="2.9" fill="#D33A28" stroke="#5A1A10" stroke-width=".5"/><circle cx="12.35" cy="12.45" r="1.9" fill="#A5241A" opacity=".55"/><circle cx="11.1" cy="11.05" r=".9" fill="#FFD9CC" opacity=".85"/></svg>';
     function champCardHTML(title, nameHTML, meta, sub) {
       const gold = String(title).includes('البطل الذهبي');   // 8: البطل الذهبي كما هو؛ بقية بطاقات البطل بميدالية كأس بنفس بنائه
-      return `${gold ? '<span class="kc-emb" aria-hidden="true"><span class="ic ic-shield"></span></span>' : '<span class="kc-cup" aria-hidden="true"><span class="ic ic-trophy"></span></span>'}<div class="kc-t">${title}</div><div class="kc-n">${nameHTML}</div>${meta ? `<div class="kc-m">${meta}</div>` : ''}${sub ? `<div class="kc-s">${sub}</div>` : ''}`;
+      return `${gold ? '<span class="kc-emb" aria-hidden="true"><span class="ic ic-shield"></span></span>' : `<span class="kc-cup" aria-hidden="true">${KC_STAR_SVG}</span>`}<div class="kc-t">${title}</div><div class="kc-n">${nameHTML}</div>${meta ? `<div class="kc-m">${meta}</div>` : ''}${sub ? `<div class="kc-s">${sub}</div>` : ''}`;
     }
     function isFinalMatch(match) {
       return !!match && (String(match.roundName).includes('المباراة النهائية') || String(match.roundName).includes('🏆 المباراة النهائية 🏆'));
