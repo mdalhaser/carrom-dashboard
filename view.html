@@ -2968,17 +2968,22 @@
     .cr-grid, .pf-recs { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); grid-auto-rows: 1fr; gap: 1px; border: 1px solid var(--line); border-radius: 16px; overflow: hidden;
       background: color-mix(in srgb, var(--line) 70%, transparent); }
     .cr-grid { box-shadow: var(--sh-1); }
-    .cr-c, .pf-rc { display: flex; flex-direction: column; align-items: center; justify-content: center; min-width: 0; padding: 12px 8px; text-align: center; background: var(--surface); }
+    /* تخطيط موحد بثلاثة صفوف: نصف علوي (العنوان ملاصق لأسفله) · الرقم · نصف سفلي (الاسم ثم التاريخ ملاصقان لأعلاه).
+       النصفان متساويان دائمًا (minmax(0, 1fr))، فمركز الرقم هو مركز البطاقة هندسيًا مهما اختلف طول العنوان أو وجود التاريخ. */
+    .cr-c, .pf-rc { display: grid; grid-template-rows: minmax(0, 1fr) auto minmax(0, 1fr); justify-items: center; min-width: 0; min-height: var(--rc-h, 136px); padding: 10px 8px; text-align: center; background: var(--surface); }
+    .pf-rc { --rc-h: 116px; }
+    .rc-t { align-self: end; margin-bottom: 6px; }
+    .rc-n { align-self: center; }
+    .rc-low { align-self: start; display: flex; flex-direction: column; align-items: center; width: 100%; min-width: 0; margin-top: 6px; }
     .pf-rc { background: var(--surface-2); }
     .rc-t { font-size: 12px; font-weight: 800; line-height: 1.4; color: var(--gold-deep); }
-    .rc-n { display: flex; justify-content: center; align-items: center; width: 100%; margin: 2px 0 0; padding: 0; font-size: 26px; font-weight: 900; line-height: 1.15; color: var(--text); font-variant-numeric: tabular-nums; white-space: nowrap; }
+    .rc-n { display: flex; justify-content: center; align-items: center; width: 100%; margin: 0; padding: 0; font-size: 26px; font-weight: 900; line-height: 1.15; color: var(--text); font-variant-numeric: tabular-nums; white-space: nowrap; }
     .rc-n bdi { unicode-bidi: isolate; }   /* اتجاه القيمة من سمة dir (القيم الموقّعة مثل «+50» من اليسار لليمين) */   /* الرقم والعبارة وحدة معزولة الاتجاه داخل حاوية متمركزة هندسيًا */
     .rc-n small { font: inherit; color: inherit; }   /* 8.2: الرقم والعبارة بحجم واحد ولون واحد («15 لقبًا») */
     .rc-n.tx { font-size: 15px; font-weight: 800; white-space: normal; text-wrap: balance; }
-    .rc-h { margin-top: 6px; max-width: 100%; font-size: 15px; font-weight: 700; line-height: 1.4; color: var(--text-2); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .rc-h { max-width: 100%; font-size: 15px; font-weight: 700; line-height: 1.4; color: var(--text-2); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
     .rc-s { margin-top: 2px; font-size: 12px; font-weight: 700; line-height: 1.4; color: var(--text-3); }
-    .rc-n + .rc-s { margin-top: 6px; }
-    .cr-tag { margin-top: 4px; padding: 0 8px; border-radius: 999px; font-size: 11px; font-weight: 800; line-height: 1.8; background: var(--ok-bg); color: var(--ok); }
+    .cr-tag { margin-top: 2px; padding: 0 8px; border-radius: 999px; font-size: 11px; font-weight: 800; line-height: 1.8; background: var(--ok-bg); color: var(--ok); }
     .cr-c:last-child:nth-child(odd), .pf-rc:last-child:nth-child(odd) { grid-column: 1 / -1; }
     .toast.record { border-color: rgba(227, 191, 110, .55); } .toast.record .ic { color: #E9C77A; }
     /* ===== بطاقة الإنجاز (6.2): مادة التنبيهات (خشب داكن بحافة ذهبية) تحت شريط الأوضاع — الأرقام القياسية والترقيات والأوسمة ===== */
@@ -11498,8 +11503,8 @@ function buildLeagueStandingsCanvas() {
       if (!R.length) return '';
       const who = h => h.length === 1 ? escHTML(h[0]) : h.length === 2 ? `${escHTML(h[0])} و${escHTML(h[1])}` : `${escHTML(h[0])} و${h.length - 1} آخرون`;
       return `<div class="stats-section cr"><h4><span class="ic ic-star" aria-hidden="true"></span>أرقام المجلس القياسية</h4>
-        <div class="cr-grid">${R.map(r => `<div class="cr-c"><span class="rc-t">${r.label}</span>${recValueHTML(r.txt, escHTML)}<span class="rc-h">${who(r.holders)}</span>` +
-          `${r.cur ? '<span class="cr-tag">مستمرة</span>' : r.live ? '<span class="rc-s">البطولة الجارية</span>' : r.date ? `<span class="rc-s">${fmtDayDate(r.date)}</span>` : ''}</div>`).join('')}</div></div>`;
+        <div class="cr-grid">${R.map(r => `<div class="cr-c"><span class="rc-t">${r.label}</span>${recValueHTML(r.txt, escHTML)}<span class="rc-low"><span class="rc-h">${who(r.holders)}</span>` +
+          `${r.cur ? '<span class="cr-tag">مستمرة</span>' : r.live ? '<span class="rc-s">البطولة الجارية</span>' : r.date ? `<span class="rc-s">${fmtDayDate(r.date)}</span>` : ''}</span></div>`).join('')}</div></div>`;
     }
     const arWinsW = n => n === 1 ? 'فوز' : n === 2 ? 'فوزان' : n <= 10 ? 'انتصارات' : 'انتصارًا';
     // المستوى التالي ونسبة التقدم نحوه (نفس حساب الملف): null للأسطورة
@@ -13036,7 +13041,7 @@ function buildLeagueStandingsCanvas() {
         // (4) الأرقام القياسية + (5) المسيرة: من سجل البطولات (المكتملة، والجارية إن شارك فيها)
         const C0 = playerCareer(name, p), { career, done, titles, best } = C0, kindOf = t => t.mode === 'single' ? 'فردي' : t.mode === 'league' ? 'دوري' : 'فرق';
         // 8.2: نفس بطاقة «أرقام المجلس»: اسم الإنجاز ← الرقم ← اليوم والتاريخ أو العبارة (الملف خاص باللاعب، فلا سطر اسم)
-        const rc = (l, v, s) => `<div class="pf-rc"><span class="rc-t">${H(l)}</span>${recValueHTML(v, H)}${s ? `<span class="rc-s">${H(s)}</span>` : ''}</div>`;
+        const rc = (l, v, s) => `<div class="pf-rc"><span class="rc-t">${H(l)}</span>${recValueHTML(v, H)}<span class="rc-low">${s ? `<span class="rc-s">${H(s)}</span>` : ''}</span></div>`;
         const recs = playerBests(p, C0).map(([l, v, s]) => rc(l, v, s));
         { let recsAll = []; try { recsAll = councilRecords(); } catch (e) {}
           const hn = playerHonors(p, stats, C0, recsAll);   // القسم يختفي تمامًا لمن لا يملك وسامًا
