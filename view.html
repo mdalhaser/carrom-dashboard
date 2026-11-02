@@ -2876,9 +2876,19 @@
     .hn.s .md .rlf { filter: drop-shadow(0 1px .6px rgba(30, 38, 46, .45)); }
     .hn.h .md .rlf { filter: drop-shadow(0 1px 1px rgba(0, 0, 0, .6)); }
     .hns .hn.hns-hero .md .rlf { width: 50px; height: 50px; }
+    .hn .md.nm .rlf { width: 19px; height: 19px; }
+    .hns .hn.hns-hero .md.nm .rlf { width: 32px; height: 32px; }
+    .hn.k .md .rlf { width: 24px; height: 24px; }
+    .hns .hn.hns-hero.k .md .rlf { width: 40px; height: 40px; }
+    /* أرقام مسكوكة: تدرج المعدن داخل الحرف، وحد داكن رفيع، وظل يرفعها */
+    .hn.g .md .num, .hn.s .md .num, .hn.k .md .num { color: transparent; -webkit-text-fill-color: transparent; background: linear-gradient(180deg, #FFFAE3 0%, #F6DA92 35%, #D2A045 72%, #9A6A1E 100%); -webkit-background-clip: text; background-clip: text;
+      -webkit-text-stroke: .55px rgba(84, 50, 6, .85); filter: drop-shadow(0 1px .4px rgba(70, 40, 4, .7)); }
+    .hn.s .md .num { background-image: linear-gradient(180deg, #FFFFFF 0%, #F4F6F8 35%, #C3CAD0 72%, #7D8790 100%); -webkit-text-stroke-color: rgba(36, 44, 52, .8); filter: drop-shadow(0 1px .4px rgba(30, 38, 46, .6)); }
+    .hns .hn.hns-hero .md .num { -webkit-text-stroke-width: .8px; }
     /* في 52 بكسل: حد النقش أوضح وظله أعمق حتى تبقى صورته مقروءة على المعدن (بطاقة المعنى 88 بكسل تبقى بالحد الرفيع) */
-    .pf-honors .hn.g .md .rlf > path:nth-of-type(1) { stroke: rgba(84, 50, 6, .85); stroke-width: .75; }
-    .pf-honors .hn.s .md .rlf > path:nth-of-type(1) { stroke: rgba(36, 44, 52, .8); stroke-width: .75; }
+    .pf-honors .hn.g .md .rlf .rb, .pf-honors .hn.k .md .rlf .rb { stroke: rgba(84, 50, 6, .85); stroke-width: .75; }
+    .pf-honors .hn.s .md .rlf .rb { stroke: rgba(36, 44, 52, .8); stroke-width: .75; }
+    .pf-honors .hn.g .md.nm .rlf .rb { stroke-width: 1; }
     .pf-honors .hn.g .md .rlf { filter: drop-shadow(0 1px .4px rgba(70, 40, 4, .7)); }
     .pf-honors .hn.s .md .rlf { filter: drop-shadow(0 1px .4px rgba(30, 38, 46, .6)); }   /* 7.7: 52 بكسل — الأيقونة والرقم مقروءان على الآيفون */
     .hn .md .ic { width: 25px; height: 25px; margin: 0; }
@@ -5538,15 +5548,49 @@ return teamName.replace('غير محدد', replacement);
       peak: { body: ['M2.6 19.8L9.6 8.2l3.5 5.6 2.3-3.4 6.2 9.4Z', 'M9.1 2.8h1.05v6.4H9.1Z', 'M10.15 3h5.4l-1.5 1.7 1.5 1.7h-5.4Z'],
         shade: ['M9.6 8.2l3.5 5.6-1.9 2.9 2 3.1H9.6Z', 'M15.4 10.4l6.2 9.4h-3.5Z', 'M10.15 4.7h3.9l1.5 1.7h-5.4Z'], spec: ['M3.9 19l5.7-9.3.55.9-5.2 8.4Z'] },
       crown: { body: ['M3.4 8.6l4 3.4L12 5.4l4.6 6.6 4-3.4-1.8 9.4H5.2Z', 'M5 18.4h14v2.4H5Z', 'M3.4 6.3a1.3 1.3 0 1 1 0 2.6 1.3 1.3 0 1 1 0-2.6Z', 'M12 2.9a1.4 1.4 0 1 1 0 2.8 1.4 1.4 0 1 1 0-2.8Z', 'M20.6 6.3a1.3 1.3 0 1 1 0 2.6 1.3 1.3 0 1 1 0-2.6Z'],
-        shade: ['M12 5.4l4.6 6.6 4-3.4-1.8 9.4H12Z', 'M12 18.4h7v2.4h-7Z'], spec: ['M5.6 16.8l-1-6.4 1.1 1 .8 5.4Z', 'M5.6 18.9h6v.6h-6Z'] }
+        shade: ['M12 5.4l4.6 6.6 4-3.4-1.8 9.4H12Z', 'M12 18.4h7v2.4h-7Z'], spec: ['M5.6 16.8l-1-6.4 1.1 1 .8 5.4Z', 'M5.6 18.9h6v.6h-6Z'] },
+      trophy: { body: null /* = GOLD_CUP.body */, shade: ['M12 3.6h5.4v4.6c0 3.3-2.4 5.8-5.4 5.8Z', 'M12 13.8h1.1l.45 2.6H12Z', 'M12 18.3h3.8l.9 2.6H12Z'], spec: null /* = GOLD_CUP.spec */ },
+      users: { body: ['M15.6 5.2a2.7 2.7 0 1 1 0 5.4 2.7 2.7 0 1 1 0-5.4Z', 'M13.2 13c.8-.4 1.6-.6 2.5-.6 3.1 0 5.4 2.5 5.4 5.9h-4.4c-.4-2.2-1.6-4-3.5-5.3Z', 'M9 3.8a3.1 3.1 0 1 1 0 6.2 3.1 3.1 0 1 1 0-6.2Z', 'M2.8 19.8c0-3.8 2.8-6.6 6.2-6.6s6.2 2.8 6.2 6.6Z'],
+        shade: ['M15.6 5.2a2.7 2.7 0 1 1 0 5.4 2.7 2.7 0 1 1 0-5.4Z', 'M13.2 13c.8-.4 1.6-.6 2.5-.6 3.1 0 5.4 2.5 5.4 5.9h-4.4c-.4-2.2-1.6-4-3.5-5.3Z', 'M9 3.8a3.1 3.1 0 0 1 0 6.2Z', 'M9 13.2c3.4 0 6.2 2.8 6.2 6.6H9Z'],
+        spec: ['M7.2 5.2a2.2 2.2 0 0 1 2.6-.6l-.2.6a1.6 1.6 0 0 0-1.9.4Z', 'M4.4 18.6c.3-2.3 1.7-3.9 3.6-4.5l.2.6c-1.6.6-2.8 1.9-3.1 3.9Z'] },
+      tornado: { body: ['M3.65 3.20H19.55A1.35 1.35 0 0 1 19.55 5.90H3.65A1.35 1.35 0 0 1 3.65 3.20Z', 'M7.05 7.00H18.95A1.35 1.35 0 0 1 18.95 9.70H7.05A1.35 1.35 0 0 1 7.05 7.00Z', 'M7.35 10.80H15.65A1.35 1.35 0 0 1 15.65 13.50H7.35A1.35 1.35 0 0 1 7.35 10.80Z', 'M10.65 14.60H15.55A1.35 1.35 0 0 1 15.55 17.30H10.65A1.35 1.35 0 0 1 10.65 14.60Z', 'M11.35 18.40H13.05A1.35 1.35 0 0 1 13.05 21.10H11.35A1.35 1.35 0 0 1 11.35 18.40Z'],
+        shade: ['M14.95 3.20H19.55A1.35 1.35 0 0 1 19.55 5.90H14.95Z', 'M15.63 7.00H18.95A1.35 1.35 0 0 1 18.95 9.70H15.63Z', 'M13.48 10.80H15.65A1.35 1.35 0 0 1 15.65 13.50H13.48Z', 'M14.47 14.60H15.55A1.35 1.35 0 0 1 15.55 17.30H14.47Z', 'M12.99 18.40H13.05A1.35 1.35 0 0 1 13.05 21.10H12.99Z'],
+        spec: ['M3.65 3.65H13.83V4.15H3.65Z', 'M7.05 7.45H14.75V7.95H7.05Z', 'M7.35 11.25H12.82V11.75H7.35Z', 'M10.65 15.05H14.01V15.55H10.65Z'] },
+      trophy3: { group: [['trophy', 'translate(6 1.6) scale(.5)'], ['trophy', 'translate(-.4 6.4) scale(.5)'], ['trophy', 'translate(12.4 6.4) scale(.5)']] }
     };
-    const RELIEF_METAL = { g: ['#FFFAE3', '#F6DA92', '#D2A045', '#9A6A1E'], s: ['#FFFFFF', '#F4F6F8', '#C3CAD0', '#7D8790'], h: ['#FFF0C0', '#E8C06A', '#B5822C', '#7E5414'] };
+    const RELIEF_ALIAS = { crowntri: 'crown', crownk: 'crown' };
+    const reliefOf = n => { const k = RELIEF_ALIAS[n] || n, R = RELIEF[k]; if (!R) return null;
+      return k === 'trophy' ? { body: GOLD_CUP.body, shade: R.shade, spec: [GOLD_CUP.spec] } : R; };
+    const RELIEF_METAL = { g: ['#FFFAE3', '#F6DA92', '#D2A045', '#9A6A1E'], k: ['#FFFAE3', '#F6DA92', '#D2A045', '#9A6A1E'], s: ['#FFFFFF', '#F4F6F8', '#C3CAD0', '#7D8790'], h: ['#FFF0C0', '#E8C06A', '#B5822C', '#7E5414'] };
     let reliefSeq = 0;
     function reliefSVG(name, lv) {
-      const R = RELIEF[name], m = RELIEF_METAL[lv] || RELIEF_METAL.g, id = 'rlG' + (++reliefSeq), dark = lv === 's' ? 'rgba(40,48,56,.55)' : 'rgba(70,42,8,.6)';
-      return `<svg class="rlf" viewBox="0 0 24 24" aria-hidden="true"><defs><linearGradient id="${id}" x1="0" y1="0" x2=".35" y2="1">${m.map((c, i) => `<stop offset="${[0, .35, .72, 1][i]}" stop-color="${c}"/>`).join('')}</linearGradient></defs>`
-        + `<path fill="url(#${id})" stroke="${dark}" stroke-width=".4" stroke-linejoin="round" d="${R.body.join('')}"/>`
-        + `<path fill="${lv === 's' ? 'rgba(40,48,56,.18)' : 'rgba(90,55,10,.2)'}" d="${R.shade.join('')}"/><path fill="#FFFFFF" opacity=".75" d="${R.spec.join('')}"/></svg>`;
+      const R = reliefOf(name), m = RELIEF_METAL[lv] || RELIEF_METAL.g, id = 'rlG' + (++reliefSeq), dark = lv === 's' ? 'rgba(40,48,56,.55)' : 'rgba(70,42,8,.6)';
+      const one = P => `<path class="rb" fill="url(#${id})" stroke="${dark}" stroke-width=".4" stroke-linejoin="round" d="${P.body.join('')}"/>`
+        + `<path fill="${lv === 's' ? 'rgba(40,48,56,.18)' : 'rgba(90,55,10,.2)'}" d="${P.shade.join('')}"/><path fill="#FFFFFF" opacity=".75" d="${P.spec.join('')}"/>`;
+      const inner = R.group ? R.group.map(([n, t]) => `<g transform="${t}">${one(reliefOf(n))}</g>`).join('') : one(R);
+      return `<svg class="rlf" viewBox="0 0 24 24" aria-hidden="true"><defs><linearGradient id="${id}" x1="0" y1="0" x2=".35" y2="1">${m.map((c, i) => `<stop offset="${[0, .35, .72, 1][i]}" stop-color="${c}"/>`).join('')}</linearGradient></defs>${inner}</svg>`;
+    }
+    // نفس النقش على اللوحة (صورة تصدير الملف): size بالبكسل
+    function drawRelief(ctx, name, lv, cx, cy, size) {
+      const R = reliefOf(name); if (!R) return false;
+      const m = RELIEF_METAL[lv] || RELIEF_METAL.g, S = size / 24, dark = lv === 's' ? 'rgba(40,48,56,.75)' : 'rgba(70,42,8,.8)';
+      const one = P => { const g = ctx.createLinearGradient(0, 0, 8.4, 24); m.forEach((c, i) => g.addColorStop([0, .35, .72, 1][i], c));
+        const B = new Path2D(P.body.join('')); ctx.save(); ctx.shadowColor = lv === 'h' ? 'rgba(0,0,0,.6)' : 'rgba(60,36,6,.55)'; ctx.shadowBlur = .8 / S; ctx.shadowOffsetY = 1 / S;
+        ctx.fillStyle = g; ctx.fill(B); ctx.restore(); ctx.strokeStyle = dark; ctx.lineWidth = .55; ctx.lineJoin = 'round'; ctx.stroke(B);
+        ctx.fillStyle = lv === 's' ? 'rgba(40,48,56,.18)' : 'rgba(90,55,10,.2)'; ctx.fill(new Path2D(P.shade.join('')));
+        ctx.globalAlpha = .75; ctx.fillStyle = '#FFFFFF'; ctx.fill(new Path2D(P.spec.join(''))); ctx.globalAlpha = 1; };
+      ctx.save(); ctx.translate(cx - 12 * S, cy - 12 * S); ctx.scale(S, S);
+      if (R.group) R.group.forEach(([n, t]) => { const v = t.match(/-?[\d.]+/g).map(Number); ctx.save(); ctx.translate(v[0], v[1]); ctx.scale(v[2], v[2]); one(reliefOf(n)); ctx.restore(); });
+      else one(R);
+      ctx.restore(); return true;
+    }
+    // رقم مسكوك (20 · 100 · 3) على اللوحة: تدرج المعدن وحد داكن وظل
+    function drawMintNum(ctx, text, cx, cy, size, lv) {
+      const m = RELIEF_METAL[lv] || RELIEF_METAL.g; ctx.save(); ctx.font = `900 ${size}px Tajawal, sans-serif`; ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+      const g = ctx.createLinearGradient(0, cy - size / 2, 0, cy + size / 2); m.forEach((c, i) => g.addColorStop([0, .35, .72, 1][i], c));
+      ctx.lineJoin = 'round'; ctx.lineWidth = Math.max(1.4, size * .09); ctx.strokeStyle = lv === 's' ? 'rgba(36,44,52,.85)' : 'rgba(84,50,6,.85)';
+      ctx.shadowColor = 'rgba(60,36,6,.5)'; ctx.shadowBlur = 1; ctx.shadowOffsetY = 1.2; ctx.strokeText(text, cx, cy + size * .06);
+      ctx.shadowColor = 'transparent'; ctx.fillStyle = g; ctx.fillText(text, cx, cy + size * .06); ctx.restore();
     }
     // 8: شعار بطاقة البطل — نجمة منتصف لوح الكيرم (ثمانية رؤوس محفورة، والرئيسية بوجهين للعمق) و«الملكة» الحمراء في مركزها
     const KC_STAR_SVG = '<svg class="kc-star" viewBox="0 0 24 24" aria-hidden="true">'
@@ -11332,7 +11376,7 @@ function buildLeagueStandingsCanvas() {
       ctx.restore();
     }
     // 7.5: الميدالية — أيقونة محفورة، أو أيقونة ورقم تحتها (جامع العشرين · الإعصار)، أو رقم وحده (مئوية الانتصارات)
-    const honorMedalHTML = x => `<span class="md${x.num ? (x.ic ? ' nm' : ' nm solo') : ''}" aria-hidden="true">${x.lv === 'x' ? laurelSVG() : ''}<span class="rd"></span>${x.ic === 'cupx' ? `<span class="enm"></span>${goldCupSVG()}` : RELIEF[x.ic] && !x.num ? reliefSVG(x.ic, x.lv) : x.ic ? `<span class="ic ic-${x.ic}"></span>` : ''}${x.num ? `<b class="num">${x.num}</b>` : ''}</span>`;
+    const honorMedalHTML = x => `<span class="md${x.num ? (x.ic ? ' nm' : ' nm solo') : ''}" aria-hidden="true">${x.lv === 'x' ? laurelSVG() : ''}<span class="rd"></span>${x.ic === 'cupx' ? `<span class="enm"></span>${goldCupSVG()}` : reliefOf(x.ic) ? reliefSVG(x.ic, x.lv) : x.ic ? `<span class="ic ic-${x.ic}"></span>` : ''}${x.num ? `<b class="num">${x.num}</b>` : ''}</span>`;
     // الوسام زر: لمسه يفتح معناه (لا دليل)
     const honorTileHTML = (x, esc, pn) => `<button type="button" class="hn ${x.lv}" data-hk="${x.k}"${pn ? ` data-pn="${esc(pn)}"` : ''} aria-label="${esc(x.t)}: عرض معنى الوسام">${honorMedalHTML(x)}<b class="t">${esc(x.t)}</b><span class="s">${x.s ? esc(x.s) : ''}</span></button>`;
     // تاريخ نيل اللاعب للوسام (قراءة فقط؛ بترتيب اللعب الفعلي). صاحب الرقم ينتقل فلا تاريخ له.
@@ -11656,7 +11700,15 @@ function buildLeagueStandingsCanvas() {
               if (x.lv !== 'x') { ctx.save(); ctx.beginPath(); ctx.ellipse(cx - R * .04, my - R * .5, R * .62, R * .42, 0, 0, Math.PI * 2); ctx.clip();   // لمعة ثابتة
                 const gl2 = ctx.createLinearGradient(0, my - R * .92, 0, my - R * .08); gl2.addColorStop(0, x.lv === 'h' ? 'rgba(255,240,210,.22)' : 'rgba(255,255,255,.6)'); gl2.addColorStop(1, 'rgba(255,255,255,0)'); ctx.fillStyle = gl2; ctx.fillRect(cx - R, my - R, R * 2, R); ctx.restore(); }
               ctx.restore();
-              if (x.ic === 'cupx') drawGoldCup(ctx, cx, my, R);   // 8: كأس مذهب على قرص مينا (نفس ميدالية الملف)
+              // 8: حافة محززة · حقل مطفأ داخل الحلقة (ذهبي/فضي) · نقش بارز وأرقام مسكوكة (نفس ميدالية الملف)
+              ctx.save(); ctx.strokeStyle = x.lv === 's' ? 'rgba(40,48,56,.32)' : x.lv === 'h' ? 'rgba(240,205,130,.32)' : 'rgba(70,42,8,.34)'; ctx.lineWidth = 1.1;
+              for (let q = 0; q < 72; q++) { const a = q * Math.PI / 36; ctx.beginPath(); ctx.moveTo(cx + (R - 4.6) * Math.cos(a), my + (R - 4.6) * Math.sin(a)); ctx.lineTo(cx + (R - 1.6) * Math.cos(a), my + (R - 1.6) * Math.sin(a)); ctx.stroke(); } ctx.restore();
+              if (x.lv === 'g' || x.lv === 's') { ctx.save(); ctx.beginPath(); ctx.arc(cx, my, R - 8.8, 0, Math.PI * 2); const fg = ctx.createRadialGradient(cx, my - R * .25, 1, cx, my, R - 8.8);
+                fg.addColorStop(0, x.lv === 's' ? 'rgba(70,80,90,.1)' : 'rgba(120,78,18,.14)'); fg.addColorStop(1, x.lv === 's' ? 'rgba(60,70,80,.26)' : 'rgba(100,62,12,.3)'); ctx.fillStyle = fg; ctx.fill(); ctx.restore(); }
+              if (x.ic === 'cupx') drawGoldCup(ctx, cx, my, R);
+              else if (!x.num && reliefOf(x.ic)) drawRelief(ctx, x.ic, x.lv, cx, my, x.lv === 'k' ? 34 : 44);
+              else if (x.num && x.ic && reliefOf(x.ic)) { drawRelief(ctx, x.ic, x.lv, cx, my - 11, 28); drawMintNum(ctx, x.num, cx, my + 14, 21, x.lv); }
+              else if (x.num && !x.ic) drawMintNum(ctx, x.num, cx, my + 1, 26, x.lv);
               else if (!x.num) exportIcon(ctx, EXPORT_ICONS[x.ic] ? x.ic : 'star', cx, my, 34, m[1], 2.2);   // 7.5: أيقونة ورقم تحتها، أو رقم وحده (نفس ميدالية الملف)
               else if (x.ic) { exportIcon(ctx, x.ic, cx, my - 11, 26, m[1], 2.2); T(ctx, x.num, cx, my + 15, { size: 21, weight: 900, color: m[1] }); }
               else T(ctx, x.num, cx, my, { size: 24, weight: 900, color: m[1] });
