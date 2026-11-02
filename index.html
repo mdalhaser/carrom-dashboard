@@ -1936,11 +1936,11 @@
     @keyframes kcShine { from { left: -60%; } to { left: 130%; } }
     .st-last.kc .kc-t { letter-spacing: .2px; text-shadow: 0 1px 0 rgba(255, 245, 210, .6); }
     .st-last.kc .kc-n { text-shadow: 0 1px 0 rgba(255, 244, 205, .7), 0 -1px 0 rgba(90, 55, 10, .25); }
-    .kc-gold .kc-emb { display: grid; place-items: center; width: 40px; height: 40px; margin: 0 auto 8px; border-radius: 50%; position: relative;
+    .kc-gold .kc-emb { display: grid; place-items: center; width: 52px; height: 52px; margin: 0 auto 10px; border-radius: 50%; position: relative;
       background: radial-gradient(circle at 34% 26%, #FFFBEA 0%, rgba(255, 251, 234, 0) 42%), conic-gradient(from 210deg, #FFF3CC, #E5BC62, #A06D20, #F2D488, #8A5B18, #F8E2A2, #FFF3CC);
       color: #3A2508; box-shadow: inset 0 0 0 1.5px rgba(255, 246, 214, .65), inset 0 -3px 5px rgba(90, 55, 10, .45), 0 0 0 3px rgba(120, 78, 18, .22), 0 6px 12px -4px rgba(90, 55, 10, .6); }
-    .kc-gold .kc-emb::after { content: ""; position: absolute; inset: 5px; border-radius: 50%; border: 1px dashed rgba(70, 42, 8, .35); }
-    .kc-gold .kc-emb .ic { width: 19px; height: 19px; margin: 0; }
+    .kc-gold .kc-emb::after { content: ""; position: absolute; inset: 6px; border-radius: 50%; border: 1px dashed rgba(70, 42, 8, .35); }
+    .kc-gold .kc-emb .ic { width: 25px; height: 25px; margin: 0; }
     .st-last.kc .kc-n .pl { color: #7A5212; }
     .st-last.kc .kc-m { color: rgba(36, 23, 10, .9); }
     .st-last.kc .kc-rest { border-top-color: rgba(70, 42, 8, .22); box-shadow: 0 1px 0 rgba(255, 246, 214, .45) inset; }
@@ -1948,14 +1948,14 @@
     .st-last.kc .kc-r .n { color: rgba(36, 23, 10, .9); }
     @media (prefers-reduced-motion: reduce) { .st-last.kc::after { display: none; } }
     /* ===== 8 — بطاقة البطل: كل بطاقات البطل بذهب «البطل الذهبي» وعمقه (القواعد أعلاه صارت للبطاقة كلها).
-       الفرق في التفاصيل: البطل الذهبي بشعار الدرع واسم محفور؛ البطل بشعار نجمة اللوح و«الملكة» الحمراء واسم بارز. */
-    .st-last.kc:not(.kc-gold) .kc-n { text-shadow: 0 -1px 0 rgba(255, 250, 228, .85), 0 1.5px 0 rgba(90, 55, 10, .38), 0 3px 6px rgba(90, 55, 10, .22); }
+       الفرق في الشعار: البطل الذهبي بالدرع، والبطل بنجمة اللوح و«الملكة» الحمراء. الاسم محفور في الاثنين.
+       الميدالية 52 بكسل (نفس ميداليات الأوسمة)، والدرع 25 والنجمة 34. */
     /* ميدالية نجمة اللوح: نفس ميدالية البطل الذهبي (ذهب مصقول بحلقة منقطة) */
-    .kc-cup { display: grid; place-items: center; width: 40px; height: 40px; margin: 0 auto 8px; border-radius: 50%; position: relative;
+    .kc-cup { display: grid; place-items: center; width: 52px; height: 52px; margin: 0 auto 10px; border-radius: 50%; position: relative;
       background: radial-gradient(circle at 34% 26%, #FFFBEA 0%, rgba(255, 251, 234, 0) 42%), conic-gradient(from 210deg, #FFF3CC, #E5BC62, #A06D20, #F2D488, #8A5B18, #F8E2A2, #FFF3CC);
       color: #3A2508; box-shadow: inset 0 0 0 1.5px rgba(255, 246, 214, .65), inset 0 -3px 5px rgba(90, 55, 10, .45), 0 0 0 3px rgba(120, 78, 18, .22), 0 6px 12px -4px rgba(90, 55, 10, .6); }
-    .kc-cup::after { content: ""; position: absolute; inset: 5px; border-radius: 50%; border: 1px dashed rgba(70, 42, 8, .35); }
-    .kc-cup .kc-star { position: relative; z-index: 1; width: 27px; height: 27px; filter: drop-shadow(0 1px 0 rgba(255, 238, 190, .6)); }
+    .kc-cup::after { content: ""; position: absolute; inset: 6px; border-radius: 50%; border: 1px dashed rgba(70, 42, 8, .35); }
+    .kc-cup .kc-star { position: relative; z-index: 1; width: 34px; height: 34px; filter: drop-shadow(0 1px 0 rgba(255, 238, 190, .6)); }
     /* التتويج عند نهاية البطولة: الميدالية ثم الاسم (اللمعة كما في البطاقة الذهبية) */
     .kc-enter .kc-cup { animation: kcCupIn var(--t-slow) var(--ease) both; }
     .kc-enter .kc-t, .kc-enter .kc-n, .kc-enter .kc-m, .kc-enter .kc-s, .kc-enter .kc-rest { animation: kcUp var(--t-slow) var(--ease) .12s both; }
