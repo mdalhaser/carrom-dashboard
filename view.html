@@ -14519,7 +14519,7 @@ function buildLeagueStandingsCanvas() {
         const sigOf = m => `lg|${m.id}|${m.playerA}|${m.playerB}|${m.scoreA}|${m.scoreB}`;
         const matchesOf = k => days.get(k).slice().sort((a, b) => b.at - a.at).map(e => leagueMatches.find(m => m.id === e.id)).filter(Boolean);
         const hasNew = k => matchesOf(k).some(m => fresh.has(sigOf(m)));
-        const short = k => nightLabel(k);   // 8.2: اليوم مع التاريخ حتى في شريط الأيام
+        const short = k => { const [, mo, d] = k.split('-'); return `${d}.${mo}`; };   // شريط أيام اللعب مختصر عمدًا (مستثنى من قاعدة اليوم مع التاريخ؛ التاريخ الكامل في رأس البطاقة)
         const countTxt = n => n === 1 ? 'مباراة واحدة' : n === 2 ? 'مباراتان' : n <= 10 ? `${n} مباريات` : `${n} مباراة`;
         const nm = (name, tag) => `<span class="nm${me0 && name === me0 ? ' me' : ''}">${esc(name)}${tag ? `<small class="ffl">${tag}</small>` : ''}</span>`;
         const ffTag = (m, side) => isLeagueMatchAnnulled(m) ? (leagueIsExcluded(side === 'A' ? m.playerA : m.playerB) ? 'مستبعد' : '') : m.forfeit === side ? (m.auto ? 'مستبعد' : 'انسحب') : '';
