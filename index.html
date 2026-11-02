@@ -2937,15 +2937,15 @@
     /* ===== 8.2 — أرقام المجلس القياسية و«أفضل أرقامه»: بطاقات شبكة بعمودين، كلها بمقاس واحد، والمحتوى في الوسط بتسلسل:
        اسم الإنجاز (ذهبي هادئ) ← الرقم (أكبر عنصر، والوحدة أصغر بجانبه) ← فراغ ← صاحب الرقم ← اليوم والتاريخ أو العبارة (ثانوي).
        فواصل رفيعة جدًا، ولا أيقونات داخل البطاقات (النجمة في العنوان تكفي). ===== */
-    .cr-grid, .pf-recs { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); grid-auto-rows: 1fr; border: 1px solid var(--line); border-radius: 16px; overflow: hidden; }
-    .cr-grid { background: var(--surface); box-shadow: var(--sh-1); }
-    .pf-recs { background: var(--surface-2); }
-    .cr-c, .pf-rc { display: flex; flex-direction: column; align-items: center; justify-content: center; min-width: 0; padding: 12px 8px; text-align: center;
-      border-color: color-mix(in srgb, var(--line) 70%, transparent); border-style: solid; border-width: 0; }
-    .cr-c:nth-child(2n), .pf-rc:nth-child(2n) { border-inline-start-width: 1px; }
-    .cr-c:nth-child(n+3), .pf-rc:nth-child(n+3) { border-top-width: 1px; }
+    /* الفواصل الرفيعة من فراغ 1 بكسل بين البطاقات يظهر منه لون الخلفية (لا حدود على البطاقة نفسها)، فيبقى مركز كل بطاقة هو مركز محتواها تمامًا */
+    .cr-grid, .pf-recs { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); grid-auto-rows: 1fr; gap: 1px; border: 1px solid var(--line); border-radius: 16px; overflow: hidden;
+      background: color-mix(in srgb, var(--line) 70%, transparent); }
+    .cr-grid { box-shadow: var(--sh-1); }
+    .cr-c, .pf-rc { display: flex; flex-direction: column; align-items: center; justify-content: center; min-width: 0; padding: 12px 8px; text-align: center; background: var(--surface); }
+    .pf-rc { background: var(--surface-2); }
     .rc-t { font-size: 12px; font-weight: 800; line-height: 1.4; color: var(--gold-deep); }
-    .rc-n { margin-top: 2px; font-size: 26px; font-weight: 900; line-height: 1.15; color: var(--text); font-variant-numeric: tabular-nums; white-space: nowrap; }
+    .rc-n { display: flex; justify-content: center; align-items: center; width: 100%; margin: 2px 0 0; padding: 0; font-size: 26px; font-weight: 900; line-height: 1.15; color: var(--text); font-variant-numeric: tabular-nums; white-space: nowrap; }
+    .rc-n bdi { unicode-bidi: isolate; }   /* اتجاه القيمة من سمة dir (القيم الموقّعة مثل «+50» من اليسار لليمين) */   /* الرقم والعبارة وحدة معزولة الاتجاه داخل حاوية متمركزة هندسيًا */
     .rc-n small { font: inherit; color: inherit; }   /* 8.2: الرقم والعبارة بحجم واحد ولون واحد («15 لقبًا») */
     .rc-n.tx { font-size: 15px; font-weight: 800; white-space: normal; text-wrap: balance; }
     .rc-h { margin-top: 6px; max-width: 100%; font-size: 15px; font-weight: 700; line-height: 1.4; color: var(--text-2); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
@@ -11462,8 +11462,9 @@ function buildLeagueStandingsCanvas() {
     // 8.2: قيمة الرقم: العدد كبيرًا والوحدة أصغر بجانبه («63» + «انتصارًا»)؛ والقيمة النصية أصغر وتلتف بتوازن
     function recValueHTML(txt, esc) {
       const t = String(txt == null ? '' : txt).trim(), m = t.match(/^([\u200E+\-−]*[\d,.٫]+)\s+(.+)$/);
-      if (m) return `<b class="rc-n">${esc(m[1])} ${esc(m[2])}</b>`;
-      return `<b class="rc-n${/\d/.test(t) || t === '—' ? '' : ' tx'}">${esc(t)}</b>`;
+      const clean = x => String(x).replace(/[\u200E\u200F]/g, '');   // علامات الاتجاه الخفية تُزال؛ العزل يتم بـ <bdi>
+      if (m) return `<b class="rc-n"><bdi>${esc(clean(m[1]))} ${esc(m[2])}</bdi></b>`;
+      return `<b class="rc-n${/\d/.test(t) || t === '—' ? '' : ' tx'}"><bdi${/^[+\-−\u200E]/.test(t) ? ' dir="ltr"' : ''}>${esc(clean(t))}</bdi></b>`;
     }
     function councilRecordsHTML() {
       let R = []; try { R = councilRecords(); } catch (e) { return ''; }
