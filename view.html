@@ -2858,7 +2858,29 @@
     body:not(.dark-mode) .hn.k .md { color: #3A2304; box-shadow: 0 0 0 1px rgba(60, 70, 80, .45), inset 0 0 0 1.5px rgba(255, 255, 255, .9), inset 0 -4px 6px rgba(40, 50, 60, .3), 0 5px 12px -4px rgba(80, 70, 50, .65); background: radial-gradient(circle at 50% 50%, rgba(0, 0, 0, 0) 0 61%, #EEF1F3 62.5%, #BCC4CA 78%, #7E878F 100%), radial-gradient(circle at 32% 24%, #FDEBB0 0%, #EDC25A 18%, #CF942A 44%, #9C6716 70%, #6A420B 100%); }
     body:not(.dark-mode) .hn.s .md { box-shadow: 0 0 0 1px rgba(60, 70, 80, .45), inset 0 0 0 1.5px rgba(255, 255, 255, .9), inset 0 -4px 6px rgba(40, 50, 60, .4), inset 0 3px 3px rgba(255, 255, 255, .7), 0 5px 12px -4px rgba(40, 50, 60, .6); }
     body:not(.dark-mode) .hn:not(.x) .md::before { background: linear-gradient(180deg, rgba(255, 255, 255, .5), rgba(255, 255, 255, 0)); }
-    .hn .md { width: 52px; height: 52px; margin-bottom: 8px; }   /* 7.7: 52 بكسل — الأيقونة والرقم مقروءان على الآيفون */
+    .hn .md { width: 52px; height: 52px; margin-bottom: 8px; }
+    /* 8 — حافة محززة دقيقة (كالعملة المسكوكة) لكل الميداليات */
+    .hn .md .rd { position: absolute; inset: 0; border-radius: 50%; pointer-events: none;
+      background: repeating-conic-gradient(rgba(70, 42, 8, .34) 0 1.6deg, transparent 1.6deg 5deg);
+      -webkit-mask: radial-gradient(farthest-side, transparent calc(100% - 3.4px), #000 calc(100% - 3px), #000 calc(100% - 1.2px), transparent calc(100% - .6px));
+      mask: radial-gradient(farthest-side, transparent calc(100% - 3.4px), #000 calc(100% - 3px), #000 calc(100% - 1.2px), transparent calc(100% - .6px)); }
+    .hn.s .md .rd { background: repeating-conic-gradient(rgba(40, 48, 56, .3) 0 1.6deg, transparent 1.6deg 5deg); }
+    .hn.h .md .rd { background: repeating-conic-gradient(rgba(240, 205, 130, .3) 0 1.6deg, transparent 1.6deg 5deg); }
+    .hns .hn.hns-hero .md .rd { -webkit-mask: radial-gradient(farthest-side, transparent calc(100% - 5px), #000 calc(100% - 4.5px), #000 calc(100% - 1.6px), transparent calc(100% - .8px));
+      mask: radial-gradient(farthest-side, transparent calc(100% - 5px), #000 calc(100% - 4.5px), #000 calc(100% - 1.6px), transparent calc(100% - .8px)); }
+    /* 8 — نقش بارز مصمت بدل الأيقونة الخطية */
+    /* الحقل داخل الحلقة المحفورة أغمق قليلًا (مطفأ) فيبرز النقش المصقول فوقه — كالعملة المسكوكة */
+    .hn.g .md::after { background: radial-gradient(circle at 50% 38%, rgba(120, 78, 18, .14), rgba(100, 62, 12, .3)); }
+    .hn.s .md::after { background: radial-gradient(circle at 50% 38%, rgba(70, 80, 90, .1), rgba(60, 70, 80, .26)); }
+    .hn .md .rlf { position: relative; z-index: 1; width: 30px; height: 30px; filter: drop-shadow(0 1px .6px rgba(60, 36, 6, .5)); }
+    .hn.s .md .rlf { filter: drop-shadow(0 1px .6px rgba(30, 38, 46, .45)); }
+    .hn.h .md .rlf { filter: drop-shadow(0 1px 1px rgba(0, 0, 0, .6)); }
+    .hns .hn.hns-hero .md .rlf { width: 50px; height: 50px; }
+    /* في 52 بكسل: حد النقش أوضح وظله أعمق حتى تبقى صورته مقروءة على المعدن (بطاقة المعنى 88 بكسل تبقى بالحد الرفيع) */
+    .pf-honors .hn.g .md .rlf > path:nth-of-type(1) { stroke: rgba(84, 50, 6, .85); stroke-width: .75; }
+    .pf-honors .hn.s .md .rlf > path:nth-of-type(1) { stroke: rgba(36, 44, 52, .8); stroke-width: .75; }
+    .pf-honors .hn.g .md .rlf { filter: drop-shadow(0 1px .4px rgba(70, 40, 4, .7)); }
+    .pf-honors .hn.s .md .rlf { filter: drop-shadow(0 1px .4px rgba(30, 38, 46, .6)); }   /* 7.7: 52 بكسل — الأيقونة والرقم مقروءان على الآيفون */
     .hn .md .ic { width: 25px; height: 25px; margin: 0; }
     .hn.s .md { color: #2C343B; background: radial-gradient(circle at 32% 24%, #FFFFFF 0%, #EEF1F3 22%, #C6CDD3 52%, #949DA5 78%, #69737C 100%);
       box-shadow: inset 0 0 0 1.5px rgba(255, 255, 255, .9), inset 0 -4px 6px rgba(40, 50, 60, .35), inset 0 3px 3px rgba(255, 255, 255, .7), 0 5px 12px -5px rgba(40, 50, 60, .55); }
@@ -2876,7 +2898,8 @@
     .hn .s { max-width: 100%; font-size: 10.5px; font-weight: 700; line-height: 1.35; color: var(--text-3); overflow-wrap: anywhere; }
     /* 7.5 — الوسام زر يكشف معناه، والميدالية: أيقونة · أيقونة ورقم · رقم وحده · مخفي «؟» */
     /* 7.7: بطاقة الوسام أخف (الميدالية هي البطل)، والسطر الفرعي بمساحة ثابتة في كل البطاقات فتتساوى الصفوف */
-    .pf-honors .hn:not(.x) { background: color-mix(in srgb, var(--surface-2) 55%, var(--surface)); border-color: color-mix(in srgb, var(--line) 70%, transparent); }
+    .pf-honors .hn:not(.x) { background: radial-gradient(56px 44px at 50% 39px, rgba(240, 196, 110, .16), transparent 72%), color-mix(in srgb, var(--surface-2) 55%, var(--surface)); border-color: color-mix(in srgb, var(--line) 70%, transparent); }
+    .pf-honors .hn.s { background: radial-gradient(56px 44px at 50% 39px, rgba(225, 232, 238, .16), transparent 72%), color-mix(in srgb, var(--surface-2) 55%, var(--surface)); }   /* 8: ضوء خافت خلف الميدالية بلون معدنها (ثابت) */
     .pf-honors .hn { justify-content: flex-start; padding: 13px 4px 11px; }
     .pf-honors .hn .t { white-space: nowrap; max-width: 100%; overflow: hidden; text-overflow: ellipsis; font-size: 11.5px; }
     .pf-honors .hn .s { min-height: 1.35em; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
@@ -5508,6 +5531,22 @@ return teamName.replace('غير محدد', replacement);
       return `<svg class="gcup" viewBox="0 0 24 24" aria-hidden="true"><defs><linearGradient id="${id}" x1="0" y1="0" x2="1" y2=".18">${GOLD_CUP.stops.map(([o, c]) => `<stop offset="${o}" stop-color="${c}"/>`).join('')}</linearGradient></defs>`
         + `<path fill="url(#${id})" stroke="rgba(58,34,6,.6)" stroke-width=".35" stroke-linejoin="round" d="${GOLD_CUP.body.join('')}"/>`
         + `<path fill="#FFF4CF" opacity=".75" d="${GOLD_CUP.rim}"/><path fill="#5E3C0C" opacity=".45" d="${GOLD_CUP.base}"/><path fill="#FFFBEA" opacity=".8" d="${GOLD_CUP.spec}"/></svg>`;
+    }
+    // 8: شعارات الأوسمة بنقش بارز مصمت (بدل الأيقونات الخطية): جسم بتدرج المعدن مضاء من الأعلى، وجه مظلل، وخط لمعة، وحد دقيق.
+    // المعدن حسب الوسام: g ذهبي · s فضي · h ذهبي على الإسبريسو. تعريف واحد للملف وبطاقة المعنى (وصورة التصدير لاحقًا).
+    const RELIEF = {
+      peak: { body: ['M2.6 19.8L9.6 8.2l3.5 5.6 2.3-3.4 6.2 9.4Z', 'M9.1 2.8h1.05v6.4H9.1Z', 'M10.15 3h5.4l-1.5 1.7 1.5 1.7h-5.4Z'],
+        shade: ['M9.6 8.2l3.5 5.6-1.9 2.9 2 3.1H9.6Z', 'M15.4 10.4l6.2 9.4h-3.5Z', 'M10.15 4.7h3.9l1.5 1.7h-5.4Z'], spec: ['M3.9 19l5.7-9.3.55.9-5.2 8.4Z'] },
+      crown: { body: ['M3.4 8.6l4 3.4L12 5.4l4.6 6.6 4-3.4-1.8 9.4H5.2Z', 'M5 18.4h14v2.4H5Z', 'M3.4 6.3a1.3 1.3 0 1 1 0 2.6 1.3 1.3 0 1 1 0-2.6Z', 'M12 2.9a1.4 1.4 0 1 1 0 2.8 1.4 1.4 0 1 1 0-2.8Z', 'M20.6 6.3a1.3 1.3 0 1 1 0 2.6 1.3 1.3 0 1 1 0-2.6Z'],
+        shade: ['M12 5.4l4.6 6.6 4-3.4-1.8 9.4H12Z', 'M12 18.4h7v2.4h-7Z'], spec: ['M5.6 16.8l-1-6.4 1.1 1 .8 5.4Z', 'M5.6 18.9h6v.6h-6Z'] }
+    };
+    const RELIEF_METAL = { g: ['#FFFAE3', '#F6DA92', '#D2A045', '#9A6A1E'], s: ['#FFFFFF', '#F4F6F8', '#C3CAD0', '#7D8790'], h: ['#FFF0C0', '#E8C06A', '#B5822C', '#7E5414'] };
+    let reliefSeq = 0;
+    function reliefSVG(name, lv) {
+      const R = RELIEF[name], m = RELIEF_METAL[lv] || RELIEF_METAL.g, id = 'rlG' + (++reliefSeq), dark = lv === 's' ? 'rgba(40,48,56,.55)' : 'rgba(70,42,8,.6)';
+      return `<svg class="rlf" viewBox="0 0 24 24" aria-hidden="true"><defs><linearGradient id="${id}" x1="0" y1="0" x2=".35" y2="1">${m.map((c, i) => `<stop offset="${[0, .35, .72, 1][i]}" stop-color="${c}"/>`).join('')}</linearGradient></defs>`
+        + `<path fill="url(#${id})" stroke="${dark}" stroke-width=".4" stroke-linejoin="round" d="${R.body.join('')}"/>`
+        + `<path fill="${lv === 's' ? 'rgba(40,48,56,.18)' : 'rgba(90,55,10,.2)'}" d="${R.shade.join('')}"/><path fill="#FFFFFF" opacity=".75" d="${R.spec.join('')}"/></svg>`;
     }
     // 8: شعار بطاقة البطل — نجمة منتصف لوح الكيرم (ثمانية رؤوس محفورة، والرئيسية بوجهين للعمق) و«الملكة» الحمراء في مركزها
     const KC_STAR_SVG = '<svg class="kc-star" viewBox="0 0 24 24" aria-hidden="true">'
@@ -11293,7 +11332,7 @@ function buildLeagueStandingsCanvas() {
       ctx.restore();
     }
     // 7.5: الميدالية — أيقونة محفورة، أو أيقونة ورقم تحتها (جامع العشرين · الإعصار)، أو رقم وحده (مئوية الانتصارات)
-    const honorMedalHTML = x => `<span class="md${x.num ? (x.ic ? ' nm' : ' nm solo') : ''}" aria-hidden="true">${x.lv === 'x' ? laurelSVG() : ''}${x.ic === 'cupx' ? `<span class="enm"></span>${goldCupSVG()}` : x.ic ? `<span class="ic ic-${x.ic}"></span>` : ''}${x.num ? `<b class="num">${x.num}</b>` : ''}</span>`;
+    const honorMedalHTML = x => `<span class="md${x.num ? (x.ic ? ' nm' : ' nm solo') : ''}" aria-hidden="true">${x.lv === 'x' ? laurelSVG() : ''}<span class="rd"></span>${x.ic === 'cupx' ? `<span class="enm"></span>${goldCupSVG()}` : RELIEF[x.ic] && !x.num ? reliefSVG(x.ic, x.lv) : x.ic ? `<span class="ic ic-${x.ic}"></span>` : ''}${x.num ? `<b class="num">${x.num}</b>` : ''}</span>`;
     // الوسام زر: لمسه يفتح معناه (لا دليل)
     const honorTileHTML = (x, esc, pn) => `<button type="button" class="hn ${x.lv}" data-hk="${x.k}"${pn ? ` data-pn="${esc(pn)}"` : ''} aria-label="${esc(x.t)}: عرض معنى الوسام">${honorMedalHTML(x)}<b class="t">${esc(x.t)}</b><span class="s">${x.s ? esc(x.s) : ''}</span></button>`;
     // تاريخ نيل اللاعب للوسام (قراءة فقط؛ بترتيب اللعب الفعلي). صاحب الرقم ينتقل فلا تاريخ له.
