@@ -1945,7 +1945,18 @@
       background: radial-gradient(circle at 34% 26%, #FFFBEA 0%, rgba(255, 251, 234, 0) 42%), conic-gradient(from 210deg, #FFF3CC, #E5BC62, #A06D20, #F2D488, #8A5B18, #F8E2A2, #FFF3CC);
       color: #3A2508; box-shadow: inset 0 0 0 1.5px rgba(255, 246, 214, .65), inset 0 -3px 5px rgba(90, 55, 10, .45), 0 0 0 3px rgba(120, 78, 18, .22), 0 6px 12px -4px rgba(90, 55, 10, .6); }
     .kc-gold .kc-emb::after { content: ""; position: absolute; inset: 6px; border-radius: 50%; border: 1px dashed rgba(70, 42, 8, .35); }
-    .kc-gold .kc-emb .ic { width: 25px; height: 25px; margin: 0; }
+    /* 8: قرص مينا داكن داخل الإطار الذهبي، وعليه الكأس المذهب المصقول (البطاقة والوسام وبطاقة معناه) */
+    .enm { position: absolute; inset: 6px; border-radius: 50%; pointer-events: none;
+      background: radial-gradient(circle at 36% 28%, #6A4A30 0%, #3A2617 45%, #1C120A 100%);
+      box-shadow: inset 0 2px 4px rgba(0, 0, 0, .6), inset 0 -1px 0 rgba(255, 220, 150, .25), 0 0 0 1px rgba(255, 236, 190, .55); }
+    .gcup { position: relative; z-index: 1; display: block; filter: drop-shadow(0 1.5px 1.5px rgba(0, 0, 0, .55)); }
+    .kc-gold .kc-emb::after { display: none; }
+    .kc-gold .kc-emb .gcup { width: 33px; height: 33px; }
+    .hn.x .md .enm { inset: 6px; }
+    .hn.x .md::after { display: none; }
+    .hn.x .md .gcup { width: 32px; height: 32px; }
+    .hns .hn.hns-hero.x .md .enm { inset: 10px; }
+    .hns .hn.hns-hero.x .md .gcup { width: 54px; height: 54px; }
     .st-last.kc .kc-n .pl { color: #7A5212; }
     .st-last.kc .kc-m { color: rgba(36, 23, 10, .9); }
     .st-last.kc .kc-rest { border-top-color: rgba(70, 42, 8, .22); box-shadow: 0 1px 0 rgba(255, 246, 214, .45) inset; }
@@ -5444,6 +5455,20 @@ return teamName.replace('غير محدد', replacement);
       } catch (e) { return null; }
     }
     const goldenLine = g => `دوري كامل بلا خسارة · فوز ${g.w}${g.d ? ` · تعادل ${g.d}` : ''}`;
+    // 8: كأس «البطل الذهبي» — كأس مذهب مصقول مصمت (لا أيقونة خطية) على قرص مينا داكن. تعريف واحد للبطاقة والوسام وصورة التصدير.
+    const GOLD_CUP = {
+      body: ['M6.6 3.6h10.8v4.6c0 3.3-2.4 5.8-5.4 5.8S6.6 11.5 6.6 8.2Z', 'M6.7 5H5.1a2.6 2.6 0 0 0 0 5.2h1.9V8.8H5.1a1.2 1.2 0 0 1 0-2.4h1.6Z',
+        'M17.3 5h1.6a2.6 2.6 0 0 1 0 5.2H17V8.8h1.9a1.2 1.2 0 0 0 0-2.4h-1.6Z', 'M10.9 13.8h2.2l.45 2.6h-3.1Z', 'M9.9 16.2h4.2a.6.6 0 0 1 0 1.2H9.9a.6.6 0 0 1 0-1.2Z', 'M8.2 18.3h7.6l.9 2.6H7.3Z'],
+      rim: 'M6.6 3.6h10.8v1.1H6.6Z', spec: 'M8.3 5.3c.1 2.7.7 4.7 2 6.3-.3-2-.5-4.1-.5-6.3Z', base: 'M7.6 19.9h8.8l.3 1H7.3Z',
+      stops: [[0, '#8A5B18'], [.18, '#FBE7A6'], [.38, '#E4BA5C'], [.62, '#A8741F'], [.82, '#F2D58C'], [1, '#7E5414']]
+    };
+    let goldCupSeq = 0;
+    function goldCupSVG() {   // معرّف تدرج خاص بكل نسخة: يعمل حتى لو كانت نسخة أخرى مخفية (سفاري)
+      const id = 'gcG' + (++goldCupSeq);
+      return `<svg class="gcup" viewBox="0 0 24 24" aria-hidden="true"><defs><linearGradient id="${id}" x1="0" y1="0" x2="1" y2=".18">${GOLD_CUP.stops.map(([o, c]) => `<stop offset="${o}" stop-color="${c}"/>`).join('')}</linearGradient></defs>`
+        + `<path fill="url(#${id})" stroke="rgba(58,34,6,.6)" stroke-width=".35" stroke-linejoin="round" d="${GOLD_CUP.body.join('')}"/>`
+        + `<path fill="#FFF4CF" opacity=".75" d="${GOLD_CUP.rim}"/><path fill="#5E3C0C" opacity=".45" d="${GOLD_CUP.base}"/><path fill="#FFFBEA" opacity=".8" d="${GOLD_CUP.spec}"/></svg>`;
+    }
     // 8: شعار بطاقة البطل — نجمة منتصف لوح الكيرم (ثمانية رؤوس محفورة، والرئيسية بوجهين للعمق) و«الملكة» الحمراء في مركزها
     const KC_STAR_SVG = '<svg class="kc-star" viewBox="0 0 24 24" aria-hidden="true">'
       + '<path fill="#5C3A0E" d="M12 12L10.52 10.52L17.66 6.34ZM12 12L13.48 10.52L17.66 17.66ZM12 12L13.48 13.48L6.34 17.66ZM12 12L10.52 13.48L6.34 6.34Z"/>'
@@ -5465,7 +5490,7 @@ return teamName.replace('غير محدد', replacement);
     })();
     function champCardHTML(title, nameHTML, meta, sub) {
       const gold = String(title).includes('البطل الذهبي');   // 8: البطل الذهبي كما هو؛ بقية بطاقات البطل بميدالية كأس بنفس بنائه
-      return `${gold ? '<span class="kc-emb" aria-hidden="true"><span class="ic ic-shield"></span></span>' : `<span class="kc-cup" aria-hidden="true">${KC_STAR_SVG}</span>`}<div class="kc-t">${title}</div><div class="kc-n">${nameHTML}</div>${meta ? `<div class="kc-m">${meta}</div>` : ''}${sub ? `<div class="kc-s">${sub}</div>` : ''}`;
+      return `${gold ? `<span class="kc-emb" aria-hidden="true"><span class="enm"></span>${goldCupSVG()}</span>` : `<span class="kc-cup" aria-hidden="true">${KC_STAR_SVG}</span>`}<div class="kc-t">${title}</div><div class="kc-n">${nameHTML}</div>${meta ? `<div class="kc-m">${meta}</div>` : ''}${sub ? `<div class="kc-s">${sub}</div>` : ''}`;
     }
     function isFinalMatch(match) {
       return !!match && (String(match.roundName).includes('المباراة النهائية') || String(match.roundName).includes('🏆 المباراة النهائية 🏆'));
@@ -7164,6 +7189,21 @@ currentScoreWinnerName = null;
     // المركز البصري للنص العربي في الصور: exportText يرسم على «منتصف المربع» لكن جسم الحروف بين خط الأساس وأعلى الألف
     // يقع أعلى منه بنحو 0.18 من حجم الخط. الأيقونة المجاورة لنص تُرفع بهذا المقدار لتتمركز على الكلمة لا على مربعها.
     const exportOptDy = size => 1 - 0.18 * size;
+    // 8: الكأس المذهب على قرص مينا داكن داخل ميدالية نصف قطرها R (صورة تصدير ملف اللاعب)
+    function drawGoldCup(ctx, cx, cy, R) {
+      const r = R - 8; ctx.save();
+      const en = ctx.createRadialGradient(cx - r * .3, cy - r * .45, 1, cx, cy, r); en.addColorStop(0, '#6A4A30'); en.addColorStop(.45, '#3A2617'); en.addColorStop(1, '#1C120A');
+      ctx.beginPath(); ctx.arc(cx, cy, r, 0, Math.PI * 2); ctx.fillStyle = en; ctx.fill(); ctx.strokeStyle = 'rgba(255,236,190,.55)'; ctx.lineWidth = 1.4; ctx.stroke();
+      const S = R * 1.2 / 24; ctx.translate(cx - 12 * S, cy - 12 * S); ctx.scale(S, S);
+      const g = ctx.createLinearGradient(0, 0, 24, 4.3); GOLD_CUP.stops.forEach(([o, c]) => g.addColorStop(o, c));
+      ctx.shadowColor = 'rgba(0,0,0,.55)'; ctx.shadowBlur = 2 * S; ctx.shadowOffsetY = 1.5 * S;
+      const body = new Path2D(GOLD_CUP.body.join('')); ctx.fillStyle = g; ctx.fill(body);
+      ctx.shadowColor = 'transparent'; ctx.strokeStyle = 'rgba(58,34,6,.6)'; ctx.lineWidth = .35; ctx.lineJoin = 'round'; ctx.stroke(body);
+      ctx.globalAlpha = .75; ctx.fillStyle = '#FFF4CF'; ctx.fill(new Path2D(GOLD_CUP.rim));
+      ctx.globalAlpha = .45; ctx.fillStyle = '#5E3C0C'; ctx.fill(new Path2D(GOLD_CUP.base));
+      ctx.globalAlpha = .8; ctx.fillStyle = '#FFFBEA'; ctx.fill(new Path2D(GOLD_CUP.spec));
+      ctx.restore();
+    }
     function exportIcon(ctx, name, cx, cy, size, color, lineWidth) {
       ctx.save();
       ctx.translate(cx - size / 2, cy - size / 2);
@@ -11128,7 +11168,7 @@ function buildLeagueStandingsCanvas() {
     // ===== أوسمة الشرف (5.5): إنجازات نادرة بلا أرقام، لا تظهر في أي مكان آخر من الملف فلا تتعارض مع أرقامه =====
     // لكل وسام شكل «ميدالية» خاص لا يُستخدم لغيره: ذهبي (إنجاز دائم) · فضي (بلغ النخبة) · إسبريسو (حامل رقم: لقب يُدافَع عنه وينتقل لمن يكسره)
     const HONOR_DEFS = [
-      { k: 'golden', ic: 'shield', name: 'البطل الذهبي', how: 'الفوز بالدوري دون أي خسارة طوال البطولة.', lv: 'x' },
+      { k: 'golden', ic: 'cupx', name: 'البطل الذهبي', how: 'الفوز بالدوري دون أي خسارة طوال البطولة.', lv: 'x' },
       { k: 'king', ic: 'crownk', name: 'الملك المتوّج', how: 'الفوز بلقب الدوري 5 مرات أو أكثر.', lv: 'k' },
       { k: 'club20', ic: 'trophy', num: '20', name: 'جامع العشرين', how: 'تحقيق 20 لقبًا في بطولات المجلس، سواء في الفردي أو الفرق أو الدوري.', lv: 'g' },
       { k: 'storm', ic: 'tornado', num: '20', name: 'الإعصار', how: 'تحقيق 20 انتصارًا متتاليًا دون أي خسارة أو تعادل.', lv: 'g' },
@@ -11170,7 +11210,7 @@ function buildLeagueStandingsCanvas() {
       L.push(`<ellipse cx="${x.toFixed(1)}" cy="${y.toFixed(1)}" rx="5.4" ry="2.3" transform="rotate(${rot} ${x.toFixed(1)} ${y.toFixed(1)})"/>`, `<ellipse cx="${(64 - x).toFixed(1)}" cy="${y.toFixed(1)}" rx="5.4" ry="2.3" transform="rotate(${-rot} ${(64 - x).toFixed(1)} ${y.toFixed(1)})"/>`); }
       return `<svg class="lr" viewBox="0 0 64 64" aria-hidden="true">${L.join('')}</svg>`; };
     // 7.5: الميدالية — أيقونة محفورة، أو أيقونة ورقم تحتها (جامع العشرين · الإعصار)، أو رقم وحده (مئوية الانتصارات)
-    const honorMedalHTML = x => `<span class="md${x.num ? (x.ic ? ' nm' : ' nm solo') : ''}" aria-hidden="true">${x.lv === 'x' ? laurelSVG() : ''}${x.ic ? `<span class="ic ic-${x.ic}"></span>` : ''}${x.num ? `<b class="num">${x.num}</b>` : ''}</span>`;
+    const honorMedalHTML = x => `<span class="md${x.num ? (x.ic ? ' nm' : ' nm solo') : ''}" aria-hidden="true">${x.lv === 'x' ? laurelSVG() : ''}${x.ic === 'cupx' ? `<span class="enm"></span>${goldCupSVG()}` : x.ic ? `<span class="ic ic-${x.ic}"></span>` : ''}${x.num ? `<b class="num">${x.num}</b>` : ''}</span>`;
     // الوسام زر: لمسه يفتح معناه (لا دليل)
     const honorTileHTML = (x, esc, pn) => `<button type="button" class="hn ${x.lv}" data-hk="${x.k}"${pn ? ` data-pn="${esc(pn)}"` : ''} aria-label="${esc(x.t)}: عرض معنى الوسام">${honorMedalHTML(x)}<b class="t">${esc(x.t)}</b><span class="s">${x.s ? esc(x.s) : ''}</span></button>`;
     // تاريخ نيل اللاعب للوسام (قراءة فقط؛ بترتيب اللعب الفعلي). صاحب الرقم ينتقل فلا تاريخ له.
@@ -11495,7 +11535,8 @@ function buildLeagueStandingsCanvas() {
               if (x.lv !== 'x') { ctx.save(); ctx.beginPath(); ctx.ellipse(cx - R * .04, my - R * .5, R * .62, R * .42, 0, 0, Math.PI * 2); ctx.clip();   // لمعة ثابتة
                 const gl2 = ctx.createLinearGradient(0, my - R * .92, 0, my - R * .08); gl2.addColorStop(0, x.lv === 'h' ? 'rgba(255,240,210,.22)' : 'rgba(255,255,255,.6)'); gl2.addColorStop(1, 'rgba(255,255,255,0)'); ctx.fillStyle = gl2; ctx.fillRect(cx - R, my - R, R * 2, R); ctx.restore(); }
               ctx.restore();
-              if (!x.num) exportIcon(ctx, EXPORT_ICONS[x.ic] ? x.ic : 'star', cx, my, 34, m[1], 2.2);   // 7.5: أيقونة ورقم تحتها، أو رقم وحده (نفس ميدالية الملف)
+              if (x.ic === 'cupx') drawGoldCup(ctx, cx, my, R);   // 8: كأس مذهب على قرص مينا (نفس ميدالية الملف)
+              else if (!x.num) exportIcon(ctx, EXPORT_ICONS[x.ic] ? x.ic : 'star', cx, my, 34, m[1], 2.2);   // 7.5: أيقونة ورقم تحتها، أو رقم وحده (نفس ميدالية الملف)
               else if (x.ic) { exportIcon(ctx, x.ic, cx, my - 11, 26, m[1], 2.2); T(ctx, x.num, cx, my + 15, { size: 21, weight: 900, color: m[1] }); }
               else T(ctx, x.num, cx, my, { size: 24, weight: 900, color: m[1] });
               T(ctx, x.t, cx, y0 + 24 + R * 2 + 30, { size: 23, weight: 800, color: B.ink, maxW: TWd - 20, min: 15 });
@@ -11756,7 +11797,7 @@ function buildLeagueStandingsCanvas() {
         const RL = mt.icon * 0.62; ctx.save(); ctx.fillStyle = idn.icon;
         for (let q = 0; q < 6; q++) { const deg = 238 - q * 22, a = deg * Math.PI / 180, lx = W / 2 + RL * Math.cos(a), ly = iconY - RL * Math.sin(a), rot = -(deg + 90) * Math.PI / 180;
           for (const [px, rr] of [[lx, rot], [W - lx, -rot]]) { ctx.save(); ctx.translate(px, ly); ctx.rotate(rr); ctx.beginPath(); ctx.ellipse(0, 0, mt.icon * 0.11, mt.icon * 0.045, 0, 0, Math.PI * 2); ctx.fill(); ctx.restore(); } }
-        ctx.restore(); exportIcon(ctx, 'shield', W / 2, iconY, mt.icon * 0.72, idn.icon, 2.2);
+        ctx.restore(); exportIcon(ctx, 'trophy', W / 2, iconY, mt.icon * 0.8, idn.icon, 2.2);   // 8: كأس بدل الدرع (هوية البطل الذهبي)
       } else if (hasCup) {
         exportIcon(ctx, 'trophy', W / 2, iconY, mt.icon, idn.icon, 2);
       } else {
