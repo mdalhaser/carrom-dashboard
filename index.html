@@ -2943,11 +2943,12 @@
     .cr-grid { box-shadow: var(--sh-1); }
     /* تخطيط موحد بثلاثة صفوف: نصف علوي (العنوان ملاصق لأسفله) · الرقم · نصف سفلي (الاسم ثم التاريخ ملاصقان لأعلاه).
        النصفان متساويان دائمًا (minmax(0, 1fr))، فمركز الرقم هو مركز البطاقة هندسيًا مهما اختلف طول العنوان أو وجود التاريخ. */
-    .cr-c, .pf-rc { display: grid; grid-template-rows: minmax(0, 1fr) auto minmax(0, 1fr); justify-items: center; min-width: 0; min-height: var(--rc-h, 136px); padding: 10px 8px; text-align: center; background: var(--surface); }
-    .pf-rc { --rc-h: 116px; }
-    .rc-t { align-self: end; margin-bottom: 6px; }
+    /* Three-Zone: ثلاثة صفوف متساوية (1fr 1fr 1fr). العنوان مثبت أعلى البطاقة، والرقم في مركزها الهندسي (50% × 50%)،
+       واسم اللاعب مع التاريخ أو الملاحظة مثبتان أسفلها. لكل منطقة محاذاتها المستقلة، فطول أي منطقة لا يحرّك الرقم. */
+    .cr-c, .pf-rc { display: grid; grid-template-rows: repeat(3, minmax(0, 1fr)); justify-items: stretch; min-width: 0; height: 144px; padding: 12px 8px; text-align: center; background: var(--surface); }
+    .rc-t { align-self: start; width: 100%; }
     .rc-n { align-self: center; }
-    .rc-low { align-self: start; display: flex; flex-direction: column; align-items: center; width: 100%; min-width: 0; margin-top: 6px; }
+    .rc-low { align-self: end; display: flex; flex-direction: column; align-items: center; width: 100%; min-width: 0; }
     .pf-rc { background: var(--surface-2); }
     .rc-t { font-size: 12px; font-weight: 800; line-height: 1.4; color: var(--gold-deep); }
     .rc-n { display: flex; justify-content: center; align-items: center; width: 100%; margin: 0; padding: 0; font-size: 26px; font-weight: 900; line-height: 1.15; color: var(--text); font-variant-numeric: tabular-nums; white-space: nowrap; }
@@ -11287,8 +11288,9 @@ function buildLeagueStandingsCanvas() {
       const R = [];
       // التفصيل تاريخ البطولة (أوضح من اسمها المتكرر)؛ البطولة الجارية بلا تاريخ ثابت فتُذكر بوصفها
       const liveNames = new Set(statsSourceRecords().filter(t => t && t.live).map(t => t.name));
-      R.push(['أعلى تقييم', C.peak ? C.peak.r.toLocaleString('en-US') : '—', C.peak ? (liveNames.has(C.peak.name) ? 'البطولة الجارية' : fmtDateNum(C.peak.date)) : '']);
-      R.push(['أكبر قفزة في بطولة', C.jump ? '\u200E+' + C.jump.dl : '—', C.jump ? fmtDateNum(C.jump.t.date) : '']);
+      const tourOf = nm => { const t = statsSourceRecords().find(x => x && x.name === nm); return t ? histTitle(t) : ''; };   // 8.2: البطولة في المنطقة السفلية للبطاقة
+      R.push(['أعلى تقييم', C.peak ? C.peak.r.toLocaleString('en-US') : '—', C.peak ? (liveNames.has(C.peak.name) ? 'البطولة الجارية' : fmtDateNum(C.peak.date)) : '', C.peak && !liveNames.has(C.peak.name) ? tourOf(C.peak.name) : '']);
+      R.push(['أكبر قفزة في بطولة', C.jump ? '\u200E+' + C.jump.dl : '—', C.jump ? fmtDateNum(C.jump.t.date) : '', C.jump ? histTitle(C.jump.t) : '']);
       R.push(['أطول سلسلة انتصارات', p.bestWin ? (p.bestWin === 1 ? 'فوز واحد' : `${p.bestWin} ${arWinsW(p.bestWin)}`) : '—', p.bestWin > 1 ? 'متتالية' : '']);
       R.push(['أطول سلسلة بلا هزيمة', C.unb ? (C.unb === 1 ? 'مباراة واحدة' : `${C.unb} ${arMatchesW(C.unb)}`) : '—', C.unb ? 'فوز أو تعادل' : '']);
       if (C.titleRun > 1) R.push(['ألقاب متتالية', `${C.titleRun} ${arTitlesW(C.titleRun)}`, 'على التوالي']);
@@ -13014,8 +13016,8 @@ function buildLeagueStandingsCanvas() {
         // (4) الأرقام القياسية + (5) المسيرة: من سجل البطولات (المكتملة، والجارية إن شارك فيها)
         const C0 = playerCareer(name, p), { career, done, titles, best } = C0, kindOf = t => t.mode === 'single' ? 'فردي' : t.mode === 'league' ? 'دوري' : 'فرق';
         // 8.2: نفس بطاقة «أرقام المجلس»: اسم الإنجاز ← الرقم ← اليوم والتاريخ أو العبارة (الملف خاص باللاعب، فلا سطر اسم)
-        const rc = (l, v, s) => `<div class="pf-rc"><span class="rc-t">${H(l)}</span>${recValueHTML(v, H)}<span class="rc-low">${s ? `<span class="rc-s">${H(s)}</span>` : ''}</span></div>`;
-        const recs = playerBests(p, C0).map(([l, v, s]) => rc(l, v, s));
+        const rc = (l, v, s, t) => `<div class="pf-rc"><span class="rc-t">${H(l)}</span>${recValueHTML(v, H)}<span class="rc-low">${t ? `<span class="rc-h">${H(t)}</span>` : ''}${s ? `<span class="rc-s">${H(s)}</span>` : ''}</span></div>`;
+        const recs = playerBests(p, C0).map(([l, v, s, t]) => rc(l, v, s, t));
         { let recsAll = []; try { recsAll = councilRecords(); } catch (e) {}
           const hn = playerHonors(p, stats, C0, recsAll);   // القسم يختفي تمامًا لمن لا يملك وسامًا
           if (hn.length) html += sec('أوسمته', hn.length === 1 ? 'وسام واحد' : `${hn.length} ${hn.length === 2 ? 'وسامان' : hn.length <= 10 ? 'أوسمة' : 'وسامًا'}`,
