@@ -2748,7 +2748,7 @@
     /* الجوال: زر المظهر وحده يمينًا، والإحصائيات + لوحة التحكم يسارًا بحجم 40px؛ العنوان في سطر واحد بحجم أصغر قليلًا */
     @media (max-width: 639px) {
       body.hdr-stats .app-bar { grid-template-columns: 40px minmax(0, 1fr) 84px; column-gap: 6px; }
-      body.hdr-stats .app-bar .theme-switch, body.hdr-stats .hdr-acts .control-open-btn { width: 40px; height: 40px; font-size: 20px; }
+      body.hdr-stats .app-bar .theme-switch, body.hdr-stats .hdr-acts .control-open-btn { width: 44px; height: 44px; font-size: 20px; }   /* 8.1: مساحة لمس 44 */
       body.hdr-stats .hdr-acts { gap: 4px; }
       body.hdr-stats .header-title h2 { font-size: 20px; white-space: nowrap; }
     }
@@ -2760,7 +2760,7 @@
     body.lg-focus #leagueRounds .league-matches { touch-action: pan-y; }
     /* (6) تبويبا «المباريات | الترتيب»: نفس شريط تبويبات الإحصائيات (خلفية خفيفة، والنشط سطح مرتفع بإطار رفيع) */
     body.lg-focus .lg-tabs, body.dark-mode.lg-focus .lg-tabs { padding: 3px; border-radius: 12px; border: 0; background: var(--surface-3); }
-    body.lg-focus .lg-tabs button { min-height: 40px; border-radius: 8px; color: var(--text-2); }
+    body.lg-focus .lg-tabs button { min-height: 44px; border-radius: 8px; color: var(--text-2); }
     body.lg-focus .lg-tabs button[aria-selected="true"] { color: var(--text); }
     body.lg-focus .lg-tabs .ind, body.dark-mode.lg-focus .lg-tabs .ind { top: 3px; bottom: 3px; inset-inline-start: 3px; width: calc(50% - 3px); border-radius: 8px;
       background: var(--surface); border: 1px solid var(--line); box-shadow: var(--sh-1); }
@@ -3276,6 +3276,31 @@
     .pf-hero.t3 .pf-lad .pf-tier.t3 { background: linear-gradient(135deg, rgba(243, 223, 174, .26), rgba(243, 223, 174, .12)); color: #F3DDAC; }
     .pf-hero.t4 .pf-lad .pf-tier.t4 { background: linear-gradient(135deg, #4A3618, #2E2008); color: #F3DFAE; }
     .pf-prog-t b bdi { font-weight: 800; }
+    /* ===== 8.1 — المرحلة 2: نظام الأزرار ومساحات اللمس =====
+       الارتفاعات: 40 مضغوط · 44 قياسي · 52 للإجراء الرئيسي في الشاشة. الأنواع: رئيسي ذهبي · ثانوي بإطار · هادئ (تعبئة خفيفة بلا إطار) · تحذير نصي.
+       الإطار المنقط لمعنى واحد: مكان فارغ (حالة فارغة، منطقة الإضافة). «تم» إغلاق لا إجراء: ثانوي في كل الأوراق. */
+    :root { --h-control: 44px; --h-control-lg: 52px; }
+    #saveScoreBtn, #drawBtn, #leagueStartBtn, #showBracketBtn { min-height: var(--h-control-lg); }
+    .btn.mode-switch { min-height: 44px; }
+    /* هادئ: «عرض الكل/عرض أقل» */
+    .st-fold-more, .vm2-more { min-height: 44px; border: 1px solid transparent; background: var(--surface-2); color: var(--text-2); font-weight: 800; border-radius: var(--r-sm, 12px); }
+    .st-fold-more:hover, .vm2-more:hover { background: var(--surface-3); }
+    .vme.v2 .vm2-more { min-height: 40px; border-color: transparent; }
+    /* ثانوي بإطار: رقائق اللاعبين المعروفين وأزرار الانسحاب */
+    .kp-chip, .lg-ff-btn { border-style: solid; }
+    /* اللمس: مساحة 44 بكسل على الأقل للعناصر الصغيرة شكلًا (الشكل نفسه لا يتغير) */
+    @media (pointer: coarse) {
+      .league-dot, .vday-d, .tn-acts button, .pf-guide-btn, .vme-change { position: relative; }
+      .league-dot::before, .vday-d::before, .tn-acts button::before, .pf-guide-btn::before, .vme-change::before { content: ""; position: absolute; inset: -6px; }
+      .tn-acts button::before, .pf-guide-btn::before { inset: -9px -6px; }
+      .vday-d::before { inset: -5px -2px; }
+    }
+    /* عناصر قريبة من الحد: تُرفع إلى 44 مباشرة */
+    .tn-chips button, .vme-pick, .tools-card #clearDataBtn { min-height: 44px; }
+    @media (pointer: coarse) {
+      .theme-switch, .control-open-btn, .vlive button { position: relative; }
+      .vlive button::before { content: ""; position: absolute; inset: -4px; }
+    }
   </style>
 </head>
 <body>
@@ -3464,7 +3489,7 @@
       <div class="result-outcome" id="resultOutcome"></div>
       <div class="result-meta" id="resultMeta"></div>
       <div class="score-modal-actions">
-        <button type="button" class="btn primary" id="resultCloseBtn">تم</button>
+        <button type="button" class="btn" id="resultCloseBtn">تم</button>
         <button type="button" class="btn" id="resultEditBtn" data-ic="pencil">تعديل النتيجة</button>
       </div>
     </div>
@@ -3474,7 +3499,7 @@
   <div id="profileModal" role="dialog" aria-modal="true" aria-labelledby="pfName">
     <div class="modal-content">
       <div id="profileBody"></div>
-      <div class="score-modal-actions"><button type="button" class="btn" id="profileShareBtn" data-ic="share" hidden>مشاركة كصورة</button><button type="button" class="btn primary" id="profileCloseBtn">تم</button></div>
+      <div class="score-modal-actions"><button type="button" class="btn" id="profileShareBtn" data-ic="share" hidden>مشاركة كصورة</button><button type="button" class="btn" id="profileCloseBtn">تم</button></div>
     </div>
   </div>
 
