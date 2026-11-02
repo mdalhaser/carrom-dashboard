@@ -2961,22 +2961,31 @@
     .hns .hns-how { margin: 0 0 12px; font-size: 13px; font-weight: 700; line-height: 1.7; color: var(--text-2); }
     .hns .hns-first { margin: 8px 0 0; font-size: 12px; font-weight: 700; color: var(--text-3); }
     @media (prefers-reduced-motion: reduce) { button.hn, .hns.out { transition: none; animation: none; } }
-    /* ===== أرقام المجلس القياسية: شبكة 2×3 بنفس لغة «أفضل أرقامه» — العنوان ذهبي صغير، الرقم بارز، ثم صاحبه وتاريخه ===== */
-    .cr-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); border: 1px solid var(--line); border-radius: 16px; overflow: hidden; background: var(--surface); box-shadow: var(--sh-1); }
-    .cr-c { display: flex; flex-direction: column; align-items: flex-start; gap: 1px; min-width: 0; padding: 12px 16px 12px; }
-    .cr-c:nth-child(2n) { border-inline-start: 1px solid var(--line); }
-    .cr-c:nth-child(n+3) { border-top: 1px solid var(--line); }
-    .cr-c small { font-size: 11px; font-weight: 800; color: var(--gold-deep); }
-    .cr-c b { font-size: 20px; font-weight: 800; line-height: 1.35; color: var(--text); font-variant-numeric: tabular-nums; }
-    .cr-c .h { max-width: 100%; font-size: 13px; font-weight: 800; color: var(--text-2); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-    .cr-c .cr-sub { font-size: 11px; font-weight: 700; color: var(--text-3); }
-    .cr-tag { margin-top: 3px; padding: 0 8px; border-radius: 999px; font-size: 11px; font-weight: 800; line-height: 1.8; background: var(--ok-bg); color: var(--ok); }
-    @media (min-width: 640px) { .cr-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); } .cr-c:nth-child(2n) { border-inline-start: 0; } .cr-c:not(:nth-child(3n+1)) { border-inline-start: 1px solid var(--line); } .cr-c:nth-child(n+3) { border-top: 0; } .cr-c:nth-child(n+4) { border-top: 1px solid var(--line); } }
-    /* 7.8: ثمانية أرقام — عمودان في الجوال، وأربعة أعمدة في الكمبيوتر (لا خانة فارغة)؛ والرقم الوحيد في صفه يأخذ العرض كاملًا */
-    .cr-c:last-child:nth-child(odd) { grid-column: 1 / -1; }
-    @media (min-width: 640px) { .cr-c:last-child:nth-child(odd) { grid-column: auto; }
-      .cr-grid.c4 { grid-template-columns: repeat(4, minmax(0, 1fr)); } .cr-grid.c4 .cr-c { border-inline-start: 0; border-top: 0; }
-      .cr-grid.c4 .cr-c:not(:nth-child(4n+1)) { border-inline-start: 1px solid var(--line); } .cr-grid.c4 .cr-c:nth-child(n+5) { border-top: 1px solid var(--line); } }
+    /* ===== 8.2 — أرقام المجلس القياسية: «لوحة أرقام» بصفوف أفقية. يمينًا: العنوان (مرجعي ذهبي) فوق صاحب الرقم،
+       ويسارًا: القيمة (الرقم بارز والوحدة أصغر) فوق تاريخها. كل القيم على محور واحد للمقارنة، وارتفاع الصف ثابت.
+       الجوال: عمود واحد · 760 فأكثر: عمودان. ونفس الصف لـ«أفضل أرقامه» في الملف. ===== */
+    .cr-grid, .pf-recs { display: grid; grid-template-columns: minmax(0, 1fr); border: 1px solid var(--line); border-radius: 16px; overflow: hidden; }
+    .cr-grid { background: var(--surface); box-shadow: var(--sh-1); }
+    .pf-recs { background: var(--surface-2); }
+    .cr-c, .pf-rc { display: flex; align-items: center; justify-content: space-between; gap: 12px; min-width: 0; min-height: 56px; padding: 6px 16px; }
+    .cr-c + .cr-c, .pf-rc + .pf-rc { border-top: 1px solid var(--line); }
+    .rb-l { display: flex; flex-direction: column; gap: 2px; min-width: 0; }
+    .rb-l small { font-size: 12px; font-weight: 800; line-height: 1.4; color: var(--gold-deep); }
+    .rb-l .h { font-size: 15px; font-weight: 800; line-height: 1.4; color: var(--text); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .rb-l .d { font-size: 12px; font-weight: 700; line-height: 1.4; color: var(--text-3); }
+    .rb-v { display: flex; flex-direction: column; align-items: flex-start; gap: 2px; flex: none; width: 128px; max-width: 48%; }   /* عمود قيمة ثابت: الأرقام تبدأ من نفس المحور في كل الصفوف */
+    .rb-n { font-size: 20px; font-weight: 900; line-height: 1.2; color: var(--text); font-variant-numeric: tabular-nums; white-space: nowrap; }
+    .rb-n small { margin-inline-start: 4px; font-size: 13px; font-weight: 800; color: var(--text-2); }
+    .rb-n.tx { font-size: 15px; font-weight: 800; max-width: 100%; overflow: hidden; text-overflow: ellipsis; }
+    .rb-v .cr-sub { font-size: 12px; font-weight: 700; line-height: 1.4; color: var(--text-3); white-space: nowrap; }
+    .cr-tag { padding: 0 8px; border-radius: 999px; font-size: 11px; font-weight: 800; line-height: 1.8; background: var(--ok-bg); color: var(--ok); }
+    @media (min-width: 760px) {
+      .cr-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+      .cr-grid .cr-c + .cr-c { border-top: 0; }
+      .cr-grid .cr-c:nth-child(n+3) { border-top: 1px solid var(--line); }
+      .cr-grid .cr-c:nth-child(2n) { border-inline-start: 1px solid var(--line); }
+      .cr-grid .cr-c:last-child:nth-child(odd) { grid-column: 1 / -1; }
+    }
     .toast.record { border-color: rgba(227, 191, 110, .55); } .toast.record .ic { color: #E9C77A; }
     /* ===== بطاقة الإنجاز (6.2): مادة التنبيهات (خشب داكن بحافة ذهبية) تحت شريط الأوضاع — الأرقام القياسية والترقيات والأوسمة ===== */
     .ach-host { position: fixed; z-index: 97; left: 0; right: 0; top: calc(var(--nav-bottom, 120px) + 8px); display: flex; flex-direction: column; align-items: center; padding: 0 12px; pointer-events: none; }
@@ -3195,16 +3204,7 @@
     .pf-form2 .pf-chip { width: 25px; height: 25px; font-size: 12px; }
     .pf-form2 .vm2-note { text-align: start; margin-top: 6px; }
     /* الأرقام القياسية: شبكة 2×2 بفواصل رفيعة داخل إطار واحد */
-    .pf-recs { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); border: 1px solid var(--line); border-radius: 16px; overflow: hidden; background: var(--surface-2); }
-    .pf-rc { display: flex; flex-direction: column; gap: 1px; min-width: 0; padding: 9px 12px; }
-    .pf-rc:nth-child(2n) { border-inline-start: 1px solid var(--line); }
-    .pf-rc:nth-child(n+3) { border-top: 1px solid var(--line); }
-    .pf-rc small { font-size: 11px; font-weight: 800; color: var(--gold-deep); }
-    .pf-rc b { font-size: 17px; font-weight: 800; line-height: 1.35; color: var(--text); font-variant-numeric: tabular-nums; overflow-wrap: anywhere; }
-    .pf-rc b.tx { font-size: 15px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-    .pf-rc b em { display: block; font-style: normal; font-size: 15px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
     .pf-trend-cap .pk.now { color: var(--gold-deep); }
-    .pf-rc span { font-size: 11px; font-weight: 700; color: var(--text-3); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
     /* القوائم المجمعة: إطار واحد وفواصل رفيعة (المسيرة، المواجهات، الشركاء) */
     .pf-group { border: 1px solid var(--line); border-radius: 16px; overflow: hidden; background: var(--surface-2); }
     .pf-group > * + * { border-top: 1px solid var(--line); }
@@ -11490,13 +11490,19 @@ function buildLeagueStandingsCanvas() {
     window.carromOpenHonor = openHonorSheet;
     document.addEventListener('click', e => { const b = e.target.closest('[data-hk]'); if (!b || !b.closest('#profileModal')) return; openHonorSheet(b.dataset.hk, b.dataset.pn); });
     function councilRecordHolders() { const h = new Set(); try { councilRecords().forEach(r => r.holders.forEach(n => h.add(n))); } catch (e) {} return h; }
+    // 8.2: قيمة الرقم: العدد بارزًا والوحدة أصغر بجانبه («63» + «انتصارًا»)؛ والقيمة النصية سطر واحد أهدأ
+    function recValueHTML(txt, esc) {
+      const t = String(txt == null ? '' : txt).trim(), m = t.match(/^([+\-−]?[\d,.٫]+)\s+(.+)$/);
+      if (m) return `<b class="rb-n">${esc(m[1])}<small>${esc(m[2])}</small></b>`;
+      return `<b class="rb-n${/\d/.test(t) || t === '—' ? '' : ' tx'}">${esc(t)}</b>`;
+    }
     function councilRecordsHTML() {
       let R = []; try { R = councilRecords(); } catch (e) { return ''; }
       if (!R.length) return '';
       const who = h => h.length === 1 ? escHTML(h[0]) : h.length === 2 ? `${escHTML(h[0])} و${escHTML(h[1])}` : `${escHTML(h[0])} و${h.length - 1} آخرون`;
       return `<div class="stats-section cr"><h4><span class="ic ic-star" aria-hidden="true"></span>أرقام المجلس القياسية</h4>
-        <div class="cr-grid${R.length % 3 && !(R.length % 4) ? ' c4' : ''}">${R.map(r => `<div class="cr-c"><small>${r.label}</small><b>${escHTML(r.txt)}</b><span class="h">${who(r.holders)}</span>` +
-          `${r.cur ? '<span class="cr-tag">مستمرة</span>' : r.live ? '<span class="cr-sub">البطولة الجارية</span>' : r.date ? `<span class="cr-sub">${fmtDateNum(r.date)}</span>` : ''}</div>`).join('')}</div></div>`;
+        <div class="cr-grid">${R.map(r => `<div class="cr-c"><div class="rb-l"><small>${r.label}</small><span class="h">${who(r.holders)}</span></div>` +
+          `<div class="rb-v">${recValueHTML(r.txt, escHTML)}${r.cur ? '<span class="cr-tag">مستمرة</span>' : r.live ? '<span class="cr-sub">البطولة الجارية</span>' : r.date ? `<span class="cr-sub">${fmtDateNum(r.date)}</span>` : ''}</div></div>`).join('')}</div></div>`;
     }
     const arWinsW = n => n === 1 ? 'فوز' : n === 2 ? 'فوزان' : n <= 10 ? 'انتصارات' : 'انتصارًا';
     // المستوى التالي ونسبة التقدم نحوه (نفس حساب الملف): null للأسطورة
@@ -13032,8 +13038,10 @@ function buildLeagueStandingsCanvas() {
         html += `<div class="vm2-sec pf-s pf-form2"><div class="vm2-h"><span>آخر النتائج</span><span class="pf-chips" aria-label="الأقدم إلى الأحدث">${p.seq.slice(-5).map(r => `<span class="pf-chip ${r}">${r === 'w' ? 'ف' : r === 'l' ? 'خ' : 'ت'}</span>`).join('')}</span></div><p class="vm2-note">${H(profileStreakText(p))}</p></div>`;
         // (4) الأرقام القياسية + (5) المسيرة: من سجل البطولات (المكتملة، والجارية إن شارك فيها)
         const C0 = playerCareer(name, p), { career, done, titles, best } = C0, kindOf = t => t.mode === 'single' ? 'فردي' : t.mode === 'league' ? 'دوري' : 'فرق';
-        const rc = (l, v, s, tx) => `<div class="pf-rc"><small>${l}</small><b${tx ? ' class="tx"' : ''}>${v}</b>${s ? `<span>${s}</span>` : ''}</div>`;
-        const recs = playerBests(p, C0).map(([l, v, s]) => rc(H(l), H(v), H(s), !/\d/.test(v) && v !== '—'));   // قيمة نصية (اسم بطولة/نتيجة): سطر واحد أصغر
+        // 8.2: نفس صف «لوحة الأرقام»: العنوان ووصفه يمينًا، والقيمة وتاريخها يسارًا (التاريخ مع القيمة، والوصف مع العنوان)
+        const isWhen = s => /\d{2}\.\d{2}\.\d{4}|الجارية/.test(String(s || ''));
+        const rc = (l, v, s) => `<div class="pf-rc"><div class="rb-l"><small>${H(l)}</small>${s && !isWhen(s) ? `<span class="d">${H(s)}</span>` : ''}</div><div class="rb-v">${recValueHTML(v, H)}${s && isWhen(s) ? `<span class="cr-sub">${H(s)}</span>` : ''}</div></div>`;
+        const recs = playerBests(p, C0).map(([l, v, s]) => rc(l, v, s));
         { let recsAll = []; try { recsAll = councilRecords(); } catch (e) {}
           const hn = playerHonors(p, stats, C0, recsAll);   // القسم يختفي تمامًا لمن لا يملك وسامًا
           if (hn.length) html += sec('أوسمته', hn.length === 1 ? 'وسام واحد' : `${hn.length} ${hn.length === 2 ? 'وسامان' : hn.length <= 10 ? 'أوسمة' : 'وسامًا'}`,
@@ -13515,7 +13523,7 @@ function buildLeagueStandingsCanvas() {
     // ===================================
     // 🧭 سلوك التطبيق: إعادة الوضع للأعلى، تعديل العنوان بالضغط المطوّل، تنبيه التحديث، رقم الإصدار
     // ===================================
-    const APP_VERSION = '8.1';   // ترقيم الاعتماد: 1 ثم 1.1 … 1.9 ثم 2 — ويُرفع معه رقم الإصدار في sw.js
+    const APP_VERSION = '8.2';   // ترقيم الاعتماد: 1 ثم 1.1 … 1.9 ثم 2 — ويُرفع معه رقم الإصدار في sw.js
     (function setupAppBehaviors() {
       const root = document.documentElement;
 
