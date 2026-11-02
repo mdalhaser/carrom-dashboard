@@ -9815,7 +9815,7 @@ function changeScore(inputId, amount){
         } else if (m) {
           const winner = d.result === 'A' ? m.playerA : m.playerB;
           const loser = d.result === 'A' ? m.playerB : m.playerA;
-          leagueScoreHintEl.textContent = `فوز ${winner} (3 نقاط) · خسارة ${loser} (0 نقاط)`;
+          leagueScoreHintEl.textContent = `فوز ${winner} (3 نقاط) · خسارة ${loser} (0 نقطة)`;
         }
       } else if (leagueScoreTouched) {
         leagueScoreHintEl.className = 'league-score-hint error';
