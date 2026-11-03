@@ -3278,23 +3278,26 @@
     .pf-hero.t3 .pf-lad .pf-tier.t3 { background: linear-gradient(135deg, rgba(243, 223, 174, .26), rgba(243, 223, 174, .12)); color: #F3DDAC; }
     .pf-hero.t4 .pf-lad .pf-tier.t4 { background: linear-gradient(135deg, #4A3618, #2E2008); color: #F3DFAE; }
     /* ===== 8.3 — بطاقات المستوى: سُلّم خامات واضح (المبتدئ والمتمكن كما هما دون أي تغيير)
-       محترف: صبغة فضية + إطار معدني متدرج + انعكاس علوي مضبوط + ظل خفيف بطبقتين
+       محترف: «رأس فضي» — صبغة فضية قصيرة تتلاشى عند منتصف البطاقة + حافة علوية مصقولة + إطار معدني متدرج + إطار «المركز» فضي + ظل خفيف بطبقتين
        نخبة: «بلاتين أسود» — لوح غرافيتي داكن بارد + إطار بلاتيني مزدوج + ملمس مصقول دقيق + انعكاس قطري ثابت + ظل أعمق
        أسطورة المجلس: لوح ذهب إمبراطوري بخمس درجات + إطار مزدوج + توهج ذهبي + لمعة تمر مرة واحدة عند فتح الملف ===== */
     .pf-hero.t2 { --tc: #A3ACB4; border: 1px solid transparent;
       background:
-        radial-gradient(90% 70% at 88% 0%, rgba(253, 254, 254, .55), transparent 62%) padding-box,
-        linear-gradient(180deg, #DCE1E5 0%, color-mix(in srgb, #DCE1E5 50%, var(--surface)) 34%, var(--surface) 84%) padding-box,
+        radial-gradient(80% 55% at 88% 0%, rgba(253, 254, 254, .6), transparent 62%) padding-box,
+        linear-gradient(180deg, #C9D0D6 0%, color-mix(in srgb, #C9D0D6 45%, var(--surface)) 26%, var(--surface) 54%) padding-box,
         linear-gradient(155deg, #F4F6F7 0%, #8E98A1 30%, #E2E6E9 52%, #808A93 78%, #D3D8DC 100%) border-box;
       box-shadow: inset 0 1px 0 rgba(253, 254, 254, .7), 0 1px 2px rgba(40, 46, 52, .08), 0 8px 18px -12px rgba(40, 46, 52, .28); }
-    .pf-hero.t2::before { height: 1px; background: linear-gradient(90deg, transparent, rgba(253, 254, 254, .95) 30%, rgba(253, 254, 254, .95) 70%, transparent); }
+    /* حافة علوية من معدن مصقول: درجات فضية متناوبة لا خط ضوء واحد */
+    .pf-hero.t2::before { height: 2px; background: linear-gradient(90deg, transparent, #9AA4AD 10%, #F6F8F9 32%, #A9B2BA 52%, #EEF1F3 72%, #9AA4AD 90%, transparent); }
+    .pf-hero.t2 .pf-rank { border-color: #A9B2BA; box-shadow: inset 0 1px 0 rgba(253, 254, 254, .8); }
     body.dark-mode .pf-hero.t2 {
       background:
-        radial-gradient(90% 70% at 88% 0%, rgba(214, 222, 229, .10), transparent 62%) padding-box,
-        linear-gradient(180deg, #3A3F44 0%, color-mix(in srgb, #3A3F44 45%, var(--surface)) 34%, var(--surface) 84%) padding-box,
-        linear-gradient(155deg, #C9CFD4 0%, #5E666D 30%, #A9B1B8 52%, #4E555B 78%, #8D959C 100%) border-box;
-      box-shadow: inset 0 1px 0 rgba(214, 222, 229, .14), 0 1px 2px rgba(0, 0, 0, .3), 0 10px 22px -12px rgba(0, 0, 0, .6); }
-    body.dark-mode .pf-hero.t2::before { background: linear-gradient(90deg, transparent, rgba(214, 222, 229, .5) 30%, rgba(214, 222, 229, .5) 70%, transparent); }
+        radial-gradient(80% 55% at 88% 0%, rgba(214, 222, 229, .17), transparent 62%) padding-box,
+        linear-gradient(180deg, #4A545D 0%, color-mix(in srgb, #4A545D 42%, var(--surface)) 24%, var(--surface) 50%) padding-box,
+        linear-gradient(155deg, #E3E7EA 0%, #6E777F 30%, #C3C9CE 52%, #5A6268 78%, #A3ACB4 100%) border-box;
+      box-shadow: inset 0 1px 0 rgba(214, 222, 229, .16), 0 1px 2px rgba(0, 0, 0, .3), 0 10px 22px -12px rgba(0, 0, 0, .6); }
+    body.dark-mode .pf-hero.t2::before { background: linear-gradient(90deg, transparent, #6E777F 10%, #DCE1E5 32%, #8E979F 52%, #C9CFD4 72%, #6E777F 90%, transparent); }
+    body.dark-mode .pf-hero.t2 .pf-rank { border-color: #6E777F; box-shadow: inset 0 1px 0 rgba(214, 222, 229, .12); }
 
     .pf-hero.t3 { --hx: #EEF1F4; --hm: rgba(238, 241, 244, .68); --hl: rgba(238, 241, 244, .15); border: 1px solid transparent;
       background:
@@ -11717,7 +11720,7 @@ function buildLeagueStandingsCanvas() {
         const stops = (gr, a) => a.forEach(([o, c]) => gr.addColorStop(o, c));
         if (lv === 3) { g = ctx.createRadialGradient(M + CW * 0.86, y, 0, M + CW * 0.86, y, CW * 1.2); stops(g, [[0, '#4C565F'], [0.4, '#2E353C'], [0.76, '#1D2227'], [1, '#161A1E']]); }
         else if (lv === 4) { g = ctx.createRadialGradient(M + CW * 0.86, y, 0, M + CW * 0.86, y, CW * 1.15); stops(g, [[0, '#FFF3D2'], [0.26, '#F2D998'], [0.54, '#E2BF70'], [0.8, '#CFA557'], [1, '#BE9244']]); }
-        else if (lv === 2) { g = ctx.createLinearGradient(0, y, 0, y + HERO); g.addColorStop(0, '#DCE1E5'); g.addColorStop(Math.min(0.9, 300 / HERO), B.paper); g.addColorStop(1, B.paper); }
+        else if (lv === 2) { g = ctx.createLinearGradient(0, y, 0, y + HERO); g.addColorStop(0, '#C9D0D6'); g.addColorStop(Math.min(0.5, 340 / HERO), B.paper); g.addColorStop(1, B.paper); }
         else { g = ctx.createLinearGradient(0, y, 0, y + HERO); g.addColorStop(0, mix(TC, B.paper, 0.32)); g.addColorStop(Math.min(0.9, 300 / HERO), B.paper); g.addColorStop(1, B.paper); }
         ctx.fillStyle = g; ctx.fill(); ctx.clip();
         if (lv >= 2) {   // انعكاس مضبوط: ضوء علوي للفضي، وشريط قطري ثابت للبلاتين والذهب
@@ -11729,6 +11732,7 @@ function buildLeagueStandingsCanvas() {
         }
         const ag = ctx.createLinearGradient(M, 0, M + CW, 0), ac = lv === 3 ? 'rgba(240,244,247,0.8)' : lv === 4 ? 'rgba(255,251,238,1)' : lv === 2 ? 'rgba(253,254,254,0.95)' : TC;
         ag.addColorStop(0, 'rgba(0,0,0,0)'); ag.addColorStop(0.22, ac); ag.addColorStop(0.78, ac); ag.addColorStop(1, 'rgba(0,0,0,0)'); ctx.fillStyle = ag; ctx.fillRect(M, y, CW, lv >= 2 ? 2 : 4);
+        if (lv === 2) { const eg = ctx.createLinearGradient(M, 0, M + CW, 0); stops(eg, [[0, 'rgba(154,164,173,0)'], [0.1, '#9AA4AD'], [0.32, '#F6F8F9'], [0.52, '#A9B2BA'], [0.72, '#EEF1F3'], [0.9, '#9AA4AD'], [1, 'rgba(154,164,173,0)']]); ctx.fillStyle = eg; ctx.fillRect(M, y, CW, 5); }   // حافة مصقولة
         ctx.restore();
         ctx.save(); drawRoundedRect(ctx, M, y, CW, HERO, 34);
         if (lv >= 2) {   // إطار معدني متدرج، وحافة ضوء داخلية للبلاتين والذهب
@@ -11743,7 +11747,7 @@ function buildLeagueStandingsCanvas() {
         // المركز (يسارًا)
         const RB = { x: M + P, y: y + 40, w: 152, h: 164 };
         ctx.save(); drawRoundedRect(ctx, RB.x, RB.y, RB.w, RB.h, 26); ctx.fillStyle = lv >= 3 ? (lv === 3 ? 'rgba(238,241,244,0.07)' : 'rgba(46,32,8,0.06)') : 'rgba(255,253,249,0.7)'; ctx.fill();
-        ctx.strokeStyle = lv >= 3 ? HS.hair : mix(TC, B.line, 0.45); ctx.lineWidth = 2; ctx.stroke(); ctx.restore();
+        ctx.strokeStyle = lv >= 3 ? HS.hair : lv === 2 ? '#A9B2BA' : mix(TC, B.line, 0.45); ctx.lineWidth = 2; ctx.stroke(); ctx.restore();
         T(ctx, 'المركز', RB.x + RB.w / 2, RB.y + 34, { size: 22, weight: 800, color: HS.muted });
         exportText(ctx, String(p.rank), RB.x + RB.w / 2, RB.y + 86, { size: 64, weight: 800, color: HS.ink, dir: 'ltr' });
         T(ctx, `من ${ranked.length}`, RB.x + RB.w / 2, RB.y + 134, { size: 22, weight: 800, color: HS.muted });
