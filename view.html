@@ -2721,10 +2721,10 @@
     .pf-tier.t0 { background: linear-gradient(135deg, #EEE8DE, #DCD3C5); color: #5E584E; }
     .pf-tier.t1 { background: linear-gradient(135deg, #F2DDC8, #D9AE88); color: #4E2E14; }
     .pf-tier.t2 { background: linear-gradient(135deg, #F0F2F3, #C3C9CE); color: #2F353B; }
-    .pf-tier.t3 { background: linear-gradient(135deg, #5A4535, #33261D); color: #F1D9A6; }
+    .pf-tier.t3 { background: linear-gradient(135deg, #48515A, #262C32); color: #E6EAEE; }   /* 8.3: النخبة بلاتين داكن بنص بلاتيني */
     .pf-tier.t4 { background: linear-gradient(135deg, #F3DFAE, #CFA963); color: #3A2A0C; }
     body.dark-mode .pf-tier.t0 { background: linear-gradient(135deg, #DCD3C5, #BFB4A3); color: #3A342D; }
-    body.dark-mode .pf-tier.t3 { background: linear-gradient(135deg, #735A45, #4C3A2C); color: #F3DDAC; }
+    body.dark-mode .pf-tier.t3 { background: linear-gradient(135deg, #66717B, #3A434B); color: #EEF1F3; }   /* 8.3: أفتح قليلًا ليبقى واضحًا على الخلفية الداكنة، ومختلفًا عن الفضي الفاتح */
     /* توسيط النص بصريًا: حروف Tajawal تجلس أعلى من منتصف الكبسولة بنحو 0.2em؛ إزاحة ثابتة تعمل على كل المتصفحات */
     .pf-tier > .tx { display: inline; text-box: none; padding: 0; position: relative; top: .17em; }
     /* شارة «أنت»: نفس الإزاحة البصرية (حشوة علوية أكبر بدل الوسط الهندسي) */
@@ -3175,9 +3175,9 @@
     .pf-bar i { display: block; height: 100%; border-radius: inherit; margin-inline-start: 0; }
     .pf-prog.n1 .pf-bar i { background: linear-gradient(90deg, #D9AE88, #B98352); }
     .pf-prog.n2 .pf-bar i { background: linear-gradient(90deg, #C3C9CE, #8F99A2); }
-    .pf-prog.n3 .pf-bar i { background: linear-gradient(90deg, #8A6B52, #4A372A); }
+    .pf-prog.n3 .pf-bar i { background: linear-gradient(90deg, #B1B9C1, #4A535C); }
     .pf-prog.n4 .pf-bar i, .pf-prog.top .pf-bar i { background: linear-gradient(90deg, #E3C47E, #B8913F); }
-    body.dark-mode .pf-prog.n3 .pf-bar i { background: linear-gradient(90deg, #A88563, #735A45); }
+    body.dark-mode .pf-prog.n3 .pf-bar i { background: linear-gradient(90deg, #8F99A2, #DCE1E5); }
     /* مسار التقييم داخل الرأس: خط + مساحة خفيفة تحته، نقطة للحالي وحلقة ذهبية لأعلى تقييم */
     .pf-trend { margin-top: 12px; padding-top: 12px; border-top: 1px solid color-mix(in srgb, var(--tc) 22%, var(--line)); }
     .pf-spark-w { position: relative; height: 52px; }
@@ -3277,6 +3277,69 @@
     .pf-hero.t3 .pf-guide-btn, .pf-hero.t3 .pf-lad .me { color: #E3BF6E; } .pf-hero.t4 .pf-guide-btn, .pf-hero.t4 .pf-lad .me { color: var(--hx); }
     .pf-hero.t3 .pf-lad .pf-tier.t3 { background: linear-gradient(135deg, rgba(243, 223, 174, .26), rgba(243, 223, 174, .12)); color: #F3DDAC; }
     .pf-hero.t4 .pf-lad .pf-tier.t4 { background: linear-gradient(135deg, #4A3618, #2E2008); color: #F3DFAE; }
+    /* ===== 8.3 — بطاقات المستوى: سُلّم خامات واضح (المبتدئ والمتمكن كما هما دون أي تغيير)
+       محترف: صبغة فضية + إطار معدني متدرج + انعكاس علوي مضبوط + ظل خفيف بطبقتين
+       نخبة: لوح بلاتيني كامل متعدد الدرجات + إطار مزدوج (معدني خارجي + حافة ضوء داخلية) + انعكاس قطري ثابت + ظل أعمق
+       أسطورة المجلس: لوح ذهب إمبراطوري بخمس درجات + إطار مزدوج + توهج ذهبي + لمعة تمر مرة واحدة عند فتح الملف ===== */
+    .pf-hero.t2 { --tc: #A3ACB4; border: 1px solid transparent;
+      background:
+        radial-gradient(90% 70% at 88% 0%, rgba(253, 254, 254, .55), transparent 62%) padding-box,
+        linear-gradient(180deg, #DCE1E5 0%, color-mix(in srgb, #DCE1E5 50%, var(--surface)) 34%, var(--surface) 84%) padding-box,
+        linear-gradient(155deg, #F4F6F7 0%, #9AA4AD 30%, #E2E6E9 52%, #8D97A0 78%, #D3D8DC 100%) border-box;
+      box-shadow: inset 0 1px 0 rgba(253, 254, 254, .7), 0 1px 2px rgba(40, 46, 52, .08), 0 8px 18px -12px rgba(40, 46, 52, .28); }
+    .pf-hero.t2::before { height: 1px; background: linear-gradient(90deg, transparent, rgba(253, 254, 254, .95) 30%, rgba(253, 254, 254, .95) 70%, transparent); }
+    body.dark-mode .pf-hero.t2 {
+      background:
+        radial-gradient(90% 70% at 88% 0%, rgba(214, 222, 229, .10), transparent 62%) padding-box,
+        linear-gradient(180deg, #3A3F44 0%, color-mix(in srgb, #3A3F44 45%, var(--surface)) 34%, var(--surface) 84%) padding-box,
+        linear-gradient(155deg, #C9CFD4 0%, #5E666D 30%, #A9B1B8 52%, #4E555B 78%, #8D959C 100%) border-box;
+      box-shadow: inset 0 1px 0 rgba(214, 222, 229, .14), 0 1px 2px rgba(0, 0, 0, .3), 0 10px 22px -12px rgba(0, 0, 0, .6); }
+    body.dark-mode .pf-hero.t2::before { background: linear-gradient(90deg, transparent, rgba(214, 222, 229, .5) 30%, rgba(214, 222, 229, .5) 70%, transparent); }
+
+    .pf-hero.t3 { --hx: #1E252C; --hm: rgba(30, 37, 44, .68); --hl: rgba(30, 37, 44, .13); border: 1px solid transparent;
+      background:
+        linear-gradient(118deg, transparent 30%, rgba(250, 251, 252, .42) 41%, rgba(250, 251, 252, .08) 50%, transparent 58%) padding-box,
+        radial-gradient(130% 120% at 86% 0%, #F6F7F8 0%, #DFE3E7 36%, #C6CDD3 72%, #B1B9C1 100%) padding-box,
+        linear-gradient(150deg, #FAFBFC 0%, #7F8992 26%, #E8EBEE 50%, #6F7982 76%, #CDD3D8 100%) border-box;
+      box-shadow: inset 0 0 0 1px rgba(250, 251, 252, .42), inset 0 1px 0 rgba(250, 251, 252, .9),
+        0 1px 2px rgba(30, 36, 42, .14), 0 12px 26px -14px rgba(30, 36, 42, .45); }
+    .pf-hero.t3::before { height: 1px; background: linear-gradient(90deg, transparent, rgba(252, 253, 253, .95) 25%, rgba(252, 253, 253, .95) 75%, transparent); }
+    body.dark-mode .pf-hero.t3 {
+      background:
+        linear-gradient(118deg, transparent 30%, rgba(246, 248, 250, .26) 41%, rgba(246, 248, 250, .05) 50%, transparent 58%) padding-box,
+        radial-gradient(130% 120% at 86% 0%, #E3E7EB 0%, #C7CED4 38%, #ACB5BD 74%, #96A0A9 100%) padding-box,
+        linear-gradient(150deg, #EEF1F3 0%, #6B757E 26%, #D3D9DE 50%, #5D666F 76%, #B7BFC6 100%) border-box;
+      box-shadow: inset 0 0 0 1px rgba(246, 248, 250, .3), inset 0 1px 0 rgba(246, 248, 250, .75), 0 1px 2px rgba(0, 0, 0, .4), 0 14px 30px -14px rgba(0, 0, 0, .75); }
+    .pf-hero.t3 .pf-spark .ln { stroke: #36414B; } .pf-hero.t3 .pf-spark .area { fill: rgba(54, 65, 75, .12); }
+    .pf-hero.t3 .pf-dot.last { background: #2B343C; box-shadow: 0 0 0 3px #CDD3D9; }
+    .pf-hero.t3 .pf-dot.peak, .pf-hero.t3 .pf-trend-cap .pk i { background: #D3D9DE; border-color: #2B343C; }
+    .pf-hero.t3 .pf-trend-cap .pk, .pf-hero.t3 .pf-trend-cap .pk.now { color: var(--hx); }
+    .pf-hero.t3 .pf-delta.up { color: #1E6B3A; } .pf-hero.t3 .pf-delta.down { color: #8E2E1E; }
+    .pf-hero.t3 .pf-guide-btn, .pf-hero.t3 .pf-lad .me { color: var(--hx); }
+    .pf-hero.t3 .pf-rt .pf-tier.t3, .pf-hero.t3 .pf-lad .pf-tier.t3 { background: linear-gradient(135deg, #3E464E, #1E242A); color: #E6EAEE; }
+    .pf-hero.t3 .pf-prog .pf-bar i { background: linear-gradient(90deg, #E3C47E, #B8913F); }
+
+    .pf-hero.t4 { border: 1px solid transparent;
+      background:
+        linear-gradient(118deg, transparent 30%, rgba(255, 248, 226, .5) 40%, rgba(255, 248, 226, .1) 49%, transparent 57%) padding-box,
+        radial-gradient(125% 115% at 86% 0%, #FFF3D2 0%, #F2D998 26%, #E2BF70 54%, #CFA557 80%, #BE9244 100%) padding-box,
+        linear-gradient(150deg, #FFF0C4 0%, #A97D30 24%, #F6DE9E 48%, #8E6522 74%, #E6C274 100%) border-box;
+      box-shadow: inset 0 0 0 1px rgba(255, 244, 210, .5), inset 0 1px 0 rgba(255, 250, 236, .95),
+        0 1px 2px rgba(90, 62, 12, .2), 0 14px 32px -14px rgba(120, 84, 20, .6), 0 0 28px -8px rgba(207, 169, 99, .45); }
+    .pf-hero.t4::before { height: 1px; background: linear-gradient(90deg, transparent, rgba(255, 251, 238, 1) 25%, rgba(255, 251, 238, 1) 75%, transparent); }
+    body.dark-mode .pf-hero.t4 {
+      background:
+        linear-gradient(118deg, transparent 30%, rgba(255, 246, 218, .36) 40%, rgba(255, 246, 218, .06) 49%, transparent 57%) padding-box,
+        radial-gradient(125% 115% at 86% 0%, #F6E3AE 0%, #E6C67D 28%, #D4AE5E 56%, #BF9446 82%, #AD833A 100%) padding-box,
+        linear-gradient(150deg, #FBE6B0 0%, #94692A 24%, #EBCD86 48%, #7A561C 74%, #D7B162 100%) border-box;
+      box-shadow: inset 0 0 0 1px rgba(255, 240, 200, .35), inset 0 1px 0 rgba(255, 246, 222, .85), 0 1px 2px rgba(0, 0, 0, .45), 0 16px 34px -14px rgba(0, 0, 0, .8), 0 0 34px -6px rgba(207, 169, 99, .38); }
+    /* لمعة الأسطورة: خط ضوء يعبر اللوح مرة واحدة عند فتح الملف (نفس لغة لمعة بطاقة البطل والأوسمة) */
+    .pf-hero.t4::after { content: ""; position: absolute; inset: -20% auto -20% 0; width: 45%; pointer-events: none;
+      background: linear-gradient(100deg, transparent 0%, rgba(255, 249, 230, 0) 20%, rgba(255, 249, 230, .55) 50%, rgba(255, 249, 230, 0) 80%, transparent 100%);
+      transform: translateX(-130%) skewX(-14deg); animation: pfLegendSheen 1.6s cubic-bezier(.4, 0, .2, 1) .35s 1 both; }
+    @keyframes pfLegendSheen { from { transform: translateX(-130%) skewX(-14deg); opacity: 1; } to { transform: translateX(330%) skewX(-14deg); opacity: 1; } }
+    .pf-hero.t4 > * { position: relative; z-index: 1; }
+    @media (prefers-reduced-motion: reduce) { .pf-hero.t4::after { animation: none; display: none; } }
     .pf-prog-t b bdi { font-weight: 800; }
     /* 8.1 — لوحة التحكم: تبويبان («الصور والنشر» الأكثر استخدامًا أولًا، ثم «البيانات»)، بنفس تبويبات المباريات/الترتيب */
     .cd-tabs { display: grid; grid-template-columns: 1fr 1fr; gap: 4px; padding: 4px; border-radius: 16px; background: var(--surface-3); }
@@ -11207,7 +11270,7 @@ function buildLeagueStandingsCanvas() {
         { grad: ['#EEE8DE', '#DCD3C5'], fg: '#5E584E' },
         { grad: ['#F2DDC8', '#D9AE88'], fg: '#4E2E14' },
         { grad: ['#F0F2F3', '#C3C9CE'], fg: '#2F353B' },
-        { grad: ['#5A4535', '#33261D'], fg: '#F1D9A6' },
+        { grad: ['#48515A', '#262C32'], fg: '#E6EAEE' },   // 8.3: النخبة بلاتين داكن
         { grad: ['#F3DFAE', '#CFA963'], fg: '#3A2A0C' }
       ][level] || { grad: ['#EEE8DE', '#DCD3C5'], fg: '#5E584E' };
     }
@@ -11613,13 +11676,13 @@ function buildLeagueStandingsCanvas() {
       const hex = h => { const n = parseInt(h.slice(1), 16); return [(n >> 16) & 255, (n >> 8) & 255, n & 255]; };
       const mix = (a, b, t) => { const A = hex(a), Bc = hex(b); return `rgb(${A.map((v, i) => Math.round(v * t + Bc[i] * (1 - t))).join(',')})`; };
       const TC = ['#BFB4A3', '#C9925F', '#A3ACB4'][lv] || '#BFB4A3';
-      const HS = lv === 3 ? { ink: '#F6EEDF', muted: 'rgba(246,238,223,0.7)', hair: 'rgba(246,238,223,0.16)', line: '#E3BF6E', up: '#7FD39B', down: '#F09A86', bg: '#35281D' }
+      const HS = lv === 3 ? { ink: '#1E252C', muted: 'rgba(30,37,44,0.7)', hair: 'rgba(30,37,44,0.14)', line: '#36414B', up: '#1E6B3A', down: '#8E2E1E', bg: '#D3D9DE' }
         : lv === 4 ? { ink: '#2E2008', muted: 'rgba(46,32,8,0.72)', hair: 'rgba(46,32,8,0.16)', line: '#5C4214', up: '#1E6B3A', down: '#8E2E1E', bg: '#E6C783' }
         : { ink: B.ink, muted: B.muted, hair: 'rgba(41,38,33,0.11)', line: B.goldDeep, up: B.ok, down: '#B3402F', bg: B.paper };
       const T = (ctx, s, x, cy, o) => exportText(ctx, s, x, cy - exportOptDy(o.size), o);   // نص عربي على محور العنصر
       const tw = (ctx, s, size) => { ctx.save(); ctx.font = `800 ${size}px ${EXPORT_FONT}`; const w = ctx.measureText(s).width; ctx.restore(); return w; };
       const pill = (ctx, level, label, xr, cy, size, inv) => {   // كبسولة المستوى (xr = حافتها اليمنى)؛ inv: معكوسة فوق لوحة النخبة/الأسطورة
-        const s = inv === 4 ? { grad: ['#4A3618', '#2E2008'], fg: '#F3DFAE' } : inv === 3 ? { bg: 'rgba(243,223,174,0.2)', fg: '#F3DDAC' } : exportTierStyle(level);
+        const s = inv === 4 ? { grad: ['#4A3618', '#2E2008'], fg: '#F3DFAE' } : inv === 3 ? { grad: ['#3E464E', '#1E242A'], fg: '#E6EAEE' } : exportTierStyle(level);
         const h = Math.round(size * 1.85), pad = Math.round(size * 0.8), w = tw(ctx, label, size) + pad * 2, x0 = xr - w;
         ctx.save(); drawRoundedRect(ctx, x0, cy - h / 2, w, h, h / 2);
         if (s.bg) ctx.fillStyle = s.bg; else { const g = ctx.createLinearGradient(x0, cy - h / 2, x0 + w, cy + h / 2); g.addColorStop(0, s.grad[0]); g.addColorStop(1, s.grad[1]); ctx.fillStyle = g; }
@@ -11638,7 +11701,7 @@ function buildLeagueStandingsCanvas() {
         if (pct > 0) { const fw = Math.max(h, w * pct); drawRoundedRect(ctx, x + w - fw, y, fw, h, h / 2);
           if (Array.isArray(fill)) { const g = ctx.createLinearGradient(x + w - fw, 0, x + w, 0); g.addColorStop(0, fill[0]); g.addColorStop(1, fill[1]); ctx.fillStyle = g; } else ctx.fillStyle = fill; ctx.fill(); }
       };
-      const NEXT_FILL = { 1: ['#B98352', '#D9AE88'], 2: ['#8F99A2', '#C3C9CE'], 3: ['#4A372A', '#8A6B52'], 4: ['#B8913F', '#E3C47E'] };
+      const NEXT_FILL = { 1: ['#B98352', '#D9AE88'], 2: ['#8F99A2', '#C3C9CE'], 3: ['#4A535C', '#B1B9C1'], 4: ['#B8913F', '#E3C47E'] };
 
       function draw(ctx) {
         const cuts = []; let y = top;
@@ -11647,17 +11710,35 @@ function buildLeagueStandingsCanvas() {
         const HB = 352, HERO = HB + (hasChart ? 286 : 0), P = 40;
         ctx.save(); drawRoundedRect(ctx, M, y, CW, HERO, 34);
         let g;
-        if (lv === 3) { g = ctx.createRadialGradient(M + CW * 0.85, y, 0, M + CW * 0.85, y, CW * 1.15); g.addColorStop(0, '#5A4331'); g.addColorStop(0.52, '#35281D'); g.addColorStop(1, '#221913'); }
-        else if (lv === 4) { g = ctx.createRadialGradient(M + CW * 0.85, y, 0, M + CW * 0.85, y, CW * 1.1); g.addColorStop(0, '#FBEFCF'); g.addColorStop(0.48, '#EBCF8E'); g.addColorStop(1, '#D2AC5E'); }
+        // 8.3: سُلّم الخامات نفسه في الصورة — محترف فضي معدني · نخبة لوح بلاتيني · أسطورة ذهب إمبراطوري (المبتدئ والمتمكن كما هما)
+        const stops = (gr, a) => a.forEach(([o, c]) => gr.addColorStop(o, c));
+        if (lv === 3) { g = ctx.createRadialGradient(M + CW * 0.86, y, 0, M + CW * 0.86, y, CW * 1.2); stops(g, [[0, '#F6F7F8'], [0.36, '#DFE3E7'], [0.72, '#C6CDD3'], [1, '#B1B9C1']]); }
+        else if (lv === 4) { g = ctx.createRadialGradient(M + CW * 0.86, y, 0, M + CW * 0.86, y, CW * 1.15); stops(g, [[0, '#FFF3D2'], [0.26, '#F2D998'], [0.54, '#E2BF70'], [0.8, '#CFA557'], [1, '#BE9244']]); }
+        else if (lv === 2) { g = ctx.createLinearGradient(0, y, 0, y + HERO); g.addColorStop(0, '#DCE1E5'); g.addColorStop(Math.min(0.9, 300 / HERO), B.paper); g.addColorStop(1, B.paper); }
         else { g = ctx.createLinearGradient(0, y, 0, y + HERO); g.addColorStop(0, mix(TC, B.paper, 0.32)); g.addColorStop(Math.min(0.9, 300 / HERO), B.paper); g.addColorStop(1, B.paper); }
         ctx.fillStyle = g; ctx.fill(); ctx.clip();
-        const ag = ctx.createLinearGradient(M, 0, M + CW, 0), ac = lv === 3 ? 'rgba(243,223,174,0.8)' : lv === 4 ? 'rgba(255,250,235,0.95)' : TC;
-        ag.addColorStop(0, 'rgba(0,0,0,0)'); ag.addColorStop(0.22, ac); ag.addColorStop(0.78, ac); ag.addColorStop(1, 'rgba(0,0,0,0)'); ctx.fillStyle = ag; ctx.fillRect(M, y, CW, lv >= 3 ? 2 : 4);
+        if (lv >= 2) {   // انعكاس مضبوط: ضوء علوي للفضي، وشريط قطري ثابت للبلاتين والذهب
+          const hl = lv === 2 ? ctx.createRadialGradient(M + CW * 0.88, y, 0, M + CW * 0.88, y, CW * 0.7) : ctx.createLinearGradient(M + CW * 0.2, y, M + CW * 0.62, y + HERO * 0.7);
+          if (lv === 2) stops(hl, [[0, 'rgba(253,254,254,0.55)'], [1, 'rgba(253,254,254,0)']]);
+          else { const c = lv === 3 ? '250,251,252' : '255,248,226', a = lv === 3 ? 0.42 : 0.5; stops(hl, [[0, `rgba(${c},0)`], [0.3, `rgba(${c},0)`], [0.45, `rgba(${c},${a})`], [0.58, `rgba(${c},0.08)`], [0.72, `rgba(${c},0)`], [1, `rgba(${c},0)`]]); }
+          ctx.fillStyle = hl; ctx.fillRect(M, y, CW, HERO);
+        }
+        const ag = ctx.createLinearGradient(M, 0, M + CW, 0), ac = lv === 3 ? 'rgba(252,253,253,0.95)' : lv === 4 ? 'rgba(255,251,238,1)' : lv === 2 ? 'rgba(253,254,254,0.95)' : TC;
+        ag.addColorStop(0, 'rgba(0,0,0,0)'); ag.addColorStop(0.22, ac); ag.addColorStop(0.78, ac); ag.addColorStop(1, 'rgba(0,0,0,0)'); ctx.fillStyle = ag; ctx.fillRect(M, y, CW, lv >= 2 ? 2 : 4);
         ctx.restore();
-        ctx.save(); drawRoundedRect(ctx, M, y, CW, HERO, 34); ctx.strokeStyle = lv === 3 ? 'rgba(227,191,110,0.45)' : lv === 4 ? '#C9A257' : mix(TC, B.line, 0.5); ctx.lineWidth = 2; ctx.stroke(); ctx.restore();
+        ctx.save(); drawRoundedRect(ctx, M, y, CW, HERO, 34);
+        if (lv >= 2) {   // إطار معدني متدرج، وحافة ضوء داخلية للبلاتين والذهب
+          const bg2 = ctx.createLinearGradient(M, y, M + CW, y + HERO);
+          stops(bg2, lv === 2 ? [[0, '#F4F6F7'], [0.3, '#9AA4AD'], [0.52, '#E2E6E9'], [0.78, '#8D97A0'], [1, '#D3D8DC']]
+            : lv === 3 ? [[0, '#FAFBFC'], [0.26, '#7F8992'], [0.5, '#E8EBEE'], [0.76, '#6F7982'], [1, '#CDD3D8']]
+            : [[0, '#FFF0C4'], [0.24, '#A97D30'], [0.48, '#F6DE9E'], [0.74, '#8E6522'], [1, '#E6C274']]);
+          ctx.strokeStyle = bg2; ctx.lineWidth = lv === 2 ? 2 : 3; ctx.stroke();
+          if (lv >= 3) { drawRoundedRect(ctx, M + 3, y + 3, CW - 6, HERO - 6, 31); ctx.strokeStyle = lv === 3 ? 'rgba(250,251,252,0.5)' : 'rgba(255,244,210,0.55)'; ctx.lineWidth = 2; ctx.stroke(); }
+        } else { ctx.strokeStyle = mix(TC, B.line, 0.5); ctx.lineWidth = 2; ctx.stroke(); }
+        ctx.restore();
         // المركز (يسارًا)
         const RB = { x: M + P, y: y + 40, w: 152, h: 164 };
-        ctx.save(); drawRoundedRect(ctx, RB.x, RB.y, RB.w, RB.h, 26); ctx.fillStyle = lv >= 3 ? (lv === 3 ? 'rgba(246,238,223,0.07)' : 'rgba(46,32,8,0.06)') : 'rgba(255,253,249,0.7)'; ctx.fill();
+        ctx.save(); drawRoundedRect(ctx, RB.x, RB.y, RB.w, RB.h, 26); ctx.fillStyle = lv >= 3 ? (lv === 3 ? 'rgba(30,37,44,0.06)' : 'rgba(46,32,8,0.06)') : 'rgba(255,253,249,0.7)'; ctx.fill();
         ctx.strokeStyle = lv >= 3 ? HS.hair : mix(TC, B.line, 0.45); ctx.lineWidth = 2; ctx.stroke(); ctx.restore();
         T(ctx, 'المركز', RB.x + RB.w / 2, RB.y + 34, { size: 22, weight: 800, color: HS.muted });
         exportText(ctx, String(p.rank), RB.x + RB.w / 2, RB.y + 86, { size: 64, weight: 800, color: HS.ink, dir: 'ltr' });
@@ -11675,7 +11756,7 @@ function buildLeagueStandingsCanvas() {
           const lead = `متبقٍ ${prog.need} ${arPtsW(prog.need)} للوصول إلى`, lw = tw(ctx, lead, 27);
           T(ctx, lead, XR, y + 262, { size: 27, weight: 700, color: HS.muted, align: 'right' });
           pill(ctx, prog.level, prog.name, XR - lw - 14, y + 262, 22, lv === 3 && prog.level === 4 ? 0 : 0);
-          bar(ctx, bx, by, bw, 14, prog.pct / 100, lv === 3 ? HS.hair : 'rgba(41,38,33,0.09)', lv === 3 ? ['#CFA963', '#F3DFAE'] : NEXT_FILL[prog.level]);
+          bar(ctx, bx, by, bw, 14, prog.pct / 100, lv === 3 ? HS.hair : 'rgba(41,38,33,0.09)', NEXT_FILL[prog.level]);
         } else {
           T(ctx, `أعلى مستوى في المجلس · \u200E+${(p.rating - ELO_TIERS[0][0]).toLocaleString('en-US')}\u200F فوق حد الأسطورة`, XR, y + 262, { size: 27, weight: 700, color: HS.muted, align: 'right', maxW: bw });
           bar(ctx, bx, by, bw, 14, 1, HS.hair, lv === 4 ? ['#2E2008', '#6B4E1C'] : ['#B8913F', '#E3C47E']);
@@ -13526,7 +13607,7 @@ function buildLeagueStandingsCanvas() {
     // ===================================
     // 🧭 سلوك التطبيق: إعادة الوضع للأعلى، تعديل العنوان بالضغط المطوّل، تنبيه التحديث، رقم الإصدار
     // ===================================
-    const APP_VERSION = '8.2';   // ترقيم الاعتماد: 1 ثم 1.1 … 1.9 ثم 2 — ويُرفع معه رقم الإصدار في sw.js
+    const APP_VERSION = '8.3';   // ترقيم الاعتماد: 1 ثم 1.1 … 1.9 ثم 2 — ويُرفع معه رقم الإصدار في sw.js
     (function setupAppBehaviors() {
       const root = document.documentElement;
 
