@@ -3279,13 +3279,13 @@
     .pf-hero.t4 .pf-lad .pf-tier.t4 { background: linear-gradient(135deg, #4A3618, #2E2008); color: #F3DFAE; }
     /* ===== 8.3 — بطاقات المستوى: سُلّم خامات واضح (المبتدئ والمتمكن كما هما دون أي تغيير)
        محترف: صبغة فضية + إطار معدني متدرج + انعكاس علوي مضبوط + ظل خفيف بطبقتين
-       نخبة: لوح بلاتيني كامل متعدد الدرجات + إطار مزدوج (معدني خارجي + حافة ضوء داخلية) + انعكاس قطري ثابت + ظل أعمق
+       نخبة: «بلاتين أسود» — لوح غرافيتي داكن بارد + إطار بلاتيني مزدوج + ملمس مصقول دقيق + انعكاس قطري ثابت + ظل أعمق
        أسطورة المجلس: لوح ذهب إمبراطوري بخمس درجات + إطار مزدوج + توهج ذهبي + لمعة تمر مرة واحدة عند فتح الملف ===== */
     .pf-hero.t2 { --tc: #A3ACB4; border: 1px solid transparent;
       background:
         radial-gradient(90% 70% at 88% 0%, rgba(253, 254, 254, .55), transparent 62%) padding-box,
         linear-gradient(180deg, #DCE1E5 0%, color-mix(in srgb, #DCE1E5 50%, var(--surface)) 34%, var(--surface) 84%) padding-box,
-        linear-gradient(155deg, #F4F6F7 0%, #9AA4AD 30%, #E2E6E9 52%, #8D97A0 78%, #D3D8DC 100%) border-box;
+        linear-gradient(155deg, #F4F6F7 0%, #8E98A1 30%, #E2E6E9 52%, #808A93 78%, #D3D8DC 100%) border-box;
       box-shadow: inset 0 1px 0 rgba(253, 254, 254, .7), 0 1px 2px rgba(40, 46, 52, .08), 0 8px 18px -12px rgba(40, 46, 52, .28); }
     .pf-hero.t2::before { height: 1px; background: linear-gradient(90deg, transparent, rgba(253, 254, 254, .95) 30%, rgba(253, 254, 254, .95) 70%, transparent); }
     body.dark-mode .pf-hero.t2 {
@@ -3296,27 +3296,30 @@
       box-shadow: inset 0 1px 0 rgba(214, 222, 229, .14), 0 1px 2px rgba(0, 0, 0, .3), 0 10px 22px -12px rgba(0, 0, 0, .6); }
     body.dark-mode .pf-hero.t2::before { background: linear-gradient(90deg, transparent, rgba(214, 222, 229, .5) 30%, rgba(214, 222, 229, .5) 70%, transparent); }
 
-    .pf-hero.t3 { --hx: #1E252C; --hm: rgba(30, 37, 44, .68); --hl: rgba(30, 37, 44, .13); border: 1px solid transparent;
+    .pf-hero.t3 { --hx: #EEF1F4; --hm: rgba(238, 241, 244, .68); --hl: rgba(238, 241, 244, .15); border: 1px solid transparent;
       background:
-        linear-gradient(118deg, transparent 30%, rgba(250, 251, 252, .42) 41%, rgba(250, 251, 252, .08) 50%, transparent 58%) padding-box,
-        radial-gradient(130% 120% at 86% 0%, #F6F7F8 0%, #DFE3E7 36%, #C6CDD3 72%, #B1B9C1 100%) padding-box,
-        linear-gradient(150deg, #FAFBFC 0%, #7F8992 26%, #E8EBEE 50%, #6F7982 76%, #CDD3D8 100%) border-box;
-      box-shadow: inset 0 0 0 1px rgba(250, 251, 252, .42), inset 0 1px 0 rgba(250, 251, 252, .9),
-        0 1px 2px rgba(30, 36, 42, .14), 0 12px 26px -14px rgba(30, 36, 42, .45); }
-    .pf-hero.t3::before { height: 1px; background: linear-gradient(90deg, transparent, rgba(252, 253, 253, .95) 25%, rgba(252, 253, 253, .95) 75%, transparent); }
+        repeating-linear-gradient(180deg, rgba(240, 244, 247, .022) 0 1px, transparent 1px 3px) padding-box,
+        linear-gradient(118deg, transparent 30%, rgba(226, 232, 238, .14) 41%, rgba(226, 232, 238, .03) 50%, transparent 58%) padding-box,
+        radial-gradient(130% 120% at 86% 0%, #4C565F 0%, #2E353C 40%, #1D2227 76%, #161A1E 100%) padding-box,
+        linear-gradient(150deg, #F4F6F8 0%, #7D8790 24%, #E3E7EB 48%, #5E6871 74%, #C9D0D6 100%) border-box;
+      box-shadow: inset 0 0 0 1px rgba(226, 232, 238, .16), inset 0 1px 0 rgba(240, 244, 247, .38),
+        0 1px 2px rgba(20, 24, 28, .25), 0 14px 30px -14px rgba(20, 24, 28, .6); }
+    .pf-hero.t3::before { height: 1px; background: linear-gradient(90deg, transparent, rgba(240, 244, 247, .8) 25%, rgba(240, 244, 247, .8) 75%, transparent); }
     body.dark-mode .pf-hero.t3 {
       background:
-        linear-gradient(118deg, transparent 30%, rgba(246, 248, 250, .26) 41%, rgba(246, 248, 250, .05) 50%, transparent 58%) padding-box,
-        radial-gradient(130% 120% at 86% 0%, #E3E7EB 0%, #C7CED4 38%, #ACB5BD 74%, #96A0A9 100%) padding-box,
-        linear-gradient(150deg, #EEF1F3 0%, #6B757E 26%, #D3D9DE 50%, #5D666F 76%, #B7BFC6 100%) border-box;
-      box-shadow: inset 0 0 0 1px rgba(246, 248, 250, .3), inset 0 1px 0 rgba(246, 248, 250, .75), 0 1px 2px rgba(0, 0, 0, .4), 0 14px 30px -14px rgba(0, 0, 0, .75); }
-    .pf-hero.t3 .pf-spark .ln { stroke: #36414B; } .pf-hero.t3 .pf-spark .area { fill: rgba(54, 65, 75, .12); }
-    .pf-hero.t3 .pf-dot.last { background: #2B343C; box-shadow: 0 0 0 3px #CDD3D9; }
-    .pf-hero.t3 .pf-dot.peak, .pf-hero.t3 .pf-trend-cap .pk i { background: #D3D9DE; border-color: #2B343C; }
+        repeating-linear-gradient(180deg, rgba(240, 244, 247, .026) 0 1px, transparent 1px 3px) padding-box,
+        linear-gradient(118deg, transparent 30%, rgba(226, 232, 238, .16) 41%, rgba(226, 232, 238, .03) 50%, transparent 58%) padding-box,
+        radial-gradient(130% 120% at 86% 0%, #5A646E 0%, #384047 40%, #252B31 76%, #1D2227 100%) padding-box,
+        linear-gradient(150deg, #FAFBFC 0%, #8A949D 24%, #EEF1F3 48%, #6B757E 74%, #D6DCE1 100%) border-box;
+      box-shadow: inset 0 0 0 1px rgba(226, 232, 238, .2), inset 0 1px 0 rgba(240, 244, 247, .45), 0 1px 2px rgba(0, 0, 0, .5), 0 16px 34px -14px rgba(0, 0, 0, .85); }
+    .pf-hero.t3 .pf-spark .ln { stroke: #D9DFE5; } .pf-hero.t3 .pf-spark .area { fill: rgba(217, 223, 229, .12); }
+    .pf-hero.t3 .pf-dot.last { background: #E6EAEE; box-shadow: 0 0 0 3px #262C32; }
+    .pf-hero.t3 .pf-dot.peak, .pf-hero.t3 .pf-trend-cap .pk i { background: #262C32; border-color: #D9DFE5; }
     .pf-hero.t3 .pf-trend-cap .pk, .pf-hero.t3 .pf-trend-cap .pk.now { color: var(--hx); }
-    .pf-hero.t3 .pf-delta.up { color: #1E6B3A; } .pf-hero.t3 .pf-delta.down { color: #8E2E1E; }
-    .pf-hero.t3 .pf-guide-btn, .pf-hero.t3 .pf-lad .me { color: var(--hx); }
-    .pf-hero.t3 .pf-rt .pf-tier.t3, .pf-hero.t3 .pf-lad .pf-tier.t3 { background: linear-gradient(135deg, #3E464E, #1E242A); color: #E6EAEE; }
+    .pf-hero.t3 .pf-delta.up { color: #7FD39B; } .pf-hero.t3 .pf-delta.down { color: #F09A86; }
+    .pf-hero.t3 .pf-guide-btn, .pf-hero.t3 .pf-lad .me { color: #D3DAE0; }
+    /* الكبسولة فوق اللوح الداكن: بلاتين فاتح معكوس حتى لا تذوب (نفس منطق كبسولة الأسطورة فوق الذهب) */
+    .pf-hero.t3 .pf-rt .pf-tier.t3, .pf-hero.t3 .pf-lad .pf-tier.t3 { background: linear-gradient(135deg, #EEF1F3, #B9C1C8); color: #1E252C; }
     .pf-hero.t3 .pf-prog .pf-bar i { background: linear-gradient(90deg, #E3C47E, #B8913F); }
 
     .pf-hero.t4 { border: 1px solid transparent;
@@ -11270,7 +11273,7 @@ function buildLeagueStandingsCanvas() {
         { grad: ['#EEE8DE', '#DCD3C5'], fg: '#5E584E' },
         { grad: ['#F2DDC8', '#D9AE88'], fg: '#4E2E14' },
         { grad: ['#F0F2F3', '#C3C9CE'], fg: '#2F353B' },
-        { grad: ['#48515A', '#262C32'], fg: '#E6EAEE' },   // 8.3: النخبة بلاتين داكن
+        { grad: ['#48515A', '#262C32'], fg: '#E6EAEE' },   // 8.3: النخبة «بلاتين أسود»
         { grad: ['#F3DFAE', '#CFA963'], fg: '#3A2A0C' }
       ][level] || { grad: ['#EEE8DE', '#DCD3C5'], fg: '#5E584E' };
     }
@@ -11676,13 +11679,13 @@ function buildLeagueStandingsCanvas() {
       const hex = h => { const n = parseInt(h.slice(1), 16); return [(n >> 16) & 255, (n >> 8) & 255, n & 255]; };
       const mix = (a, b, t) => { const A = hex(a), Bc = hex(b); return `rgb(${A.map((v, i) => Math.round(v * t + Bc[i] * (1 - t))).join(',')})`; };
       const TC = ['#BFB4A3', '#C9925F', '#A3ACB4'][lv] || '#BFB4A3';
-      const HS = lv === 3 ? { ink: '#1E252C', muted: 'rgba(30,37,44,0.7)', hair: 'rgba(30,37,44,0.14)', line: '#36414B', up: '#1E6B3A', down: '#8E2E1E', bg: '#D3D9DE' }
+      const HS = lv === 3 ? { ink: '#EEF1F4', muted: 'rgba(238,241,244,0.7)', hair: 'rgba(238,241,244,0.16)', line: '#D9DFE5', up: '#7FD39B', down: '#F09A86', bg: '#262C32' }
         : lv === 4 ? { ink: '#2E2008', muted: 'rgba(46,32,8,0.72)', hair: 'rgba(46,32,8,0.16)', line: '#5C4214', up: '#1E6B3A', down: '#8E2E1E', bg: '#E6C783' }
         : { ink: B.ink, muted: B.muted, hair: 'rgba(41,38,33,0.11)', line: B.goldDeep, up: B.ok, down: '#B3402F', bg: B.paper };
       const T = (ctx, s, x, cy, o) => exportText(ctx, s, x, cy - exportOptDy(o.size), o);   // نص عربي على محور العنصر
       const tw = (ctx, s, size) => { ctx.save(); ctx.font = `800 ${size}px ${EXPORT_FONT}`; const w = ctx.measureText(s).width; ctx.restore(); return w; };
       const pill = (ctx, level, label, xr, cy, size, inv) => {   // كبسولة المستوى (xr = حافتها اليمنى)؛ inv: معكوسة فوق لوحة النخبة/الأسطورة
-        const s = inv === 4 ? { grad: ['#4A3618', '#2E2008'], fg: '#F3DFAE' } : inv === 3 ? { grad: ['#3E464E', '#1E242A'], fg: '#E6EAEE' } : exportTierStyle(level);
+        const s = inv === 4 ? { grad: ['#4A3618', '#2E2008'], fg: '#F3DFAE' } : inv === 3 ? { grad: ['#EEF1F3', '#B9C1C8'], fg: '#1E252C' } : exportTierStyle(level);
         const h = Math.round(size * 1.85), pad = Math.round(size * 0.8), w = tw(ctx, label, size) + pad * 2, x0 = xr - w;
         ctx.save(); drawRoundedRect(ctx, x0, cy - h / 2, w, h, h / 2);
         if (s.bg) ctx.fillStyle = s.bg; else { const g = ctx.createLinearGradient(x0, cy - h / 2, x0 + w, cy + h / 2); g.addColorStop(0, s.grad[0]); g.addColorStop(1, s.grad[1]); ctx.fillStyle = g; }
@@ -11712,7 +11715,7 @@ function buildLeagueStandingsCanvas() {
         let g;
         // 8.3: سُلّم الخامات نفسه في الصورة — محترف فضي معدني · نخبة لوح بلاتيني · أسطورة ذهب إمبراطوري (المبتدئ والمتمكن كما هما)
         const stops = (gr, a) => a.forEach(([o, c]) => gr.addColorStop(o, c));
-        if (lv === 3) { g = ctx.createRadialGradient(M + CW * 0.86, y, 0, M + CW * 0.86, y, CW * 1.2); stops(g, [[0, '#F6F7F8'], [0.36, '#DFE3E7'], [0.72, '#C6CDD3'], [1, '#B1B9C1']]); }
+        if (lv === 3) { g = ctx.createRadialGradient(M + CW * 0.86, y, 0, M + CW * 0.86, y, CW * 1.2); stops(g, [[0, '#4C565F'], [0.4, '#2E353C'], [0.76, '#1D2227'], [1, '#161A1E']]); }
         else if (lv === 4) { g = ctx.createRadialGradient(M + CW * 0.86, y, 0, M + CW * 0.86, y, CW * 1.15); stops(g, [[0, '#FFF3D2'], [0.26, '#F2D998'], [0.54, '#E2BF70'], [0.8, '#CFA557'], [1, '#BE9244']]); }
         else if (lv === 2) { g = ctx.createLinearGradient(0, y, 0, y + HERO); g.addColorStop(0, '#DCE1E5'); g.addColorStop(Math.min(0.9, 300 / HERO), B.paper); g.addColorStop(1, B.paper); }
         else { g = ctx.createLinearGradient(0, y, 0, y + HERO); g.addColorStop(0, mix(TC, B.paper, 0.32)); g.addColorStop(Math.min(0.9, 300 / HERO), B.paper); g.addColorStop(1, B.paper); }
@@ -11720,25 +11723,26 @@ function buildLeagueStandingsCanvas() {
         if (lv >= 2) {   // انعكاس مضبوط: ضوء علوي للفضي، وشريط قطري ثابت للبلاتين والذهب
           const hl = lv === 2 ? ctx.createRadialGradient(M + CW * 0.88, y, 0, M + CW * 0.88, y, CW * 0.7) : ctx.createLinearGradient(M + CW * 0.2, y, M + CW * 0.62, y + HERO * 0.7);
           if (lv === 2) stops(hl, [[0, 'rgba(253,254,254,0.55)'], [1, 'rgba(253,254,254,0)']]);
-          else { const c = lv === 3 ? '250,251,252' : '255,248,226', a = lv === 3 ? 0.42 : 0.5; stops(hl, [[0, `rgba(${c},0)`], [0.3, `rgba(${c},0)`], [0.45, `rgba(${c},${a})`], [0.58, `rgba(${c},0.08)`], [0.72, `rgba(${c},0)`], [1, `rgba(${c},0)`]]); }
+          else { const c = lv === 3 ? '226,232,238' : '255,248,226', a = lv === 3 ? 0.14 : 0.5; stops(hl, [[0, `rgba(${c},0)`], [0.3, `rgba(${c},0)`], [0.45, `rgba(${c},${a})`], [0.58, `rgba(${c},0.08)`], [0.72, `rgba(${c},0)`], [1, `rgba(${c},0)`]]); }
           ctx.fillStyle = hl; ctx.fillRect(M, y, CW, HERO);
+          if (lv === 3) { ctx.fillStyle = 'rgba(240,244,247,0.022)'; for (let ly = y; ly < y + HERO; ly += 4) ctx.fillRect(M, ly, CW, 1.5); }   // ملمس مصقول دقيق
         }
-        const ag = ctx.createLinearGradient(M, 0, M + CW, 0), ac = lv === 3 ? 'rgba(252,253,253,0.95)' : lv === 4 ? 'rgba(255,251,238,1)' : lv === 2 ? 'rgba(253,254,254,0.95)' : TC;
+        const ag = ctx.createLinearGradient(M, 0, M + CW, 0), ac = lv === 3 ? 'rgba(240,244,247,0.8)' : lv === 4 ? 'rgba(255,251,238,1)' : lv === 2 ? 'rgba(253,254,254,0.95)' : TC;
         ag.addColorStop(0, 'rgba(0,0,0,0)'); ag.addColorStop(0.22, ac); ag.addColorStop(0.78, ac); ag.addColorStop(1, 'rgba(0,0,0,0)'); ctx.fillStyle = ag; ctx.fillRect(M, y, CW, lv >= 2 ? 2 : 4);
         ctx.restore();
         ctx.save(); drawRoundedRect(ctx, M, y, CW, HERO, 34);
         if (lv >= 2) {   // إطار معدني متدرج، وحافة ضوء داخلية للبلاتين والذهب
           const bg2 = ctx.createLinearGradient(M, y, M + CW, y + HERO);
           stops(bg2, lv === 2 ? [[0, '#F4F6F7'], [0.3, '#9AA4AD'], [0.52, '#E2E6E9'], [0.78, '#8D97A0'], [1, '#D3D8DC']]
-            : lv === 3 ? [[0, '#FAFBFC'], [0.26, '#7F8992'], [0.5, '#E8EBEE'], [0.76, '#6F7982'], [1, '#CDD3D8']]
+            : lv === 3 ? [[0, '#F4F6F8'], [0.24, '#7D8790'], [0.48, '#E3E7EB'], [0.74, '#5E6871'], [1, '#C9D0D6']]
             : [[0, '#FFF0C4'], [0.24, '#A97D30'], [0.48, '#F6DE9E'], [0.74, '#8E6522'], [1, '#E6C274']]);
           ctx.strokeStyle = bg2; ctx.lineWidth = lv === 2 ? 2 : 3; ctx.stroke();
-          if (lv >= 3) { drawRoundedRect(ctx, M + 3, y + 3, CW - 6, HERO - 6, 31); ctx.strokeStyle = lv === 3 ? 'rgba(250,251,252,0.5)' : 'rgba(255,244,210,0.55)'; ctx.lineWidth = 2; ctx.stroke(); }
+          if (lv >= 3) { drawRoundedRect(ctx, M + 3, y + 3, CW - 6, HERO - 6, 31); ctx.strokeStyle = lv === 3 ? 'rgba(226,232,238,0.22)' : 'rgba(255,244,210,0.55)'; ctx.lineWidth = 2; ctx.stroke(); }
         } else { ctx.strokeStyle = mix(TC, B.line, 0.5); ctx.lineWidth = 2; ctx.stroke(); }
         ctx.restore();
         // المركز (يسارًا)
         const RB = { x: M + P, y: y + 40, w: 152, h: 164 };
-        ctx.save(); drawRoundedRect(ctx, RB.x, RB.y, RB.w, RB.h, 26); ctx.fillStyle = lv >= 3 ? (lv === 3 ? 'rgba(30,37,44,0.06)' : 'rgba(46,32,8,0.06)') : 'rgba(255,253,249,0.7)'; ctx.fill();
+        ctx.save(); drawRoundedRect(ctx, RB.x, RB.y, RB.w, RB.h, 26); ctx.fillStyle = lv >= 3 ? (lv === 3 ? 'rgba(238,241,244,0.07)' : 'rgba(46,32,8,0.06)') : 'rgba(255,253,249,0.7)'; ctx.fill();
         ctx.strokeStyle = lv >= 3 ? HS.hair : mix(TC, B.line, 0.45); ctx.lineWidth = 2; ctx.stroke(); ctx.restore();
         T(ctx, 'المركز', RB.x + RB.w / 2, RB.y + 34, { size: 22, weight: 800, color: HS.muted });
         exportText(ctx, String(p.rank), RB.x + RB.w / 2, RB.y + 86, { size: 64, weight: 800, color: HS.ink, dir: 'ltr' });
