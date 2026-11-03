@@ -3298,15 +3298,17 @@
     .pf-hero.t3 .pf-rt .pf-tier.t3, .pf-hero.t3 .pf-lad .pf-tier.t3 { background: linear-gradient(135deg, #EEF1F3, #B9C1C8); color: #1E252C; }
     .pf-hero.t3 .pf-prog .pf-bar i { background: linear-gradient(90deg, #E3C47E, #B8913F); }
 
-    .pf-hero.t4 { border: 1px solid transparent;
+    /* النهاري: ذهب إمبراطوري عميق — الضوء بقعة صغيرة في الزاوية، والجسم عنبري مشبع، والإطار برونزي يرسم حدًا واضحًا مع الصفحة العاجية،
+       والانعكاس الثابت شعاع رفيع خفيف حتى لا يغسل اللون (اللمعة الحية عند الفتح كما هي) */
+    .pf-hero.t4 { --hx: #2A1C05; --hm: rgba(42, 28, 5, .88); --hl: rgba(42, 28, 5, .16); border: 1px solid transparent;
       background:
-        linear-gradient(118deg, transparent 30%, rgba(255, 248, 226, .5) 40%, rgba(255, 248, 226, .1) 49%, transparent 57%) padding-box,
-        radial-gradient(125% 115% at 86% 0%, #FFF3D2 0%, #F2D998 26%, #E2BF70 54%, #CFA557 80%, #BE9244 100%) padding-box,
-        linear-gradient(150deg, #FFF0C4 0%, #A97D30 24%, #F6DE9E 48%, #8E6522 74%, #E6C274 100%) border-box;
-      box-shadow: inset 0 0 0 1px rgba(255, 244, 210, .5), inset 0 1px 0 rgba(255, 250, 236, .95),
-        0 1px 2px rgba(90, 62, 12, .2), 0 14px 32px -14px rgba(120, 84, 20, .6), 0 0 28px -8px rgba(207, 169, 99, .45); }
+        linear-gradient(118deg, transparent 36%, rgba(255, 240, 200, .24) 42%, rgba(255, 240, 200, .04) 47%, transparent 52%) padding-box,
+        radial-gradient(120% 110% at 88% 0%, #FBE7B0 0%, #E9C16A 16%, #D4A247 42%, #C48F37 70%, #B5822F 100%) padding-box,
+        linear-gradient(150deg, #F6DB98 0%, #7C561A 24%, #E9C374 48%, #6B4914 74%, #C99B45 100%) border-box;
+      box-shadow: inset 0 0 0 1px rgba(255, 236, 190, .38), inset 0 1px 0 rgba(255, 244, 214, .85),
+        0 1px 2px rgba(90, 62, 12, .25), 0 16px 34px -14px rgba(110, 74, 14, .65), 0 0 32px -6px rgba(201, 155, 69, .5); }
     .pf-hero.t4::before { height: 1px; background: linear-gradient(90deg, transparent, rgba(255, 251, 238, 1) 25%, rgba(255, 251, 238, 1) 75%, transparent); }
-    body.dark-mode .pf-hero.t4 {
+    body.dark-mode .pf-hero.t4 { --hx: #2E2008; --hm: rgba(46, 32, 8, .68); --hl: rgba(46, 32, 8, .14);
       background:
         linear-gradient(118deg, transparent 30%, rgba(255, 246, 218, .36) 40%, rgba(255, 246, 218, .06) 49%, transparent 57%) padding-box,
         radial-gradient(125% 115% at 86% 0%, #F6E3AE 0%, #E6C67D 28%, #D4AE5E 56%, #BF9446 82%, #AD833A 100%) padding-box,
@@ -11656,7 +11658,7 @@ function buildLeagueStandingsCanvas() {
       const mix = (a, b, t) => { const A = hex(a), Bc = hex(b); return `rgb(${A.map((v, i) => Math.round(v * t + Bc[i] * (1 - t))).join(',')})`; };
       const TC = ['#BFB4A3', '#C9925F', '#A3ACB4'][lv] || '#BFB4A3';
       const HS = lv === 3 ? { ink: '#EEF1F4', muted: 'rgba(238,241,244,0.7)', hair: 'rgba(238,241,244,0.16)', line: '#D9DFE5', up: '#7FD39B', down: '#F09A86', bg: '#262C32' }
-        : lv === 4 ? { ink: '#2E2008', muted: 'rgba(46,32,8,0.72)', hair: 'rgba(46,32,8,0.16)', line: '#5C4214', up: '#1E6B3A', down: '#8E2E1E', bg: '#E6C783' }
+        : lv === 4 ? { ink: '#2A1C05', muted: 'rgba(42,28,5,0.88)', hair: 'rgba(42,28,5,0.16)', line: '#5C4214', up: '#1E6B3A', down: '#8E2E1E', bg: '#E6C783' }
         : { ink: B.ink, muted: B.muted, hair: 'rgba(41,38,33,0.11)', line: B.goldDeep, up: B.ok, down: '#B3402F', bg: B.paper };
       const T = (ctx, s, x, cy, o) => exportText(ctx, s, x, cy - exportOptDy(o.size), o);   // نص عربي على محور العنصر
       const tw = (ctx, s, size) => { ctx.save(); ctx.font = `800 ${size}px ${EXPORT_FONT}`; const w = ctx.measureText(s).width; ctx.restore(); return w; };
@@ -11692,14 +11694,15 @@ function buildLeagueStandingsCanvas() {
         // 8.3: سُلّم الخامات نفسه في الصورة — محترف فضي معدني · نخبة لوح بلاتيني · أسطورة ذهب إمبراطوري (المبتدئ والمتمكن كما هما)
         const stops = (gr, a) => a.forEach(([o, c]) => gr.addColorStop(o, c));
         if (lv === 3) { g = ctx.createRadialGradient(M + CW * 0.86, y, 0, M + CW * 0.86, y, CW * 1.2); stops(g, [[0, '#4C565F'], [0.4, '#2E353C'], [0.76, '#1D2227'], [1, '#161A1E']]); }
-        else if (lv === 4) { g = ctx.createRadialGradient(M + CW * 0.86, y, 0, M + CW * 0.86, y, CW * 1.15); stops(g, [[0, '#FFF3D2'], [0.26, '#F2D998'], [0.54, '#E2BF70'], [0.8, '#CFA557'], [1, '#BE9244']]); }
+        else if (lv === 4) { g = ctx.createRadialGradient(M + CW * 0.86, y, 0, M + CW * 0.86, y, CW * 1.15); stops(g, [[0, '#FBE7B0'], [0.16, '#E9C16A'], [0.42, '#D4A247'], [0.7, '#C48F37'], [1, '#B5822F']]); }
         else if (lv === 2) { g = ctx.createLinearGradient(0, y, 0, y + HERO); g.addColorStop(0, '#C9D0D6'); g.addColorStop(Math.min(0.5, 340 / HERO), B.paper); g.addColorStop(1, B.paper); }
         else { g = ctx.createLinearGradient(0, y, 0, y + HERO); g.addColorStop(0, mix(TC, B.paper, 0.32)); g.addColorStop(Math.min(0.9, 300 / HERO), B.paper); g.addColorStop(1, B.paper); }
         ctx.fillStyle = g; ctx.fill(); ctx.clip();
         if (lv >= 2) {   // انعكاس مضبوط: ضوء علوي للفضي، وشريط قطري ثابت للبلاتين والذهب
           const hl = lv === 2 ? ctx.createRadialGradient(M + CW * 0.88, y, 0, M + CW * 0.88, y, CW * 0.7) : ctx.createLinearGradient(M + CW * 0.2, y, M + CW * 0.62, y + HERO * 0.7);
           if (lv === 2) stops(hl, [[0, 'rgba(253,254,254,0.55)'], [1, 'rgba(253,254,254,0)']]);
-          else { const c = lv === 3 ? '226,232,238' : '255,248,226', a = lv === 3 ? 0.14 : 0.5; stops(hl, [[0, `rgba(${c},0)`], [0.3, `rgba(${c},0)`], [0.45, `rgba(${c},${a})`], [0.58, `rgba(${c},0.08)`], [0.72, `rgba(${c},0)`], [1, `rgba(${c},0)`]]); }
+          else if (lv === 3) { const c = '226,232,238'; stops(hl, [[0, `rgba(${c},0)`], [0.3, `rgba(${c},0)`], [0.45, `rgba(${c},0.14)`], [0.58, `rgba(${c},0.03)`], [0.72, `rgba(${c},0)`], [1, `rgba(${c},0)`]]); }
+          else { const c = '255,240,200'; stops(hl, [[0, `rgba(${c},0)`], [0.4, `rgba(${c},0)`], [0.48, `rgba(${c},0.24)`], [0.55, `rgba(${c},0.04)`], [0.62, `rgba(${c},0)`], [1, `rgba(${c},0)`]]); }   // الأسطورة: شعاع رفيع خفيف
           ctx.fillStyle = hl; ctx.fillRect(M, y, CW, HERO);
           if (lv === 3) { ctx.fillStyle = 'rgba(240,244,247,0.022)'; for (let ly = y; ly < y + HERO; ly += 4) ctx.fillRect(M, ly, CW, 1.5); }   // ملمس مصقول دقيق
         }
@@ -11712,9 +11715,9 @@ function buildLeagueStandingsCanvas() {
           const bg2 = ctx.createLinearGradient(M, y, M + CW, y + HERO);
           stops(bg2, lv === 2 ? [[0, '#F4F6F7'], [0.3, '#9AA4AD'], [0.52, '#E2E6E9'], [0.78, '#8D97A0'], [1, '#D3D8DC']]
             : lv === 3 ? [[0, '#F4F6F8'], [0.24, '#7D8790'], [0.48, '#E3E7EB'], [0.74, '#5E6871'], [1, '#C9D0D6']]
-            : [[0, '#FFF0C4'], [0.24, '#A97D30'], [0.48, '#F6DE9E'], [0.74, '#8E6522'], [1, '#E6C274']]);
+            : [[0, '#F6DB98'], [0.24, '#7C561A'], [0.48, '#E9C374'], [0.74, '#6B4914'], [1, '#C99B45']]);
           ctx.strokeStyle = bg2; ctx.lineWidth = lv === 2 ? 2 : 3; ctx.stroke();
-          if (lv >= 3) { drawRoundedRect(ctx, M + 3, y + 3, CW - 6, HERO - 6, 31); ctx.strokeStyle = lv === 3 ? 'rgba(226,232,238,0.22)' : 'rgba(255,244,210,0.55)'; ctx.lineWidth = 2; ctx.stroke(); }
+          if (lv >= 3) { drawRoundedRect(ctx, M + 3, y + 3, CW - 6, HERO - 6, 31); ctx.strokeStyle = lv === 3 ? 'rgba(226,232,238,0.22)' : 'rgba(255,236,190,0.42)'; ctx.lineWidth = 2; ctx.stroke(); }
         } else { ctx.strokeStyle = mix(TC, B.line, 0.5); ctx.lineWidth = 2; ctx.stroke(); }
         ctx.restore();
         // المركز (يسارًا)
