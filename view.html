@@ -1999,6 +1999,10 @@
       color: #3A2508; box-shadow: inset 0 0 0 1.5px rgba(255, 246, 214, .65), inset 0 -3px 5px rgba(90, 55, 10, .45), 0 0 0 3px rgba(120, 78, 18, .22), 0 6px 12px -4px rgba(90, 55, 10, .6); }
     .kc-cup::after { content: ""; position: absolute; inset: 6px; border-radius: 50%; border: 1px dashed rgba(70, 42, 8, .35); }
     .kc-cup .kc-star { position: relative; z-index: 1; width: 34px; height: 34px; overflow: visible; }   /* 8.3: الإضاءة داخل الـ SVG (لا filter) */
+    /* 8.5 — الكأس بدل الميدالية: بلا قرص ولا حلقة منقطة، ضوء خافت ثابت خلفه فقط */
+    .kc-cup.kc-trophy { width: 64px; height: 64px; margin-bottom: 8px; border-radius: 0; background: radial-gradient(closest-side, rgba(255, 249, 228, .7), rgba(255, 249, 228, 0)); box-shadow: none; }
+    .kc-cup.kc-trophy::after { display: none; }
+    .kc-trophy .ccup { position: relative; z-index: 1; display: block; width: 64px; height: 64px; overflow: visible; }
     /* التتويج عند نهاية البطولة: الميدالية ثم الاسم (اللمعة كما في البطاقة الذهبية) */
     .kc-enter .kc-cup { animation: kcCupIn var(--t-slow) var(--ease) both; }
     .kc-enter .kc-t, .kc-enter .kc-n, .kc-enter .kc-m, .kc-enter .kc-s, .kc-enter .kc-rest { animation: kcUp var(--t-slow) var(--ease) .12s both; }
@@ -5668,7 +5672,7 @@ return teamName.replace('غير محدد', replacement);
     let goldCupSeq = 0;
     function goldCupSVG() {   // معرّف تدرج خاص بكل نسخة: يعمل حتى لو كانت نسخة أخرى مخفية (سفاري)
       const id = 'gcG' + (++goldCupSeq);
-      return `<svg class="gcup" viewBox="0 0 24 24" aria-hidden="true"><defs><linearGradient id="${id}" x1="0" y1="0" x2="1" y2=".18">${GOLD_CUP.stops.map(([o, c]) => `<stop offset="${o}" stop-color="${c}"/>`).join('')}</linearGradient></defs>`
+      return `<svg class="gcup" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" aria-hidden="true"><defs><linearGradient id="${id}" x1="0" y1="0" x2="1" y2=".18">${GOLD_CUP.stops.map(([o, c]) => `<stop offset="${o}" stop-color="${c}"/>`).join('')}</linearGradient></defs>`
         + `<path fill="rgba(0,0,0,.22)" transform="translate(0 1.5)" d="${GOLD_CUP.body.join('')}"/><path fill="rgba(0,0,0,.38)" transform="translate(0 1)" d="${GOLD_CUP.body.join('')}"/>`   // 8.3: الظل داخل الـ SVG
         + `<path fill="url(#${id})" stroke="rgba(58,34,6,.6)" stroke-width=".35" stroke-linejoin="round" d="${GOLD_CUP.body.join('')}"/>`
         + `<path fill="#FFF4CF" opacity=".75" d="${GOLD_CUP.rim}"/><path fill="#5E3C0C" opacity=".45" d="${GOLD_CUP.base}"/><path fill="#FFFBEA" opacity=".8" d="${GOLD_CUP.spec}"/></svg>`;
@@ -5749,9 +5753,34 @@ return teamName.replace('غير محدد', replacement);
         seen.add(id); try { sessionStorage.setItem(KEY, JSON.stringify([...seen])); } catch (x) {}
       }, true);
     })();
+    // 8.5 — كأس البطل: كأس ذهبي مصقول مصمت (نفس بناء كأس «البطل الذهبي») وعلى صدره قرص من لوح الكيرم: نجمة منتصف اللوح
+    // و«الملكة» الحمراء. البطل الذهبي وحده يبقى بكأسه على المينا الداكنة والإكليل. الظل داخل الـ SVG (لا filter — سفاري).
+    // تعريف واحد للتطبيق وصورة التصدير (تُرسم الصورة من نفس الـ SVG). معرّفات التدرج فريدة لكل نسخة.
+    // شكل الكأس (24×24): وعاء منحنٍ أنيق، مقبضان دائريان، ساق بعقدة، قاعدة بطبقتين ولوحة داكنة كقاعدة الكؤوس الحقيقية
+    const CHAMP_CUP = {
+      body: ['M6 3.2h12v1c0 4.6-2.6 8.4-6 8.4S6 8.8 6 4.2Z',
+        'M6.4 4.5C3.3 4.4 2.5 6.3 2.8 7.8c.4 1.9 2.4 3 4.6 3l-.5-1.2c-1.5-.1-2.6-.9-2.8-2-.2-1 .4-1.8 2.4-1.8Z',
+        'M17.6 4.5c3.1-.1 3.9 1.8 3.6 3.3-.4 1.9-2.4 3-4.6 3l.5-1.2c1.5-.1 2.6-.9 2.8-2 .2-1-.4-1.8-2.4-1.8Z',
+        'M10.9 12.4h2.2l.3 1.6h-2.8Z', 'M10.1 13.8h3.8a.75.75 0 0 1 0 1.5h-3.8a.75.75 0 0 1 0-1.5Z', 'M11 15.2h2l.6 2.3h-3.2Z',
+        'M8.5 17.3h7l.6 1.6H7.9Z', 'M6.8 18.8h10.4v2.9H6.8Z'],
+      rim: 'M6 3.2h12v.85H6Z', spec: 'M7.3 4.5c.1 2.9.9 5 2.4 6.4-1-2-1.4-4-1.4-6.4Z', plate: 'M7.5 19.5h9v1.5h-9Z', cx: 12, cy: 7.5
+    };
+    let champCupSeq = 0;
+    function champCupSVG() {
+      const n = ++champCupSeq, g = 'ccG' + n, f = 'ccF' + n, C = CHAMP_CUP, B = C.body.join('');
+      return `<svg class="ccup" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" aria-hidden="true"><defs>`
+        + `<linearGradient id="${g}" x1="0" y1="0" x2="1" y2=".18">${GOLD_CUP.stops.map(([o, c]) => `<stop offset="${o}" stop-color="${c}"/>`).join('')}</linearGradient>`
+        + `<radialGradient id="${f}" cx=".38" cy=".32" r=".8"><stop offset="0" stop-color="#FCF2D6"/><stop offset=".7" stop-color="#EBD39E"/><stop offset="1" stop-color="#D6B572"/></radialGradient></defs>`
+        + `<path fill="rgba(60,34,4,.2)" transform="translate(0 1)" d="${B}"/><path fill="rgba(60,34,4,.3)" transform="translate(0 .55)" d="${B}"/>`
+        + `<path fill="url(#${g})" stroke="rgba(58,34,6,.72)" stroke-width=".35" stroke-linejoin="round" d="${B}"/>`
+        + `<path fill="#FFF4CF" opacity=".85" d="${C.rim}"/><path fill="#FFFBEA" opacity=".7" d="${C.spec}"/>`
+        + `<path fill="#3A2508" opacity=".55" d="${C.plate}"/><path fill="#FFF4CF" opacity=".35" d="M7.5 19.5h9v.3h-9Z"/>`
+        + `<circle cx="${C.cx}" cy="${C.cy}" r="3.15" fill="#6E4812"/><circle cx="${C.cx}" cy="${C.cy}" r="2.82" fill="url(#${f})" stroke="rgba(255,240,200,.75)" stroke-width=".2"/>`
+        + `<g transform="translate(${C.cx} ${C.cy}) scale(.225) translate(-12 -12)">${KC_STAR_IN}</g></svg>`;
+    }
     function champCardHTML(title, nameHTML, meta, sub) {
-      const gold = String(title).includes('البطل الذهبي');   // 8: البطل الذهبي كما هو؛ بقية بطاقات البطل بميدالية كأس بنفس بنائه
-      return `${gold ? `<span class="kc-emb" aria-hidden="true"><span class="enm"></span>${goldCupSVG()}</span>` : `<span class="kc-cup" aria-hidden="true">${KC_STAR_SVG}</span>`}<div class="kc-t">${title}</div><div class="kc-n">${nameHTML}</div>${meta ? `<div class="kc-m">${meta}</div>` : ''}${sub ? `<div class="kc-s">${sub}</div>` : ''}`;
+      const gold = String(title).includes('البطل الذهبي');   // 8: البطل الذهبي كما هو · 8.5: بقية بطاقات البطل بكأس ذهبي عليه قرص اللوح
+      return `${gold ? `<span class="kc-emb" aria-hidden="true"><span class="enm"></span>${goldCupSVG()}</span>` : `<span class="kc-cup kc-trophy" aria-hidden="true">${champCupSVG()}</span>`}<div class="kc-t">${title}</div><div class="kc-n">${nameHTML}</div>${meta ? `<div class="kc-m">${meta}</div>` : ''}${sub ? `<div class="kc-s">${sub}</div>` : ''}`;
     }
     function isFinalMatch(match) {
       return !!match && (String(match.roundName).includes('المباراة النهائية') || String(match.roundName).includes('🏆 المباراة النهائية 🏆'));
@@ -12015,6 +12044,14 @@ function buildLeagueStandingsCanvas() {
       const leagueDone = !!(isFinal && (getExportCenterSnapshot().completed || clinched));
       const earlyLine = clinched && !clinched.final ? `حسم اللقب قبل ${arRounds(clinched.roundsLeft)} من النهاية` : null;
       const gold = kind === 'champion' && leagueDone ? leagueGoldenOf() : null;
+      if (kind === 'champion' && leagueDone) {   // 8.5: بطل الدوري ببطاقة التطبيق نفسها (renderLeagueFinal): النقاط ← السجل ← المركزان الثاني والثالث
+        const ptsW = n => `${n} ${n === 1 ? 'نقطة' : n === 2 ? 'نقطتان' : n >= 3 && n <= 10 ? 'نقاط' : 'نقطة'}`;
+        const top = (standings || []).filter(r => !r.excluded).slice(0, 3), c = top[0], full = getExportCenterSnapshot().completed;
+        await renderAchievementCanvas([{ rank: 1, name: c.name, cup: true, final: true, champ: { title: gold ? 'البطل الذهبي' : 'بطل الدوري', golden: !!gold, parts: [c.name], meta: ptsW(c.points),
+          sub: gold ? goldenLine(gold) : (!full && earlyLine) ? earlyLine : `فوز ${c.wins} · تعادل ${c.draws} · خسارة ${c.losses}`,
+          rest: gold || !full ? [] : top.slice(1).map(r => [r.rank, r.name, ptsW(r.points)]) } }], 'الدوري', '', title, `League-${kind}-Final.png`);
+        return;
+      }
       await renderAchievementCanvas(selected.map(r => ({ rank:r.rank, name:r.name, detail:exportPointsLabel(r.points), points:exportPointsLabel(r.points), medal:r.rank, final: leagueDone, cup: leagueDone && r.rank === 1, golden: !!gold && r.rank === 1 })), gold ? 'البطل الذهبي' : subtitle, (gold ? `دوري كامل · فوز ${gold.w}${gold.d ? ` · تعادل ${gold.d}` : ''}` : null) || earlyLine || `${isFinal ? 'الترتيب النهائي' : 'الترتيب الحالي'} للدوري`, title,
         `League-${kind}-${isFinal ? 'Final' : 'Live'}.png`);
     }
@@ -12039,10 +12076,16 @@ function buildLeagueStandingsCanvas() {
       // الاسم المعروض يمرّ عبر getDisplayTeamName (استبدال «غير محدد») كما في الجدول ونص النشر
       const champ = { rank:1, name:getDisplayTeamName(finalData.champion), detail:'البطل', label:'البطل', medal:1, cup:true, final:true };
       const runner = { rank:2, name:getDisplayTeamName(finalData.runnerUp), detail:'الوصيف', label:'الوصيف', medal:2, final:true };
-      const items = kind === 'champion' ? [champ] : kind === 'runnerUp' ? [runner] : [champ, runner];
-      const subtitle = kind === 'champion' ? (currentMode === 'single' ? 'بطل الفردي' : 'بطل البطولة')
-        : kind === 'runnerUp' ? 'وصيف البطولة' : 'البطل والوصيف';
-      const detail = finalData.score ? `نتيجة النهائي: ${finalData.score}` : 'النتيجة النهائية';
+      let items = kind === 'champion' ? [champ] : kind === 'runnerUp' ? [runner] : [champ, runner];
+      // 8.5: البطل (وحده أو مع الوصيف) ببطاقة التطبيق نفسها؛ الوصيف صف هادئ داخلها. الوصيف وحده يبقى بتصميم 7.2.
+      if (kind !== 'runnerUp') {
+        const fm = Object.values(bracketState || {}).find(isFinalMatch), hasSc = fm && fm.winnerScore != null && fm.loserScore != null;
+        champ.champ = { title: 'بطل البطولة', parts: champ.name.split(' + '), meta: hasSc ? `النهائي · ${Math.max(fm.winnerScore, fm.loserScore)} - ${Math.min(fm.winnerScore, fm.loserScore)}` : '',
+          sub: fmtDayDate(fm && fm.at ? fm.at : Date.now()), rest: kind === 'both' ? [['2', runner.name, '']] : [] };
+        items = [champ];
+      }
+      const subtitle = kind === 'runnerUp' ? 'وصيف البطولة' : (currentMode === 'single' ? 'البطولة الفردية' : 'بطولة الفرق');   // 8.5: البطاقة تقول «بطل البطولة»، فالشريط يذكر نوعها بلا تكرار
+      const detail = kind === 'runnerUp' ? (finalData.score ? `نتيجة النهائي: ${finalData.score}` : 'النتيجة النهائية') : '';   // النتيجة داخل بطاقة البطل
       const extra = [];
       if (exportParts('koFinal').path) {
         if (kind !== 'runnerUp') extra.push({ heading: 'مسار البطل إلى النهائي', rank: 1, rows: knockoutPathRows(finalData.champion) });
@@ -12054,6 +12097,93 @@ function buildLeagueStandingsCanvas() {
       await renderAchievementCanvas(items, subtitle, detail, title, `Tournament-${kind === 'both' ? 'ChampionAndRunnerUp' : kind === 'champion' ? 'Champion' : 'RunnerUp'}.png`, extra);
     }
 
+    // ===== 8.5 — بطاقة البطل في صور التصدير = بطاقة التطبيق نفسها (champCardHTML): نفس الذهب المعدني والخطوط المصقولة والإطار،
+    // نفس الشعار (كأس اللوح، أو كأس البطل الذهبي على المينا)، ونفس التسلسل: عنوان صغير ذهبي ← الاسم محفورًا ← سطر النتيجة أو النقاط
+    // ← سطر التاريخ أو السجل ← المركزان الثاني والثالث صفّين هادئين. المقاييس = مقاييس التطبيق × CK.
+    const CK = 2.4;
+    function exportSvgImage(svg, px) {   // الـ SVG نفسه المستخدم في التطبيق، مرسومًا على اللوحة
+      return new Promise(res => { const im = new Image(); im.onload = () => res(im); im.onerror = () => res(null);
+        im.src = 'data:image/svg+xml;charset=utf-8,' + encodeURIComponent(svg.replace('<svg ', `<svg width="${px}" height="${px}" `)); });
+    }
+    function champCardLayout(c) {
+      const em = (c.golden ? 52 : 64) * CK, emGap = (c.golden ? 12 : 8) * CK;
+      const L = { padT: 20 * CK, em, emGap, tH: 13 * 1.5 * CK, nGap: 6 * CK, nH: 26 * 1.3 * CK, mGap: 6 * CK, mH: 13 * 1.5 * CK, sGap: 3 * CK, sH: 12 * 1.5 * CK,
+        rTop: 16 * CK, rPad: 4 * CK, rowH: 40 * CK, padB: 16 * CK };
+      L.h = L.padT + em + emGap + L.tH + L.nGap + L.nH + (c.meta ? L.mGap + L.mH : 0) + (c.sub ? L.sGap + L.sH : 0)
+        + (c.rest && c.rest.length ? L.rTop + L.rPad + c.rest.length * L.rowH : 0) + L.padB;
+      return L;
+    }
+    function drawChampCard(ctx, x, y, w, c, img) {
+      const L = champCardLayout(c), h = L.h, r = 16 * CK, cx = x + w / 2;
+      const T = (s, X, cy, o) => exportText(ctx, s, X, cy - exportOptDy(o.size), o);
+      // السطح: ظل بطبقتين ← تدرج 132° ← إضاءة علوية يسرى ← عمق سفلي أيمن ← خطوط مصقولة 112° ← حافة ضوء وإطار
+      ctx.save(); drawRoundedRect(ctx, x, y, w, h, r); ctx.fillStyle = '#D9B15C';
+      ctx.shadowColor = 'rgba(120,78,18,0.42)'; ctx.shadowBlur = 48; ctx.shadowOffsetY = 26; ctx.fill();
+      ctx.shadowColor = 'rgba(120,78,18,0.28)'; ctx.shadowBlur = 10; ctx.shadowOffsetY = 4; ctx.fill(); ctx.restore();
+      ctx.save(); drawRoundedRect(ctx, x, y, w, h, r); ctx.clip();
+      { const a = 132 * Math.PI / 180, vx = Math.sin(a), vy = -Math.cos(a), Ln = Math.abs(w * vx) + Math.abs(h * vy), mx = x + w / 2, my = y + h / 2;
+        const g = ctx.createLinearGradient(mx - vx * Ln / 2, my - vy * Ln / 2, mx + vx * Ln / 2, my + vy * Ln / 2);
+        [[0, '#F9E7AC'], [.2, '#E6C067'], [.42, '#C39339'], [.6, '#EACB7E'], [.82, '#A97526'], [1, '#DDB25C']].forEach(([o, col]) => g.addColorStop(o, col));
+        ctx.fillStyle = g; ctx.fillRect(x, y, w, h); }
+      { const g = ctx.createRadialGradient(x + w * .18, y - h * .1, 0, x + w * .18, y - h * .1, w * .75);
+        g.addColorStop(0, 'rgba(255,251,230,0.95)'); g.addColorStop(.38, 'rgba(255,246,214,0.35)'); g.addColorStop(.7, 'rgba(255,246,214,0)'); ctx.fillStyle = g; ctx.fillRect(x, y, w, h); }
+      { const g = ctx.createRadialGradient(x + w, y + h * 1.1, 0, x + w, y + h * 1.1, w * .6);
+        g.addColorStop(0, 'rgba(110,70,15,0.45)'); g.addColorStop(1, 'rgba(110,70,15,0)'); ctx.fillStyle = g; ctx.fillRect(x, y, w, h); }
+      ctx.save(); ctx.translate(x + w / 2, y + h / 2); ctx.rotate(112 * Math.PI / 180); ctx.fillStyle = 'rgba(255,255,255,0.06)';
+      const D = w + h; for (let k = -D; k < D; k += 5 * CK) ctx.fillRect(-D, k, 2 * D, CK); ctx.restore();
+      { const g = ctx.createLinearGradient(0, y + h - 10 * CK, 0, y + h); g.addColorStop(0, 'rgba(105,65,12,0)'); g.addColorStop(1, 'rgba(105,65,12,0.3)'); ctx.fillStyle = g; ctx.fillRect(x, y + h - 10 * CK, w, 10 * CK); }
+      { const g = ctx.createLinearGradient(0, y, 0, y + 24 * CK); g.addColorStop(0, 'rgba(255,252,235,0.35)'); g.addColorStop(1, 'rgba(255,252,235,0)'); ctx.fillStyle = g; ctx.fillRect(x, y, w, 24 * CK); }
+      { const g = ctx.createLinearGradient(x, 0, x + w, 0); g.addColorStop(0, 'rgba(255,255,255,0)'); g.addColorStop(.5, 'rgba(255,255,255,0.95)'); g.addColorStop(1, 'rgba(255,255,255,0)'); ctx.fillStyle = g; ctx.fillRect(x, y + 1, w, 1.5 * CK); }
+      ctx.restore();
+      ctx.save(); drawRoundedRect(ctx, x + CK, y + CK, w - 2 * CK, h - 2 * CK, r - CK); ctx.strokeStyle = 'rgba(255,244,205,0.5)'; ctx.lineWidth = CK; ctx.stroke(); ctx.restore();
+      ctx.save(); drawRoundedRect(ctx, x, y, w, h, r); ctx.strokeStyle = 'rgba(110,72,18,0.65)'; ctx.lineWidth = CK; ctx.stroke(); ctx.restore();
+      // الشعار
+      let yy = y + L.padT; const ecy = yy + L.em / 2;
+      if (c.golden) {   // كأس البطل الذهبي على قرص مينا داخل إطار ذهبي (نفس .kc-emb)
+        const R0 = L.em / 2; ctx.save(); ctx.beginPath(); ctx.arc(cx, ecy, R0 + 3 * CK, 0, Math.PI * 2); ctx.fillStyle = 'rgba(120,78,18,0.22)'; ctx.fill();
+        ctx.beginPath(); ctx.arc(cx, ecy, R0, 0, Math.PI * 2);
+        const cg = ctx.createConicGradient ? ctx.createConicGradient(210 * Math.PI / 180 - Math.PI / 2, cx, ecy) : null;
+        if (cg) { ['#FFF3CC', '#E5BC62', '#A06D20', '#F2D488', '#8A5B18', '#F8E2A2', '#FFF3CC'].forEach((col, i, A) => cg.addColorStop(i / (A.length - 1), col)); ctx.fillStyle = cg; } else ctx.fillStyle = '#E5BC62';
+        ctx.fill(); ctx.beginPath(); ctx.arc(cx, ecy, R0 - 6 * CK, 0, Math.PI * 2);
+        const eg = ctx.createRadialGradient(cx - R0 * .2, ecy - R0 * .3, 0, cx, ecy, R0 - 6 * CK); eg.addColorStop(0, '#6A4A30'); eg.addColorStop(.45, '#3A2617'); eg.addColorStop(1, '#1C120A');
+        ctx.fillStyle = eg; ctx.fill(); ctx.strokeStyle = 'rgba(255,236,190,0.55)'; ctx.lineWidth = CK * .6; ctx.stroke(); ctx.restore();
+        if (img) ctx.drawImage(img, cx - 16.5 * CK, ecy - 16.5 * CK, 33 * CK, 33 * CK);
+      } else {   // كأس اللوح مع ضوء خافت خلفه (نفس .kc-trophy)
+        ctx.save(); const gl = ctx.createRadialGradient(cx, ecy, 0, cx, ecy, L.em / 2); gl.addColorStop(0, 'rgba(255,249,228,0.7)'); gl.addColorStop(1, 'rgba(255,249,228,0)');
+        ctx.fillStyle = gl; ctx.fillRect(cx - L.em / 2, ecy - L.em / 2, L.em, L.em); ctx.restore();
+        if (img) ctx.drawImage(img, cx - L.em / 2, ecy - L.em / 2, L.em, L.em);
+      }
+      yy += L.em + L.emGap;
+      // العنوان الصغير الذهبي (بإضاءة محفورة)
+      const tS = 13 * CK; T(c.title, cx, yy + L.tH / 2 + CK, { size: tS, weight: 800, color: 'rgba(255,245,210,0.6)' }); T(c.title, cx, yy + L.tH / 2, { size: tS, weight: 800, color: '#5A3B0C' });
+      yy += L.tH + L.nGap;
+      // الاسم محفورًا، و«+» ذهبية بين الشريكين — سطر واحد كالتطبيق (يُصغَّر الخط إن ضاق)
+      { const parts = c.parts, gapP = 12 * CK, maxW = w - 40 * CK; let ns = 26 * CK;
+        const meas = sz => { ctx.save(); ctx.font = `800 ${sz}px ${EXPORT_FONT}`; const ws = parts.map(p => ctx.measureText(p).width), pw = ctx.measureText('+').width; ctx.restore(); return { ws, pw, tot: ws.reduce((a, b) => a + b, 0) + (parts.length - 1) * (pw + 2 * gapP) }; };
+        let M0 = meas(ns); while (M0.tot > maxW && ns > 14 * CK) { ns -= 2; M0 = meas(ns); }
+        const ncy = yy + L.nH / 2; let xr = cx + M0.tot / 2;
+        parts.forEach((pt, i) => {
+          [[CK, 'rgba(255,244,205,0.7)'], [-CK, 'rgba(90,55,10,0.25)'], [0, '#24170A']].forEach(([dy, col]) => T(pt, xr, ncy + dy, { size: ns, weight: 800, color: col, align: 'right' }));
+          xr -= M0.ws[i];
+          if (i < parts.length - 1) { xr -= gapP; T('+', xr - M0.pw / 2, ncy, { size: ns, weight: 800, color: '#7A5212' }); xr -= M0.pw + gapP; }
+        }); }
+      yy += L.nH;
+      if (c.meta) { yy += L.mGap; T(c.meta, cx, yy + L.mH / 2, { size: 13 * CK, weight: 800, color: 'rgba(36,23,10,0.9)', maxW: w - 40 * CK }); yy += L.mH; }
+      if (c.sub) { yy += L.sGap; T(c.sub, cx, yy + L.sH / 2, { size: 12 * CK, weight: 700, color: 'rgba(36,23,10,0.7)', maxW: w - 40 * CK }); yy += L.sH; }
+      if (c.rest && c.rest.length) {   // المركزان الثاني والثالث: المركز ← الاسم ← النقاط على خط واحد (نفس .kc-r)
+        yy += L.rTop; const x0 = x + 20 * CK, x1 = x + w - 20 * CK;
+        ctx.save(); ctx.fillStyle = 'rgba(70,42,8,0.22)'; ctx.fillRect(x0, yy, x1 - x0, CK * .6); ctx.fillStyle = 'rgba(255,246,214,0.45)'; ctx.fillRect(x0, yy + CK * .6, x1 - x0, CK * .6); ctx.restore();
+        yy += L.rPad;
+        c.rest.forEach(([rk, nm, pts], i) => {
+          if (i) { ctx.save(); ctx.fillStyle = 'rgba(70,42,8,0.12)'; ctx.fillRect(x0, yy, x1 - x0, CK * .5); ctx.restore(); }
+          const ry = yy + L.rowH / 2;
+          T(String(rk), x1 - 11 * CK, ry, { size: 15 * CK, weight: 800, color: 'rgba(36,23,10,0.7)' });
+          T(nm, x1 - 34 * CK, ry, { size: 17 * CK, weight: 800, color: 'rgba(36,23,10,0.9)', align: 'right', maxW: (x1 - x0) - 120 * CK, min: 20 });
+          if (pts) T(pts, x0, ry, { size: 13 * CK, weight: 800, color: 'rgba(36,23,10,0.7)', align: 'left' });
+          yy += L.rowH; });
+      }
+      return h;
+    }
     async function renderAchievementCanvas(items, subtitle, contextLine, title, filename, extra) {
   extra = (extra || []).filter(sec => sec && sec.rows && sec.rows.length);
 
@@ -12073,7 +12203,7 @@ function buildLeagueStandingsCanvas() {
 
   const dateStr = fmtDayDate(new Date());
 
-  const meta = [{ icon: 'calendar', label: dateStr }];
+  const meta = items.some(it => it.champ) ? [] : [{ icon: 'calendar', label: dateStr }];   // 8.5: بطاقة البطل تحمل تاريخ البطولة نفسها
   const headerH = exportBrandHeaderHeight(meta);
   const top = M + headerH + 44;
 
@@ -12082,7 +12212,9 @@ function buildLeagueStandingsCanvas() {
 
   // لكل بطاقة ارتفاعها: منفردة 330؛ ضمن مجموعة: 300 إن حملت كأسًا/ميدالية و260 بدونهما (هامش آمن للأيقونة)
   // الكأس ولقب «البطل» للبطل المحسوم فقط (cup === true)؛ متصدر دوري جارٍ يأخذ ميدالية المركز الأول.
+  const champImgs = await Promise.all(items.map(it => it.champ ? exportSvgImage(it.champ.golden ? goldCupSVG() : champCupSVG(), Math.round((it.champ.golden ? 33 : 64) * CK * 2)) : null));
   const itemMeta = items.map(it => {
+    if (it.champ) return { champ: true, h: champCardLayout(it.champ).h };
     const rank = rankOf(it);
     const hasCup = it.cup === true;
     const hasIcon = hasCup || !!rankIdentity(rank);      // كأس للبطل المحسوم، وميدالية 1/2/3 لغيره
@@ -12144,6 +12276,7 @@ function buildLeagueStandingsCanvas() {
       cuts.push(y - gap / 2);
     }
 
+    if (itemMeta[i].champ) { drawChampCard(ctx, M, y, CW, item.champ, champImgs[i]); y += itemMeta[i].h + gap; return; }
     const { rank, hasCup, hasIcon, hasPts, h: cardH } = itemMeta[i];
 
     // الهوية من الرتبة الفعلية فقط: 1 ذهبي، 2 فضي، 3 برونزي، غير ذلك محايد
