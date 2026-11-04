@@ -5816,10 +5816,10 @@ return teamName.replace('غير محدد', replacement);
     const TROPHY_TEXT = { club: { x: 100, y: 40.5, size: 16.5, color: '#B3261E' }, plate: { x: 100, y: 193.6, size: 16.5, color: '#2A1806' } };
     // 9.4: «درع البطل الذهبي» — نفس الدرع مصوغًا بالكامل من الذهب: إطار ذهبي، لوح مينا داكن منقوش بالذهب، إكليل غار كامل، و«بلا خسارة» على اللوحة
     // 9.4: «درع البطل الذهبي» — جسم ذهبي (إطار ذهبي ولوح مينا منقوش بالذهب) مصغّر قليلًا (GS) ليتسع التاج فوقه، وشريط أحمر «بلا خسارة» على القاعدة
-    const GS = .88, gsy = y => 160 + (y - 160) * GS;
+    const GS = .84, gsy = y => 160 + (y - 160) * GS;
     const trophyWords = golden => golden
       ? { club: 'المجلس', plate: 'المركز الأول', ribbon: 'بلا خسارة', clubColor: '#F2CD6E',
-          clubPos: { x: 100, y: gsy(TROPHY_TEXT.club.y), size: TROPHY_TEXT.club.size * GS }, ribbonPos: { x: 100, y: 221, size: 15, color: '#FFF4DA' } }
+          clubPos: { x: 100, y: gsy(TROPHY_TEXT.club.y), size: TROPHY_TEXT.club.size * GS }, ribbonPos: { x: 100, y: 218.9, size: 14, color: '#FFF4DA' } }
       : { club: 'المجلس', plate: 'المركز الأول', clubColor: TROPHY_TEXT.club.color, clubPos: TROPHY_TEXT.club };
     let trophySeq = 0;
     function carromTrophySVG(opts) {
@@ -5848,6 +5848,10 @@ return teamName.replace('غير محدد', replacement);
         rg('en', .42, .34, .8, [[0, '#5C3F27'], [.45, '#33221A'], [1, '#160D08']]),                                 // مينا داكنة (البطل الذهبي)
         lg('rb', 0, 0, 0, 1, [[0, '#D8402E'], [.45, '#B22618'], [1, '#7A140C']]),
         lg('rbT', 0, 0, 0, 1, [[0, '#A8261A'], [1, '#5E0E08']]),                                                     // ذيل الشريط (خلفي أغمق)
+        lg('cfL', 0, 0, 1, 0, [[0, '#FFF0B6'], [.6, '#F2C552'], [1, '#D49A2C']]),                                    // وجه الرأس المضاء
+        lg('cfR', 0, 0, 1, 0, [[0, '#B47614'], [1, '#7A4C0A']]),                                                     // وجه الرأس المظلل
+        lg('cwl', 0, 0, 0, 1, [[0, '#C98C22'], [1, '#8A5A10']]),                                                     // جدار التاج
+        lg('cbd', 0, 0, 1, 0, [[0, '#9A6410'], [.22, '#FFE7A0'], [.45, '#E9B848'], [.75, '#B27618'], [1, '#6E4508']]),   // طوق أسطواني
         rg('pr', .35, .3, .75, [[0, '#FFFBEA'], [.5, '#F2D38A'], [1, '#B9862C']]),                                   // لؤلؤ ذهبي
         rg('gm', .38, .32, .8, [[0, '#FF8A70'], [.4, '#D02A1C'], [1, '#6A0C06']]),                                   // ياقوتة                                     // الشريط الأحمر
         lg('rim', 0, 0, 1, 1, [[0, '#FFF6CF'], [.5, '#F6C755'], [1, '#8A5A0E']]),                                   // حافة الإطار الداخلي الذهبية                       // ظل التلامس
@@ -5977,29 +5981,29 @@ return teamName.replace('غير محدد', replacement);
         + `<text x="${T.plate.x}" y="${T.plate.y + .9}" text-anchor="middle" font-family="Tajawal, sans-serif" font-weight="800" font-size="${T.plate.size}" fill="#FFF3CF" fill-opacity=".7" direction="rtl">${Wd.plate}</text>`
         + `<text x="${T.plate.x}" y="${T.plate.y}" text-anchor="middle" font-family="Tajawal, sans-serif" font-weight="800" font-size="${T.plate.size}" fill="${T.plate.color}" direction="rtl">${Wd.plate}</text>`;
       // التاج (البطل الذهبي): ذهب مصقول بخمسة رؤوس بكرات، وأحجار حمراء، وطوق بخرزات، يجلس على حافة الإطار العلوية
-      const crown = !G ? '' : (() => {   // التاج: جدار ذهبي بأقواس، وخمسة رؤوس مخروطية بوجهين (مضاء/مظلل) ولآلئ، وطوق مرصّع، وظل داخلي يعطي الاستدارة
-        const by = gsy(4) + 1, x0 = 66, x1 = 134, hb = 7, tips = [[70, 10.5, 5], [85, 6.5, 6], [100, 3.2, 7.5], [115, 6.5, 6], [130, 10.5, 5]];
-        let c = `<path d="M${x0 + 1} ${by + hb}Q100 ${by + hb + 2.4} ${x1 - 1} ${by + hb}" fill="none" stroke="#2A1803" stroke-opacity=".45" stroke-width="2"/>`;   // ظل الطوق على الإطار
-        // الجدار خلف الرؤوس (أغمق قليلًا: الوجه الداخلي)
-        c += `<path d="M${x0 + 1} ${by}L${x0 + 2} ${by - 7}Q77 ${by - 3} 85 ${by - 8}Q92 ${by - 3} 100 ${by - 9}Q108 ${by - 3} 115 ${by - 8}Q123 ${by - 3} ${x1 - 2} ${by - 7}L${x1 - 1} ${by}Z" fill="#8A5A10" stroke="#4A2E04" stroke-width=".5"/>`;
-        c += `<path d="M${x0 + 2} ${by - 6.5}Q77 ${by - 2.5} 85 ${by - 7.5}Q92 ${by - 2.5} 100 ${by - 8.5}Q108 ${by - 2.5} 115 ${by - 7.5}Q123 ${by - 2.5} ${x1 - 2} ${by - 6.5}" fill="none" stroke="#FFE7A0" stroke-opacity=".5" stroke-width=".6"/>`;
-        // الرؤوس: كل رأس وجهان، الأيسر مضاء والأيمن مظلل (الضوء من أعلى اليسار)
+      const crown = !G ? '' : (() => {   // التاج: أطول وأضيق، أسطواني الإحساس (طوق بحافتين مقوّستين وحافة خلفية داكنة)، رؤوس مدببة بوجهين مضاء/مظلل، بلا حدود سوداء ثقيلة
+        const by = gsy(4) + 1.2, x0 = 77, x1 = 123, bt = by - 6.4;   // by: أسفل الطوق · bt: أعلى الطوق عند الطرفين
+        const tips = [[79.5, 12, 3], [89.2, 7.2, 4.2], [100, 2.6, 5], [110.8, 7.2, 4.2], [120.5, 12, 3]];
+        const ln = '#6A4410', sw = .35;
+        let c = `<path d="M${x0 + 1} ${by + .8}Q100 ${by + 4} ${x1 - 1} ${by + .8}" fill="none" stroke="#2A1803" stroke-opacity=".4" stroke-width="1.8"/>`;   // ظل التاج على الإطار
+        c += `<path d="M${x0 + .5} ${bt + .4}Q100 ${bt - 4.2} ${x1 - .5} ${bt + .4}L${x1 - .5} ${bt + 2}Q100 ${bt - 2.4} ${x0 + .5} ${bt + 2}Z" fill="#5A3606"/>`;   // الحافة الخلفية الداكنة (استدارة)
+        // الجدار بين الرؤوس: أقواس منخفضة
+        c += `<path d="M${x0} ${bt + 2}Q84.5 ${bt - 3} 89.2 ${bt - 6}Q94.5 ${bt - 2} 100 ${bt - 7}Q105.5 ${bt - 2} 110.8 ${bt - 6}Q115.5 ${bt - 3} ${x1} ${bt + 2}V${by}H${x0}Z" fill="${U('cwl')}" stroke="${ln}" stroke-width="${sw}"/>`;
         tips.forEach(([x, t, w]) => {
-          const mid = by - (by - t) * .5;
-          c += `<path d="M${x - w} ${by}Q${x - w * .45} ${mid} ${x} ${t + 2}V${by}Z" fill="${U('gdV')}"/>`
-            + `<path d="M${x + w} ${by}Q${x + w * .45} ${mid} ${x} ${t + 2}V${by}Z" fill="#B57A16"/>`
-            + `<path d="M${x - w} ${by}Q${x - w * .45} ${mid} ${x} ${t + 2}Q${x + w * .45} ${mid} ${x + w} ${by}" fill="none" stroke="#4A2E04" stroke-width=".5" stroke-linejoin="round"/>`
-            + `<path d="M${x - w * .62} ${by - 1.5}Q${x - w * .3} ${mid + 1} ${x - .5} ${t + 3.6}" fill="none" stroke="#FFF7D8" stroke-opacity=".85" stroke-width=".55"/>`
-            + `<circle cx="${x + .3}" cy="${t + .6}" r="2.5" fill="#3A2404" fill-opacity=".35"/><circle cx="${x}" cy="${t}" r="2.5" fill="${U('pr')}" stroke="#7A5418" stroke-width=".35"/><circle cx="${x - .8}" cy="${t - .8}" r=".8" fill="#FFFFFF" fill-opacity=".9"/>`;
+          const base = bt + 1.2 - (Math.abs(x - 100) < 1 ? 1.4 : 0), mid = base - (base - t) * .45;
+          c += `<path d="M${x - w} ${base}Q${x - w * .5} ${mid} ${x} ${t + 1.4}V${base}Z" fill="${U('cfL')}"/>`
+            + `<path d="M${x + w} ${base}Q${x + w * .5} ${mid} ${x} ${t + 1.4}V${base}Z" fill="${U('cfR')}"/>`
+            + `<path d="M${x - w} ${base}Q${x - w * .5} ${mid} ${x} ${t + 1.4}Q${x + w * .5} ${mid} ${x + w} ${base}" fill="none" stroke="${ln}" stroke-width="${sw}" stroke-linejoin="round"/>`
+            + `<path d="M${x - w * .55} ${base - 1}Q${x - w * .28} ${mid + .5} ${x - .35} ${t + 2.6}" fill="none" stroke="#FFF8DE" stroke-opacity=".8" stroke-width=".45"/>`
+            + `<circle cx="${x}" cy="${t}" r="${(1.25 + w * .07).toFixed(2)}" fill="${U('pr')}"/><circle cx="${x - .45}" cy="${t - .45}" r=".45" fill="#FFFFFF" fill-opacity=".9"/>`;
         });
-        // جوهرة حمراء على الرأس الأوسط وجوهرتان على الجانبيين
-        const gem = (x, y, rx, ry) => `<ellipse cx="${x}" cy="${y}" rx="${rx + .6}" ry="${ry + .6}" fill="${U('gdV')}" stroke="#4A2E04" stroke-width=".35"/><ellipse cx="${x}" cy="${y}" rx="${rx}" ry="${ry}" fill="${U('gm')}"/><path d="M${x - rx * .5} ${y - ry * .45}Q${x} ${y - ry} ${x + rx * .3} ${y - ry * .55}" fill="none" stroke="#FFD2C8" stroke-width=".55" stroke-opacity=".9"/>`;
-        c += gem(100, by - 5.2, 2.3, 3) + gem(85, by - 3.6, 1.5, 2) + gem(115, by - 3.6, 1.5, 2);
-        // الطوق المرصّع
-        c += `<path d="M${x0} ${by}H${x1}V${by + hb}Q100 ${by + hb + 1.6} ${x0} ${by + hb}Z" fill="${U('gdV')}" stroke="#4A2E04" stroke-width=".55"/>`
-          + `<path d="M${x0 + 1} ${by + .8}H${x1 - 1}" stroke="#FFF6D2" stroke-opacity=".9" stroke-width=".6"/><path d="M${x0 + 1} ${by + hb - .8}Q100 ${by + hb + .8} ${x1 - 1} ${by + hb - .8}" stroke="#6A4208" stroke-opacity=".5" stroke-width=".5" fill="none"/>`;
-        [74, 87, 113, 126].forEach(x => { c += `<circle cx="${x}" cy="${by + hb / 2}" r="1.3" fill="${U('pr')}" stroke="#7A5418" stroke-width=".3"/>`; });
-        c += gem(100, by + hb / 2 + .2, 3.2, 2.1) + gem(80.5, by + hb / 2, 1.6, 1.5) + gem(119.5, by + hb / 2, 1.6, 1.5);
+        c += `<ellipse cx="100" cy="${bt - 5.2}" rx="1.3" ry="1.8" fill="${U('gm')}"/><path d="M99.4 ${bt - 6.3}Q100 ${bt - 6.9} 100.6 ${bt - 6.2}" stroke="#FFD2C8" stroke-width=".35" fill="none"/>`;
+        // الطوق: أسطواني (حافتان مقوّستان) بتدرج ذهبي وخط ضوء، مرصّع بياقوتة ولآلئ
+        c += `<path d="M${x0} ${bt}Q100 ${bt + 3} ${x1} ${bt}V${by}Q100 ${by + 3} ${x0} ${by}Z" fill="${U('cbd')}" stroke="${ln}" stroke-width="${sw}"/>`
+          + `<path d="M${x0 + .6} ${bt + .7}Q100 ${bt + 3.7} ${x1 - .6} ${bt + .7}" fill="none" stroke="#FFF6D4" stroke-opacity=".85" stroke-width=".45"/>`;
+        const mid2 = (bt + by) / 2 + 1.5;
+        c += `<ellipse cx="100" cy="${mid2}" rx="2.4" ry="1.7" fill="${U('gm')}" stroke="#7A5418" stroke-width=".3"/><path d="M98.8 ${mid2 - .8}Q100 ${mid2 - 1.4} 101 ${mid2 - .9}" stroke="#FFD2C8" stroke-width=".4" fill="none"/>`;
+        [[90.5, .9], [109.5, .9], [83, .6], [117, .6]].forEach(([x, dy]) => { c += `<circle cx="${x}" cy="${mid2 - dy}" r="1" fill="${U('pr')}"/>`; });
         return c;
       })();
       // الشريط الأحمر: قطعة واحدة متصلة — شريط أمامي منحنٍ، وطيّة داكنة عند كل طرف، وذيلان خلفه بنهايتين مشقوقتين
