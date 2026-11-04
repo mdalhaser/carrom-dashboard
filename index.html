@@ -3274,22 +3274,28 @@
       border-bottom: 1px solid rgba(128, 138, 147, .75); box-shadow: inset 0 -1px 0 rgba(253, 254, 254, .55); }   /* حد محفور رفيع، بلا ظل: نفس المعدن لا قطعة فوق أخرى */
     /* الجسم يكمل معدن اللوحة: تدرج فضي يبدأ تحتها ويذوب في سطح البطاقة (تحت المحتوى) — بطاقة واحدة لا بطاقتان */
     .pf-hero.t2 { isolation: isolate; }
-    .pf-hero.t2 .pf-hero-top::after { content: ""; position: absolute; z-index: -1; left: 0; right: 0; top: 100%; height: 170px; pointer-events: none;
-      background: linear-gradient(180deg, rgba(201, 208, 214, .9) 0%, rgba(201, 208, 214, .5) 32%, rgba(201, 208, 214, .16) 68%, rgba(201, 208, 214, 0) 100%); }
+    .pf-hero.t2 .pf-hero-top::after { content: ""; position: absolute; z-index: -1; left: 0; right: 0; top: 100%; height: 96px; pointer-events: none;   /* أقصر: يذوب قبل المنحنى */
+      background: linear-gradient(180deg, rgba(200, 205, 208, .85) 0%, rgba(216, 215, 210, .42) 40%, rgba(226, 222, 214, .12) 75%, rgba(226, 222, 214, 0) 100%); }   /* من فضة اللوحة إلى دفء السطح: بلا رمادي باهت */
     .pf-hero.t2 .pf-hero-top .pf-name, .pf-hero.t2 .pf-rt .num, .pf-hero.t2 .pf-rank b { color: #1E252C; }
     .pf-hero.t2 .pf-rank { border-color: #9AA4AD; background: rgba(253, 254, 254, .38); box-shadow: inset 0 1px 0 rgba(253, 254, 254, .8); }
     .pf-hero.t2 .pf-rank small { color: rgba(30, 37, 44, .62); }
     .pf-hero.t2 .pf-rt .pf-tier.t2 { background: linear-gradient(135deg, #FAFBFC, #E4E8EB); color: #2F353B; }   /* كبسولة أفتح من اللوحة حتى لا تذوب فيها */
-    .pf-hero.t2 .pf-hero-top .pf-delta.up { color: #1E6B3A; } .pf-hero.t2 .pf-hero-top .pf-delta.down { color: #8E2E1E; }
+    /* سهم التغيّر على اللوحة داخل كبسولة فاتحة صغيرة: تباين اللون الأخضر/الأحمر لا يعتمد على درجة الفضة */
+    .pf-hero.t2 .pf-hero-top .pf-delta { padding: 2px 7px 0; border-radius: 999px; background: rgba(253, 254, 254, .62); line-height: 1.5; }
+    .pf-hero.t2 .pf-hero-top .pf-delta.up { color: #14532B; } .pf-hero.t2 .pf-hero-top .pf-delta.down { color: #7A2416; }
+    body.dark-mode .pf-hero.t2 .pf-hero-top .pf-delta { background: rgba(250, 251, 252, .9); }   /* على الرصاصي: كبسولة أنصع حتى لا تبدو رمادية باهتة */
+    body.dark-mode .pf-hero.t2 .pf-rank small { color: #F2F4F6; opacity: .92; }
     body.dark-mode .pf-hero.t2 {
       background: linear-gradient(var(--surface), var(--surface)) padding-box,
         linear-gradient(155deg, #E3E7EA 0%, #6E777F 30%, #C3C9CE 52%, #5A6268 78%, #A3ACB4 100%) border-box;
       box-shadow: 0 1px 2px rgba(0, 0, 0, .3), 0 10px 22px -12px rgba(0, 0, 0, .6); }
     body.dark-mode .pf-hero.t2::before { background: linear-gradient(90deg, transparent, #6E777F 10%, #DCE1E5 32%, #8E979F 52%, #C9CFD4 72%, #6E777F 90%, transparent); }
-    body.dark-mode .pf-hero.t2 .pf-hero-top { background: linear-gradient(180deg, rgba(240, 244, 247, .32) 0%, rgba(240, 244, 247, 0) 42%), linear-gradient(180deg, #C4CBD1 0%, #A9B1B8 58%, #959EA6 100%);
-      border-bottom-color: rgba(78, 86, 93, .85); box-shadow: inset 0 -1px 0 rgba(240, 244, 247, .35); }
-    body.dark-mode .pf-hero.t2 .pf-hero-top::after { background: linear-gradient(180deg, rgba(143, 153, 162, .5) 0%, rgba(143, 153, 162, .24) 32%, rgba(143, 153, 162, .07) 68%, rgba(143, 153, 162, 0) 100%); }
-    body.dark-mode .pf-hero.t2 .pf-rank { border-color: #6E777F; background: rgba(240, 244, 247, .22); box-shadow: inset 0 1px 0 rgba(240, 244, 247, .5); }
+    /* الليلي: فضة رصاصية مصقولة بنص فاتح — أخفت بوضوح من ذهب الأسطورة، وأفتح من لوح النخبة، والنص مقروء */
+    body.dark-mode .pf-hero.t2 .pf-hero-top { background: linear-gradient(180deg, rgba(240, 244, 247, .08) 0%, rgba(240, 244, 247, 0) 42%), linear-gradient(180deg, #67707A 0%, #5C656D 58%, #545D65 100%);
+      border-bottom-color: rgba(28, 32, 36, .8); box-shadow: inset 0 -1px 0 rgba(240, 244, 247, .2); }
+    body.dark-mode .pf-hero.t2 .pf-hero-top .pf-name, body.dark-mode .pf-hero.t2 .pf-rt .num, body.dark-mode .pf-hero.t2 .pf-rank b { color: #F2F4F6; }
+    body.dark-mode .pf-hero.t2 .pf-hero-top::after { background: linear-gradient(180deg, rgba(92, 96, 99, .5) 0%, rgba(74, 70, 66, .24) 40%, rgba(60, 54, 49, .07) 75%, rgba(60, 54, 49, 0) 100%); }
+    body.dark-mode .pf-hero.t2 .pf-rank { border-color: rgba(240, 244, 247, .32); background: rgba(240, 244, 247, .03); box-shadow: inset 0 1px 0 rgba(240, 244, 247, .14); }
 
     .pf-hero.t3 { --hx: #EEF1F4; --hm: rgba(238, 241, 244, .68); --hl: rgba(238, 241, 244, .15); border: 1px solid transparent;
       background:
@@ -11775,8 +11781,8 @@ function buildLeagueStandingsCanvas() {
           const PH = 228, pg = ctx.createLinearGradient(0, y, 0, y + PH);
           stops(pg, [[0, '#E6EAED'], [0.58, '#D2D8DD'], [1, '#C3CAD0']]); ctx.fillStyle = pg; ctx.fillRect(M, y, CW, PH);
           const tg = ctx.createLinearGradient(0, y, 0, y + PH * 0.42); stops(tg, [[0, 'rgba(253,254,254,0.5)'], [1, 'rgba(253,254,254,0)']]); ctx.fillStyle = tg; ctx.fillRect(M, y, CW, PH * 0.42);
-          const fd = ctx.createLinearGradient(0, y + PH, 0, y + PH + 300);   // الجسم يكمل معدن اللوحة ويذوب (بطاقة واحدة)
-          stops(fd, [[0, 'rgba(201,208,214,0.9)'], [0.32, 'rgba(201,208,214,0.5)'], [0.68, 'rgba(201,208,214,0.16)'], [1, 'rgba(201,208,214,0)']]); ctx.fillStyle = fd; ctx.fillRect(M, y + PH, CW, 300);
+          const fd = ctx.createLinearGradient(0, y + PH, 0, y + PH + 170);   // الجسم يكمل معدن اللوحة ويذوب قبل المنحنى، نحو دفء السطح
+          stops(fd, [[0, 'rgba(200,205,208,0.85)'], [0.4, 'rgba(216,215,210,0.42)'], [0.75, 'rgba(226,222,214,0.12)'], [1, 'rgba(226,222,214,0)']]); ctx.fillStyle = fd; ctx.fillRect(M, y + PH, CW, 170);
           ctx.fillStyle = 'rgba(253,254,254,0.55)'; ctx.fillRect(M, y + PH - 3, CW, 1.5); ctx.fillStyle = 'rgba(128,138,147,0.75)'; ctx.fillRect(M, y + PH - 1.5, CW, 1.5);   // حد محفور رفيع
         }
         if (lv === 3) { ctx.fillStyle = 'rgba(240,244,247,0.022)'; for (let ly = y; ly < y + HERO; ly += 4) ctx.fillRect(M, ly, CW, 1.5); }   // ملمس مصقول دقيق
