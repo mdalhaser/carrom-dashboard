@@ -5788,7 +5788,12 @@ return teamName.replace('غير محدد', replacement);
     // opts.text=false: بلا نصوص (لصور التصدير؛ تُكتب النصوص بخط Tajawal على اللوحة فوقه في نفس المواضع: TROPHY_TEXT).
     const TROPHY_TEXT = { club: { x: 100, y: 40.5, size: 16.5, color: '#B3261E' }, plate: { x: 100, y: 193.6, size: 16.5, color: '#2A1806' } };
     // 9.4: «درع البطل الذهبي» — نفس الدرع مصوغًا بالكامل من الذهب: إطار ذهبي، لوح مينا داكن منقوش بالذهب، إكليل غار كامل، و«بلا خسارة» على اللوحة
-    const trophyWords = golden => ({ club: 'المجلس', plate: golden ? 'بلا خسارة' : 'المركز الأول', clubColor: golden ? '#F2CD6E' : TROPHY_TEXT.club.color });   // 16.5 وحدة = 11 بكسل على درع 160 (حد نظام التصميم)
+    // 9.4: «درع البطل الذهبي» — جسم ذهبي (إطار ذهبي ولوح مينا منقوش بالذهب) مصغّر قليلًا (GS) ليتسع التاج فوقه، وشريط أحمر «بلا خسارة» على القاعدة
+    const GS = .88, gsy = y => 160 + (y - 160) * GS;
+    const trophyWords = golden => golden
+      ? { club: 'المجلس', plate: 'المركز الأول', ribbon: 'بلا خسارة', clubColor: '#F2CD6E',
+          clubPos: { x: 100, y: gsy(TROPHY_TEXT.club.y), size: TROPHY_TEXT.club.size * GS }, ribbonPos: { x: 100, y: 223.6, size: 15, color: '#FFF4DA' } }
+      : { club: 'المجلس', plate: 'المركز الأول', clubColor: TROPHY_TEXT.club.color, clubPos: TROPHY_TEXT.club };
     let trophySeq = 0;
     function carromTrophySVG(opts) {
       const o = Object.assign({ text: true, golden: false }, opts || {}), G = o.golden, n = ++trophySeq, id = k => `tr${n}${k}`, U = k => `url(#${id(k)})`;
@@ -5814,6 +5819,7 @@ return teamName.replace('غير محدد', replacement);
         lg('bdD', 0, 0, 1, 1, [[0, '#5A3A08', 0], [.55, '#5A3A08', 0], [1, '#5A3A08', .28]]),                      // عمق ناعم نحو أسفل اليمين
         lg('gF', 0, 0, .55, 1, [[0, '#FFE9A2'], [.18, '#F2C04C'], [.42, '#B9801A'], [.62, '#F5CF6A'], [.82, '#9A6410'], [1, '#6A4208']]),   // إطار ذهبي مصقول (البطل الذهبي)
         rg('en', .42, .34, .8, [[0, '#5C3F27'], [.45, '#33221A'], [1, '#160D08']]),                                 // مينا داكنة (البطل الذهبي)
+        lg('rb', 0, 0, 0, 1, [[0, '#D8402E'], [.45, '#B22618'], [1, '#7A140C']]),                                     // الشريط الأحمر
         lg('rim', 0, 0, 1, 1, [[0, '#FFF6CF'], [.5, '#F6C755'], [1, '#8A5A0E']]),                                   // حافة الإطار الداخلي الذهبية                       // ظل التلامس
         `<clipPath id="${id('fc')}"><path d="${oct(22, 4, 178, 160, 46)}"/></clipPath>`,
         `<clipPath id="${id('bc')}"><path d="${oct(38, 20, 162, 144, 36)}"/></clipPath>`
@@ -5851,15 +5857,14 @@ return teamName.replace('غير محدد', replacement);
       // ---------- غصنا الغار: أوراق على منحنى، متناوبة داخل/خارج، كل ورقة بتدرج معدني وعرق داكن ----------
       const branch = flip => {
         // منحنى يبدأ تحت الدرع قرب المنتصف، ينحني للخارج حول النصف السفلي للمثمّن، وينتهي عند منتصف ارتفاعه تقريبًا
-        const P = G ? t => { const a = Math.PI * (.7 + .62 * t); return [100 + 86 * Math.cos(a), 90 + 88 * Math.sin(a)]; }   // الذهبي: إكليل كامل يلتف حتى أعلى الدرع
-          : t => { const a = Math.PI * (.62 + .5 * t); return [100 + 92 * Math.cos(a) * (1 - .1 * t), 98 + 70 * Math.sin(a) * (1 - .06 * t)]; };
+        const P = t => { const a = Math.PI * (.62 + .5 * t); return [100 + 92 * Math.cos(a) * (1 - .1 * t), 98 + 70 * Math.sin(a) * (1 - .06 * t)]; };
         let s = '', stem = 'M' + P(0).map(v => v.toFixed(2)).join(' ');
         for (let i = 1; i <= 24; i++) stem += ' L' + P(i / 24).map(v => v.toFixed(2)).join(' ');
         s += `<path d="${stem}" fill="none" stroke="#6E4A12" stroke-width="2.4" stroke-linecap="round"/><path d="${stem}" fill="none" stroke="#F1D48A" stroke-width=".8" stroke-linecap="round" transform="translate(-.4 -.5)"/>`;
-        const N = G ? 12 : 8;
+        const N = 8;
         for (let i = 0; i < N; i++) {
           const t = .06 + i * (.88 / (N - 1)), [x, y] = P(t), [x2, y2] = P(t + .01), ang = Math.atan2(y2 - y, x2 - x) * 180 / Math.PI;
-          const L = G ? 16 - i * .4 : 21 - i * .9, W = G ? 6 - i * .15 : 7.4 - i * .3;
+          const L = 21 - i * .9, W = 7.4 - i * .3;
           [-1, 1].forEach(side => {
             const a = ang + side * 42 + (side > 0 ? 6 : 0), leaf = `M0 0C${(L * .25).toFixed(2)} ${(-W * 1.05).toFixed(2)} ${(L * .7).toFixed(2)} ${(-W * 1.05).toFixed(2)} ${L.toFixed(2)} ${(-W * .1).toFixed(2)}C${(L * .72).toFixed(2)} ${(W * .75).toFixed(2)} ${(L * .28).toFixed(2)} ${(W * .85).toFixed(2)} 0 0Z`;
             s += `<g transform="translate(${x.toFixed(2)} ${y.toFixed(2)}) rotate(${a.toFixed(1)})"><path d="${leaf}" fill="#2E1C05" fill-opacity=".38" transform="translate(.8 1.2)"/>`
@@ -5936,11 +5941,32 @@ return teamName.replace('غير محدد', replacement);
         star
       ].join('');
       // ---------- النصوص (Tajawal) ----------
-      const T = TROPHY_TEXT, Wd = trophyWords(G), txt = !o.text ? '' :
-        `<text x="${T.club.x}" y="${T.club.y}" text-anchor="middle" font-family="Tajawal, sans-serif" font-weight="800" font-size="${T.club.size}" fill="${Wd.clubColor}" direction="rtl">${Wd.club}</text>`
+      const T = TROPHY_TEXT, Wd = trophyWords(G), CP = Wd.clubPos, RP = Wd.ribbonPos, txt = !o.text ? '' :
+        `<text x="${CP.x}" y="${CP.y.toFixed(2)}" text-anchor="middle" font-family="Tajawal, sans-serif" font-weight="800" font-size="${CP.size.toFixed(2)}" fill="${Wd.clubColor}" direction="rtl">${Wd.club}</text>`
+        + (G ? `<text x="${RP.x}" y="${RP.y + .8}" text-anchor="middle" font-family="Tajawal, sans-serif" font-weight="800" font-size="${RP.size}" fill="#3A0804" fill-opacity=".55" direction="rtl">${Wd.ribbon}</text><text x="${RP.x}" y="${RP.y}" text-anchor="middle" font-family="Tajawal, sans-serif" font-weight="800" font-size="${RP.size}" fill="${RP.color}" direction="rtl">${Wd.ribbon}</text>` : '')
         + `<text x="${T.plate.x}" y="${T.plate.y + .9}" text-anchor="middle" font-family="Tajawal, sans-serif" font-weight="800" font-size="${T.plate.size}" fill="#FFF3CF" fill-opacity=".7" direction="rtl">${Wd.plate}</text>`
         + `<text x="${T.plate.x}" y="${T.plate.y}" text-anchor="middle" font-family="Tajawal, sans-serif" font-weight="800" font-size="${T.plate.size}" fill="${T.plate.color}" direction="rtl">${Wd.plate}</text>`;
-      return `<svg class="ctrophy" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 240" aria-hidden="true"><defs>${defs}</defs>${shadow}${ped}${castSh}${collar}${laurels}${frame}${board}${txt}</svg>`;
+      // التاج (البطل الذهبي): ذهب مصقول بخمسة رؤوس بكرات، وأحجار حمراء، وطوق بخرزات، يجلس على حافة الإطار العلوية
+      const crown = !G ? '' : (() => {
+        const by = gsy(4) + 1.5, xs = [70.5, 85, 100, 115, 129.5], ty = [7.5, 4.6, 1.6, 4.6, 7.5];   // التاج: رؤوس عالية بأقواس منحنية بينها
+        const pk = ty.map((t, i) => [xs[i], t + 4.2]);
+        let d = `M68.5 ${by}L${pk[0][0]} ${pk[0][1]}`;
+        for (let i = 1; i < 5; i++) { const mx = (pk[i - 1][0] + pk[i][0]) / 2; d += `Q${mx} ${by - 1.5} ${pk[i][0]} ${pk[i][1]}`; }
+        const body = d + `L131.5 ${by}Z`;
+        let c = `<path d="${body}" fill="#3A2404" fill-opacity=".4" transform="translate(.8 1.2)"/><path d="${body}" fill="${U('gd')}" stroke="#5A3806" stroke-width=".55" stroke-linejoin="round"/>`
+          + `<path d="M${pk[2][0]} ${pk[2][1] + 1}V${by - 1}" stroke="#7A4E0C" stroke-opacity=".5" stroke-width=".5"/><path d="M${pk[1][0] - .6} ${pk[1][1] + 1.5}Q${pk[1][0] + 2} ${by - 5} ${pk[1][0] + 6} ${by - 3}" stroke="#FFF6CF" stroke-opacity=".75" stroke-width=".7" fill="none"/>`
+          + `<rect x="67.5" y="${by - .5}" width="65" height="6" rx="1.3" fill="${U('gdV')}" stroke="#5A3806" stroke-width=".55"/><path d="M69 ${by + .6}H131" stroke="#FFF6D2" stroke-opacity=".85" stroke-width=".6"/>`;
+        xs.forEach((x, i) => { c += `<circle cx="${x}" cy="${ty[i] + 2.4}" r="2.4" fill="${U('gdV')}" stroke="#5A3806" stroke-width=".45"/><circle cx="${x - .7}" cy="${ty[i] + 1.7}" r=".85" fill="#FFF8DC"/>`; });
+        [[85, by - 5.2, 2], [100, by - 7, 3], [115, by - 5.2, 2]].forEach(([x, y, r]) => { c += `<path d="M${x} ${y - r}L${x + r * .8} ${y}L${x} ${y + r}L${x - r * .8} ${y}Z" fill="#C62E24" stroke="#5A120C" stroke-width=".4"/><path d="M${x} ${y - r}L${x - r * .8} ${y}L${x} ${y}Z" fill="#FF8C78" fill-opacity=".7"/>`; });
+        for (let k = 0; k < 7; k++) c += `<circle cx="${73 + k * 9}" cy="${by + 2.5}" r="1" fill="${k % 2 ? '#C62E24' : '#FFF0C0'}" stroke="#5A3806" stroke-width=".3"/>`;
+        return c;
+      })();
+      // الشريط الأحمر الملفوف على مقدمة القاعدة، بحواف ذهبية ونهايتين مشقوقتين
+      const ribbon = !G ? '' : `<path d="M14 212L32 212L29 221L32 230L14 230L19 221Z" fill="#7E1810"/><path d="M186 212L168 212L171 221L168 230L186 230L181 221Z" fill="#7E1810"/>`
+        + `<path d="M30 212H40V230H30Z" fill="#4A0C06"/><path d="M170 212H160V230H170Z" fill="#4A0C06"/>`
+        + `<path d="M36 210Q100 205 164 210V232Q100 227 36 232Z" fill="${U('rb')}" stroke="#E8BE58" stroke-width=".9"/><path d="M38 212.4Q100 207.6 162 212.4" stroke="#FFD8C8" stroke-opacity=".35" stroke-width=".7" fill="none"/>`;
+      const bodyG = G ? `<g transform="translate(0 ${(160 * (1 - GS)).toFixed(2)}) scale(1 ${GS}) translate(100 0) scale(${GS} 1) translate(-100 0)">` : '<g>';
+      return `<svg class="ctrophy" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 240" aria-hidden="true"><defs>${defs}</defs>${shadow}${ped}${ribbon}${castSh}${collar}${bodyG}${laurels}${frame}${board}</g>${crown}${txt}</svg>`;
     }
     function champCardHTML(title, nameHTML, meta, sub) {
       const gold = String(title).includes('البطل الذهبي');   // 9.3: درع بطولة الكيرم · 9.4: البطل الذهبي بدرعه الذهبي
@@ -12303,8 +12329,9 @@ function buildLeagueStandingsCanvas() {
           ctx.drawImage(img, x0, y0, L.emW, L.em);
           const tt = (str, t, col, dy) => { ctx.save(); ctx.font = `800 ${t.size * s}px ${EXPORT_FONT}`; ctx.textAlign = 'center'; ctx.textBaseline = 'alphabetic'; ctx.direction = 'rtl'; ctx.fillStyle = col; ctx.fillText(str, x0 + t.x * s, y0 + (t.y + dy) * s); ctx.restore(); };
           const Wd = trophyWords(c.golden);
-          tt(Wd.club, TROPHY_TEXT.club, Wd.clubColor, 0);
+          tt(Wd.club, Wd.clubPos, Wd.clubColor, 0);
           tt(Wd.plate, TROPHY_TEXT.plate, 'rgba(255,243,207,0.7)', .9); tt(Wd.plate, TROPHY_TEXT.plate, TROPHY_TEXT.plate.color, 0);
+          if (Wd.ribbon) { tt(Wd.ribbon, Wd.ribbonPos, 'rgba(58,8,4,0.55)', .8); tt(Wd.ribbon, Wd.ribbonPos, Wd.ribbonPos.color, 0); }
         }
       }
       yy += L.em + L.emGap;
