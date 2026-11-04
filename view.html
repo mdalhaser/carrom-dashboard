@@ -2001,10 +2001,12 @@
     .kc-cup .kc-star { position: relative; z-index: 1; width: 34px; height: 34px; overflow: visible; }   /* 8.3: الإضاءة داخل الـ SVG (لا filter) */
     /* 8.5 — الكأس بدل الميدالية: بلا قرص ولا حلقة منقطة، ضوء خافت ثابت خلفه فقط */
     /* ظلال الدرع على البطاقة (خلفيات متدرجة لا filter): ظل تلامس كثيف تحت القاعدة + ظل ملقى ناعم خلفه نحو أسفل اليمين (الضوء من أعلى اليسار) + هالة ضوء خافتة */
-    .kc-cup.kc-trophy { width: 134px; height: 160px; margin-bottom: 10px; border-radius: 0; box-shadow: none; overflow: visible;
-      background: radial-gradient(58% 8% at 51% 97.5%, rgba(48, 26, 2, .8), rgba(48, 26, 2, 0)),
-        radial-gradient(52% 44% at 62% 56%, rgba(80, 48, 6, .5), rgba(80, 48, 6, 0)),
-        radial-gradient(60% 50% at 46% 34%, rgba(255, 249, 228, .4), rgba(255, 249, 228, 0)); }   /* 9.3: درع البطولة (200×240) */
+    .kc-cup.kc-trophy { width: 134px; height: 160px; margin-bottom: 10px; border-radius: 0; box-shadow: none; overflow: visible; background: none; }
+    /* الظلال في طبقة أوسع من الدرع، وكل تدرج يتلاشى تمامًا قبل حافتها (closest-side) فلا تظهر حواف مربعة */
+    .kc-cup.kc-trophy::before { content: ""; position: absolute; left: -40px; right: -40px; top: -24px; bottom: -24px; pointer-events: none;
+      background: radial-gradient(closest-side, rgba(40, 20, 0, .85), rgba(40, 20, 0, .35) 55%, rgba(40, 20, 0, 0)) 50% calc(100% - 22px) / 172px 22px no-repeat,
+        radial-gradient(closest-side, rgba(70, 40, 2, .55), rgba(70, 40, 2, .2) 55%, rgba(70, 40, 2, 0)) 62% 62% / 190px 190px no-repeat,
+        radial-gradient(closest-side, rgba(255, 249, 228, .45), rgba(255, 249, 228, 0)) 46% 36% / 200px 170px no-repeat; }
     .kc-cup.kc-trophy::after { display: none; }
     .kc-trophy .ctrophy { position: relative; z-index: 1; display: block; width: 134px; height: 160px; overflow: visible; }
     /* التتويج عند نهاية البطولة: الميدالية ثم الاسم (اللمعة كما في البطاقة الذهبية) */
@@ -12313,8 +12315,8 @@ function buildLeagueStandingsCanvas() {
         ctx.fillStyle = gl; ctx.fillRect(x0, y0, L.emW, L.em); ctx.restore();
         if (img) {
           const sh = (cx2, cy2, rx, ry, col, a) => { ctx.save(); ctx.translate(cx2, cy2); ctx.scale(1, ry / rx); const g = ctx.createRadialGradient(0, 0, 0, 0, 0, rx); g.addColorStop(0, `rgba(${col},${a})`); g.addColorStop(1, `rgba(${col},0)`); ctx.fillStyle = g; ctx.beginPath(); ctx.arc(0, 0, rx, 0, Math.PI * 2); ctx.fill(); ctx.restore(); };
-          sh(x0 + L.emW * .62, y0 + L.em * .56, L.emW * .52, L.em * .44, '80,48,6', .5);    // ظل ملقى خلف الدرع (نفس CSS البطاقة)
-          sh(x0 + L.emW * .51, y0 + L.em * .975, L.emW * .58, L.em * .08, '48,26,2', .8);  // ظل تلامس تحت القاعدة
+          sh(x0 + L.emW * .64, y0 + L.em * .58, L.emW * .56, L.em * .46, '70,40,2', .72);    // ظل ملقى خلف الدرع (نفس CSS البطاقة)
+          sh(x0 + L.emW * .52, y0 + L.em * .975, L.emW * .62, L.em * .09, '40,20,0', .9);  // ظل تلامس تحت القاعدة
           ctx.drawImage(img, x0, y0, L.emW, L.em);
           const tt = (str, t, col, dy) => { ctx.save(); ctx.font = `800 ${t.size * s}px ${EXPORT_FONT}`; ctx.textAlign = 'center'; ctx.textBaseline = 'alphabetic'; ctx.direction = 'rtl'; ctx.fillStyle = col; ctx.fillText(str, x0 + t.x * s, y0 + (t.y + dy) * s); ctx.restore(); };
           tt('المجلس', TROPHY_TEXT.club, TROPHY_TEXT.club.color, 0);
