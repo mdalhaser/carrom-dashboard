@@ -11360,24 +11360,47 @@ function buildLeagueStandingsCanvas() {
         if (ls !== null && ls !== undefined && ls !== '' && Number(ls) === 0 && ws > 0) clean++; }));
       return { career, done, titles, best, peak, unb, titleRun, jump, clean };
     }
+    // 8.4 — لحظة كل رقم (قراءة فقط، للعرض): البطولة والتاريخ اللذان بلغ فيهما اللاعب قيمته القصوى أول مرة.
+    // تُبنى حول الحسابات القائمة دون تغييرها: إن لم تطابق القيمة المحسوبة هنا قيمة النظام نفسه تُترك اللحظة فارغة (لا تاريخ خاطئ).
+    function recordMoments(name, p, C) {
+      const seq = honorSeqDated(name), has = (t, side) => !!side && historyMembers(t, side).includes(name);
+      const at = (t, live) => t ? { t, date: live ? null : t.date, live: !!live } : null;
+      let bw = 0, rw = 0, mw = null, bu = 0, ru = 0, mu = null;
+      seq.forEach(e => { rw = e.r === 'w' ? rw + 1 : 0; if (rw > bw) { bw = rw; mw = e; } ru = e.r === 'l' ? 0 : ru + 1; if (ru > bu) { bu = ru; mu = e; } });
+      let bt = 0, rt = 0, mt = null; (C.done || []).slice().reverse().forEach(x => { rt = x.res[0] === 'ch' ? rt + 1 : 0; if (rt > bt) { bt = rt; mt = x.t; } });
+      let nc = 0, lc = null; statsSourceRecords().filter(Boolean).slice().sort((a, b) => new Date(a.date) - new Date(b.date)).forEach(t => (t.matches || []).forEach(m => {
+        if (m.forfeit || !has(t, m.winner)) return; const ws = Number(m.winnerScore), ls = m.loserScore;
+        if (ls !== null && ls !== undefined && ls !== '' && Number(ls) === 0 && ws > 0) { nc++; lc = t; } }));
+      return {
+        win: mw && bw === p.bestWin ? at(mw.t, mw.live) : null,
+        unb: mu && bu === C.unb ? at(mu.t, mu.live) : null,
+        titles: mt && bt === C.titleRun ? at(mt, false) : null,
+        clean: lc && nc === C.clean ? at(lc, lc.live) : null
+      };
+    }
     const arTitlesW = n => n === 1 ? 'لقب' : n === 2 ? 'لقبان' : n <= 10 ? 'ألقاب' : 'لقبًا';
     const arToursW = n => n === 1 ? 'بطولة' : n === 2 ? 'بطولتين' : n <= 10 ? 'بطولات' : 'بطولة';
     const arPtsW = n => n === 1 ? 'نقطة' : n === 2 ? 'نقطتان' : n <= 10 ? 'نقاط' : 'نقطة';
     const arMatchesW = n => n === 1 ? 'مباراة' : n === 2 ? 'مباراتان' : n <= 10 ? 'مباريات' : 'مباراة';
     // «أفضل أرقامه» (نفس القائمة في نافذة الملف وصورة تصديره): [العنوان، القيمة، التفصيل]
     function playerBests(p, C) {
-      const R = [];
-      // التفصيل تاريخ البطولة (أوضح من اسمها المتكرر)؛ البطولة الجارية بلا تاريخ ثابت فتُذكر بوصفها
-      const liveNames = new Set(statsSourceRecords().filter(t => t && t.live).map(t => t.name));
-      const tourOf = nm => { const t = statsSourceRecords().find(x => x && x.name === nm); return t ? histTitle(t) : ''; };   // 8.2: البطولة في المنطقة السفلية للبطاقة
-      R.push(['أعلى تقييم', C.peak ? C.peak.r.toLocaleString('en-US') : '—', C.peak ? (liveNames.has(C.peak.name) ? 'البطولة الجارية' : fmtDateNum(C.peak.date)) : '', C.peak && !liveNames.has(C.peak.name) ? tourOf(C.peak.name) : '']);
+      // 8.4: كل بطاقة بنفس البنية — [العنوان، القيمة، اليوم والتاريخ (أو «البطولة الجارية»)، البطولة التي تحقق فيها الرقم].
+      // لا ملاحظات تكرر العنوان («متتالية»، «على التوالي»…): السطران الأخيران معلومة حقيقية عن لحظة الرقم.
+      const R = [], Mo = recordMoments(p.name, p, C);
+      const liveT = statsSourceRecords().find(t => t && t.live), liveNames = new Set(liveT ? [liveT.name] : []);
+      const tour = (t, live) => t ? (live ? histNumberTitle(t) : histTitle(t)) : '';
+      const when = (d, live) => live ? 'البطولة الجارية' : d ? fmtDateNum(d) : '';
+      const mo = (m, v) => m && v ? [when(m.date, m.live), tour(m.t, m.live)] : ['', ''];
+      if (C.peak) { const lv = liveNames.has(C.peak.name), pt = lv ? liveT : statsSourceRecords().find(x => x && x.name === C.peak.name);
+        R.push(['أعلى تقييم', C.peak.r.toLocaleString('en-US'), when(C.peak.date, lv), tour(pt, lv)]); }
+      else R.push(['أعلى تقييم', '—', '', '']);
       R.push(['أكبر قفزة في بطولة', C.jump ? '\u200E+' + C.jump.dl : '—', C.jump ? fmtDateNum(C.jump.t.date) : '', C.jump ? histTitle(C.jump.t) : '']);
-      R.push(['أطول سلسلة انتصارات', p.bestWin ? (p.bestWin === 1 ? 'فوز واحد' : `${p.bestWin} ${arWinsW(p.bestWin)}`) : '—', p.bestWin > 1 ? 'متتالية' : '']);
-      R.push(['أطول سلسلة بلا هزيمة', C.unb ? (C.unb === 1 ? 'مباراة واحدة' : `${C.unb} ${arMatchesW(C.unb)}`) : '—', C.unb ? 'فوز أو تعادل' : '']);
-      if (C.titleRun > 1) R.push(['ألقاب متتالية', `${C.titleRun} ${arTitlesW(C.titleRun)}`, 'على التوالي']);
-      else if (C.titles.length) R.push(['آخر لقب', histTitle(C.titles[0].t), fmtDateNum(C.titles[0].t.date)]);
-      else R.push(['أفضل نتيجة', C.best ? C.best.res[1] : '—', C.best ? histTitle(C.best.t) : '']);
-      R.push(['انتصارات نظيفة', C.clean ? (C.clean === 1 ? 'فوز واحد' : `${C.clean} ${arWinsW(C.clean)}`) : '—', 'دون أن يسجل الخصم شوطًا']);
+      R.push(['أطول سلسلة انتصارات', p.bestWin ? (p.bestWin === 1 ? 'فوز واحد' : `${p.bestWin} ${arWinsW(p.bestWin)}`) : '—', ...mo(Mo.win, p.bestWin)]);
+      R.push(['أطول سلسلة بلا هزيمة', C.unb ? (C.unb === 1 ? 'مباراة واحدة' : `${C.unb} ${arMatchesW(C.unb)}`) : '—', ...mo(Mo.unb, C.unb)]);
+      if (C.titleRun > 1) R.push(['ألقاب متتالية', `${C.titleRun} ${arTitlesW(C.titleRun)}`, ...mo(Mo.titles, C.titleRun)]);
+      else if (C.titles.length) R.push(['آخر لقب', histTitle(C.titles[0].t), fmtDateNum(C.titles[0].t.date), '', true]);   // القيمة اسم بطولة: بحجم القيمة النصية
+      else R.push(['أفضل نتيجة', C.best ? C.best.res[1] : '—', C.best ? fmtDateNum(C.best.t.date) : '', C.best ? histTitle(C.best.t) : '']);
+      R.push(['انتصارات نظيفة', C.clean ? (C.clean === 1 ? 'فوز واحد' : `${C.clean} ${arWinsW(C.clean)}`) : '—', ...mo(Mo.clean, C.clean)]);
       return R;
     }
     // ===== أرقام المجلس القياسية (5.4): أفضل قيمة لكل رقم بين كل اللاعبين، بنفس تعريفات «أفضل أرقامه» =====
@@ -11391,10 +11414,11 @@ function buildLeagueStandingsCanvas() {
         const doneAsc = C.done.slice().reverse(); let curT = 0; for (let i = doneAsc.length - 1; i >= 0 && doneAsc[i].res[0] === 'ch'; i--) curT++;
         if (C.peak) K.peak.push({ n, v: C.peak.r, d: live.has(C.peak.name) ? null : C.peak.date, live: live.has(C.peak.name) });
         if (C.jump) K.jump.push({ n, v: C.jump.dl, d: C.jump.t.date });
-        K.win.push({ n, v: p.bestWin, cur: p.streak.type === 'w' && p.streak.len === p.bestWin });
-        K.unb.push({ n, v: C.unb, cur: curU === C.unb });
-        K.titles.push({ n, v: C.titleRun, cur: curT === C.titleRun });
-        K.clean.push({ n, v: C.clean });
+        const Mo = recordMoments(n, p, C), md = m => ({ d: m && m.date || null, live: !!(m && m.live) });   // 8.4: تاريخ بلوغ الرقم
+        K.win.push(Object.assign({ n, v: p.bestWin, cur: p.streak.type === 'w' && p.streak.len === p.bestWin }, md(Mo.win)));
+        K.unb.push(Object.assign({ n, v: C.unb, cur: curU === C.unb }, md(Mo.unb)));
+        K.titles.push(Object.assign({ n, v: C.titleRun, cur: curT === C.titleRun }, md(Mo.titles)));
+        K.clean.push(Object.assign({ n, v: C.clean }, md(Mo.clean)));
         // 7.8: أكثر الألقاب وأكثر الانتصارات — التاريخ تاريخ بلوغ القيمة الحالية (آخر لقب · آخر فوز)
         if (C.titles.length) K.ttot.push({ n, v: C.titles.length, d: C.titles[0].t.date });
         if (p.w) { const sq = honorSeqDated(n), lw = sq.filter(e => e.r === 'w').pop(); K.wtot.push({ n, v: p.w, d: lw && !lw.live ? lw.date : null, live: !!(lw && lw.live) }); }
@@ -11513,7 +11537,7 @@ function buildLeagueStandingsCanvas() {
           else if (m.winner == null && Number(m.scoreA) === Number(m.scoreB) && m.scoreA != null) sa = 0.5; else return;
           loc.push({ r: sa === 0.5 ? 'd' : (sa === 1) === inA ? 'w' : 'l', at: m.at });
         });
-        sortByPlayedTime(loc, e => e.at).forEach(e => out.push({ r: e.r, date: t.date, live: !!t.live }));
+        sortByPlayedTime(loc, e => e.at).forEach(e => out.push({ r: e.r, date: t.date, live: !!t.live, t }));
       });
       return out;
     }
@@ -11876,12 +11900,12 @@ function buildLeagueStandingsCanvas() {
           const rows = Math.ceil(recs.length / 2), G = 10, bodyH = rows * RHc + (rows - 1) * G;
           cuts.push(y - GAPS / 2); y += exportSectionBar(ctx, M, y, CW, 'أفضل أرقامه', 'star', null, bodyH) + TP;
           const cw = (RW - G) / 2;
-          recs.forEach(([l, v, s, t], i) => { const r = Math.floor(i / 2), k = i % 2, solo = i === recs.length - 1 && k === 0;
+          recs.forEach(([l, v, s, t, ftx], i) => { const r = Math.floor(i / 2), k = i % 2, solo = i === recs.length - 1 && k === 0;
             const w = solo ? RW : cw, x0 = solo ? RX : RX + RW - (k + 1) * cw - k * G, y0 = y + r * (RHc + G), cx = x0 + w / 2, mw = Math.min(cw, w) - 40;
             drawRoundedRect(ctx, x0, y0, w, RHc, 18); ctx.fillStyle = B.paper; ctx.fill(); ctx.strokeStyle = B.line; ctx.lineWidth = 1.2; ctx.stroke();
             const yT = y0 + PT + LT / 2, yV = y0 + PT + LT + GV + LV / 2, y3 = y0 + PT + LT + GV + LV + GL + L3 / 2, y4 = y3 + L3 / 2 + L4 / 2;
             T(ctx, l, cx, yT, { size: 22, weight: 800, color: B.goldDeep, maxW: mw, min: 14 });
-            const tx = !/\d/.test(v) && v !== '—';                                                                          // قيمة نصية بلا رقم: نفس قاعدة .rc-n.tx في التطبيق (أصغر)
+            const tx = ftx || (!/\d/.test(v) && v !== '—');                                                                        // قيمة نصية بلا رقم: نفس قاعدة .rc-n.tx في التطبيق (أصغر)
             T(ctx, v, cx, yV, { size: tx ? 28 : 48, weight: tx ? 800 : 900, color: B.ink, maxW: mw, min: 18 });
             if (t) { T(ctx, t, cx, y3, { size: 28, weight: 700, color: B.muted, maxW: mw, min: 14 }); if (s) T(ctx, s, cx, y4, { size: 22, weight: 700, color: B.faint, maxW: mw, min: 13 }); }
             else if (s) T(ctx, s, cx, y3, { size: 22, weight: 700, color: B.faint, maxW: mw, min: 13 });   // ملاحظة بلا بطولة: على سطر البطولة نفسه
@@ -13128,8 +13152,8 @@ function buildLeagueStandingsCanvas() {
         // (4) الأرقام القياسية + (5) المسيرة: من سجل البطولات (المكتملة، والجارية إن شارك فيها)
         const C0 = playerCareer(name, p), { career, done, titles, best } = C0, kindOf = t => t.mode === 'single' ? 'فردي' : t.mode === 'league' ? 'دوري' : 'فرق';
         // 8.2: نفس بطاقة «أرقام المجلس»: اسم الإنجاز ← الرقم ← اليوم والتاريخ أو العبارة (الملف خاص باللاعب، فلا سطر اسم)
-        const rc = (l, v, s, t) => `<div class="pf-rc"><span class="rc-t">${H(l)}</span>${recValueHTML(v, H)}<span class="rc-low">${t ? `<span class="rc-h">${H(t)}</span>` : ''}${s ? `<span class="rc-s">${H(s)}</span>` : ''}</span></div>`;
-        const recs = playerBests(p, C0).map(([l, v, s, t]) => rc(l, v, s, t));
+        const rc = (l, v, s, t, tx) => `<div class="pf-rc"><span class="rc-t">${H(l)}</span>${tx ? `<b class="rc-n tx"><bdi>${H(v)}</bdi></b>` : recValueHTML(v, H)}<span class="rc-low">${t ? `<span class="rc-h">${H(t)}</span>` : ''}${s ? `<span class="rc-s">${H(s)}</span>` : ''}</span></div>`;
+        const recs = playerBests(p, C0).map(([l, v, s, t, tx]) => rc(l, v, s, t, tx));
         { let recsAll = []; try { recsAll = councilRecords(); } catch (e) {}
           const hn = playerHonors(p, stats, C0, recsAll);   // القسم يختفي تمامًا لمن لا يملك وسامًا
           if (hn.length) html += sec('أوسمته', hn.length === 1 ? 'وسام واحد' : `${hn.length} ${hn.length === 2 ? 'وسامان' : hn.length <= 10 ? 'أوسمة' : 'وسامًا'}`,
