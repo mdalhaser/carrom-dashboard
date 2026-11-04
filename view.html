@@ -2000,7 +2000,11 @@
     .kc-cup::after { content: ""; position: absolute; inset: 6px; border-radius: 50%; border: 1px dashed rgba(70, 42, 8, .35); }
     .kc-cup .kc-star { position: relative; z-index: 1; width: 34px; height: 34px; overflow: visible; }   /* 8.3: الإضاءة داخل الـ SVG (لا filter) */
     /* 8.5 — الكأس بدل الميدالية: بلا قرص ولا حلقة منقطة، ضوء خافت ثابت خلفه فقط */
-    .kc-cup.kc-trophy { width: 134px; height: 160px; margin-bottom: 10px; border-radius: 0; background: radial-gradient(closest-side, rgba(255, 249, 228, .55), rgba(255, 249, 228, 0)); box-shadow: none; }   /* 9.3: درع البطولة (200×240) */
+    /* ظلال الدرع على البطاقة (خلفيات متدرجة لا filter): ظل تلامس كثيف تحت القاعدة + ظل ملقى ناعم خلفه نحو أسفل اليمين (الضوء من أعلى اليسار) + هالة ضوء خافتة */
+    .kc-cup.kc-trophy { width: 134px; height: 160px; margin-bottom: 10px; border-radius: 0; box-shadow: none; overflow: visible;
+      background: radial-gradient(58% 8% at 51% 97.5%, rgba(48, 26, 2, .8), rgba(48, 26, 2, 0)),
+        radial-gradient(52% 44% at 62% 56%, rgba(80, 48, 6, .5), rgba(80, 48, 6, 0)),
+        radial-gradient(60% 50% at 46% 34%, rgba(255, 249, 228, .4), rgba(255, 249, 228, 0)); }   /* 9.3: درع البطولة (200×240) */
     .kc-cup.kc-trophy::after { display: none; }
     .kc-trophy .ctrophy { position: relative; z-index: 1; display: block; width: 134px; height: 160px; overflow: visible; }
     /* التتويج عند نهاية البطولة: الميدالية ثم الاسم (اللمعة كما في البطاقة الذهبية) */
@@ -5814,26 +5818,30 @@ return teamName.replace('غير محدد', replacement);
         lg('wd', 0, 0, .55, 1, [[0, '#7A4E2C'], [.35, '#5A3519'], [.7, '#41240F'], [1, '#2B1708']]),            // جوز (ضوء أعلى اليسار)
         lg('wdT', 0, 0, 0, 1, [[0, '#8C5E37'], [1, '#5E3A1D']]),                                                   // وجه علوي فاتح
         lg('wdF', 0, 0, 1, 0, [[0, '#3A210E'], [.18, '#5B3719'], [.5, '#6A4120'], [.82, '#4E2E14'], [1, '#2E1A0A']]), // واجهة القاعدة
-        lg('gd', 0, 0, 1, .25, [[0, '#8A5F1E'], [.18, '#FBE7A6'], [.4, '#D9AE55'], [.62, '#9C6E24'], [.82, '#F3D68D'], [1, '#7D5416']]), // ذهب مصقول
-        lg('gdV', 0, 0, 0, 1, [[0, '#FFF1C6'], [.45, '#E2BC67'], [1, '#9A6C22']]),                                 // ذهب حافة (رأسي)
-        rg('bd', .42, .34, .78, [[0, '#FBEBC0'], [.45, '#EFD394'], [.8, '#DDB76C'], [1, '#C79C4E']]),             // سطح اللوح شمباني
+        lg('gd', 0, 0, 1, .25, [[0, '#6A420C'], [.14, '#FFE7A0'], [.3, '#F0B93E'], [.5, '#9A6210'], [.68, '#FAD26A'], [.85, '#B97C18'], [1, '#5A3606']]), // ذهب مصقول غني
+        lg('gdV', 0, 0, 0, 1, [[0, '#FFF0B8'], [.35, '#F5C552'], [.7, '#C2851C'], [1, '#7A4D0C']]),                                 // ذهب حافة (رأسي)
+        rg('bd', .4, .32, .8, [[0, '#FFE9A6'], [.3, '#F7CC63'], [.62, '#E2A93C'], [.88, '#BD8420'], [1, '#9C6812']]),   // سطح اللوح: ذهب غني عسلي
         lg('bdS', 0, 0, 0, 1, [[0, '#4A2C10', .45], [.14, '#4A2C10', 0]]),                                          // ظل غائر علوي داخل اللوح
-        lg('pl', 0, 0, 0, 1, [[0, '#FFF0C2'], [.3, '#F1D38A'], [.62, '#D3A852'], [1, '#A77C2E']]),                 // لوحة الاسم
+        lg('pl', 0, 0, 0, 1, [[0, '#FFF2BE'], [.22, '#FAD46A'], [.55, '#E0A532'], [.8, '#B57A16'], [1, '#7E520C']]),                 // لوحة الاسم
         lg('plB', 0, 0, 1, 0, [[0, '#FFFFFF', 0], [.5, '#FFFFFF', .18], [1, '#FFFFFF', 0]]),                       // صقل أفقي للوحة
-        lg('lf', 0, 0, 1, 1, [[0, '#FFF2C4'], [.45, '#E4BB5E'], [1, '#8E6119']]),                                 // ورقة غار
+        lg('lf', 0, 0, 1, 1, [[0, '#FFF3B8'], [.3, '#F8CD5A'], [.65, '#C98A1E'], [1, '#6E4508']]),                                 // ورقة غار
         rg('fh', .25, .12, .75, [[0, '#FFD9A8', .28], [.5, '#FFD9A8', .06], [1, '#FFD9A8', 0]]),
-        rg('sh', .5, .5, .5, [[0, '#1A0E06', .5], [.6, '#1A0E06', .18], [1, '#1A0E06', 0]]),                       // ظل التلامس
+        rg('sh', .5, .5, .5, [[0, '#120802', .7], [.45, '#120802', .35], [1, '#120802', 0]]),
+        rg('sa', .5, .5, .5, [[0, '#2A1404', .32], [.7, '#2A1404', .1], [1, '#2A1404', 0]]),                      // ظل محيطي واسع على البطاقة
+        rg('gl', .3, .22, .55, [[0, '#FFFBE6', .75], [.35, '#FFF4CC', .25], [1, '#FFF4CC', 0]]),                   // لمعة مرآة على سطح اللوح
+        lg('bdD', 0, 0, 1, 1, [[0, '#5A3A08', 0], [.55, '#5A3A08', 0], [1, '#5A3A08', .28]]),                      // عمق ناعم نحو أسفل اليمين
+        lg('rim', 0, 0, 1, 1, [[0, '#FFF6CF'], [.5, '#F6C755'], [1, '#8A5A0E']]),                                   // حافة الإطار الداخلي الذهبية                       // ظل التلامس
         `<clipPath id="${id('fc')}"><path d="${oct(22, 4, 178, 160, 46)}"/></clipPath>`,
         `<clipPath id="${id('bc')}"><path d="${oct(38, 20, 162, 144, 36)}"/></clipPath>`
       ].join('');
       // ---------- ظل التلامس ----------
-      const shadow = `<ellipse cx="100" cy="233" rx="92" ry="6.5" fill="${U('sh')}"/>`;
+      const shadow = `<ellipse cx="104" cy="232" rx="100" ry="9" fill="${U('sa')}"/><ellipse cx="101" cy="232.5" rx="88" ry="4.6" fill="${U('sh')}"/>`;   // ظل محيطي واسع + ظل تلامس كثيف
       // ---------- القاعدة: لوح سفلي عريض ← جسم مائل ← غطاء علوي، بحواف ذهبية ----------
       const ped = [
         // اللوح السفلي
         `<path d="M10 222L18 214H182L190 222V229Q190 232 187 232H13Q10 232 10 229Z" fill="${U('wdF')}"/>`,
         `<path d="M18 214H182L190 222H10Z" fill="${U('wdT')}"/>`,
-        `<path d="M10 222H190" stroke="${U('gd')}" stroke-width="1.6"/>`,
+        `<path d="M10 222H190" stroke="${U('gd')}" stroke-width="2.2"/><path d="M12 221.2H188" stroke="#FFF4CC" stroke-opacity=".7" stroke-width=".45"/>`,
         `<path d="M12 230.6H188" stroke="#000" stroke-opacity=".35" stroke-width="1"/>`,
         // الجسم المائل
         `<path d="M30 214L40 170H160L170 214Z" fill="${U('wdF')}"/>`,
@@ -5841,10 +5849,10 @@ return teamName.replace('غير محدد', replacement);
         // عروق الجوز على الواجهة
         `<g fill="none" stroke="#1E1006" stroke-opacity=".28" stroke-width=".6"><path d="M44 176c12 3 18-1 30 2s20 4 34 0 22-2 44 2"/><path d="M41 190c14-2 22 3 36 1s24-4 38 0 18 3 41-1"/><path d="M38 204c10 2 24-2 40 0s28 3 44-1 20 0 40 2"/></g>`,
         `<g fill="none" stroke="#C99A62" stroke-opacity=".12" stroke-width=".7"><path d="M46 183c18-2 26 2 44 0s26-3 64 1"/><path d="M42 198c16 2 30-3 46-1s30 3 66-1"/></g>`,
-        `<path d="M30 214H170" stroke="${U('gd')}" stroke-width="1.4"/>`,
+        `<path d="M30 214H170" stroke="${U('gd')}" stroke-width="2"/><path d="M31 213.3H169" stroke="#FFF4CC" stroke-opacity=".65" stroke-width=".4"/>`,
         // الغطاء العلوي
         `<path d="M34 170L40 162H160L166 170Z" fill="${U('wdT')}"/>`,
-        `<path d="M34 170H166V173H34Z" fill="${U('gd')}"/>`,
+        `<path d="M34 170H166V173.6H34Z" fill="${U('gd')}"/><path d="M36 170.5H164" stroke="#FFF4CC" stroke-opacity=".8" stroke-width=".5"/>`,
         `<path d="M40 162H160" stroke="#FFF2C8" stroke-opacity=".55" stroke-width=".8"/>`,
         // لوحة الاسم: ذهب مصقول بحافة مشطوفة ومسامير
         `<rect x="44" y="179" width="112" height="27" rx="3" fill="#5A3A12" fill-opacity=".55"/>`,
@@ -5854,6 +5862,7 @@ return teamName.replace('غير محدد', replacement);
         ...[[50, 183], [150, 183], [50, 199], [150, 199]].map(([x, y]) => `<circle cx="${x}" cy="${y}" r="1.4" fill="#8A6020"/><circle cx="${x - .35}" cy="${y - .35}" r=".6" fill="#FFF3CC"/>`)
       ].join('');
       // ---------- الطوق الذهبي بين الدرع والقاعدة ----------
+      const castSh = `<ellipse cx="103" cy="163" rx="62" ry="5" fill="#120802" fill-opacity=".45"/>`;   // ظل الدرع على غطاء القاعدة
       const collar = `<path d="M78 156H122L126 162H74Z" fill="${U('gd')}"/><path d="M74 162H126" stroke="#5A3A12" stroke-opacity=".5" stroke-width=".8"/><path d="M80 157H120" stroke="#FFF4CF" stroke-opacity=".8" stroke-width=".7"/>`;
       // ---------- غصنا الغار: أوراق على منحنى، متناوبة داخل/خارج، كل ورقة بتدرج معدني وعرق داكن ----------
       const branch = flip => {
@@ -5890,7 +5899,8 @@ return teamName.replace('غير محدد', replacement);
         `<path d="${oct(22, 4, 178, 160, 46)}" fill="${U('fh')}"/>`,   // إضاءة رئيسية على وجه الإطار
         // شطف الحافة الخارجية: ضوء أعلى اليسار وظل أسفل اليمين
         `<path d="${oct(22, 4, 178, 160, 46)}" fill="none" stroke="#C9935C" stroke-opacity=".55" stroke-width="1.2" stroke-dasharray="0" clip-path="${U('fc')}"/>`,
-        `<path d="M22 50L68 4H132" fill="none" stroke="#F0C48E" stroke-opacity=".45" stroke-width="1.6" stroke-linecap="round"/>`,
+        `<path d="M22 50L68 4H132" fill="none" stroke="#F0C48E" stroke-opacity=".5" stroke-width="1.6" stroke-linecap="round"/>`,
+        `<path d="M31 41L63 9" stroke="#FFE6C0" stroke-opacity=".7" stroke-width=".9" stroke-linecap="round"/>`,   // لمعات حادة على الشطف
         `<path d="M178 114L132 160H68" fill="none" stroke="#120802" stroke-opacity=".55" stroke-width="1.6" stroke-linecap="round"/>`,
         // الحافة الذهبية الرفيعة
         `<path d="${oct(26.5, 8.5, 173.5, 155.5, 44)}" fill="none" stroke="${U('gd')}" stroke-width="1.5"/>`,
@@ -5926,12 +5936,14 @@ return teamName.replace('غير محدد', replacement);
       })();
       const board = [
         `<path d="${oct(38, 20, 162, 144, 36)}" fill="${U('bd')}"/>`,
+        `<g clip-path="${U('bc')}"><rect x="38" y="20" width="124" height="124" fill="${U('bdD')}"/><ellipse cx="74" cy="42" rx="70" ry="40" fill="${U('gl')}"/></g>`,   // لمعة مرآة أعلى اليسار وعمق أسفل اليمين
         `<g clip-path="${U('bc')}"><g fill="none" stroke="#B88A3E" stroke-opacity=".18" stroke-width=".6"><path d="M36 40c30 4 60-4 90 0s30 2 40 0"/><path d="M36 70c26-3 56 4 86 0s30-2 42 2"/><path d="M36 102c30 3 58-4 88 0s28 2 40-1"/><path d="M36 130c28-2 60 3 88 0"/></g>`
           + `<rect x="30" y="18" width="140" height="130" fill="${U('bdS')}"/></g>`,
         `<path d="M162 56L126 20H74" fill="none" stroke="#FFF4D2" stroke-opacity=".0" stroke-width="1"/>`,
         base,
         aim(-1, -1), aim(1, -1), aim(-1, 1), aim(1, 1),
         `<circle cx="${cx}" cy="${cy}" r="15.5" fill="none" stroke="#241509" stroke-width=".7"/>`,
+        `<path d="${oct(38, 20, 162, 144, 36)}" fill="none" stroke="${U('rim')}" stroke-width="2"/><path d="${oct(39.6, 21.6, 160.4, 142.4, 35.3)}" fill="none" stroke="#5A3A08" stroke-opacity=".55" stroke-width=".6"/>`,   // حافة ذهبية تحيط اللوح الغائر
         star
       ].join('');
       // ---------- النصوص (Tajawal) ----------
@@ -5939,7 +5951,7 @@ return teamName.replace('غير محدد', replacement);
         `<text x="${T.club.x}" y="${T.club.y}" text-anchor="middle" font-family="Tajawal, sans-serif" font-weight="800" font-size="${T.club.size}" fill="${T.club.color}" direction="rtl">المجلس</text>`
         + `<text x="${T.plate.x}" y="${T.plate.y + .9}" text-anchor="middle" font-family="Tajawal, sans-serif" font-weight="800" font-size="${T.plate.size}" fill="#FFF3CF" fill-opacity=".7" direction="rtl">المركز الأول</text>`
         + `<text x="${T.plate.x}" y="${T.plate.y}" text-anchor="middle" font-family="Tajawal, sans-serif" font-weight="800" font-size="${T.plate.size}" fill="${T.plate.color}" direction="rtl">المركز الأول</text>`;
-      return `<svg class="ctrophy" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 240" aria-hidden="true"><defs>${defs}</defs>${shadow}${ped}${collar}${laurels}${frame}${board}${txt}</svg>`;
+      return `<svg class="ctrophy" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 240" aria-hidden="true"><defs>${defs}</defs>${shadow}${ped}${castSh}${collar}${laurels}${frame}${board}${txt}</svg>`;
     }
     function champCardHTML(title, nameHTML, meta, sub) {
       const gold = String(title).includes('البطل الذهبي');   // 8: البطل الذهبي كما هو · 9.3: بقية بطاقات البطل بدرع بطولة الكيرم
@@ -12300,6 +12312,9 @@ function buildLeagueStandingsCanvas() {
         ctx.save(); const gl = ctx.createRadialGradient(cx, ecy, 0, cx, ecy, L.emW / 2); gl.addColorStop(0, 'rgba(255,249,228,0.55)'); gl.addColorStop(1, 'rgba(255,249,228,0)');
         ctx.fillStyle = gl; ctx.fillRect(x0, y0, L.emW, L.em); ctx.restore();
         if (img) {
+          const sh = (cx2, cy2, rx, ry, col, a) => { ctx.save(); ctx.translate(cx2, cy2); ctx.scale(1, ry / rx); const g = ctx.createRadialGradient(0, 0, 0, 0, 0, rx); g.addColorStop(0, `rgba(${col},${a})`); g.addColorStop(1, `rgba(${col},0)`); ctx.fillStyle = g; ctx.beginPath(); ctx.arc(0, 0, rx, 0, Math.PI * 2); ctx.fill(); ctx.restore(); };
+          sh(x0 + L.emW * .62, y0 + L.em * .56, L.emW * .52, L.em * .44, '80,48,6', .5);    // ظل ملقى خلف الدرع (نفس CSS البطاقة)
+          sh(x0 + L.emW * .51, y0 + L.em * .975, L.emW * .58, L.em * .08, '48,26,2', .8);  // ظل تلامس تحت القاعدة
           ctx.drawImage(img, x0, y0, L.emW, L.em);
           const tt = (str, t, col, dy) => { ctx.save(); ctx.font = `800 ${t.size * s}px ${EXPORT_FONT}`; ctx.textAlign = 'center'; ctx.textBaseline = 'alphabetic'; ctx.direction = 'rtl'; ctx.fillStyle = col; ctx.fillText(str, x0 + t.x * s, y0 + (t.y + dy) * s); ctx.restore(); };
           tt('المجلس', TROPHY_TEXT.club, TROPHY_TEXT.club.color, 0);
