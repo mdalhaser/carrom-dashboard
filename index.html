@@ -5731,20 +5731,22 @@ return teamName.replace('غير محدد', replacement);
     // تعريف واحد للتطبيق وصورة التصدير (تُرسم الصورة من نفس الـ SVG). معرّفات التدرج فريدة لكل نسخة.
     // شكل الكأس (24×24): وعاء منحنٍ أنيق، مقبضان دائريان، ساق بعقدة، قاعدة بطبقتين ولوحة داكنة كقاعدة الكؤوس الحقيقية
     const CHAMP_CUP = {
+      // المقبضان متناظران بسماكة واحدة، وطرفاهما يدخلان تحت الوعاء (يُرسمان قبله) فيتصلان به بلا فجوة ولا خط التقاء
+      handles: ['M7.2 4.6C3.4 4.4 2.4 6.4 2.8 8c.5 2 2.6 3 5.2 2.9l-.3-1.3C5.8 9.6 4.8 8.9 4.5 7.8c-.3-1.2.5-2 2.7-1.9Z',
+        'M16.8 4.6c3.8-.2 4.8 1.8 4.4 3.4-.5 2-2.6 3-5.2 2.9l.3-1.3c1.9 0 2.9-.7 3.2-1.8.3-1.2-.5-2-2.7-1.9Z'],
       body: ['M6 3.2h12v1c0 4.6-2.6 8.4-6 8.4S6 8.8 6 4.2Z',
-        'M6.4 4.5C3.3 4.4 2.5 6.3 2.8 7.8c.4 1.9 2.4 3 4.6 3l-.5-1.2c-1.5-.1-2.6-.9-2.8-2-.2-1 .4-1.8 2.4-1.8Z',
-        'M17.6 4.5c3.1-.1 3.9 1.8 3.6 3.3-.4 1.9-2.4 3-4.6 3l.5-1.2c1.5-.1 2.6-.9 2.8-2 .2-1-.4-1.8-2.4-1.8Z',
         'M10.9 12.4h2.2l.3 1.6h-2.8Z', 'M10.1 13.8h3.8a.75.75 0 0 1 0 1.5h-3.8a.75.75 0 0 1 0-1.5Z', 'M11 15.2h2l.6 2.3h-3.2Z',
         'M8.5 17.3h7l.6 1.6H7.9Z', 'M6.8 18.8h10.4v2.9H6.8Z'],
       rim: 'M6 3.2h12v.85H6Z', spec: 'M7.3 4.5c.1 2.9.9 5 2.4 6.4-1-2-1.4-4-1.4-6.4Z', plate: 'M7.5 19.5h9v1.5h-9Z', cx: 12, cy: 7.5
     };
     let champCupSeq = 0;
     function champCupSVG() {
-      const n = ++champCupSeq, g = 'ccG' + n, f = 'ccF' + n, C = CHAMP_CUP, B = C.body.join('');
+      const n = ++champCupSeq, g = 'ccG' + n, f = 'ccF' + n, C = CHAMP_CUP, B = C.body.join(''), Hd = C.handles.join(''), All = Hd + B;
       return `<svg class="ccup" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" aria-hidden="true"><defs>`
         + `<linearGradient id="${g}" x1="0" y1="0" x2="1" y2=".18">${GOLD_CUP.stops.map(([o, c]) => `<stop offset="${o}" stop-color="${c}"/>`).join('')}</linearGradient>`
         + `<radialGradient id="${f}" cx=".38" cy=".32" r=".8"><stop offset="0" stop-color="#FCF2D6"/><stop offset=".7" stop-color="#EBD39E"/><stop offset="1" stop-color="#D6B572"/></radialGradient></defs>`
-        + `<path fill="rgba(60,34,4,.2)" transform="translate(0 1)" d="${B}"/><path fill="rgba(60,34,4,.3)" transform="translate(0 .55)" d="${B}"/>`
+        + `<path fill="rgba(60,34,4,.2)" transform="translate(0 1)" d="${All}"/><path fill="rgba(60,34,4,.3)" transform="translate(0 .55)" d="${All}"/>`
+        + `<path fill="url(#${g})" stroke="rgba(58,34,6,.72)" stroke-width=".35" stroke-linejoin="round" d="${Hd}"/>`
         + `<path fill="url(#${g})" stroke="rgba(58,34,6,.72)" stroke-width=".35" stroke-linejoin="round" d="${B}"/>`
         + `<path fill="#FFF4CF" opacity=".85" d="${C.rim}"/><path fill="#FFFBEA" opacity=".7" d="${C.spec}"/>`
         + `<path fill="#3A2508" opacity=".55" d="${C.plate}"/><path fill="#FFF4CF" opacity=".35" d="M7.5 19.5h9v.3h-9Z"/>`
