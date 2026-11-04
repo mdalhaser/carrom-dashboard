@@ -1139,8 +1139,8 @@
     .st-fold.open .st-fold-head .chev svg { transform: rotate(180deg); }
     .st-fold-body { display: grid; grid-template-rows: 0fr; opacity: 0; }
     .st-fold-body > .in { min-height: 0; overflow: hidden; }
-    .st-fold.open .st-fold-body { grid-template-rows: 1fr; opacity: 1; }
-    .st-fold.open .st-fold-body > .in { padding-top: var(--s3); }
+    .st-fold:is(.open, .fold-hold) .st-fold-body { grid-template-rows: 1fr; opacity: 1; }
+    .st-fold:is(.open, .fold-hold) .st-fold-body > .in { padding-top: var(--s3); }
     .st-fold-more { display: flex; align-items: center; justify-content: center; gap: 6px; width: 100%; min-height: 46px; margin-top: var(--s2);
       background: none; border: 1px dashed var(--line-strong, var(--line)); border-radius: var(--r-md); color: var(--text-2); font: inherit; font-size: var(--fs-sm); font-weight: 800;
       cursor: pointer; -webkit-tap-highlight-color: transparent; }
@@ -1289,6 +1289,7 @@
     .gh-more summary { list-style: none; cursor: pointer; display: flex; align-items: center; justify-content: space-between; gap: 8px; min-height: 46px; font-size: var(--fs-sm); font-weight: 800; color: var(--text-2); -webkit-tap-highlight-color: transparent; }
     .gh-more summary::after { content: ""; flex: none; width: 8px; height: 8px; border-right: 2px solid currentColor; border-bottom: 2px solid currentColor; transform: translateY(-2px) rotate(45deg); margin-inline-end: 6px; transition: transform .25s ease; }
     .gh-more[open] summary::after { transform: translateY(2px) rotate(-135deg); }
+    .gh-more.fold-closing summary::after { transform: translateY(-2px) rotate(45deg); }
     .gh-body { padding-bottom: var(--s2); display: flex; flex-direction: column; gap: var(--s3); }
     .gh-form { display: flex; flex-direction: column; gap: var(--s3); }
     .gh-form[hidden] { display: none; }
@@ -1788,9 +1789,9 @@
     .lg-setup-body { display: grid; grid-template-rows: 1fr; }
     .lg-setup-body > .in { min-height: 0; display: flex; flex-direction: column; gap: var(--s4); }
     body.lg-focus .lg-setup-body > .in { overflow: hidden; }
-    body.lg-focus #leagueSetupPanel:not(.open) .lg-setup-body { grid-template-rows: 0fr; opacity: 0; }
+    body.lg-focus #leagueSetupPanel:not(.open):not(.fold-hold) .lg-setup-body { grid-template-rows: 0fr; opacity: 0; }
     body.lg-focus #leagueSetupPanel { gap: 0; padding-block: 4px; }
-    body.lg-focus #leagueSetupPanel.open .lg-setup-body > .in { padding-top: var(--s2); }
+    body.lg-focus #leagueSetupPanel:is(.open, .fold-hold) .lg-setup-body > .in { padding-top: var(--s2); }
 
     body.lg-focus .lg-tabs { display: grid; grid-template-columns: 1fr 1fr; position: relative; padding: 4px; border-radius: 999px;
       background: var(--surface-3); border: 1px solid var(--line); }
@@ -2182,9 +2183,9 @@
     .vday-h .chev { width: 18px; height: 18px; color: var(--text-3); transition: transform var(--t-sheet) var(--ease); }
     .vday.open .vday-h .chev { transform: rotate(180deg); }
     .vday-b { display: grid; grid-template-rows: 0fr; opacity: 0; }   /* الحركة من foldMotion (9.6) */
-    .vday.open .vday-b { grid-template-rows: 1fr; opacity: 1; }
+    .vday:is(.open, .fold-hold) .vday-b { grid-template-rows: 1fr; opacity: 1; }
     .vday-b > .in { min-height: 0; overflow: hidden; display: flex; flex-direction: column; padding: 0 6px; }
-    .vday.open .vday-b > .in { padding-bottom: 8px; }
+    .vday:is(.open, .fold-hold) .vday-b > .in { padding-bottom: 8px; }
     .vday-r { display: grid; grid-template-columns: 32px minmax(0, 1fr) 50px minmax(0, 1fr); align-items: center; column-gap: 6px; width: 100%; min-height: 46px; padding: 6px 4px; border: 0; border-top: 1px solid var(--line); background: none; border-radius: 0; font: inherit; color: var(--text); cursor: pointer; -webkit-tap-highlight-color: transparent; transition: background .2s ease; }
     .vday-list > .vday-r:first-child { border-top: 0; }
     .vday-r.latest { background: var(--warn-bg); border-radius: var(--r-md); }
@@ -2759,8 +2760,8 @@
     .ko-setup.open .ko-sum .chev { transform: rotate(180deg); }
     .ko-body { display: grid; grid-template-rows: 0fr; opacity: 0; }
     .ko-body > .in { min-height: 0; overflow: hidden; display: flex; flex-direction: column; gap: var(--s4); }
-    .ko-setup.open .ko-body { grid-template-rows: 1fr; opacity: 1; }
-    .ko-setup.open .ko-body > .in { padding-top: var(--s4); }
+    .ko-setup:is(.open, .fold-hold) .ko-body { grid-template-rows: 1fr; opacity: 1; }
+    .ko-setup:is(.open, .fold-hold) .ko-body > .in { padding-top: var(--s4); }
     @media (min-width: 960px) { body.ko-focus section.main { grid-template-columns: minmax(0, 1fr); max-width: 1180px; margin-inline: auto; width: 100%; } body.ko-focus section.main > .left { display: none; } }
     @media (prefers-reduced-motion: reduce) { .ko-sum .chev { transition: none; } }
     /* (2) زر الإحصائيات في الهيدر بجانب لوحة التحكم */
@@ -3070,7 +3071,7 @@
     .tn-sum .chev { flex: none; width: 18px; height: 18px; color: var(--text-3); transition: transform var(--t-sheet) var(--ease); }
     .tn.open .tn-sum .chev { transform: rotate(180deg); }
     .tn-pick { display: grid; grid-template-rows: 0fr; opacity: 0; }
-    .tn.open .tn-pick { grid-template-rows: 1fr; opacity: 1; }
+    .tn:is(.open, .fold-hold) .tn-pick { grid-template-rows: 1fr; opacity: 1; }
     .tn-pick > .in { min-height: 0; overflow: hidden; }
     .tn-chips { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 6px; padding: 4px 0 12px; }
     .tn-chips button { min-height: 42px; padding: 4px 6px; border-radius: var(--r-md); border: 1px solid var(--line); background: var(--surface-2); font: inherit; font-size: 13px; font-weight: 800; color: var(--text-2);
@@ -3081,7 +3082,7 @@
     .tn-acts button { padding: 4px 0; border: 0; background: none; font: inherit; font-size: 13px; font-weight: 800; color: var(--gold-deep); cursor: pointer; }
     .tn-acts button:disabled { color: var(--text-3); opacity: .6; cursor: default; }
     .tn-list { padding: 12px 0 16px; border-top: 1px solid var(--line); }
-    .tn.open .tn-list { border-top-color: var(--line); }
+    .tn:is(.open, .fold-hold) .tn-list { border-top-color: var(--line); }
     .tn-grid .match-title .tn-r { color: var(--gold-deep); font-weight: 800; }
     .tn-grid .match-status { display: none; }
     /* 6.6: رقم الترتيب المقترح + «التالية» على الأولى. Tajawal أعلى من الوسط الهندسي: حشوة علوية لمحاذاة الرقم داخل الدائرة */
@@ -3107,8 +3108,10 @@
     .tr-sum .sub { grid-column: 2 / -1; display: grid; grid-template-rows: 1fr; opacity: 1; }
     .tr-sum .sub > .in { min-height: 0; overflow: hidden; padding-top: 2px; font-size: 13px; font-weight: 700; color: var(--text-2); white-space: nowrap; text-overflow: ellipsis; }
     .tr-sum .sub b { font-weight: 800; color: var(--text); }
+    .tr:not(.open):not(.fold-hold) .tr-sum .sub > .in { animation: foldBack var(--t-fast) ease; }
+    @keyframes foldBack { from { opacity: 0; } to { opacity: 1; } }
     .tr-sum .sub b.k { color: var(--gold-deep); }
-    .tr.open .tr-sum .sub { grid-template-rows: 0fr; opacity: 0; }
+    .tr:is(.open, .fold-hold) .tr-sum .sub { grid-template-rows: 0fr; opacity: 0; }
     .tr-cap { display: block; padding: 7px 2px 0; font-size: 12px; font-weight: 700; color: var(--text-3); }
     .tr-cap b { font-weight: 800; color: var(--text-2); }
     .tr-sum .chev { flex: none; width: 18px; height: 18px; color: var(--text-3); transition: transform var(--t-sheet) var(--ease); }
@@ -3123,7 +3126,7 @@
     body.dark-mode .tr-ph.p1 { background: linear-gradient(135deg, #DCD3C5, #BFB4A3); color: #3A342D; }
     body.dark-mode .tr-ph.p4 { background: linear-gradient(135deg, #735A45, #4C3A2C); color: #F3DDAC; }
     .tr-body { display: grid; grid-template-rows: 0fr; opacity: 0; }
-    .tr.open .tr-body { grid-template-rows: 1fr; opacity: 1; }
+    .tr:is(.open, .fold-hold) .tr-body { grid-template-rows: 1fr; opacity: 1; }
     .tr-body > .in { min-height: 0; overflow: hidden; }
     /* مؤشر المراحل الخمس: خمسة مقاطع رفيعة تمتلئ حتى المرحلة الحالية */
     .tr-steps { display: grid; grid-template-columns: repeat(5, 1fr); gap: 4px; padding: 0 2px; }
@@ -3151,7 +3154,7 @@
     .tr-outsum .chev { width: 16px; height: 16px; margin-inline-start: auto; color: var(--text-3); transition: transform var(--t-sheet) var(--ease); }
     .tr-out.open .tr-outsum .chev { transform: rotate(180deg); }
     .tr-outlist { display: grid; grid-template-rows: 0fr; opacity: 0; }
-    .tr-out.open .tr-outlist { grid-template-rows: 1fr; opacity: 1; }
+    .tr-out:is(.open, .fold-hold) .tr-outlist { grid-template-rows: 1fr; opacity: 1; }
     .tr-outlist > .in { min-height: 0; overflow: hidden; display: flex; flex-direction: column; border-top: 1px solid var(--line); }
         /* دليل سباق اللقب: الرابط والسُّلّم من نمط دليل المستويات، والفتح والإغلاق بانتقال ناعم في الاتجاهين */
     .tr-g { padding-bottom: 12px; margin-top: -2px; }
@@ -3159,7 +3162,7 @@
     .tr-g .pf-guide-btn span { display: inline-block; transition: transform var(--t-base) var(--ease); }
     .tr-g.open .pf-guide-btn span { transform: rotate(-90deg); }
     .tr-guide { display: grid; grid-template-rows: 0fr; opacity: 0; }
-    .tr-g.open .tr-guide { grid-template-rows: 1fr; opacity: 1; }
+    .tr-g:is(.open, .fold-hold) .tr-guide { grid-template-rows: 1fr; opacity: 1; }
     .tr-guide > .in { min-height: 0; overflow: hidden; }
     .tr-guide .pf-guide-in { margin-top: 8px; animation: none; }
     .tr-lad .tr-ph { justify-content: center; min-width: 108px; flex: none; }
@@ -3291,6 +3294,7 @@
     .pf-guide-in { padding: 9px 12px 12px; border-radius: 16px; border: 1px solid var(--hl, var(--line)); background: color-mix(in srgb, var(--hx, var(--text)) 4%, transparent); animation: pfGuideIn var(--t-sheet) var(--ease); }
     @keyframes pfGuideIn { from { opacity: 0; transform: translateY(-6px); } to { opacity: 1; transform: none; } }
     @media (prefers-reduced-motion: reduce) { .pf-guide-in { animation: none; } }
+    .pf-guide > .pf-guide-in { animation: none; }
     .pf-ladder { display: flex; flex-direction: column; gap: 3px; }
     .pf-lad { display: flex; align-items: center; gap: 12px; padding: 4px 6px; border-radius: 12px; opacity: .7; }
     .pf-lad.on { opacity: 1; background: color-mix(in srgb, var(--hx, var(--text)) 7%, transparent); }
@@ -13456,66 +13460,74 @@ function buildLeagueStandingsCanvas() {
       const done = () => { box.__st = null; a.cancel(); el.style.overflow = ''; if (!on) { box.classList.remove(cls); fx.forEach(f => f.cancel()); } };
       box.__st = { a, done }; a.onfinish = () => { if (box.__st && box.__st.a === a) done(); };
     }
-    // 9.6 — طي وفتح موحد لكل الأقسام القابلة للطي: حركة ارتفاع حقيقية (Web Animations) بدل انتقال grid-template-rows
-    // الذي يقفز في سفاري على الآيفون عند الفتح. الحالتان من CSS كما هما (الغلاف grid: ‏0fr مطوي · 1fr مفتوح، وشفافيته)،
-    // والدالة تقيس الارتفاع قبل تبديل الصنف وبعده وتحرّك بينهما: الفتح 0.26 ث والمحتوى يدخل بتلاشٍ وانزلاق 6 بكسل،
-    // والإغلاق 0.22 ث والمحتوى يتلاشى أولًا (0.14). لمسة أثناء الحركة تكمل من الارتفاع والشفافية الحاليين.
-    // bodies: غلاف واحد أو أكثر يتأثر بنفس الصنف (مثل سطر الخلاصة الذي يذوب عند فتح «سباق اللقب»).
-    function foldMotion(host, cls, on, bodies) {
-      bodies = [].concat(bodies).filter(Boolean);
-      const before = bodies.map(b => ({ h: b.getBoundingClientRect().height, o: b.__fold ? +getComputedStyle(b).opacity : null }));
-      bodies.forEach(b => { if (b.__fold) { b.__fold.forEach(a => a.cancel()); b.__fold = null; b.style.gridTemplateRows = ''; } });
-      host.classList.toggle(cls, on);
-      if (!document.body.animate || (window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches)) return;
-      const E = 'cubic-bezier(.2, .8, .2, 1)';
-      bodies.forEach((b, i) => {
-        const h0 = before[i].h, h1 = b.getBoundingClientRect().height;
-        if (Math.abs(h1 - h0) < 1) return;
-        const grow = h1 > h0, o0 = before[i].o != null ? before[i].o : (grow ? 0 : 1), inEl = b.firstElementChild;
-        if (!grow) b.style.gridTemplateRows = '1fr';   // المحتوى يبقى مرصوفًا أثناء الانكماش
-        const fx = [b.animate([{ height: h0 + 'px' }, { height: h1 + 'px' }], { duration: grow ? 260 : 220, easing: E, fill: 'forwards' }),
-          grow ? b.animate([{ opacity: o0 }, { opacity: 1 }], { duration: 260, easing: E }) : b.animate([{ opacity: o0 }, { opacity: 0 }], { duration: 140, easing: 'ease', fill: 'forwards' })];
-        if (grow && inEl && before[i].o == null) fx.push(inEl.animate([{ transform: 'translateY(-6px)' }, { transform: 'none' }], { duration: 260, easing: E }));
-        b.__fold = fx;
-        fx[0].onfinish = () => { if (b.__fold !== fx) return; b.__fold = null; b.style.gridTemplateRows = ''; fx.forEach(a => a.cancel()); };
-      });
+    // ===== 9.7 — محرك الطي الموحد (FLIP) لكل ما يُفتح ويُطوى في التطبيق =====
+    // المبدأ (كما في واجهات Apple): الصفحة تأخذ شكلها النهائي مرة واحدة فقط، ثم لا يتحرك إلا ما ترسمه بطاقة الرسوميات مباشرة:
+    //  · حافة البطاقة السفلية تُكشف بقصّ يتبع زوايا البطاقة نفسها (clip-path) — لا يتغير أي ارتفاع حقيقي أثناء الحركة
+    //  · كل ما تحتها في الصفحة ينزلق معها (transform) — فلا إعادة حساب للصفحة ولا إعادة رسم للأشرطة الزجاجية في كل إطار
+    //  · المحتوى يدخل بتلاشٍ وانزلاق 6 بكسل مع التمدد، ويتلاشى أولًا عند الطي (0.14)؛ الفتح 0.26 والطي 0.22، بلا ارتداد
+    //  · لمسة أثناء الحركة تعكسها من نقطتها الحالية (reverse) دون أي قفزة
+    //  · عند الطي تتغير الحالة المرئية فورًا (السهم والصنف)، ويبقى المحتوى مرصوفًا حتى نهاية الحركة (hold) ثم يُطوى فعليًا
+    // card: البطاقة المرئية التي تُقص · src: العنصر الذي يتغير حجمه (منه يُبحث عمّا تحته) · apply(on): تطبيق الحالة
+    // hold(b): إبقاء المحتوى مرصوفًا مفتوحًا رغم الحالة المطوية · fade: عناصر المحتوى التي تتلاشى
+    const FOLD_E = 'cubic-bezier(.2, .8, .2, 1)';
+    const foldReduced = () => !document.body.animate || !!(window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches);
+    function foldFollowers(src) {   // كل ما يلي العنصر في الصفحة: إخوته التالون، ثم إخوة كل أب حتى الجسم
+      const out = [];
+      for (let n = src; n && n !== document.body && n !== document.documentElement; n = n.parentElement)
+        for (let x = n.nextElementSibling; x; x = x.nextElementSibling) out.push(x);
+      return out.filter(el => { if (!el.getClientRects().length) return false; const p = getComputedStyle(el).position; return p !== 'fixed' && p !== 'sticky'; });
     }
-    // نفس الحركة لعنصر يُخفى بخاصية hidden (دليل المستويات، لوحات مركز الصور): يتمدد من الصفر مع حشواته وهوامشه، وعند الإخفاء ينكمش ثم يُخفى
-    const FOLD_BOX = ['height', 'paddingTop', 'paddingBottom', 'marginTop', 'marginBottom'];
-    function revealMotion(el, show) {
+    function foldStop(src) { const st = src && src.__ff; if (!st) return; src.__ff = null; if (st.card.__ffBy === st) st.card.__ffBy = null; st.fx.forEach(a => a.cancel()); st.hold(false); }
+    function foldFlip({ card, src, on, apply, hold, fade }) {
+      src = src || card;
+      const st = src.__ff;
+      if (st) {   // لمسة أثناء الحركة: نعكس الحركة نفسها من موضعها الحالي
+        if (st.on === on) return;
+        st.on = on; if (!on) hold(true); apply(on); st.fx.forEach(a => a.reverse()); return;
+      }
+      if (card.__ffBy) foldStop(card.__ffBy.src);   // حركة أخرى على نفس البطاقة (قسم داخلي): تُنهى فورًا
+      if (foldReduced()) { apply(on); return; }
+      const fol = foldFollowers(src), tops = () => fol.map(el => el.getBoundingClientRect().top), hgt = () => card.getBoundingClientRect().height;
+      const t0 = tops(), h0 = hgt();
+      apply(on); const t1 = tops(), h1 = hgt();
+      const clip = Math.abs(h1 - h0); if (clip < 1) return;
+      if (!on) hold(true);   // الطي: المحتوى يبقى مرصوفًا حتى نهاية الحركة
+      const r = parseFloat(getComputedStyle(card).borderTopLeftRadius) || 0, ins = px => `inset(0px 0px ${px}px 0px round ${r}px)`;
+      const opt = { duration: on ? 260 : 220, easing: FOLD_E, fill: 'both' };
+      const fx = [card.animate({ clipPath: on ? [ins(clip), ins(0)] : [ins(0), ins(clip)] }, opt)];
+      fol.forEach((el, i) => { const d = t1[i] - t0[i]; if (Math.abs(d) < 0.5) return;
+        fx.push(el.animate({ transform: on ? [`translateY(${-d}px)`, 'translateY(0px)'] : ['translateY(0px)', `translateY(${d}px)`] }, opt)); });
+      [].concat(fade || []).filter(Boolean).forEach(el => fx.push(on
+        ? el.animate([{ opacity: 0, transform: 'translateY(-6px)' }, { opacity: 1, transform: 'translateY(0px)' }], { duration: 260, easing: FOLD_E, fill: 'both' })
+        : el.animate([{ opacity: 1 }, { opacity: 0 }], { duration: 140, easing: 'ease', fill: 'both' })));
+      const me = { on, fx, card, src, hold }; src.__ff = me; card.__ffBy = me;
+      fx[0].onfinish = () => { if (src.__ff !== me) return; src.__ff = null; if (card.__ffBy === me) card.__ffBy = null; hold(false); fx.forEach(a => a.cancel()); };
+    }
+    // قسم يُفتح بصنف (open) وغلافه grid ‏0fr/1fr في CSS. bodies[0] هو الغلاف الذي يتمدد ومحتواه (.in) يتلاشى؛ card: البطاقة المرئية (افتراضيًا host)
+    function foldMotion(host, cls, on, bodies, card) {
+      const src = [].concat(bodies).filter(Boolean)[0] || host;
+      foldFlip({ card: card || host, src, on, fade: src.firstElementChild,
+        apply: v => host.classList.toggle(cls, v), hold: b => host.classList.toggle('fold-hold', b) });
+    }
+    // عنصر يُخفى بخاصية hidden (دليل المستويات، لوحات مركز الصور). card: البطاقة المرئية داخله إن كان غلافًا بلا خلفية
+    function revealMotion(el, show, card) {
       if (!el) return;
-      const live = el.__rv, h0 = el.hidden ? 0 : el.getBoundingClientRect().height, o0 = live ? +getComputedStyle(el).opacity : (show ? 0 : 1);
-      const box0 = live ? FOLD_BOX.map(k => getComputedStyle(el)[k]) : null;
-      if (live) { live.forEach(a => a.cancel()); el.__rv = null; el.style.overflow = ''; }
-      if (!el.animate || (window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches)) { el.hidden = !show; return; }
-      el.hidden = false;
-      const cs = getComputedStyle(el), full = {}; FOLD_BOX.forEach(k => { full[k] = k === 'height' ? el.getBoundingClientRect().height + 'px' : cs[k]; });
-      const zero = {}; FOLD_BOX.forEach(k => { zero[k] = '0px'; });
-      const from = box0 ? Object.fromEntries(FOLD_BOX.map((k, i) => [k, k === 'height' ? h0 + 'px' : box0[i]])) : (show ? zero : full);
-      const to = show ? full : zero, E = 'cubic-bezier(.2, .8, .2, 1)';
-      el.style.overflow = 'hidden'; el.style.boxSizing = 'border-box';
-      const fx = [el.animate([from, to], { duration: show ? 260 : 220, easing: E, fill: 'forwards' }),
-        show ? el.animate([{ opacity: o0 }, { opacity: 1 }], { duration: 260, easing: E }) : el.animate([{ opacity: o0 }, { opacity: 0 }], { duration: 140, easing: 'ease', fill: 'forwards' })];
-      el.__rv = fx;
-      fx[0].onfinish = () => { if (el.__rv !== fx) return; el.__rv = null; el.style.overflow = ''; el.style.boxSizing = ''; if (!show) el.hidden = true; fx.forEach(a => a.cancel()); };
+      const sync = () => { el.hidden = !el.__on && !el.__hold; };
+      const c = card || el;
+      foldFlip({ card: c, src: el, on: show, fade: [...c.children],
+        apply: v => { el.__on = v; sync(); }, hold: b => { el.__hold = b; sync(); } });
     }
-    // عنصر details الأصلي: يفتح ويغلق بنفس الحركة بدل الظهور المفاجئ (الحالة نفسها open كما هي، فلا يتغير شيء في منطقه)
+    // عنصر details الأصلي: نفس الحركة، وحالته open كما هي فلا يتغير شيء في منطقه
     function smoothDetails(d) {
       const sum = d && d.querySelector(':scope > summary'); if (!sum || d.__sd) return; d.__sd = true;
+      const sync = () => { d.open = d.__on || d.__hold; d.classList.toggle('fold-closing', !d.__on && !!d.__hold); };
       sum.addEventListener('click', e => {
-        if (!d.animate || (window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches)) return;
+        if (foldReduced()) return;
         e.preventDefault();
-        const h0 = d.getBoundingClientRect().height, closing = d.open && !d.__closing;
-        if (d.__an) { d.__an.forEach(a => a.cancel()); d.__an = null; }
-        const kids = [...d.children].filter(c => c !== sum), E = 'cubic-bezier(.2, .8, .2, 1)';
-        let h1;
-        if (closing) { const cs = getComputedStyle(d); h1 = sum.getBoundingClientRect().bottom - d.getBoundingClientRect().top + parseFloat(cs.paddingBottom) + parseFloat(cs.borderBottomWidth); d.__closing = true; }
-        else { d.__closing = false; d.open = true; h1 = d.getBoundingClientRect().height; }
-        d.style.overflow = 'hidden';
-        const fx = [d.animate([{ height: h0 + 'px' }, { height: h1 + 'px' }], { duration: closing ? 220 : 260, easing: E, fill: 'forwards' }),
-          ...kids.map(k => k.animate(closing ? [{ opacity: 1 }, { opacity: 0 }] : [{ opacity: 0, transform: 'translateY(-6px)' }, { opacity: 1, transform: 'none' }], closing ? { duration: 140, easing: 'ease', fill: 'forwards' } : { duration: 260, easing: E }))];
-        d.__an = fx;
-        fx[0].onfinish = () => { if (d.__an !== fx) return; d.__an = null; d.style.overflow = ''; if (closing) { d.__closing = false; d.open = false; } fx.forEach(a => a.cancel()); };
+        const on = !(d.__ff ? d.__ff.on : d.open);
+        if (!d.__ff) d.__on = d.open;
+        foldFlip({ card: d, src: d, on, fade: [...d.children].filter(c => c !== sum),
+          apply: v => { d.__on = v; sync(); }, hold: b => { d.__hold = b; sync(); } });
       });
     }
     function pfSwapIn(dir) {
@@ -13600,7 +13612,7 @@ function buildLeagueStandingsCanvas() {
           ${sparkSVG ? `<div class="pf-trend"><div class="pf-spark-w">${sparkSVG}</div><div class="pf-trend-cap"><span>تطور التقييم عبر ${p.points.length} ${tourW(p.points.length)}</span>${peak && peak !== p.points[p.points.length - 1] ? `<span class="pk"><i></i>الأعلى ${nf(peak.r)}</span>` : peak ? '<span class="pk now">في أعلى تقييم له الآن</span>' : ''}</div></div>` : ''}`;
         body.appendChild(hero);
         { const gb = hero.querySelector('.pf-guide-btn'), gp = hero.querySelector('.pf-guide');
-          if (gb && gp) gb.addEventListener('click', () => { const o = gb.getAttribute('aria-expanded') !== 'true'; revealMotion(gp, o); gb.setAttribute('aria-expanded', String(o)); hero.classList.toggle('guide-open', o); }); }
+          if (gb && gp) gb.addEventListener('click', () => { const o = gb.getAttribute('aria-expanded') !== 'true'; revealMotion(gp, o, gp.querySelector('.pf-guide-in')); gb.setAttribute('aria-expanded', String(o)); hero.classList.toggle('guide-open', o); }); }
         playerExclusions(name).forEach(x => { const n = el('div', 'pf-excl'); n.append(el('span', 'ic ic-alert'), el('span', null, `مستبعد من ${x.name}` + (x.date ? ` · ${fmtDayDate(x.date)}` : ''))); n.firstChild.setAttribute('aria-hidden', 'true'); body.appendChild(n); });
         // (2) الأرقام: شريط خانات موحد (نفس «صفحتي»)، ثم الألقاب حسب النوع في سطر هادئ
         const decided = p.w + p.l, sec = (h, side, inner, cls) => `<div class="vm2-sec pf-s${cls ? ' ' + cls : ''}"><div class="vm2-h"><span>${h}</span>${side ? `<small>${side}</small>` : ''}</div>${inner}</div>`;
@@ -14095,7 +14107,7 @@ function buildLeagueStandingsCanvas() {
     // ===================================
     // 🧭 سلوك التطبيق: إعادة الوضع للأعلى، تعديل العنوان بالضغط المطوّل، تنبيه التحديث، رقم الإصدار
     // ===================================
-    const APP_VERSION = '9.6';   // ترقيم الاعتماد: 1 ثم 1.1 … 1.9 ثم 2 — ويُرفع معه رقم الإصدار في sw.js
+    const APP_VERSION = '9.7';   // ترقيم الاعتماد: 1 ثم 1.1 … 1.9 ثم 2 — ويُرفع معه رقم الإصدار في sw.js
     (function setupAppBehaviors() {
       const root = document.documentElement;
 
@@ -14584,9 +14596,9 @@ function buildLeagueStandingsCanvas() {
         const s = e.target.closest('.tr-sum');
         if (s) { open = !open; foldMotion(box, 'open', open, [box.querySelector('.tr-body'), s.querySelector('.sub')]); s.setAttribute('aria-expanded', String(open)); return; }
         const o = e.target.closest('.tr-outsum');
-        if (o) { outOpen = !outOpen; foldMotion(o.parentElement, 'open', outOpen, o.parentElement.querySelector('.tr-outlist')); o.setAttribute('aria-expanded', String(outOpen)); return; }
+        if (o) { outOpen = !outOpen; foldMotion(o.parentElement, 'open', outOpen, o.parentElement.querySelector('.tr-outlist'), box); o.setAttribute('aria-expanded', String(outOpen)); return; }
         const g = e.target.closest('.tr-gbtn');
-        if (g) { gOpen = !gOpen; foldMotion(g.parentElement, 'open', gOpen, g.parentElement.querySelector('.tr-guide')); g.setAttribute('aria-expanded', String(gOpen)); return; }
+        if (g) { gOpen = !gOpen; foldMotion(g.parentElement, 'open', gOpen, g.parentElement.querySelector('.tr-guide'), box); g.setAttribute('aria-expanded', String(gOpen)); return; }
         const r = e.target.closest('.tr-row');
         if (r) openLeaguePlayerHistory(r.dataset.player);
       });
@@ -15287,7 +15299,7 @@ function buildLeagueStandingsCanvas() {
                 bracketCard.after(box); parts.forEach(el => inner.appendChild(el));
                 if (nt && tools) tools.prepend(nt);   // «منافسة جديدة» تبقى ظاهرة بجانب أدوات الجدول
               } else {
-                box.classList.remove('open'); sum.setAttribute('aria-expanded', 'false');
+                foldStop(box.querySelector('.ko-body')); box.classList.remove('open'); sum.setAttribute('aria-expanded', 'false');
                 homes.forEach(h => h.parent.insertBefore(h.el, h.next && h.next.parentNode === h.parent ? h.next : null));
                 if (nt && ntHome) ntHome.parent.insertBefore(nt, ntHome.next && ntHome.next.parentNode === ntHome.parent ? ntHome.next : null);
                 if (box.parentNode) box.remove();
