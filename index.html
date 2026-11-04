@@ -2699,10 +2699,10 @@
     .pf-tier.t0 { background: linear-gradient(135deg, #EEE8DE, #DCD3C5); color: #5E584E; }
     .pf-tier.t1 { background: linear-gradient(135deg, #F2DDC8, #D9AE88); color: #4E2E14; }
     .pf-tier.t2 { background: linear-gradient(135deg, #F0F2F3, #C3C9CE); color: #2F353B; }
-    .pf-tier.t3 { background: linear-gradient(135deg, #48515A, #262C32); color: #E6EAEE; }   /* 8.3: النخبة بلاتين داكن بنص بلاتيني */
+    .pf-tier.t3 { background: linear-gradient(135deg, #6E7882 0%, #3C444C 55%, #1F2429 100%); color: #EEF1F3; }   /* 9.1: تدرج ظاهر (ضوء بلاتيني ← غرافيت) بنفس منطق كبسولتي المحترف والأسطورة */
     .pf-tier.t4 { background: linear-gradient(135deg, #F3DFAE, #CFA963); color: #3A2A0C; }
     body.dark-mode .pf-tier.t0 { background: linear-gradient(135deg, #DCD3C5, #BFB4A3); color: #3A342D; }
-    body.dark-mode .pf-tier.t3 { background: linear-gradient(135deg, #66717B, #3A434B); color: #EEF1F3; }   /* 8.3: أفتح قليلًا ليبقى واضحًا على الخلفية الداكنة، ومختلفًا عن الفضي الفاتح */
+    body.dark-mode .pf-tier.t3 { background: linear-gradient(135deg, #8C96A0 0%, #505961 55%, #343B42 100%); color: #F2F4F6; }   /* 8.3: أفتح قليلًا ليبقى واضحًا على الخلفية الداكنة، ومختلفًا عن الفضي الفاتح */
     /* توسيط النص بصريًا: حروف Tajawal تجلس أعلى من منتصف الكبسولة بنحو 0.2em؛ إزاحة ثابتة تعمل على كل المتصفحات */
     .pf-tier > .tx { display: inline; text-box: none; padding: 0; position: relative; top: .17em; }
     /* شارة «أنت»: نفس الإزاحة البصرية (حشوة علوية أكبر بدل الوسط الهندسي) */
@@ -2995,7 +2995,7 @@
     .ach-r em { display: block; margin-top: -2px; font-style: normal; font-size: 12px; font-weight: 700; line-height: 1.5; color: rgba(247, 243, 234, .5); }   /* الملاحظة سطر مستقل تحت الإنجاز، رمادي هادئ لا ينافس القيمة */
     .ach-r + .ach-r { padding-top: 7px; border-top: 1px solid rgba(207, 169, 99, .16); }   /* كل إنجازين يفصلهما خط رفيع */
     .ach-r .pf-tier { padding: 4px 12px 1px; font-size: 12px; line-height: 1.35; }   /* نفس معالجة الحشوة العلوية */
-    .ach-r .pf-tier.t3 { background: linear-gradient(135deg, rgba(243, 223, 174, .26), rgba(243, 223, 174, .12)); color: #F3DDAC; }   /* النخبة على الخشب: نفس معالجة رأس ملف النخبة */
+    .ach-r .pf-tier.t3 { background: linear-gradient(135deg, rgba(226, 232, 238, .3), rgba(226, 232, 238, .12)); color: #E9EDF0; }   /* النخبة على الخشب: نفس معالجة رأس ملف النخبة */
     .ach-more { padding: 7px 0 1px; border-top: 1px solid rgba(207, 169, 99, .16); text-align: center; font-size: 12px; font-weight: 700; color: #CDBB97; }
     @media (prefers-reduced-motion: reduce) { .ach, .ach.out { transform: none !important; transition: opacity var(--t-fast) ease; } }
     /* تبويبات «الترتيب والسجل» ثابتة أعلى نافذة الإحصائيات أثناء التمرير (5.6): التنقل بينها من أي موضع بلا صعود للأعلى.
@@ -11305,7 +11305,7 @@ function buildLeagueStandingsCanvas() {
         { grad: ['#EEE8DE', '#DCD3C5'], fg: '#5E584E' },
         { grad: ['#F2DDC8', '#D9AE88'], fg: '#4E2E14' },
         { grad: ['#F0F2F3', '#C3C9CE'], fg: '#2F353B' },
-        { grad: ['#48515A', '#262C32'], fg: '#E6EAEE' },   // 8.3: النخبة «بلاتين أسود»
+        { grad: ['#6E7882', '#3C444C', '#1F2429'], fg: '#EEF1F3' },   // 9.1: النخبة «بلاتين أسود» بتدرج ظاهر
         { grad: ['#F3DFAE', '#CFA963'], fg: '#3A2A0C' }
       ][level] || { grad: ['#EEE8DE', '#DCD3C5'], fg: '#5E584E' };
     }
@@ -13788,7 +13788,7 @@ function buildLeagueStandingsCanvas() {
     // ===================================
     // 🧭 سلوك التطبيق: إعادة الوضع للأعلى، تعديل العنوان بالضغط المطوّل، تنبيه التحديث، رقم الإصدار
     // ===================================
-    const APP_VERSION = '9';   // ترقيم الاعتماد: 1 ثم 1.1 … 1.9 ثم 2 — ويُرفع معه رقم الإصدار في sw.js
+    const APP_VERSION = '9.1';   // ترقيم الاعتماد: 1 ثم 1.1 … 1.9 ثم 2 — ويُرفع معه رقم الإصدار في sw.js
     (function setupAppBehaviors() {
       const root = document.documentElement;
 
