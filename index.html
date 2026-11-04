@@ -3266,7 +3266,7 @@
     .pf-hero.t2 { --tc: #A3ACB4; --hx: #1E252C; --hm: rgba(30, 37, 44, .74); --hl: rgba(30, 37, 44, .15); --sv: #D9DEE2;
       border: 1px solid transparent;
       background: linear-gradient(180deg, #DDE2E6 0%, #D2D8DD 45%, #C7CED4 100%) padding-box,
-        linear-gradient(155deg, #F4F6F7 0%, #8E98A1 30%, #E2E6E9 52%, #808A93 78%, #D3D8DC 100%) border-box;
+        linear-gradient(155deg, #AEB6BD 0%, #7C868F 30%, #A9B1B8 52%, #6F7982 78%, #9AA3AB 100%) border-box;   /* 8.8: إطار فضي أعمق — لا درجة قريبة من الأرضية العاجية، فلا تذوب الحواف والزوايا */
       box-shadow: inset 0 1px 0 rgba(253, 254, 254, .6), 0 1px 2px rgba(40, 46, 52, .1), 0 10px 22px -12px rgba(40, 46, 52, .34); }
     .pf-hero.t2::before { z-index: 2; height: 2px; background: linear-gradient(90deg, transparent, #9AA4AD 10%, #F6F8F9 32%, #A9B2BA 52%, #EEF1F3 72%, #9AA4AD 90%, transparent); }
     /* لوحة الاسم: أنصع من الصفيحة، بخط محفور رفيع (بلا ظل) */
@@ -11795,10 +11795,10 @@ function buildLeagueStandingsCanvas() {
         ctx.save(); drawRoundedRect(ctx, M, y, CW, HERO, 34);
         if (lv >= 2) {   // إطار معدني متدرج، وحافة ضوء داخلية للبلاتين والذهب
           const bg2 = ctx.createLinearGradient(M, y, M + CW, y + HERO);
-          stops(bg2, lv === 2 ? [[0, '#F4F6F7'], [0.3, '#9AA4AD'], [0.52, '#E2E6E9'], [0.78, '#8D97A0'], [1, '#D3D8DC']]
+          stops(bg2, lv === 2 ? [[0, '#AEB6BD'], [0.3, '#7C868F'], [0.52, '#A9B1B8'], [0.78, '#6F7982'], [1, '#9AA3AB']]
             : lv === 3 ? [[0, '#F4F6F8'], [0.24, '#7D8790'], [0.48, '#E3E7EB'], [0.74, '#5E6871'], [1, '#C9D0D6']]
             : [[0, '#F6DB98'], [0.24, '#7C561A'], [0.48, '#E9C374'], [0.74, '#6B4914'], [1, '#C99B45']]);
-          ctx.strokeStyle = bg2; ctx.lineWidth = lv === 2 ? 2 : 3; ctx.stroke();
+          ctx.strokeStyle = bg2; ctx.lineWidth = lv === 2 ? 2.5 : 3; ctx.stroke();
           if (lv >= 3) { drawRoundedRect(ctx, M + 3, y + 3, CW - 6, HERO - 6, 31); ctx.strokeStyle = lv === 3 ? 'rgba(226,232,238,0.22)' : 'rgba(255,236,190,0.42)'; ctx.lineWidth = 2; ctx.stroke(); }
         } else { ctx.strokeStyle = mix(TC, B.line, 0.5); ctx.lineWidth = 2; ctx.stroke(); }
         ctx.restore();
@@ -13786,7 +13786,7 @@ function buildLeagueStandingsCanvas() {
     // ===================================
     // 🧭 سلوك التطبيق: إعادة الوضع للأعلى، تعديل العنوان بالضغط المطوّل، تنبيه التحديث، رقم الإصدار
     // ===================================
-    const APP_VERSION = '8.7';   // ترقيم الاعتماد: 1 ثم 1.1 … 1.9 ثم 2 — ويُرفع معه رقم الإصدار في sw.js
+    const APP_VERSION = '8.8';   // ترقيم الاعتماد: 1 ثم 1.1 … 1.9 ثم 2 — ويُرفع معه رقم الإصدار في sw.js
     (function setupAppBehaviors() {
       const root = document.documentElement;
 
