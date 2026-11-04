@@ -2942,10 +2942,15 @@
        النصفان متساويان دائمًا (minmax(0, 1fr))، فمركز الرقم هو مركز البطاقة هندسيًا مهما اختلف طول العنوان أو وجود التاريخ. */
     /* Three-Zone: ثلاثة صفوف متساوية (1fr 1fr 1fr). العنوان مثبت أعلى البطاقة، والرقم في مركزها الهندسي (50% × 50%)،
        واسم اللاعب مع التاريخ أو الملاحظة مثبتان أسفلها. لكل منطقة محاذاتها المستقلة، فطول أي منطقة لا يحرّك الرقم. */
-    .cr-c, .pf-rc { display: grid; grid-template-rows: repeat(3, minmax(0, 1fr)); justify-items: stretch; min-width: 0; height: 144px; padding: 12px 8px; text-align: center; background: var(--surface); }
-    .rc-t { align-self: start; width: 100%; }
-    .rc-n { align-self: center; }
-    .rc-low { align-self: end; display: flex; flex-direction: column; align-items: center; width: 100%; min-width: 0; }
+    /* 8.4 — «سطور ثابتة» بدل المناطق الثلاث: العنوان ← الرقم ← صاحب الرقم أو البطولة ← اليوم والتاريخ أو الملاحظة،
+       بمسافات قصيرة ثابتة. لكل سطر نفس الموضع في كل البطاقات، فالعناوين والأرقام والأسماء على خط واحد عبر الصف،
+       والسطر الرابع محجوز دائمًا (المساحة الفارغة إن وُجدت في الأسفل لا في الوسط). الارتفاع من المحتوى لا من رقم ثابت. */
+    .cr-c, .pf-rc { display: flex; flex-direction: column; align-items: center; min-width: 0; padding: 12px 8px 10px; text-align: center; background: var(--surface); }
+    .rc-t { width: 100%; }
+    .cr-c .rc-n, .pf-rc .rc-n { min-height: 30px; margin-top: 8px; }   /* سطر الرقم: ارتفاع ثابت (26 × 1.15) */
+    .rc-low { display: flex; flex-direction: column; align-items: center; width: 100%; min-width: 0; min-height: 40px; margin-top: 4px; }
+    .rc-low > .rc-h { line-height: 21px; }
+    .rc-low > .rc-s:first-child { margin-top: 0; line-height: 21px; }   /* ملاحظة بلا اسم: على خط الاسم نفسه في البطاقة المجاورة */
     .pf-rc { background: var(--surface-2); }
     .rc-t { font-size: 12px; font-weight: 800; line-height: 1.4; color: var(--gold-deep); }
     .rc-n { display: flex; justify-content: center; align-items: center; width: 100%; margin: 0; padding: 0; font-size: 26px; font-weight: 900; line-height: 1.15; color: var(--text); font-variant-numeric: tabular-nums; white-space: nowrap; }
@@ -11861,23 +11866,25 @@ function buildLeagueStandingsCanvas() {
             y += BH + GAPS;
           }
         }
-        // (4) أفضل أرقامه: نفس بطاقة التطبيق بثلاث مناطق (8.3) — اسم الإنجاز مثبت في الأعلى ← الرقم مع عبارته في المركز الهندسي
-        //     للبطاقة تمامًا ← اسم البطولة ثم اليوم والتاريخ (أو الملاحظة) مثبتان في الأسفل. كل بطاقة مستقلة بفراغ (هوية الصور)،
-        //     والبطاقة الوحيدة في صفها تأخذ العرض كاملًا ومحتواها في الوسط. النسب نفسها: 12 · 26 · 15 · 12 ← 22 · 48 · 28 · 22.
+        // (4) أفضل أرقامه: نفس بطاقة التطبيق بـ«سطور ثابتة» (8.4) — اسم الإنجاز ← الرقم مع عبارته ← البطولة ← اليوم والتاريخ
+        //     (أو الملاحظة على سطر البطولة إن لم توجد بطولة)، بمسافات قصيرة ثابتة؛ كل سطر على نفس الخط في كل البطاقات.
+        //     كل بطاقة مستقلة بفراغ (هوية الصور)، والبطاقة الوحيدة في صفها تأخذ العرض كاملًا. النسب: 12 · 26 · 15 · 12 ← 22 · 48 · 28 · 22.
         if (show.records) {
           const recs = playerBests(p, C);
-          const rows = Math.ceil(recs.length / 2), RHc = 270, G = 10, PADV = 24, bodyH = rows * RHc + (rows - 1) * G;
+          const PT = 22, LT = 31, GV = 14, LV = 56, GL = 8, L3 = 39, L4 = 31, PB = 20;   // السطور ومسافاتها (بمقياس الصورة)
+          const RHc = PT + LT + GV + LV + GL + L3 + L4 + PB;
+          const rows = Math.ceil(recs.length / 2), G = 10, bodyH = rows * RHc + (rows - 1) * G;
           cuts.push(y - GAPS / 2); y += exportSectionBar(ctx, M, y, CW, 'أفضل أرقامه', 'star', null, bodyH) + TP;
           const cw = (RW - G) / 2;
           recs.forEach(([l, v, s, t], i) => { const r = Math.floor(i / 2), k = i % 2, solo = i === recs.length - 1 && k === 0;
             const w = solo ? RW : cw, x0 = solo ? RX : RX + RW - (k + 1) * cw - k * G, y0 = y + r * (RHc + G), cx = x0 + w / 2, mw = Math.min(cw, w) - 40;
             drawRoundedRect(ctx, x0, y0, w, RHc, 18); ctx.fillStyle = B.paper; ctx.fill(); ctx.strokeStyle = B.line; ctx.lineWidth = 1.2; ctx.stroke();
-            T(ctx, l, cx, y0 + PADV + 15, { size: 22, weight: 800, color: B.goldDeep, maxW: mw, min: 14 });                    // المنطقة العليا
+            const yT = y0 + PT + LT / 2, yV = y0 + PT + LT + GV + LV / 2, y3 = y0 + PT + LT + GV + LV + GL + L3 / 2, y4 = y3 + L3 / 2 + L4 / 2;
+            T(ctx, l, cx, yT, { size: 22, weight: 800, color: B.goldDeep, maxW: mw, min: 14 });
             const tx = !/\d/.test(v) && v !== '—';                                                                          // قيمة نصية بلا رقم: نفس قاعدة .rc-n.tx في التطبيق (أصغر)
-            T(ctx, v, cx, y0 + RHc / 2, { size: tx ? 28 : 48, weight: tx ? 800 : 900, color: B.ink, maxW: mw, min: 18 });     // المركز الهندسي
-            const low = [t ? [t, 28, B.muted] : null, s ? [s, 22, B.faint] : null].filter(Boolean);                       // المنطقة السفلى: من الأسفل للأعلى
-            let ly = y0 + RHc - PADV - 15;
-            low.reverse().forEach(([txt, sz, col], j) => { if (j) ly -= sz === 28 ? 38 : 31; T(ctx, txt, cx, ly, { size: sz, weight: 700, color: col, maxW: mw, min: 13 }); });
+            T(ctx, v, cx, yV, { size: tx ? 28 : 48, weight: tx ? 800 : 900, color: B.ink, maxW: mw, min: 18 });
+            if (t) { T(ctx, t, cx, y3, { size: 28, weight: 700, color: B.muted, maxW: mw, min: 14 }); if (s) T(ctx, s, cx, y4, { size: 22, weight: 700, color: B.faint, maxW: mw, min: 13 }); }
+            else if (s) T(ctx, s, cx, y3, { size: 22, weight: 700, color: B.faint, maxW: mw, min: 13 });   // ملاحظة بلا بطولة: على سطر البطولة نفسه
           });
           y += bodyH + TP + GAPS;
         }
@@ -13604,7 +13611,7 @@ function buildLeagueStandingsCanvas() {
     // ===================================
     // 🧭 سلوك التطبيق: إعادة الوضع للأعلى، تعديل العنوان بالضغط المطوّل، تنبيه التحديث، رقم الإصدار
     // ===================================
-    const APP_VERSION = '8.3';   // ترقيم الاعتماد: 1 ثم 1.1 … 1.9 ثم 2 — ويُرفع معه رقم الإصدار في sw.js
+    const APP_VERSION = '8.4';   // ترقيم الاعتماد: 1 ثم 1.1 … 1.9 ثم 2 — ويُرفع معه رقم الإصدار في sw.js
     (function setupAppBehaviors() {
       const root = document.documentElement;
 
