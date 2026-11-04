@@ -1618,18 +1618,14 @@
     @media (display-mode: standalone) {
       #launchScreen {
         display: flex; position: fixed; inset: 0; z-index: 200000; align-items: center; justify-content: center;
-        /* 8.9: نفس ألوان صورة splash المقيسة (احتياط حتى تُحمَّل الصورة نفسها) */
-        background: radial-gradient(120% 80% at 50% 45%, #3C2F25 0%, #30241D 55%, #271D18 100%) center / 100% 100% no-repeat;
-        transform-origin: 50% 50%;
-        transition: opacity var(--t-slow) var(--ease), transform var(--t-slow) var(--ease), visibility 0s linear var(--t-slow);
+        background: radial-gradient(120% 80% at 50% 45%, #3E2F26 0%, #2B201A 55%, #1E1612 100%);
+        transition: opacity .42s cubic-bezier(.2, .7, .2, 1), visibility 0s linear .42s;
       }
     }
-    #launchScreen img { width: 134px; height: 134px; border-radius: 28px; box-shadow: 0 18px 40px -12px rgba(0, 0, 0, .7), 0 0 0 1px rgba(227, 204, 160, .18); }
-    /* 8.9: الطبقة هي صورة splash نفسها التي اختارها الجهاز (مطابقة بالبكسل، والأيقونة فيها)، فلا قفزة لحظة التسليم */
-    #launchScreen.img img { visibility: hidden; }
-    /* الخروج: الطبقة كلها تكبر قليلًا وتتلاشى، كأن التطبيق ينفتح من خلالها */
-    #launchScreen.done { opacity: 0; transform: scale(1.06); visibility: hidden; pointer-events: none; }
-    @media (prefers-reduced-motion: reduce) { #launchScreen { transition: opacity .2s ease, visibility 0s linear .2s; } #launchScreen.done { transform: none; } }
+    #launchScreen img { width: 132px; height: 132px; border-radius: 28px; box-shadow: 0 18px 40px -12px rgba(0, 0, 0, .7), 0 0 0 1px rgba(227, 204, 160, .18);
+      transition: transform .5s cubic-bezier(.2, .7, .2, 1), opacity .4s ease; }
+    #launchScreen.done { opacity: 0; visibility: hidden; pointer-events: none; }
+    #launchScreen.done img { transform: scale(1.12); opacity: 0; }
 
     /* ===== حركات دقيقة: اعتماد النتيجة، تأهل الفائز، ظهور الجدول ===== */
     @keyframes fxRowWin { 0% { background: var(--ok-bg); box-shadow: 0 0 0 0 rgba(47, 122, 78, .45); } 35% { box-shadow: 0 0 0 5px rgba(47, 122, 78, .18); } 100% { box-shadow: 0 0 0 0 rgba(47, 122, 78, 0); } }
@@ -3449,16 +3445,7 @@
   </style>
 </head>
 <body>
-  <div id="launchScreen" aria-hidden="true"><img src="icons/icon-512.png" alt="" width="134" height="134"></div>
-  <script>/* 8.9: صورة splash المطابقة لمقاس الشاشة نفسها خلفيةً للطبقة — تُستبدل بها الطبقة المرسومة فور تحميلها (من المخزن عادةً) */
-    (function () { try {
-      var ls = document.getElementById('launchScreen'); if (!ls || !(matchMedia('(display-mode: standalone)').matches || navigator.standalone === true)) return;
-      var L = document.querySelectorAll('link[rel="apple-touch-startup-image"]'), src = '';
-      for (var i = 0; i < L.length; i++) if (L[i].media && matchMedia(L[i].media).matches) { src = L[i].getAttribute('href'); break; }
-      if (!src) return;
-      var im = new Image(); im.onload = function () { ls.style.backgroundImage = 'url("' + src + '")'; ls.classList.add('img'); }; im.src = src;
-    } catch (e) {} })();
-  </script>
+  <div id="launchScreen" aria-hidden="true"><img src="icons/icon-512.png" alt="" width="132" height="132"></div>
   <div class="container">
     <div class="app-header-wrap">
       <header class="app-header">
@@ -12968,8 +12955,8 @@ function buildLeagueStandingsCanvas() {
         else {
           const shownAt = performance.now();
           let hidden = false;
-          const hide = () => { if (hidden) return; hidden = true; requestAnimationFrame(() => ls.classList.add('done')); setTimeout(() => ls.remove(), 600); };
-          const go = () => requestAnimationFrame(() => setTimeout(hide, Math.max(0, 120 - (performance.now() - shownAt))));   // 8.9: بلا انتظار مصطنع (إطار واحد لتثبيت الرسم)
+          const hide = () => { if (hidden) return; hidden = true; ls.classList.add('done'); setTimeout(() => ls.remove(), 650); };
+          const go = () => setTimeout(hide, Math.max(0, 420 - (performance.now() - shownAt)));
           if (document.readyState === 'complete') go(); else window.addEventListener('load', go, { once: true });
           setTimeout(hide, 2200);   // حد أقصى: لا تحجب التطبيق أبدًا
         }
@@ -13828,7 +13815,7 @@ function buildLeagueStandingsCanvas() {
     // ===================================
     // 🧭 سلوك التطبيق: إعادة الوضع للأعلى، تعديل العنوان بالضغط المطوّل، تنبيه التحديث، رقم الإصدار
     // ===================================
-    const APP_VERSION = '8.9';   // ترقيم الاعتماد: 1 ثم 1.1 … 1.9 ثم 2 — ويُرفع معه رقم الإصدار في sw.js
+    const APP_VERSION = '8.8';   // ترقيم الاعتماد: 1 ثم 1.1 … 1.9 ثم 2 — ويُرفع معه رقم الإصدار في sw.js
     (function setupAppBehaviors() {
       const root = document.documentElement;
 
