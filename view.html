@@ -2182,10 +2182,10 @@
     .vday-h .meta { font-size: 12px; font-weight: 700; color: var(--text-3); white-space: nowrap; }
     .vday-h .chev { width: 18px; height: 18px; color: var(--text-3); transition: transform var(--t-sheet) var(--ease); }
     .vday.open .vday-h .chev { transform: rotate(180deg); }
-    .vday-b { display: grid; grid-template-rows: 0fr; opacity: 0; transition: grid-template-rows var(--t-sheet) var(--ease), opacity var(--t-base) ease; }
-    .vday.open .vday-b { grid-template-rows: 1fr; opacity: 1; }
-    .vday-b > .in { min-height: 0; overflow: hidden; display: flex; flex-direction: column; padding: 0 6px; }
-    .vday.open .vday-b > .in { padding-bottom: 8px; }
+    /* 9.5 — الفتح والإغلاق بحركة ارتفاع حقيقية من JS (سفاري على الآيفون كان يقفز بـ grid-template-rows عند الفتح) */
+    .vday-b { display: none; overflow: hidden; }
+    .vday.open .vday-b, .vday.closing .vday-b { display: block; }
+    .vday-b > .in { display: flex; flex-direction: column; padding: 0 6px 8px; }
     .vday-r { display: grid; grid-template-columns: 32px minmax(0, 1fr) 50px minmax(0, 1fr); align-items: center; column-gap: 6px; width: 100%; min-height: 46px; padding: 6px 4px; border: 0; border-top: 1px solid var(--line); background: none; border-radius: 0; font: inherit; color: var(--text); cursor: pointer; -webkit-tap-highlight-color: transparent; transition: background .2s ease; }
     .vday-list > .vday-r:first-child { border-top: 0; }
     .vday-r.latest { background: var(--warn-bg); border-radius: var(--r-md); }
@@ -2239,7 +2239,7 @@
       .lgc-row .n b { font-size: 15px; }
       .lgc-row .mv { font-size: 12px; }
     }
-    @media (prefers-reduced-motion: reduce) { .vday-b, .vday-h .chev { transition: none; } }
+    @media (prefers-reduced-motion: reduce) { .vday-h .chev { transition: none; } }
     @media (max-width: 370px) {   /* الشاشات الصغيرة (iPhone SE/mini): نصغّر بهدوء حتى تبقى الأسماء على سطر واحد */
       .vday-r { grid-template-columns: 28px minmax(0, 1fr) 46px minmax(0, 1fr); column-gap: 6px; }
       .vday-r .rd { width: 28px; font-size: 11px; }
@@ -14029,7 +14029,7 @@ function buildLeagueStandingsCanvas() {
     // ===================================
     // 🧭 سلوك التطبيق: إعادة الوضع للأعلى، تعديل العنوان بالضغط المطوّل، تنبيه التحديث، رقم الإصدار
     // ===================================
-    const APP_VERSION = '9.4';   // ترقيم الاعتماد: 1 ثم 1.1 … 1.9 ثم 2 — ويُرفع معه رقم الإصدار في sw.js
+    const APP_VERSION = '9.5';   // ترقيم الاعتماد: 1 ثم 1.1 … 1.9 ثم 2 — ويُرفع معه رقم الإصدار في sw.js
     (function setupAppBehaviors() {
       const root = document.documentElement;
 
@@ -15053,12 +15053,36 @@ function buildLeagueStandingsCanvas() {
           list.querySelectorAll('.vday-r').forEach(b => b.addEventListener('click', () => openLeagueScoreModal(b.dataset.id)));
           if (strip) {
             strip.querySelectorAll('.vday-d').forEach(d => { const on = d.dataset.k === sel; d.classList.toggle('active', on); d.setAttribute('aria-selected', String(on)); });
-            const a = strip.querySelector('.vday-d.active');
-            if (a) requestAnimationFrame(() => strip.scrollTo({ left: a.offsetLeft - (strip.clientWidth - a.offsetWidth) / 2, behavior: dir && !reduce() ? 'smooth' : 'auto' }));
+            requestAnimationFrame(() => centerDay(dir && !reduce()));
           }
           if (dir && !reduce()) { list.style.setProperty('--dx', (dir > 0 ? -22 : 22) + 'px'); list.classList.remove('lg-enter'); void list.offsetWidth; list.classList.add('lg-enter'); }
         }
-        h.addEventListener('click', () => { const o = !box.classList.contains('open'); box.classList.toggle('open', o); h.setAttribute('aria-expanded', String(o)); if (o && strip) paint(0); });
+        // شريط الأيام: اليوم المختار في المنتصف (لا يُقاس والبطاقة مطوية، فيُضبط أيضًا لحظة الفتح قبل الحركة)
+        function centerDay(smooth) {
+          const a = strip && strip.querySelector('.vday-d.active'); if (!a || !strip.clientWidth) return;
+          strip.scrollTo({ left: a.offsetLeft - (strip.clientWidth - a.offsetWidth) / 2, behavior: smooth ? 'smooth' : 'auto' });
+        }
+        // 9.5 — الفتح والإغلاق بحركة ارتفاع حقيقية (Web Animations) بدل grid-template-rows الذي يقفز في سفاري عند الفتح.
+        // المحتوى جاهز مسبقًا فلا يُعاد بناؤه عند الفتح؛ يدخل مع التمدد بتلاشٍ وانزلاق خفيف، ويخرج أسرع ثم تنكمش البطاقة.
+        const bodyEl = box.querySelector('.vday-b'), inEl = bodyEl.querySelector('.in');
+        let anim = null;
+        function toggleDay(o) {
+          const E = 'cubic-bezier(.2, .8, .2, 1)';
+          // لمسة أثناء حركة جارية: نكمل من الارتفاع والشفافية الحاليين دون قفزة
+          const fromH = anim ? bodyEl.getBoundingClientRect().height : (o ? 0 : bodyEl.offsetHeight);
+          const fromO = anim ? +getComputedStyle(inEl).opacity : (o ? 0 : 1);
+          if (anim) { anim.h.cancel(); anim.c.cancel(); anim = null; }
+          box.classList.toggle('open', o); box.classList.toggle('closing', !o); h.setAttribute('aria-expanded', String(o));
+          if (o) centerDay(false);
+          if (!bodyEl.animate || reduce()) { box.classList.remove('closing'); return; }
+          const toH = o ? bodyEl.offsetHeight : 0;
+          const cur = { h: bodyEl.animate([{ height: fromH + 'px' }, { height: toH + 'px' }], { duration: o ? 260 : 220, easing: E }),
+            c: inEl.animate(o ? [{ opacity: fromO, transform: 'translateY(-6px)' }, { opacity: 1, transform: 'none' }] : [{ opacity: fromO }, { opacity: 0 }],
+              o ? { duration: 260, easing: E } : { duration: 140, easing: 'ease', fill: 'forwards' }) };
+          anim = cur;
+          cur.h.onfinish = () => { if (anim !== cur) return; anim = null; cur.c.cancel(); box.classList.remove('closing'); };
+        }
+        h.addEventListener('click', () => toggleDay(!box.classList.contains('open')));
         if (strip) strip.addEventListener('click', e => { const d = e.target.closest('.vday-d'); if (!d || d.dataset.k === sel) return;
           const dir = d.dataset.k > sel ? 1 : -1; sel = d.dataset.k; paint(dir); });   // الأحدث يسارًا: الانتقال إليه يدخل من اليسار
         paint(0);
