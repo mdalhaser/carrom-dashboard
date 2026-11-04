@@ -3257,45 +3257,53 @@
     .pf-hero.t3 .pf-lad .pf-tier.t3 { background: linear-gradient(135deg, rgba(243, 223, 174, .26), rgba(243, 223, 174, .12)); color: #F3DDAC; }
     .pf-hero.t4 .pf-lad .pf-tier.t4 { background: linear-gradient(135deg, #4A3618, #2E2008); color: #F3DFAE; }
     /* ===== 8.3 — بطاقات المستوى: سُلّم خامات واضح (المبتدئ والمتمكن كما هما دون أي تغيير)
-       محترف: «لوحة اسم فضية» في الرأس (8.7) + حافة علوية مصقولة + إطار معدني متدرج
+       محترف: «صفيحة فضة كاملة» ولوحة اسم مصقولة (8.7) + حافة علوية مصقولة + إطار معدني متدرج
        نخبة: «بلاتين أسود» — لوح غرافيتي داكن بارد + إطار بلاتيني مزدوج + ملمس مصقول دقيق + ظل أعمق (8.6: بلا انعكاس قطري ثابت)
        أسطورة المجلس: لوح ذهب إمبراطوري بخمس درجات + إطار مزدوج + توهج ذهبي + لمعة تمر مرة واحدة عند فتح الملف ===== */
-    /* 8.7 — المحترف «لوحة اسم فضية»: لوحة فضة ساتان مصقولة تغطي رأس البطاقة من حافة إلى حافة (الاسم والتقييم و«المركز»)،
-       بحد سفلي حاد كلوحة الاسم المعدنية على الكؤوس؛ وتحتها سطح البطاقة العادي. اللوحة فاتحة في الوضعين بنص رمادي داكن،
-       وفي الليلي أعمق درجة حتى لا تسطع أكثر من الأسطورة. الإطار المعدني والحافة العلوية المصقولة كما هما. */
-    .pf-hero.t2 { --tc: #A3ACB4; border: 1px solid transparent;
-      background: linear-gradient(var(--surface), var(--surface)) padding-box,
+    /* 8.7 — المحترف «صفيحة فضة كاملة»: أول بطاقة معدنية كاملة في السلم (لا صبغة ولا تلاشٍ)، ولوحة اسم مصقولة أنصع
+       مثبتة في رأسها بخط محفور — تفصيلة لا تملكها النخبة ولا الأسطورة. المحترف «فاتح بنص داكن» في الوضعين، والنخبة
+       «داكنة بنص فاتح» في الوضعين: فرق في الطابع كله لا في الدرجة. في الليلي فضة متوسطة أخفت من ذهب الأسطورة. */
+    .pf-hero.t2 { --tc: #A3ACB4; --hx: #1E252C; --hm: rgba(30, 37, 44, .74); --hl: rgba(30, 37, 44, .15); --sv: #D9DEE2;
+      border: 1px solid transparent;
+      background: linear-gradient(180deg, #DDE2E6 0%, #D2D8DD 45%, #C7CED4 100%) padding-box,
         linear-gradient(155deg, #F4F6F7 0%, #8E98A1 30%, #E2E6E9 52%, #808A93 78%, #D3D8DC 100%) border-box;
-      box-shadow: 0 1px 2px rgba(40, 46, 52, .08), 0 8px 18px -12px rgba(40, 46, 52, .28); }
+      box-shadow: inset 0 1px 0 rgba(253, 254, 254, .6), 0 1px 2px rgba(40, 46, 52, .1), 0 10px 22px -12px rgba(40, 46, 52, .34); }
     .pf-hero.t2::before { z-index: 2; height: 2px; background: linear-gradient(90deg, transparent, #9AA4AD 10%, #F6F8F9 32%, #A9B2BA 52%, #EEF1F3 72%, #9AA4AD 90%, transparent); }
-    .pf-hero.t2 .pf-prog { margin-top: 8px; }   /* تعويض حشوة اللوحة: الارتفاع الكلي يبقى قريبًا من بقية المستويات */
+    /* لوحة الاسم: أنصع من الصفيحة، بخط محفور رفيع (بلا ظل) */
+    .pf-hero.t2 .pf-prog { margin-top: 8px; }
     .pf-hero.t2 .pf-hero-top { position: relative; margin: -16px -16px 0; padding: 16px 16px 10px;
-      background: linear-gradient(180deg, rgba(253, 254, 254, .5) 0%, rgba(253, 254, 254, 0) 42%), linear-gradient(180deg, #E6EAED 0%, #D2D8DD 58%, #C3CAD0 100%);
-      border-bottom: 1px solid rgba(128, 138, 147, .75); box-shadow: inset 0 -1px 0 rgba(253, 254, 254, .55); }   /* حد محفور رفيع، بلا ظل: نفس المعدن لا قطعة فوق أخرى */
-    /* الجسم يكمل معدن اللوحة: تدرج فضي يبدأ تحتها ويذوب في سطح البطاقة (تحت المحتوى) — بطاقة واحدة لا بطاقتان */
-    .pf-hero.t2 { isolation: isolate; }
-    .pf-hero.t2 .pf-hero-top::after { content: ""; position: absolute; z-index: -1; left: 0; right: 0; top: 100%; height: 96px; pointer-events: none;   /* أقصر: يذوب قبل المنحنى */
-      background: linear-gradient(180deg, rgba(200, 205, 208, .85) 0%, rgba(216, 215, 210, .42) 40%, rgba(226, 222, 214, .12) 75%, rgba(226, 222, 214, 0) 100%); }   /* من فضة اللوحة إلى دفء السطح: بلا رمادي باهت */
-    .pf-hero.t2 .pf-hero-top .pf-name, .pf-hero.t2 .pf-rt .num, .pf-hero.t2 .pf-rank b { color: #1E252C; }
-    .pf-hero.t2 .pf-rank { border-color: #9AA4AD; background: rgba(253, 254, 254, .38); box-shadow: inset 0 1px 0 rgba(253, 254, 254, .8); }
-    .pf-hero.t2 .pf-rank small { color: rgba(30, 37, 44, .62); }
-    .pf-hero.t2 .pf-rt .pf-tier.t2 { background: linear-gradient(135deg, #FAFBFC, #E4E8EB); color: #2F353B; }   /* كبسولة أفتح من اللوحة حتى لا تذوب فيها */
-    /* سهم التغيّر على اللوحة داخل كبسولة فاتحة صغيرة: تباين اللون الأخضر/الأحمر لا يعتمد على درجة الفضة */
-    .pf-hero.t2 .pf-hero-top .pf-delta { padding: 2px 7px 0; border-radius: 999px; background: rgba(253, 254, 254, .62); line-height: 1.5; }
+      background: linear-gradient(180deg, rgba(253, 254, 254, .55) 0%, rgba(253, 254, 254, 0) 50%), linear-gradient(180deg, #EEF1F3 0%, #E3E7EA 100%);
+      border-bottom: 1px solid rgba(128, 138, 147, .7); box-shadow: inset 0 -1px 0 rgba(253, 254, 254, .7); }
+    /* المحتوى بألوان المعدن (كما في النخبة والأسطورة): نص داكن، ومنحنى فولاذي بدل البني الذهبي */
+    .pf-hero.t2 .pf-name, .pf-hero.t2 .pf-rt .num, .pf-hero.t2 .pf-rank b, .pf-hero.t2 .pf-prog-t b { color: var(--hx); }
+    .pf-hero.t2 .pf-rank small, .pf-hero.t2 .pf-prog-t, .pf-hero.t2 .pf-trend-cap { color: var(--hm); }
+    .pf-hero.t2 .pf-rank { border-color: #9AA4AD; background: rgba(253, 254, 254, .4); box-shadow: inset 0 1px 0 rgba(253, 254, 254, .8); }
+    .pf-hero.t2 .pf-bar { background: var(--hl); }
+    .pf-hero.t2 .pf-trend { border-top-color: var(--hl); }
+    .pf-hero.t2 .pf-spark .ln { stroke: #3A4550; } .pf-hero.t2 .pf-spark .area { fill: rgba(58, 69, 80, .1); }
+    .pf-hero.t2 .pf-dot.last { background: #2B343C; box-shadow: 0 0 0 3px var(--sv); }
+    .pf-hero.t2 .pf-dot.peak, .pf-hero.t2 .pf-trend-cap .pk i { background: var(--sv); border-color: #2B343C; }
+    .pf-hero.t2 .pf-trend-cap .pk, .pf-hero.t2 .pf-trend-cap .pk.now { color: var(--hx); }
+    .pf-hero.t2 .pf-guide-btn, .pf-hero.t2 .pf-lad .me { color: #2F3A44; }
+    .pf-hero.t2 .pf-rt .pf-tier.t2, .pf-hero.t2 .pf-lad .pf-tier.t2 { background: linear-gradient(135deg, #CFD5DA, #B4BCC3); color: #1E252C; }   /* النهاري: فضة أعمق من اللوحة الفاتحة حتى لا تذوب */
+    body.dark-mode .pf-hero.t2 .pf-rt .pf-tier.t2, body.dark-mode .pf-hero.t2 .pf-lad .pf-tier.t2 { background: linear-gradient(135deg, #FAFBFC, #E4E8EB); color: #2F353B; }   /* الليلي: أنصع من اللوحة المتوسطة */
+    /* سهم التغيّر داخل كبسولة فاتحة صغيرة: تباين الأخضر/الأحمر لا يعتمد على درجة الفضة */
+    .pf-hero.t2 .pf-hero-top .pf-delta { padding: 2px 7px 0; border-radius: 999px; background: rgba(253, 254, 254, .7); line-height: 1.5; }
     .pf-hero.t2 .pf-hero-top .pf-delta.up { color: #14532B; } .pf-hero.t2 .pf-hero-top .pf-delta.down { color: #7A2416; }
-    body.dark-mode .pf-hero.t2 .pf-hero-top .pf-delta { background: rgba(250, 251, 252, .9); }   /* على الرصاصي: كبسولة أنصع حتى لا تبدو رمادية باهتة */
-    body.dark-mode .pf-hero.t2 .pf-rank small { color: #F2F4F6; opacity: .92; }
-    body.dark-mode .pf-hero.t2 {
-      background: linear-gradient(var(--surface), var(--surface)) padding-box,
+    /* الليلي: نفس الصفيحة بدرجة متوسطة (أخفت من الأسطورة) ونفس النص الداكن */
+    body.dark-mode .pf-hero.t2 { --hm: rgba(22, 28, 34, .93); --hl: rgba(22, 28, 34, .2); --sv: #9AA2A9;
+      background: linear-gradient(180deg, #A2AAB1 0%, #959DA4 45%, #8A939A 100%) padding-box,
         linear-gradient(155deg, #E3E7EA 0%, #6E777F 30%, #C3C9CE 52%, #5A6268 78%, #A3ACB4 100%) border-box;
-      box-shadow: 0 1px 2px rgba(0, 0, 0, .3), 0 10px 22px -12px rgba(0, 0, 0, .6); }
+      box-shadow: inset 0 1px 0 rgba(240, 244, 247, .35), 0 1px 2px rgba(0, 0, 0, .35), 0 12px 26px -12px rgba(0, 0, 0, .7); }
+    body.dark-mode .pf-hero.t2 { --hx: #161C22; }
     body.dark-mode .pf-hero.t2::before { background: linear-gradient(90deg, transparent, #6E777F 10%, #DCE1E5 32%, #8E979F 52%, #C9CFD4 72%, #6E777F 90%, transparent); }
-    /* الليلي: فضة رصاصية مصقولة بنص فاتح — أخفت بوضوح من ذهب الأسطورة، وأفتح من لوح النخبة، والنص مقروء */
-    body.dark-mode .pf-hero.t2 .pf-hero-top { background: linear-gradient(180deg, rgba(240, 244, 247, .08) 0%, rgba(240, 244, 247, 0) 42%), linear-gradient(180deg, #67707A 0%, #5C656D 58%, #545D65 100%);
-      border-bottom-color: rgba(28, 32, 36, .8); box-shadow: inset 0 -1px 0 rgba(240, 244, 247, .2); }
-    body.dark-mode .pf-hero.t2 .pf-hero-top .pf-name, body.dark-mode .pf-hero.t2 .pf-rt .num, body.dark-mode .pf-hero.t2 .pf-rank b { color: #F2F4F6; }
-    body.dark-mode .pf-hero.t2 .pf-hero-top::after { background: linear-gradient(180deg, rgba(92, 96, 99, .5) 0%, rgba(74, 70, 66, .24) 40%, rgba(60, 54, 49, .07) 75%, rgba(60, 54, 49, 0) 100%); }
-    body.dark-mode .pf-hero.t2 .pf-rank { border-color: rgba(240, 244, 247, .32); background: rgba(240, 244, 247, .03); box-shadow: inset 0 1px 0 rgba(240, 244, 247, .14); }
+    body.dark-mode .pf-hero.t2 .pf-hero-top { background: linear-gradient(180deg, rgba(240, 244, 247, .22) 0%, rgba(240, 244, 247, 0) 50%), linear-gradient(180deg, #AFB7BD 0%, #A4ACB3 100%);
+      border-bottom-color: rgba(60, 68, 75, .75); box-shadow: inset 0 -1px 0 rgba(240, 244, 247, .4); }
+    body.dark-mode .pf-hero.t2 .pf-rank { border-color: #6E777F; background: rgba(240, 244, 247, .22); box-shadow: inset 0 1px 0 rgba(240, 244, 247, .45); }
+    body.dark-mode .pf-hero.t2 .pf-spark .ln { stroke: #232B33; } body.dark-mode .pf-hero.t2 .pf-spark .area { fill: rgba(35, 43, 51, .14); }
+    body.dark-mode .pf-hero.t2 .pf-guide-btn, body.dark-mode .pf-hero.t2 .pf-lad .me { color: #1E262D; }
+    body.dark-mode .pf-hero.t2 .pf-hero-top .pf-delta { background: rgba(250, 251, 252, .85); }
+    .pf-hero.t2 .pf-prog .pf-bar i, body.dark-mode .pf-hero.t2 .pf-prog .pf-bar i { background: linear-gradient(90deg, #8E98A1, #2B343C); }   /* التقدم نحو النخبة بلونها الغرافيتي، واضح على الفضة في الوضعين */
 
     .pf-hero.t3 { --hx: #EEF1F4; --hm: rgba(238, 241, 244, .68); --hl: rgba(238, 241, 244, .15); border: 1px solid transparent;
       background:
@@ -11738,11 +11746,12 @@ function buildLeagueStandingsCanvas() {
       const TC = ['#BFB4A3', '#C9925F', '#A3ACB4'][lv] || '#BFB4A3';
       const HS = lv === 3 ? { ink: '#EEF1F4', muted: 'rgba(238,241,244,0.7)', hair: 'rgba(238,241,244,0.16)', line: '#D9DFE5', up: '#7FD39B', down: '#F09A86', bg: '#262C32' }
         : lv === 4 ? { ink: '#2A1C05', muted: 'rgba(42,28,5,0.88)', hair: 'rgba(42,28,5,0.16)', line: '#5C4214', up: '#1E6B3A', down: '#8E2E1E', bg: '#E6C783' }
+        : lv === 2 ? { ink: '#1E252C', muted: 'rgba(30,37,44,0.74)', hair: 'rgba(30,37,44,0.15)', line: '#3A4550', up: B.ok, down: '#B3402F', bg: '#D9DEE2' }   // 8.7: ألوان الفضة
         : { ink: B.ink, muted: B.muted, hair: 'rgba(41,38,33,0.11)', line: B.goldDeep, up: B.ok, down: '#B3402F', bg: B.paper };
       const T = (ctx, s, x, cy, o) => exportText(ctx, s, x, cy - exportOptDy(o.size), o);   // نص عربي على محور العنصر
       const tw = (ctx, s, size) => { ctx.save(); ctx.font = `800 ${size}px ${EXPORT_FONT}`; const w = ctx.measureText(s).width; ctx.restore(); return w; };
       const pill = (ctx, level, label, xr, cy, size, inv) => {   // كبسولة المستوى (xr = حافتها اليمنى)؛ inv: معكوسة فوق لوحة النخبة/الأسطورة
-        const s = inv === 4 ? { grad: ['#4A3618', '#2E2008'], fg: '#F3DFAE' } : inv === 2 ? { grad: ['#FAFBFC', '#E4E8EB'], fg: '#2F353B' } : inv === 3 ? { grad: ['#EEF1F3', '#B9C1C8'], fg: '#1E252C' } : exportTierStyle(level);
+        const s = inv === 4 ? { grad: ['#4A3618', '#2E2008'], fg: '#F3DFAE' } : inv === 2 ? { grad: ['#CFD5DA', '#B4BCC3'], fg: '#1E252C' } : inv === 3 ? { grad: ['#EEF1F3', '#B9C1C8'], fg: '#1E252C' } : exportTierStyle(level);
         const h = Math.round(size * 1.85), pad = Math.round(size * 0.8), w = tw(ctx, label, size) + pad * 2, x0 = xr - w;
         ctx.save(); drawRoundedRect(ctx, x0, cy - h / 2, w, h, h / 2);
         if (s.bg) ctx.fillStyle = s.bg; else { const g = ctx.createLinearGradient(x0, cy - h / 2, x0 + w, cy + h / 2); g.addColorStop(0, s.grad[0]); g.addColorStop(1, s.grad[1]); ctx.fillStyle = g; }
@@ -11774,16 +11783,14 @@ function buildLeagueStandingsCanvas() {
         const stops = (gr, a) => a.forEach(([o, c]) => gr.addColorStop(o, c));
         if (lv === 3) { g = ctx.createRadialGradient(M + CW * 0.86, y, 0, M + CW * 0.86, y, CW * 1.2); stops(g, [[0, '#4C565F'], [0.4, '#2E353C'], [0.76, '#1D2227'], [1, '#161A1E']]); }
         else if (lv === 4) { g = ctx.createRadialGradient(M + CW * 0.86, y, 0, M + CW * 0.86, y, CW * 1.15); stops(g, [[0, '#FBE7B0'], [0.16, '#E9C16A'], [0.42, '#D4A247'], [0.7, '#C48F37'], [1, '#B5822F']]); }
-        else if (lv === 2) g = B.paper;   // 8.7: السطح عادي، والفضة في لوحة الاسم
+        else if (lv === 2) { g = ctx.createLinearGradient(0, y, 0, y + HERO); g.addColorStop(0, '#DDE2E6'); g.addColorStop(0.45, '#D2D8DD'); g.addColorStop(1, '#C7CED4'); }   // 8.7: صفيحة فضة كاملة
         else { g = ctx.createLinearGradient(0, y, 0, y + HERO); g.addColorStop(0, mix(TC, B.paper, 0.32)); g.addColorStop(Math.min(0.9, 300 / HERO), B.paper); g.addColorStop(1, B.paper); }
         ctx.fillStyle = g; ctx.fill(); ctx.clip();
-        if (lv === 2) {   // 8.7: «لوحة اسم فضية» من حافة إلى حافة بحد سفلي حاد (نفس التطبيق)
+        if (lv === 2) {   // 8.7: لوحة اسم مصقولة أنصع من الصفيحة، بخط محفور رفيع (نفس التطبيق)
           const PH = 228, pg = ctx.createLinearGradient(0, y, 0, y + PH);
-          stops(pg, [[0, '#E6EAED'], [0.58, '#D2D8DD'], [1, '#C3CAD0']]); ctx.fillStyle = pg; ctx.fillRect(M, y, CW, PH);
-          const tg = ctx.createLinearGradient(0, y, 0, y + PH * 0.42); stops(tg, [[0, 'rgba(253,254,254,0.5)'], [1, 'rgba(253,254,254,0)']]); ctx.fillStyle = tg; ctx.fillRect(M, y, CW, PH * 0.42);
-          const fd = ctx.createLinearGradient(0, y + PH, 0, y + PH + 170);   // الجسم يكمل معدن اللوحة ويذوب قبل المنحنى، نحو دفء السطح
-          stops(fd, [[0, 'rgba(200,205,208,0.85)'], [0.4, 'rgba(216,215,210,0.42)'], [0.75, 'rgba(226,222,214,0.12)'], [1, 'rgba(226,222,214,0)']]); ctx.fillStyle = fd; ctx.fillRect(M, y + PH, CW, 170);
-          ctx.fillStyle = 'rgba(253,254,254,0.55)'; ctx.fillRect(M, y + PH - 3, CW, 1.5); ctx.fillStyle = 'rgba(128,138,147,0.75)'; ctx.fillRect(M, y + PH - 1.5, CW, 1.5);   // حد محفور رفيع
+          stops(pg, [[0, '#EEF1F3'], [1, '#E3E7EA']]); ctx.fillStyle = pg; ctx.fillRect(M, y, CW, PH);
+          const tg = ctx.createLinearGradient(0, y, 0, y + PH * 0.5); stops(tg, [[0, 'rgba(253,254,254,0.55)'], [1, 'rgba(253,254,254,0)']]); ctx.fillStyle = tg; ctx.fillRect(M, y, CW, PH * 0.5);
+          ctx.fillStyle = 'rgba(253,254,254,0.7)'; ctx.fillRect(M, y + PH - 3, CW, 1.5); ctx.fillStyle = 'rgba(128,138,147,0.7)'; ctx.fillRect(M, y + PH - 1.5, CW, 1.5);   // حد محفور رفيع
         }
         if (lv === 3) { ctx.fillStyle = 'rgba(240,244,247,0.022)'; for (let ly = y; ly < y + HERO; ly += 4) ctx.fillRect(M, ly, CW, 1.5); }   // ملمس مصقول دقيق
         const ag = ctx.createLinearGradient(M, 0, M + CW, 0), ac = lv === 3 ? 'rgba(240,244,247,0.8)' : lv === 4 ? 'rgba(255,251,238,1)' : lv === 2 ? 'rgba(253,254,254,0.95)' : TC;
@@ -11820,7 +11827,7 @@ function buildLeagueStandingsCanvas() {
           const lead = `متبقٍ ${prog.need} ${arPtsW(prog.need)} للوصول إلى`, lw = tw(ctx, lead, 27);
           T(ctx, lead, XR, y + 262, { size: 27, weight: 700, color: HS.muted, align: 'right' });
           pill(ctx, prog.level, prog.name, XR - lw - 14, y + 262, 22, lv === 3 && prog.level === 4 ? 0 : 0);
-          bar(ctx, bx, by, bw, 14, prog.pct / 100, lv === 3 ? HS.hair : 'rgba(41,38,33,0.09)', NEXT_FILL[prog.level]);
+          bar(ctx, bx, by, bw, 14, prog.pct / 100, lv === 3 || lv === 2 ? HS.hair : 'rgba(41,38,33,0.09)', NEXT_FILL[prog.level]);
         } else {
           T(ctx, `أعلى مستوى في المجلس · \u200E+${(p.rating - ELO_TIERS[0][0]).toLocaleString('en-US')}\u200F فوق حد الأسطورة`, XR, y + 262, { size: 27, weight: 700, color: HS.muted, align: 'right', maxW: bw });
           bar(ctx, bx, by, bw, 14, 1, HS.hair, lv === 4 ? ['#2E2008', '#6B4E1C'] : ['#B8913F', '#E3C47E']);
@@ -11834,14 +11841,14 @@ function buildLeagueStandingsCanvas() {
           const fg = ctx.createLinearGradient(0, cy0, 0, cy0 + chh); fg.addColorStop(0, rankHexToRgba(HS.line, 0.2)); fg.addColorStop(1, rankHexToRgba(HS.line, 0.02)); ctx.fillStyle = fg; ctx.fill(); ctx.restore();
           ctx.save(); ctx.beginPath(); pts.forEach((q, i) => i ? ctx.lineTo(X(i), Y(q.r)) : ctx.moveTo(X(i), Y(q.r))); ctx.strokeStyle = HS.line; ctx.lineWidth = 4.5; ctx.lineJoin = 'round'; ctx.lineCap = 'round'; ctx.stroke(); ctx.restore();
           const li = pts.length - 1, pi = peak ? pts.lastIndexOf(peak) : -1;
-          if (pi > 0 && pi !== li) { ctx.save(); ctx.beginPath(); ctx.arc(X(pi), Y(peak.r), 9, 0, Math.PI * 2); ctx.fillStyle = HS.bg; ctx.fill(); ctx.lineWidth = 4; ctx.strokeStyle = lv >= 3 ? HS.line : B.gold; ctx.stroke(); ctx.restore(); }
+          if (pi > 0 && pi !== li) { ctx.save(); ctx.beginPath(); ctx.arc(X(pi), Y(peak.r), 9, 0, Math.PI * 2); ctx.fillStyle = HS.bg; ctx.fill(); ctx.lineWidth = 4; ctx.strokeStyle = lv >= 2 ? HS.line : B.gold; ctx.stroke(); ctx.restore(); }
           ctx.save(); ctx.beginPath(); ctx.arc(X(li), Y(pts[li].r), 10, 0, Math.PI * 2); ctx.fillStyle = HS.line; ctx.fill(); ctx.lineWidth = 5; ctx.strokeStyle = HS.bg; ctx.stroke(); ctx.restore();
           const capY = y + HERO - 34, first = p.points[0];
           T(ctx, `تطور التقييم عبر ${p.points.length} ${arToursW(p.points.length)} · منذ ${fmtDateNum(first.date)}`, XR, capY, { size: 22, weight: 700, color: HS.muted, align: 'right', maxW: bw * 0.66, min: 14 });
           if (pi > 0 && pi !== li) {
             const s = `الأعلى ${peak.r.toLocaleString('en-US')}`; T(ctx, s, bx + 26, capY, { size: 22, weight: 800, color: HS.ink, align: 'left' });
-            ctx.save(); ctx.beginPath(); ctx.arc(bx + 8, capY, 7, 0, Math.PI * 2); ctx.fillStyle = HS.bg; ctx.fill(); ctx.lineWidth = 3; ctx.strokeStyle = lv >= 3 ? HS.line : B.gold; ctx.stroke(); ctx.restore();
-          } else T(ctx, 'في أعلى تقييم له الآن', bx, capY, { size: 22, weight: 800, color: lv >= 3 ? HS.ink : B.goldDeep, align: 'left' });
+            ctx.save(); ctx.beginPath(); ctx.arc(bx + 8, capY, 7, 0, Math.PI * 2); ctx.fillStyle = HS.bg; ctx.fill(); ctx.lineWidth = 3; ctx.strokeStyle = lv >= 2 ? HS.line : B.gold; ctx.stroke(); ctx.restore();
+          } else T(ctx, 'في أعلى تقييم له الآن', bx, capY, { size: 22, weight: 800, color: lv >= 2 ? HS.ink : B.goldDeep, align: 'left' });
         }
         y += HERO + GAPS;
         if (EXC.length) {   // سجل الاستبعاد: سطر هادئ بلون التحذير لكل دوري
