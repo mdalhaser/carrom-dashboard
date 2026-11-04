@@ -13459,7 +13459,18 @@ function buildLeagueStandingsCanvas() {
         for (let x = n.nextElementSibling; x; x = x.nextElementSibling) out.push(x);
       return out.filter(el => { if (!el.getClientRects().length) return false; const p = getComputedStyle(el).position; return p !== 'fixed' && p !== 'sticky'; });
     }
-    function foldStop(src) { const st = src && src.__ff; if (!st) return; src.__ff = null; if (st.card.__ffBy === st) st.card.__ffBy = null; st.fx.forEach(a => a.cancel()); st.hold(false); }
+    function foldStop(src) { const st = src && src.__ff; if (!st) return; src.__ff = null; if (st.card.__ffBy === st) st.card.__ffBy = null; st.fx.forEach(a => a.cancel()); if (st.sheet) foldSheetClean(src); st.hold(false); }
+    // 9.8 — داخل النوافذ ذات التمرير الخاص (ملف اللاعب، «صفحتي»، الإحصائيات، لوحة التحكم) لا يُعتمد على القص والانزلاق:
+    // سفاري على الآيفون لا يطبّق إزاحة ما تحت البطاقة داخل هذه النوافذ (تقفز العناصر لمكانها النهائي وتتراكب).
+    // هنا يتحرك العنصر نفسه بارتفاعه الحقيقي وحشواته وهوامشه؛ الحساب محصور داخل نافذة ثابتة فلا يمس الصفحة خلفها،
+    // والبطاقة المحيطة (مثل بطاقة المستوى حول دليل المستويات) تكبر وتصغر معه طبيعيًا.
+    const FOLD_SHEETS = '.modal-content, .stats-modal-content, .cd-shell, .lg-modal-content, .ui-dialog';
+    const FOLD_BOX = ['paddingTop', 'paddingBottom', 'marginTop', 'marginBottom'];
+    function foldSheetBox(el) {
+      const cs = getComputedStyle(el), gone = el.hidden || cs.display === 'none', o = { height: (gone ? 0 : el.getBoundingClientRect().height) + 'px' };
+      FOLD_BOX.forEach(k => { o[k] = gone ? '0px' : cs[k]; }); return o;
+    }
+    function foldSheetClean(el) { el.style.overflow = ''; el.style.boxSizing = ''; }
     function foldFlip({ card, src, on, apply, hold, fade, stagger, inner }) {
       src = src || card;
       const st = src.__ff;
@@ -13469,6 +13480,19 @@ function buildLeagueStandingsCanvas() {
       }
       if (card.__ffBy) foldStop(card.__ffBy.src);   // حركة أخرى على نفس البطاقة (قسم داخلي): تُنهى فورًا
       if (foldReduced()) { apply(on); return; }
+      if (src.closest(FOLD_SHEETS)) {
+        const b0 = foldSheetBox(src); apply(on); const b1 = foldSheetBox(src);
+        if (FOLD_BOX.concat('height').every(k => Math.abs(parseFloat(b0[k]) - parseFloat(b1[k])) < 0.5)) return;
+        if (!on) hold(true);
+        src.style.overflow = 'hidden'; src.style.boxSizing = 'border-box';
+        const fx = [src.animate([b0, b1], { duration: on ? 260 : 220, easing: FOLD_E, fill: 'both' })];
+        [].concat(fade || []).filter(Boolean).forEach((el, i) => fx.push(on
+          ? el.animate([{ opacity: 0, transform: 'translateY(-6px)' }, { opacity: 1, transform: 'translateY(0px)' }], { duration: stagger ? 220 : 260, delay: stagger ? Math.min(i, 6) * 30 : 0, easing: FOLD_E, fill: 'both' })
+          : el.animate([{ opacity: 1 }, { opacity: 0 }], { duration: 140, easing: 'ease', fill: 'both' })));
+        const me = { on, fx, card, src, hold, sheet: true }; src.__ff = me; card.__ffBy = me;
+        fx[0].onfinish = () => { if (src.__ff !== me) return; src.__ff = null; if (card.__ffBy === me) card.__ffBy = null; hold(false); fx.forEach(a => a.cancel()); foldSheetClean(src); };
+        return;
+      }
       const fol = foldFollowers(src).concat(inner ? inner() : []), tops = () => fol.map(el => el.getBoundingClientRect().top), hgt = () => card.getBoundingClientRect().height;
       const t0 = tops(), h0 = hgt();
       apply(on); const t1 = tops(), h1 = hgt();
@@ -14105,7 +14129,7 @@ function buildLeagueStandingsCanvas() {
     // ===================================
     // 🧭 سلوك التطبيق: إعادة الوضع للأعلى، تعديل العنوان بالضغط المطوّل، تنبيه التحديث، رقم الإصدار
     // ===================================
-    const APP_VERSION = '9.7';   // ترقيم الاعتماد: 1 ثم 1.1 … 1.9 ثم 2 — ويُرفع معه رقم الإصدار في sw.js
+    const APP_VERSION = '9.8';   // ترقيم الاعتماد: 1 ثم 1.1 … 1.9 ثم 2 — ويُرفع معه رقم الإصدار في sw.js
     (function setupAppBehaviors() {
       const root = document.documentElement;
 
