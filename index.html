@@ -3258,7 +3258,7 @@
     .pf-hero.t4 .pf-lad .pf-tier.t4 { background: linear-gradient(135deg, #4A3618, #2E2008); color: #F3DFAE; }
     /* ===== 8.3 — بطاقات المستوى: سُلّم خامات واضح (المبتدئ والمتمكن كما هما دون أي تغيير)
        محترف: «رأس فضي» — صبغة فضية قصيرة تتلاشى عند منتصف البطاقة + حافة علوية مصقولة + إطار معدني متدرج + إطار «المركز» فضي + ظل خفيف بطبقتين
-       نخبة: «بلاتين أسود» — لوح غرافيتي داكن بارد + إطار بلاتيني مزدوج + ملمس مصقول دقيق + انعكاس قطري ثابت + ظل أعمق
+       نخبة: «بلاتين أسود» — لوح غرافيتي داكن بارد + إطار بلاتيني مزدوج + ملمس مصقول دقيق + ظل أعمق (8.6: بلا انعكاس قطري ثابت)
        أسطورة المجلس: لوح ذهب إمبراطوري بخمس درجات + إطار مزدوج + توهج ذهبي + لمعة تمر مرة واحدة عند فتح الملف ===== */
     .pf-hero.t2 { --tc: #A3ACB4; border: 1px solid transparent;
       background:
@@ -3281,7 +3281,6 @@
     .pf-hero.t3 { --hx: #EEF1F4; --hm: rgba(238, 241, 244, .68); --hl: rgba(238, 241, 244, .15); border: 1px solid transparent;
       background:
         repeating-linear-gradient(180deg, rgba(240, 244, 247, .022) 0 1px, transparent 1px 3px) padding-box,
-        linear-gradient(118deg, transparent 30%, rgba(226, 232, 238, .14) 41%, rgba(226, 232, 238, .03) 50%, transparent 58%) padding-box,
         radial-gradient(130% 120% at 86% 0%, #4C565F 0%, #2E353C 40%, #1D2227 76%, #161A1E 100%) padding-box,
         linear-gradient(150deg, #F4F6F8 0%, #7D8790 24%, #E3E7EB 48%, #5E6871 74%, #C9D0D6 100%) border-box;
       box-shadow: inset 0 0 0 1px rgba(226, 232, 238, .16), inset 0 1px 0 rgba(240, 244, 247, .38),
@@ -3290,7 +3289,6 @@
     body.dark-mode .pf-hero.t3 {
       background:
         repeating-linear-gradient(180deg, rgba(240, 244, 247, .026) 0 1px, transparent 1px 3px) padding-box,
-        linear-gradient(118deg, transparent 30%, rgba(226, 232, 238, .16) 41%, rgba(226, 232, 238, .03) 50%, transparent 58%) padding-box,
         radial-gradient(130% 120% at 86% 0%, #5A646E 0%, #384047 40%, #252B31 76%, #1D2227 100%) padding-box,
         linear-gradient(150deg, #FAFBFC 0%, #8A949D 24%, #EEF1F3 48%, #6B757E 74%, #D6DCE1 100%) border-box;
       box-shadow: inset 0 0 0 1px rgba(226, 232, 238, .2), inset 0 1px 0 rgba(240, 244, 247, .45), 0 1px 2px rgba(0, 0, 0, .5), 0 16px 34px -14px rgba(0, 0, 0, .85); }
@@ -3308,7 +3306,6 @@
        والانعكاس الثابت شعاع رفيع خفيف حتى لا يغسل اللون (اللمعة الحية عند الفتح كما هي) */
     .pf-hero.t4 { --hx: #2A1C05; --hm: rgba(42, 28, 5, .88); --hl: rgba(42, 28, 5, .16); border: 1px solid transparent;
       background:
-        linear-gradient(118deg, transparent 36%, rgba(255, 240, 200, .24) 42%, rgba(255, 240, 200, .04) 47%, transparent 52%) padding-box,
         radial-gradient(120% 110% at 88% 0%, #FBE7B0 0%, #E9C16A 16%, #D4A247 42%, #C48F37 70%, #B5822F 100%) padding-box,
         linear-gradient(150deg, #F6DB98 0%, #7C561A 24%, #E9C374 48%, #6B4914 74%, #C99B45 100%) border-box;
       box-shadow: inset 0 0 0 1px rgba(255, 236, 190, .38), inset 0 1px 0 rgba(255, 244, 214, .85),
@@ -3316,7 +3313,6 @@
     .pf-hero.t4::before { height: 1px; background: linear-gradient(90deg, transparent, rgba(255, 251, 238, 1) 25%, rgba(255, 251, 238, 1) 75%, transparent); }
     body.dark-mode .pf-hero.t4 { --hx: #2E2008; --hm: rgba(46, 32, 8, .68); --hl: rgba(46, 32, 8, .14);
       background:
-        linear-gradient(118deg, transparent 30%, rgba(255, 246, 218, .36) 40%, rgba(255, 246, 218, .06) 49%, transparent 57%) padding-box,
         radial-gradient(125% 115% at 86% 0%, #F6E3AE 0%, #E6C67D 28%, #D4AE5E 56%, #BF9446 82%, #AD833A 100%) padding-box,
         linear-gradient(150deg, #FBE6B0 0%, #94692A 24%, #EBCD86 48%, #7A561C 74%, #D7B162 100%) border-box;
       box-shadow: inset 0 0 0 1px rgba(255, 240, 200, .35), inset 0 1px 0 rgba(255, 246, 222, .85), 0 1px 2px rgba(0, 0, 0, .45), 0 16px 34px -14px rgba(0, 0, 0, .8), 0 0 34px -6px rgba(207, 169, 99, .38); }
@@ -11762,14 +11758,11 @@ function buildLeagueStandingsCanvas() {
         else if (lv === 2) { g = ctx.createLinearGradient(0, y, 0, y + HERO); g.addColorStop(0, '#C9D0D6'); g.addColorStop(Math.min(0.5, 340 / HERO), B.paper); g.addColorStop(1, B.paper); }
         else { g = ctx.createLinearGradient(0, y, 0, y + HERO); g.addColorStop(0, mix(TC, B.paper, 0.32)); g.addColorStop(Math.min(0.9, 300 / HERO), B.paper); g.addColorStop(1, B.paper); }
         ctx.fillStyle = g; ctx.fill(); ctx.clip();
-        if (lv >= 2) {   // انعكاس مضبوط: ضوء علوي للفضي، وشريط قطري ثابت للبلاتين والذهب
-          const hl = lv === 2 ? ctx.createRadialGradient(M + CW * 0.88, y, 0, M + CW * 0.88, y, CW * 0.7) : ctx.createLinearGradient(M + CW * 0.2, y, M + CW * 0.62, y + HERO * 0.7);
-          if (lv === 2) stops(hl, [[0, 'rgba(253,254,254,0.55)'], [1, 'rgba(253,254,254,0)']]);
-          else if (lv === 3) { const c = '226,232,238'; stops(hl, [[0, `rgba(${c},0)`], [0.3, `rgba(${c},0)`], [0.45, `rgba(${c},0.14)`], [0.58, `rgba(${c},0.03)`], [0.72, `rgba(${c},0)`], [1, `rgba(${c},0)`]]); }
-          else { const c = '255,240,200'; stops(hl, [[0, `rgba(${c},0)`], [0.4, `rgba(${c},0)`], [0.48, `rgba(${c},0.24)`], [0.55, `rgba(${c},0.04)`], [0.62, `rgba(${c},0)`], [1, `rgba(${c},0)`]]); }   // الأسطورة: شعاع رفيع خفيف
-          ctx.fillStyle = hl; ctx.fillRect(M, y, CW, HERO);
-          if (lv === 3) { ctx.fillStyle = 'rgba(240,244,247,0.022)'; for (let ly = y; ly < y + HERO; ly += 4) ctx.fillRect(M, ly, CW, 1.5); }   // ملمس مصقول دقيق
+        if (lv === 2) {   // ضوء علوي ناعم للفضي (8.6: لا شريط قطري ثابت في النخبة والأسطورة)
+          const hl = ctx.createRadialGradient(M + CW * 0.88, y, 0, M + CW * 0.88, y, CW * 0.7);
+          stops(hl, [[0, 'rgba(253,254,254,0.55)'], [1, 'rgba(253,254,254,0)']]); ctx.fillStyle = hl; ctx.fillRect(M, y, CW, HERO);
         }
+        if (lv === 3) { ctx.fillStyle = 'rgba(240,244,247,0.022)'; for (let ly = y; ly < y + HERO; ly += 4) ctx.fillRect(M, ly, CW, 1.5); }   // ملمس مصقول دقيق
         const ag = ctx.createLinearGradient(M, 0, M + CW, 0), ac = lv === 3 ? 'rgba(240,244,247,0.8)' : lv === 4 ? 'rgba(255,251,238,1)' : lv === 2 ? 'rgba(253,254,254,0.95)' : TC;
         ag.addColorStop(0, 'rgba(0,0,0,0)'); ag.addColorStop(0.22, ac); ag.addColorStop(0.78, ac); ag.addColorStop(1, 'rgba(0,0,0,0)'); ctx.fillStyle = ag; ctx.fillRect(M, y, CW, lv >= 2 ? 2 : 4);
         if (lv === 2) { const eg = ctx.createLinearGradient(M, 0, M + CW, 0); stops(eg, [[0, 'rgba(154,164,173,0)'], [0.1, '#9AA4AD'], [0.32, '#F6F8F9'], [0.52, '#A9B2BA'], [0.72, '#EEF1F3'], [0.9, '#9AA4AD'], [1, 'rgba(154,164,173,0)']]); ctx.fillStyle = eg; ctx.fillRect(M, y, CW, 5); }   // حافة مصقولة
@@ -13768,7 +13761,7 @@ function buildLeagueStandingsCanvas() {
     // ===================================
     // 🧭 سلوك التطبيق: إعادة الوضع للأعلى، تعديل العنوان بالضغط المطوّل، تنبيه التحديث، رقم الإصدار
     // ===================================
-    const APP_VERSION = '8.5';   // ترقيم الاعتماد: 1 ثم 1.1 … 1.9 ثم 2 — ويُرفع معه رقم الإصدار في sw.js
+    const APP_VERSION = '8.6';   // ترقيم الاعتماد: 1 ثم 1.1 … 1.9 ثم 2 — ويُرفع معه رقم الإصدار في sw.js
     (function setupAppBehaviors() {
       const root = document.documentElement;
 
