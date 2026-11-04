@@ -6392,7 +6392,7 @@ return teamName.replace('غير محدد', replacement);
     }
     function statsPaneMoreToggle(btn) {
       const pane = btn.closest('.st-pane'), id = btn.dataset.more, all = !pane.classList.contains('all'), n = pane.querySelectorAll('.st-item').length;
-      pane.classList.toggle('all', all); statsFoldAll[id] = all;
+      softToggle(pane, 'all', all, '.st-extra'); statsFoldAll[id] = all;
       btn.setAttribute('aria-expanded', String(all)); btn.firstChild.textContent = all ? 'عرض أقل' : `عرض الكل (${n})`;
       if (!all) { const tabs = statsContent.querySelector('.st-tabs'); if (tabs && tabs.getBoundingClientRect().top < 0) tabs.scrollIntoView({ block: 'start', behavior: rankFlipReduced() ? 'auto' : 'smooth' }); }
     }
@@ -8415,6 +8415,9 @@ currentScoreWinnerName = null;
       #xsRoot .xs-dock .xs-primary{flex:2;background:#CFA963;border-color:#CFA963;color:#30251F;font-size:17px;font-weight:800}
       #xsRoot .xs-dock .xs-sec{flex:1}
       #xsRoot .xs-dock #xsMore{flex:0 0 54px;font-size:20px;line-height:1}
+      #xsRoot .xs-menu:not([hidden]){animation:xsMenuIn var(--t-base) var(--ease)}
+      @keyframes xsMenuIn{from{opacity:0;transform:translateY(6px) scale(.98)}to{opacity:1;transform:none}}
+      @media (prefers-reduced-motion: reduce){#xsRoot .xs-menu:not([hidden]){animation:none}}
       #xsRoot .xs-menu{position:absolute;right:12px;bottom:calc(76px + env(safe-area-inset-bottom,0px));display:grid;gap:6px;padding:8px;background:#3A2D26;border:1px solid rgba(207,169,99,.5);border-radius:16px;z-index:5;min-width:190px}
       #xsRoot .xs-menu button{min-height:48px;border-radius:12px;border:0;background:rgba(255,255,255,.06);font-size:15px;font-weight:700;text-align:right;padding:0 16px}
       #xsRoot .xs-scrim{position:absolute;inset:0;background:rgba(0,0,0,.5);z-index:3}
@@ -10603,10 +10606,11 @@ function buildLeagueStandingsCanvas() {
           const go = hubEl('button', 'xh-go', 'معاينة وتنزيل'); go.type = 'button'; go.addEventListener('click', () => hubRun(it, go)); panel.appendChild(go);
           row.addEventListener('click', () => {
             if (!it.ok) return;
-            const wasOpen = !panel.hidden;
-            box.parentElement.querySelectorAll('.xh-panel').forEach(p => { p.hidden = true; });
+            const wasOpen = row.getAttribute('aria-expanded') === 'true';
+            box.parentElement.querySelectorAll('.xh-panel').forEach(p => { if (p !== panel && !p.hidden) revealMotion(p, false); });
             box.parentElement.querySelectorAll('.xh-item').forEach(r => r.setAttribute('aria-expanded', 'false'));
-            if (!wasOpen) { panel.hidden = false; row.setAttribute('aria-expanded', 'true'); exportHub.sel = it.id; panel.scrollIntoView({ block: 'nearest', behavior: 'smooth' }); } else exportHub.sel = null;
+            revealMotion(panel, !wasOpen);
+            if (!wasOpen) { row.setAttribute('aria-expanded', 'true'); exportHub.sel = it.id; panel.scrollIntoView({ block: 'nearest', behavior: 'smooth' }); } else exportHub.sel = null;
           });
           box.append(row, panel);
         });
@@ -11017,7 +11021,7 @@ function buildLeagueStandingsCanvas() {
     // ---------- لوحة إعدادات التصدير (تؤثر فعليًا على كل الصور) ----------
     function renderExportSettingsPanel(host) {
       const d = document.createElement('details'); d.className = 'export-center-group'; d.open = !!renderExportSettingsPanel.open;
-      d.addEventListener('toggle', () => { renderExportSettingsPanel.open = d.open; });
+      d.addEventListener('toggle', () => { renderExportSettingsPanel.open = d.open; }); smoothDetails(d);
       d.innerHTML = '<summary style="cursor:pointer;min-height:44px;display:flex;align-items:center;font-weight:800">إعدادات التصدير والتخصيص</summary>';
       const row = (label, el) => { const l = document.createElement('label'); l.style.cssText = 'display:flex;gap:12px;align-items:center;min-height:44px;margin:4px 0;font-weight:700'; l.append(label, el); d.appendChild(l); return el; };
       const txt = (key, label, ph) => { const i = document.createElement('input'); i.type = 'text'; i.maxLength = 80; i.value = exportSettings[key]; i.placeholder = ph; i.style.cssText = 'flex:1;min-height:44px;border-radius:12px;padding:0 12px;font:inherit';
@@ -12734,6 +12738,7 @@ function buildLeagueStandingsCanvas() {
       (function setupGitHubPublish(){
         const GH_KEY='__carrom_gh_publish_v1', $=id=>document.getElementById(id);
         const live=$('ghLive'), btn=$('ghPublishBtn'), st=$('ghStatus'), box=$('ghSetupBox'), sum=$('ghSetupSum'), form=$('ghForm'), linked=$('ghLinked'), fst=$('ghFormStatus'), manual=$('ghManualBox');
+        smoothDetails(box); smoothDetails(manual);   // فتح وإغلاق ناعم لقسمي الربط والنشر اليدوي
         if(!btn||!form) return;
         const guessRepo=()=>{const h=location.hostname.match(/^([^.]+)\.github\.io$/i),seg=location.pathname.split('/').filter(Boolean)[0];return h&&seg&&!/\.html?$/i.test(seg)?h[1]+'/'+seg:'mdalhaser/carrom-dashboard';};
         const load=()=>{try{const c=JSON.parse(localStorage.getItem(GH_KEY)||'null');return c&&c.token&&c.repo?c:null}catch(e){return null}};
@@ -13418,10 +13423,10 @@ function buildLeagueStandingsCanvas() {
       if (!on) box.classList.add(cls);   // تبقى ظاهرة أثناء الانكماش ثم تُخفى
       const items = [...box.querySelectorAll(itemsSel)], E = 'cubic-bezier(.2, .8, .2, 1)';
       el.style.overflow = 'hidden';
-      const a = el.animate([{ height: h0 + 'px' }, { height: h1 + 'px' }], { duration: 260, easing: E });
+      const a = el.animate([{ height: h0 + 'px' }, { height: h1 + 'px' }], { duration: 260, easing: E, fill: 'forwards' });   // يثبت حتى التنظيف (بلا ومضة بالارتفاع الكامل)
       const fx = items.map((x, i) => on ? x.animate([{ opacity: 0, transform: 'translateY(-6px)' }, { opacity: 1, transform: 'none' }], { duration: 220, delay: Math.min(i, 6) * 30, easing: E, fill: 'backwards' })
         : x.animate([{ opacity: 1 }, { opacity: 0 }], { duration: 140, easing: 'ease', fill: 'forwards' }));
-      const done = () => { box.__st = null; el.style.overflow = ''; if (!on) { box.classList.remove(cls); fx.forEach(f => f.cancel()); } };
+      const done = () => { box.__st = null; a.cancel(); el.style.overflow = ''; if (!on) { box.classList.remove(cls); fx.forEach(f => f.cancel()); } };
       box.__st = { a, done }; a.onfinish = () => { if (box.__st && box.__st.a === a) done(); };
     }
     // 9.6 — طي وفتح موحد لكل الأقسام القابلة للطي: حركة ارتفاع حقيقية (Web Animations) بدل انتقال grid-template-rows
@@ -13441,11 +13446,49 @@ function buildLeagueStandingsCanvas() {
         if (Math.abs(h1 - h0) < 1) return;
         const grow = h1 > h0, o0 = before[i].o != null ? before[i].o : (grow ? 0 : 1), inEl = b.firstElementChild;
         if (!grow) b.style.gridTemplateRows = '1fr';   // المحتوى يبقى مرصوفًا أثناء الانكماش
-        const fx = [b.animate([{ height: h0 + 'px' }, { height: h1 + 'px' }], { duration: grow ? 260 : 220, easing: E }),
+        const fx = [b.animate([{ height: h0 + 'px' }, { height: h1 + 'px' }], { duration: grow ? 260 : 220, easing: E, fill: 'forwards' }),
           grow ? b.animate([{ opacity: o0 }, { opacity: 1 }], { duration: 260, easing: E }) : b.animate([{ opacity: o0 }, { opacity: 0 }], { duration: 140, easing: 'ease', fill: 'forwards' })];
         if (grow && inEl && before[i].o == null) fx.push(inEl.animate([{ transform: 'translateY(-6px)' }, { transform: 'none' }], { duration: 260, easing: E }));
         b.__fold = fx;
         fx[0].onfinish = () => { if (b.__fold !== fx) return; b.__fold = null; b.style.gridTemplateRows = ''; fx.forEach(a => a.cancel()); };
+      });
+    }
+    // نفس الحركة لعنصر يُخفى بخاصية hidden (دليل المستويات، لوحات مركز الصور): يتمدد من الصفر مع حشواته وهوامشه، وعند الإخفاء ينكمش ثم يُخفى
+    const FOLD_BOX = ['height', 'paddingTop', 'paddingBottom', 'marginTop', 'marginBottom'];
+    function revealMotion(el, show) {
+      if (!el) return;
+      const live = el.__rv, h0 = el.hidden ? 0 : el.getBoundingClientRect().height, o0 = live ? +getComputedStyle(el).opacity : (show ? 0 : 1);
+      const box0 = live ? FOLD_BOX.map(k => getComputedStyle(el)[k]) : null;
+      if (live) { live.forEach(a => a.cancel()); el.__rv = null; el.style.overflow = ''; }
+      if (!el.animate || (window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches)) { el.hidden = !show; return; }
+      el.hidden = false;
+      const cs = getComputedStyle(el), full = {}; FOLD_BOX.forEach(k => { full[k] = k === 'height' ? el.getBoundingClientRect().height + 'px' : cs[k]; });
+      const zero = {}; FOLD_BOX.forEach(k => { zero[k] = '0px'; });
+      const from = box0 ? Object.fromEntries(FOLD_BOX.map((k, i) => [k, k === 'height' ? h0 + 'px' : box0[i]])) : (show ? zero : full);
+      const to = show ? full : zero, E = 'cubic-bezier(.2, .8, .2, 1)';
+      el.style.overflow = 'hidden'; el.style.boxSizing = 'border-box';
+      const fx = [el.animate([from, to], { duration: show ? 260 : 220, easing: E, fill: 'forwards' }),
+        show ? el.animate([{ opacity: o0 }, { opacity: 1 }], { duration: 260, easing: E }) : el.animate([{ opacity: o0 }, { opacity: 0 }], { duration: 140, easing: 'ease', fill: 'forwards' })];
+      el.__rv = fx;
+      fx[0].onfinish = () => { if (el.__rv !== fx) return; el.__rv = null; el.style.overflow = ''; el.style.boxSizing = ''; if (!show) el.hidden = true; fx.forEach(a => a.cancel()); };
+    }
+    // عنصر details الأصلي: يفتح ويغلق بنفس الحركة بدل الظهور المفاجئ (الحالة نفسها open كما هي، فلا يتغير شيء في منطقه)
+    function smoothDetails(d) {
+      const sum = d && d.querySelector(':scope > summary'); if (!sum || d.__sd) return; d.__sd = true;
+      sum.addEventListener('click', e => {
+        if (!d.animate || (window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches)) return;
+        e.preventDefault();
+        const h0 = d.getBoundingClientRect().height, closing = d.open && !d.__closing;
+        if (d.__an) { d.__an.forEach(a => a.cancel()); d.__an = null; }
+        const kids = [...d.children].filter(c => c !== sum), E = 'cubic-bezier(.2, .8, .2, 1)';
+        let h1;
+        if (closing) { const cs = getComputedStyle(d); h1 = sum.getBoundingClientRect().bottom - d.getBoundingClientRect().top + parseFloat(cs.paddingBottom) + parseFloat(cs.borderBottomWidth); d.__closing = true; }
+        else { d.__closing = false; d.open = true; h1 = d.getBoundingClientRect().height; }
+        d.style.overflow = 'hidden';
+        const fx = [d.animate([{ height: h0 + 'px' }, { height: h1 + 'px' }], { duration: closing ? 220 : 260, easing: E, fill: 'forwards' }),
+          ...kids.map(k => k.animate(closing ? [{ opacity: 1 }, { opacity: 0 }] : [{ opacity: 0, transform: 'translateY(-6px)' }, { opacity: 1, transform: 'none' }], closing ? { duration: 140, easing: 'ease', fill: 'forwards' } : { duration: 260, easing: E }))];
+        d.__an = fx;
+        fx[0].onfinish = () => { if (d.__an !== fx) return; d.__an = null; d.style.overflow = ''; if (closing) { d.__closing = false; d.open = false; } fx.forEach(a => a.cancel()); };
       });
     }
     function pfSwapIn(dir) {
@@ -13530,7 +13573,7 @@ function buildLeagueStandingsCanvas() {
           ${sparkSVG ? `<div class="pf-trend"><div class="pf-spark-w">${sparkSVG}</div><div class="pf-trend-cap"><span>تطور التقييم عبر ${p.points.length} ${tourW(p.points.length)}</span>${peak && peak !== p.points[p.points.length - 1] ? `<span class="pk"><i></i>الأعلى ${nf(peak.r)}</span>` : peak ? '<span class="pk now">في أعلى تقييم له الآن</span>' : ''}</div></div>` : ''}`;
         body.appendChild(hero);
         { const gb = hero.querySelector('.pf-guide-btn'), gp = hero.querySelector('.pf-guide');
-          if (gb && gp) gb.addEventListener('click', () => { const o = gp.hidden; gp.hidden = !o; gb.setAttribute('aria-expanded', String(o)); hero.classList.toggle('guide-open', o); }); }
+          if (gb && gp) gb.addEventListener('click', () => { const o = gb.getAttribute('aria-expanded') !== 'true'; revealMotion(gp, o); gb.setAttribute('aria-expanded', String(o)); hero.classList.toggle('guide-open', o); }); }
         playerExclusions(name).forEach(x => { const n = el('div', 'pf-excl'); n.append(el('span', 'ic ic-alert'), el('span', null, `مستبعد من ${x.name}` + (x.date ? ` · ${fmtDayDate(x.date)}` : ''))); n.firstChild.setAttribute('aria-hidden', 'true'); body.appendChild(n); });
         // (2) الأرقام: شريط خانات موحد (نفس «صفحتي»)، ثم الألقاب حسب النوع في سطر هادئ
         const decided = p.w + p.l, sec = (h, side, inner, cls) => `<div class="vm2-sec pf-s${cls ? ' ' + cls : ''}"><div class="vm2-h"><span>${h}</span>${side ? `<small>${side}</small>` : ''}</div>${inner}</div>`;
