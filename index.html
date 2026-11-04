@@ -3268,7 +3268,8 @@
       background: linear-gradient(180deg, #DDE2E6 0%, #D2D8DD 45%, #C7CED4 100%) padding-box,
         linear-gradient(155deg, #AEB6BD 0%, #7C868F 30%, #A9B1B8 52%, #6F7982 78%, #9AA3AB 100%) border-box;   /* 8.8: إطار فضي أعمق — لا درجة قريبة من الأرضية العاجية، فلا تذوب الحواف والزوايا */
       box-shadow: inset 0 1px 0 rgba(253, 254, 254, .6), 0 1px 2px rgba(40, 46, 52, .1), 0 10px 22px -12px rgba(40, 46, 52, .34); }
-    .pf-hero.t2::before { z-index: 2; height: 2px; background: linear-gradient(90deg, transparent, #9AA4AD 10%, #F6F8F9 32%, #A9B2BA 52%, #EEF1F3 72%, #9AA4AD 90%, transparent); }
+    /* 8.8: بدل الشريط المتناوب المنفصل — خط ضوء رفيع واحد داخل الإطار يلتف مع الزوايا، كانعكاس طبيعي على حافة الفضة */
+    .pf-hero.t2::before { z-index: 2; inset: 0; height: auto; border-radius: inherit; background: none; pointer-events: none; box-shadow: inset 0 1px 0 rgba(253, 254, 254, .95); }
     /* لوحة الاسم: أنصع من الصفيحة، بخط محفور رفيع (بلا ظل) */
     .pf-hero.t2 .pf-prog { margin-top: 8px; }
     .pf-hero.t2 .pf-hero-top { position: relative; margin: -16px -16px 0; padding: 16px 16px 10px;
@@ -3296,7 +3297,7 @@
         linear-gradient(155deg, #E3E7EA 0%, #6E777F 30%, #C3C9CE 52%, #5A6268 78%, #A3ACB4 100%) border-box;
       box-shadow: inset 0 1px 0 rgba(240, 244, 247, .35), 0 1px 2px rgba(0, 0, 0, .35), 0 12px 26px -12px rgba(0, 0, 0, .7); }
     body.dark-mode .pf-hero.t2 { --hx: #161C22; }
-    body.dark-mode .pf-hero.t2::before { background: linear-gradient(90deg, transparent, #6E777F 10%, #DCE1E5 32%, #8E979F 52%, #C9CFD4 72%, #6E777F 90%, transparent); }
+    body.dark-mode .pf-hero.t2::before { box-shadow: inset 0 1px 0 rgba(240, 244, 247, .5); }
     body.dark-mode .pf-hero.t2 .pf-hero-top { background: linear-gradient(180deg, rgba(240, 244, 247, .22) 0%, rgba(240, 244, 247, 0) 50%), linear-gradient(180deg, #AFB7BD 0%, #A4ACB3 100%);
       border-bottom-color: rgba(60, 68, 75, .75); box-shadow: inset 0 -1px 0 rgba(240, 244, 247, .4); }
     body.dark-mode .pf-hero.t2 .pf-rank { border-color: #6E777F; background: rgba(240, 244, 247, .22); box-shadow: inset 0 1px 0 rgba(240, 244, 247, .45); }
@@ -11789,8 +11790,8 @@ function buildLeagueStandingsCanvas() {
         }
         if (lv === 3) { ctx.fillStyle = 'rgba(240,244,247,0.022)'; for (let ly = y; ly < y + HERO; ly += 4) ctx.fillRect(M, ly, CW, 1.5); }   // ملمس مصقول دقيق
         const ag = ctx.createLinearGradient(M, 0, M + CW, 0), ac = lv === 3 ? 'rgba(240,244,247,0.8)' : lv === 4 ? 'rgba(255,251,238,1)' : lv === 2 ? 'rgba(253,254,254,0.95)' : TC;
-        ag.addColorStop(0, 'rgba(0,0,0,0)'); ag.addColorStop(0.22, ac); ag.addColorStop(0.78, ac); ag.addColorStop(1, 'rgba(0,0,0,0)'); ctx.fillStyle = ag; ctx.fillRect(M, y, CW, lv >= 2 ? 2 : 4);
-        if (lv === 2) { const eg = ctx.createLinearGradient(M, 0, M + CW, 0); stops(eg, [[0, 'rgba(154,164,173,0)'], [0.1, '#9AA4AD'], [0.32, '#F6F8F9'], [0.52, '#A9B2BA'], [0.72, '#EEF1F3'], [0.9, '#9AA4AD'], [1, 'rgba(154,164,173,0)']]); ctx.fillStyle = eg; ctx.fillRect(M, y, CW, 5); }   // حافة مصقولة
+        ag.addColorStop(0, 'rgba(0,0,0,0)'); ag.addColorStop(0.22, ac); ag.addColorStop(0.78, ac); ag.addColorStop(1, 'rgba(0,0,0,0)'); ctx.fillStyle = ag; if (lv !== 2) ctx.fillRect(M, y, CW, lv >= 2 ? 2 : 4);
+        // 8.8: المحترف بلا شريط علوي منفصل؛ خط الضوء يُرسم داخل الإطار ويلتف مع الزوايا (بعد الإطار)
         ctx.restore();
         ctx.save(); drawRoundedRect(ctx, M, y, CW, HERO, 34);
         if (lv >= 2) {   // إطار معدني متدرج، وحافة ضوء داخلية للبلاتين والذهب
@@ -11799,6 +11800,7 @@ function buildLeagueStandingsCanvas() {
             : lv === 3 ? [[0, '#F4F6F8'], [0.24, '#7D8790'], [0.48, '#E3E7EB'], [0.74, '#5E6871'], [1, '#C9D0D6']]
             : [[0, '#F6DB98'], [0.24, '#7C561A'], [0.48, '#E9C374'], [0.74, '#6B4914'], [1, '#C99B45']]);
           ctx.strokeStyle = bg2; ctx.lineWidth = lv === 2 ? 2.5 : 3; ctx.stroke();
+          if (lv === 2) { ctx.save(); ctx.beginPath(); ctx.rect(M, y, CW, 40); ctx.clip(); drawRoundedRect(ctx, M + 2.5, y + 2.5, CW - 5, HERO - 5, 31.5); ctx.strokeStyle = 'rgba(253,254,254,0.95)'; ctx.lineWidth = 2; ctx.stroke(); ctx.restore(); }
           if (lv >= 3) { drawRoundedRect(ctx, M + 3, y + 3, CW - 6, HERO - 6, 31); ctx.strokeStyle = lv === 3 ? 'rgba(226,232,238,0.22)' : 'rgba(255,236,190,0.42)'; ctx.lineWidth = 2; ctx.stroke(); }
         } else { ctx.strokeStyle = mix(TC, B.line, 0.5); ctx.lineWidth = 2; ctx.stroke(); }
         ctx.restore();
