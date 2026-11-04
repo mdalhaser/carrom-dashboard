@@ -1976,7 +1976,7 @@
     .enm { position: absolute; inset: 6px; border-radius: 50%; pointer-events: none;
       background: radial-gradient(circle at 36% 28%, #6A4A30 0%, #3A2617 45%, #1C120A 100%);
       box-shadow: inset 0 2px 4px rgba(0, 0, 0, .6), inset 0 -1px 0 rgba(255, 220, 150, .25), 0 0 0 1px rgba(255, 236, 190, .55); }
-    .gcup { position: relative; z-index: 1; display: block; filter: drop-shadow(0 1.5px 1.5px rgba(0, 0, 0, .55)); }
+    .gcup { position: relative; z-index: 1; display: block; overflow: visible; }   /* 8.3: الظل داخل الـ SVG (لا filter) */
     .kc-gold .kc-emb::after { display: none; }
     .kc-gold .kc-emb .gcup { width: 33px; height: 33px; }
     .hn.x .md .enm { inset: 6px; }
@@ -1998,7 +1998,7 @@
       background: radial-gradient(circle at 34% 26%, #FFFBEA 0%, rgba(255, 251, 234, 0) 42%), conic-gradient(from 210deg, #FFF3CC, #E5BC62, #A06D20, #F2D488, #8A5B18, #F8E2A2, #FFF3CC);
       color: #3A2508; box-shadow: inset 0 0 0 1.5px rgba(255, 246, 214, .65), inset 0 -3px 5px rgba(90, 55, 10, .45), 0 0 0 3px rgba(120, 78, 18, .22), 0 6px 12px -4px rgba(90, 55, 10, .6); }
     .kc-cup::after { content: ""; position: absolute; inset: 6px; border-radius: 50%; border: 1px dashed rgba(70, 42, 8, .35); }
-    .kc-cup .kc-star { position: relative; z-index: 1; width: 34px; height: 34px; filter: drop-shadow(0 1px 0 rgba(255, 238, 190, .6)); }
+    .kc-cup .kc-star { position: relative; z-index: 1; width: 34px; height: 34px; overflow: visible; }   /* 8.3: الإضاءة داخل الـ SVG (لا filter) */
     /* التتويج عند نهاية البطولة: الميدالية ثم الاسم (اللمعة كما في البطاقة الذهبية) */
     .kc-enter .kc-cup { animation: kcCupIn var(--t-slow) var(--ease) both; }
     .kc-enter .kc-t, .kc-enter .kc-n, .kc-enter .kc-m, .kc-enter .kc-s, .kc-enter .kc-rest { animation: kcUp var(--t-slow) var(--ease) .12s both; }
@@ -2022,12 +2022,13 @@
       background: radial-gradient(circle at 34% 26%, #FFFBEA 0%, rgba(255, 251, 234, 0) 45%), conic-gradient(from 210deg, #FFF3CC, #E5BC62, #A06D20, #F2D488, #8A5B18, #F8E2A2, #FFF3CC);
       box-shadow: inset 0 0 0 2px rgba(255, 246, 214, .6), inset 0 -4px 6px rgba(90, 55, 10, .5), inset 0 3px 3px rgba(255, 255, 255, .55), 0 0 0 3px rgba(255, 244, 205, .55), 0 8px 16px -5px rgba(110, 70, 12, .75); }
     .hn.x .md::after { border: 1px dashed rgba(70, 42, 8, .4); }
-    .hn.x .md .lr { position: absolute; inset: -13px; width: calc(100% + 26px); height: calc(100% + 26px); overflow: visible; filter: drop-shadow(0 1px 1px rgba(80, 48, 8, .45)); }
+    .hn.x .md .lr { position: absolute; inset: -13px; width: calc(100% + 26px); height: calc(100% + 26px); overflow: visible; }
+    .lr .lr-sh .lr-stem { stroke: rgba(80, 48, 8, .4); } .lr .lr-sh .lr-sl { fill: rgba(80, 48, 8, .4); stroke: none; }   /* 8.3: ظل الإكليل داخل الـ SVG */
     .lr .lr-stem { fill: none; stroke: #9C6A1E; stroke-width: 1.05; stroke-linecap: round; stroke-linejoin: round; }
     .lr .lr-leaf { stroke: rgba(90, 55, 10, .55); stroke-width: .3; }
     .lr .lr-shade { fill: rgba(96, 58, 10, .32); }
     .lr .lr-vein { fill: none; stroke: rgba(90, 55, 10, .55); stroke-width: .3; stroke-linecap: round; }
-    body.dark-mode .hn.x .md .lr { filter: drop-shadow(0 1px 1.5px rgba(0, 0, 0, .6)); }
+    body.dark-mode .lr .lr-sh .lr-stem { stroke: rgba(0, 0, 0, .55); } body.dark-mode .lr .lr-sh .lr-sl { fill: rgba(0, 0, 0, .55); }
     .hn.x .md { margin-bottom: 12px; }
     .hn.x .t { color: #3A2508; text-shadow: 0 1px 0 rgba(255, 246, 214, .6); } body.dark-mode .hn.x .t { color: #F6E2A8; text-shadow: none; }
     .hn.x .s { color: rgba(58, 37, 8, .75); } body.dark-mode .hn.x .s { color: rgba(246, 226, 168, .75); }
@@ -2874,9 +2875,7 @@
     /* الحقل داخل الحلقة المحفورة أغمق قليلًا (مطفأ) فيبرز النقش المصقول فوقه — كالعملة المسكوكة */
     .hn.g .md::after { background: radial-gradient(circle at 50% 38%, rgba(120, 78, 18, .14), rgba(100, 62, 12, .3)); }
     .hn.s .md::after { background: radial-gradient(circle at 50% 38%, rgba(70, 80, 90, .1), rgba(60, 70, 80, .26)); }
-    .hn .md .rlf { position: relative; z-index: 1; width: 30px; height: 30px; filter: drop-shadow(0 1px .6px rgba(60, 36, 6, .5)); }
-    .hn.s .md .rlf { filter: drop-shadow(0 1px .6px rgba(30, 38, 46, .45)); }
-    .hn.h .md .rlf { filter: drop-shadow(0 1px 1px rgba(0, 0, 0, .6)); }
+    .hn .md .rlf { position: relative; z-index: 1; width: 30px; height: 30px; overflow: visible; }   /* 8.3: الظل داخل الـ SVG (لا filter) */
     .hns .hn.hns-hero .md .rlf { width: 50px; height: 50px; }
     .hn .md.nm .rlf { width: 19px; height: 19px; }
     .hns .hn.hns-hero .md.nm .rlf { width: 32px; height: 32px; }
@@ -2891,8 +2890,6 @@
     .pf-honors .hn.g .md .rlf .rb, .pf-honors .hn.k .md .rlf .rb { stroke: rgba(84, 50, 6, .85); stroke-width: .75; }
     .pf-honors .hn.s .md .rlf .rb { stroke: rgba(36, 44, 52, .8); stroke-width: .75; }
     .pf-honors .hn.g .md.nm .rlf .rb { stroke-width: 1; }
-    .pf-honors .hn.g .md .rlf { filter: drop-shadow(0 1px .4px rgba(70, 40, 4, .7)); }
-    .pf-honors .hn.s .md .rlf { filter: drop-shadow(0 1px .4px rgba(30, 38, 46, .6)); }   /* 7.7: 52 بكسل — الأيقونة والرقم مقروءان على الآيفون */
     .hn .md .ic { width: 25px; height: 25px; margin: 0; }
     .hn.s .md { color: #2C343B; background: radial-gradient(circle at 32% 24%, #FFFFFF 0%, #EEF1F3 22%, #C6CDD3 52%, #949DA5 78%, #69737C 100%);
       box-shadow: inset 0 0 0 1.5px rgba(255, 255, 255, .9), inset 0 -4px 6px rgba(40, 50, 60, .35), inset 0 3px 3px rgba(255, 255, 255, .7), 0 5px 12px -5px rgba(40, 50, 60, .55); }
@@ -5667,6 +5664,7 @@ return teamName.replace('غير محدد', replacement);
     function goldCupSVG() {   // معرّف تدرج خاص بكل نسخة: يعمل حتى لو كانت نسخة أخرى مخفية (سفاري)
       const id = 'gcG' + (++goldCupSeq);
       return `<svg class="gcup" viewBox="0 0 24 24" aria-hidden="true"><defs><linearGradient id="${id}" x1="0" y1="0" x2="1" y2=".18">${GOLD_CUP.stops.map(([o, c]) => `<stop offset="${o}" stop-color="${c}"/>`).join('')}</linearGradient></defs>`
+        + `<path fill="rgba(0,0,0,.22)" transform="translate(0 1.5)" d="${GOLD_CUP.body.join('')}"/><path fill="rgba(0,0,0,.38)" transform="translate(0 1)" d="${GOLD_CUP.body.join('')}"/>`   // 8.3: الظل داخل الـ SVG
         + `<path fill="url(#${id})" stroke="rgba(58,34,6,.6)" stroke-width=".35" stroke-linejoin="round" d="${GOLD_CUP.body.join('')}"/>`
         + `<path fill="#FFF4CF" opacity=".75" d="${GOLD_CUP.rim}"/><path fill="#5E3C0C" opacity=".45" d="${GOLD_CUP.base}"/><path fill="#FFFBEA" opacity=".8" d="${GOLD_CUP.spec}"/></svg>`;
     }
@@ -5693,7 +5691,11 @@ return teamName.replace('غير محدد', replacement);
     let reliefSeq = 0;
     function reliefSVG(name, lv) {
       const R = reliefOf(name), m = RELIEF_METAL[lv] || RELIEF_METAL.g, id = 'rlG' + (++reliefSeq), dark = lv === 's' ? 'rgba(40,48,56,.55)' : 'rgba(70,42,8,.6)';
-      const one = P => `<path class="rb" fill="url(#${id})" stroke="${dark}" stroke-width=".4" stroke-linejoin="round" d="${P.body.join('')}"/>`
+      // 8.3: الظل مرسوم داخل الـ SVG (نسخة مزاحة من الجسم) بدل filter: drop-shadow في CSS — سفاري على الآيفون قد يُسقط رسم
+      // الـ SVG المفلتر داخل الأوراق المنبثقة فيختفي النقش حتى يُلمس العنصر. الشكل نفسه دون الاعتماد على طبقة فلتر.
+      const sh = lv === 's' ? 'rgba(30,38,46,.42)' : lv === 'h' ? 'rgba(0,0,0,.5)' : 'rgba(70,40,4,.5)';
+      const one = P => `<path fill="${sh}" opacity=".55" transform="translate(0 1.05)" d="${P.body.join('')}"/><path fill="${sh}" transform="translate(0 .7)" d="${P.body.join('')}"/>`
+        + `<path class="rb" fill="url(#${id})" stroke="${dark}" stroke-width=".4" stroke-linejoin="round" d="${P.body.join('')}"/>`
         + `<path fill="${lv === 's' ? 'rgba(40,48,56,.18)' : 'rgba(90,55,10,.2)'}" d="${P.shade.join('')}"/><path fill="#FFFFFF" opacity=".75" d="${P.spec.join('')}"/>`;
       const inner = R.group ? R.group.map(([n, t]) => `<g transform="${t}">${one(reliefOf(n))}</g>`).join('') : one(R);
       return `<svg class="rlf" viewBox="0 0 24 24" aria-hidden="true"><defs><linearGradient id="${id}" x1="0" y1="0" x2=".35" y2="1">${m.map((c, i) => `<stop offset="${[0, .35, .72, 1][i]}" stop-color="${c}"/>`).join('')}</linearGradient></defs>${inner}</svg>`;
@@ -5721,12 +5723,15 @@ return teamName.replace('غير محدد', replacement);
       ctx.shadowColor = 'transparent'; ctx.fillStyle = g; ctx.fillText(text, cx, cy + size * .06); ctx.restore();
     }
     // 8: شعار بطاقة البطل — نجمة منتصف لوح الكيرم (ثمانية رؤوس محفورة، والرئيسية بوجهين للعمق) و«الملكة» الحمراء في مركزها
-    const KC_STAR_SVG = '<svg class="kc-star" viewBox="0 0 24 24" aria-hidden="true">'
+    // 8.3: الإضاءة تحت النجمة مرسومة داخل الـ SVG (نسخة مزاحة بلون فاتح) بدل filter: drop-shadow — يمنع اختفاءها في سفاري
+    const KC_STAR_IN = ''
       + '<path fill="#5C3A0E" d="M12 12L10.52 10.52L17.66 6.34ZM12 12L13.48 10.52L17.66 17.66ZM12 12L13.48 13.48L6.34 17.66ZM12 12L10.52 13.48L6.34 6.34Z"/>'
       + '<path fill="#3A2508" d="M12 12L17.66 6.34L13.48 13.48ZM12 12L17.66 17.66L10.52 13.48ZM12 12L6.34 17.66L10.52 10.52ZM12 12L6.34 6.34L13.48 10.52Z"/>'
       + '<path fill="#4A2E08" d="M12 12L9.50 12L12 1.60ZM12 12L12 9.50L22.40 12ZM12 12L14.50 12L12 22.40ZM12 12L12 14.50L1.60 12Z"/>'
       + '<path fill="#24170A" d="M12 12L12 1.60L14.50 12ZM12 12L22.40 12L12 14.50ZM12 12L12 22.40L9.50 12ZM12 12L1.60 12L12 9.50Z"/>'
-      + '<circle cx="12" cy="12" r="2.9" fill="#D33A28" stroke="#5A1A10" stroke-width=".5"/><circle cx="12.35" cy="12.45" r="1.9" fill="#A5241A" opacity=".55"/><circle cx="11.1" cy="11.05" r=".9" fill="#FFD9CC" opacity=".85"/></svg>';
+      + '<circle cx="12" cy="12" r="2.9" fill="#D33A28" stroke="#5A1A10" stroke-width=".5"/><circle cx="12.35" cy="12.45" r="1.9" fill="#A5241A" opacity=".55"/><circle cx="11.1" cy="11.05" r=".9" fill="#FFD9CC" opacity=".85"/>';
+    const KC_STAR_SVG = '<svg class="kc-star" viewBox="0 0 24 24" aria-hidden="true">'
+      + '<g transform="translate(0 .7)" fill="rgba(255,238,190,.6)">' + KC_STAR_IN.replace(/ (fill|stroke|stroke-width|opacity)="[^"]*"/g, '') + '</g>' + KC_STAR_IN + '</svg>';
     // 8: اللمعة مرة واحدة لكل بطل في الجلسة: إن رآها الجهاز في هذه الجلسة تُلغى لحظة بدئها (الشريط ما زال خارج البطاقة فلا يظهر شيء).
     // ذاكرة الجلسة فقط (sessionStorage) — لا تمس التخزين ولا data.json.
     (function kcShineOnce() {
@@ -11498,6 +11503,7 @@ function buildLeagueStandingsCanvas() {
     let laurelSeq = 0;
     const laurelSVG = () => { const id = 'lrG' + (++laurelSeq);
       return `<svg class="lr" viewBox="0 0 64 64" aria-hidden="true"><defs><linearGradient id="${id}" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#FFF2C6"/><stop offset=".45" stop-color="#E2B456"/><stop offset="1" stop-color="#8A5B18"/></linearGradient></defs>`
+        + `<g class="lr-sh" transform="translate(0 .85)">${LAUREL.stems.map(d => `<path class="lr-stem" d="${d}"/>`).join('')}${LAUREL.leaves.map(l => `<path class="lr-sl" d="${l.d}"/>`).join('')}</g>`   // 8.3: الظل داخل الـ SVG
         + LAUREL.stems.map(d => `<path class="lr-stem" d="${d}"/>`).join('')
         + LAUREL.leaves.map(l => `<path class="lr-leaf" fill="url(#${id})" d="${l.d}"/><path class="lr-shade" d="${l.shade}"/><path class="lr-vein" d="${l.vein}"/>`).join('') + '</svg>'; };
     // الإكليل نفسه على اللوحة (صور التصدير): s = بكسل لكل وحدة من الـ 64
@@ -11882,17 +11888,24 @@ function buildLeagueStandingsCanvas() {
             y += BH + GAPS;
           }
         }
-        // (4) أفضل أرقامه: شبكة 2×3
+        // (4) أفضل أرقامه: نفس بطاقة التطبيق بثلاث مناطق (8.3) — اسم الإنجاز مثبت في الأعلى ← الرقم مع عبارته في المركز الهندسي
+        //     للبطاقة تمامًا ← اسم البطولة ثم اليوم والتاريخ (أو الملاحظة) مثبتان في الأسفل. كل بطاقة مستقلة بفراغ (هوية الصور)،
+        //     والبطاقة الوحيدة في صفها تأخذ العرض كاملًا ومحتواها في الوسط. النسب نفسها: 12 · 26 · 15 · 12 ← 22 · 48 · 28 · 22.
         if (show.records) {
           const recs = playerBests(p, C);
-          const rows = Math.ceil(recs.length / 2), RHc = 128, G = 10, bodyH = rows * RHc + (rows - 1) * G;
+          const rows = Math.ceil(recs.length / 2), RHc = 270, G = 10, PADV = 24, bodyH = rows * RHc + (rows - 1) * G;
           cuts.push(y - GAPS / 2); y += exportSectionBar(ctx, M, y, CW, 'أفضل أرقامه', 'star', null, bodyH) + TP;
           const cw = (RW - G) / 2;
-          recs.forEach(([l, v, s], i) => { const r = Math.floor(i / 2), k = i % 2, x0 = RX + RW - (k + 1) * cw - k * G, y0 = y + r * (RHc + G);
-            drawRoundedRect(ctx, x0, y0, cw, RHc, 18); ctx.fillStyle = B.paper; ctx.fill(); ctx.strokeStyle = B.line; ctx.lineWidth = 1.2; ctx.stroke();
-            T(ctx, l, x0 + cw - 24, y0 + 32, { size: 22, weight: 800, color: B.goldDeep, align: 'right' });
-            T(ctx, v, x0 + cw - 24, y0 + 72, { size: 36, weight: 800, color: B.ink, align: 'right', maxW: cw - 48, min: 20 });
-            if (s) T(ctx, s, x0 + cw - 24, y0 + 106, { size: 20, weight: 700, color: B.faint, align: 'right', maxW: cw - 48, min: 13 }); });
+          recs.forEach(([l, v, s, t], i) => { const r = Math.floor(i / 2), k = i % 2, solo = i === recs.length - 1 && k === 0;
+            const w = solo ? RW : cw, x0 = solo ? RX : RX + RW - (k + 1) * cw - k * G, y0 = y + r * (RHc + G), cx = x0 + w / 2, mw = Math.min(cw, w) - 40;
+            drawRoundedRect(ctx, x0, y0, w, RHc, 18); ctx.fillStyle = B.paper; ctx.fill(); ctx.strokeStyle = B.line; ctx.lineWidth = 1.2; ctx.stroke();
+            T(ctx, l, cx, y0 + PADV + 15, { size: 22, weight: 800, color: B.goldDeep, maxW: mw, min: 14 });                    // المنطقة العليا
+            const tx = !/\d/.test(v) && v !== '—';                                                                          // قيمة نصية بلا رقم: نفس قاعدة .rc-n.tx في التطبيق (أصغر)
+            T(ctx, v, cx, y0 + RHc / 2, { size: tx ? 28 : 48, weight: tx ? 800 : 900, color: B.ink, maxW: mw, min: 18 });     // المركز الهندسي
+            const low = [t ? [t, 28, B.muted] : null, s ? [s, 22, B.faint] : null].filter(Boolean);                       // المنطقة السفلى: من الأسفل للأعلى
+            let ly = y0 + RHc - PADV - 15;
+            low.reverse().forEach(([txt, sz, col], j) => { if (j) ly -= sz === 28 ? 38 : 31; T(ctx, txt, cx, ly, { size: sz, weight: 700, color: col, maxW: mw, min: 13 }); });
+          });
           y += bodyH + TP + GAPS;
         }
         // (5) المسيرة: آخر 6 بطولات
