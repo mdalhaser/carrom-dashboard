@@ -3314,9 +3314,9 @@
     .pf-hero.t2 .pf-guide-btn, .pf-hero.t2 .pf-lad .me { color: #2F3A44; }
     .pf-hero.t2 .pf-rt .pf-tier.t2, .pf-hero.t2 .pf-lad .pf-tier.t2 { background: linear-gradient(135deg, #CFD5DA, #B4BCC3); color: #1E252C; }   /* النهاري: فضة أعمق من اللوحة الفاتحة حتى لا تذوب */
     body.dark-mode .pf-hero.t2 .pf-rt .pf-tier.t2, body.dark-mode .pf-hero.t2 .pf-lad .pf-tier.t2 { background: linear-gradient(135deg, #FAFBFC, #E4E8EB); color: #2F353B; }   /* الليلي: أنصع من اللوحة المتوسطة */
-    /* سهم التغيّر داخل كبسولة فاتحة صغيرة: تباين الأخضر/الأحمر لا يعتمد على درجة الفضة */
-    .pf-hero.t2 .pf-hero-top .pf-delta { padding: 2px 7px 0; border-radius: 999px; background: rgba(253, 254, 254, .7); line-height: 1.5; }
+    /* سهم التغيّر بلا كبسولة (كبقية المستويات)، بأخضر/أحمر أعمق يحقق التباين على الفضة */
     .pf-hero.t2 .pf-hero-top .pf-delta.up { color: #14532B; } .pf-hero.t2 .pf-hero-top .pf-delta.down { color: #7A2416; }
+    body.dark-mode .pf-hero.t2 .pf-hero-top .pf-delta.up { color: #0E4524; } body.dark-mode .pf-hero.t2 .pf-hero-top .pf-delta.down { color: #6A1E12; }
     /* الليلي: نفس الصفيحة بدرجة متوسطة (أخفت من الأسطورة) ونفس النص الداكن */
     body.dark-mode .pf-hero.t2 { --hm: rgba(22, 28, 34, .93); --hl: rgba(22, 28, 34, .2); --sv: #9AA2A9;
       background: linear-gradient(180deg, #A2AAB1 0%, #959DA4 45%, #8A939A 100%) padding-box,
@@ -3329,7 +3329,6 @@
     body.dark-mode .pf-hero.t2 .pf-rank { border-color: #6E777F; background: rgba(240, 244, 247, .22); box-shadow: inset 0 1px 0 rgba(240, 244, 247, .45); }
     body.dark-mode .pf-hero.t2 .pf-spark .ln { stroke: #232B33; } body.dark-mode .pf-hero.t2 .pf-spark .area { fill: rgba(35, 43, 51, .14); }
     body.dark-mode .pf-hero.t2 .pf-guide-btn, body.dark-mode .pf-hero.t2 .pf-lad .me { color: #1E262D; }
-    body.dark-mode .pf-hero.t2 .pf-hero-top .pf-delta { background: rgba(250, 251, 252, .85); }
     .pf-hero.t2 .pf-prog .pf-bar i, body.dark-mode .pf-hero.t2 .pf-prog .pf-bar i { background: linear-gradient(90deg, #8E98A1, #2B343C); }   /* التقدم نحو النخبة بلونها الغرافيتي، واضح على الفضة في الوضعين */
 
     .pf-hero.t3 { --hx: #EEF1F4; --hm: rgba(238, 241, 244, .68); --hl: rgba(238, 241, 244, .15); border: 1px solid transparent;
@@ -3374,6 +3373,21 @@
        شريط بعرض ثابت، 1.1 ثانية، مرة واحدة لكل لاعب في الجلسة (kcShineOnce) */
     .pf-hero.t4 { isolation: isolate; }
     @media (prefers-reduced-motion: reduce) { .pf-hero.t4::after { display: none; } }
+    /* ===== 8.7 — كبسولة المستوى داخل بطاقته: من معدن البطاقة نفسه، وتبرز عنه بالصنعة لا بلون مستوى آخر —
+       درجة أعمق أو أنصع من نفس المعدن + حافة معدنية رفيعة + ضوء رفيع في حافتها العلوية (كشارة مسكوكة مثبتة عليه).
+       الحافة والضوء بظل داخلي (inset) فلا يتغير مقاس الكبسولة. الكبسولات خارج البطاقات (القوائم) مسطحة كما هي. ===== */
+    .pf-hero.t2 .pf-rt .pf-tier.t2, .pf-hero.t2 .pf-lad .pf-tier.t2 {   /* المحترف: فضة مصقولة أعمق من لوحة الاسم، بحافة فضية */
+      background: linear-gradient(180deg, #DCE1E5 0%, #C3CAD0 100%); color: #1E252C;
+      box-shadow: inset 0 0 0 1px #8E98A1, inset 0 1.5px 0 rgba(253, 254, 254, .85); }
+    body.dark-mode .pf-hero.t2 .pf-rt .pf-tier.t2, body.dark-mode .pf-hero.t2 .pf-lad .pf-tier.t2 {   /* الليلي: أنصع من اللوحة المتوسطة */
+      background: linear-gradient(180deg, #EEF1F3 0%, #D2D8DD 100%); color: #1E252C;
+      box-shadow: inset 0 0 0 1px #5E6871, inset 0 1.5px 0 rgba(253, 254, 254, .9); }
+    .pf-hero.t3 .pf-rt .pf-tier.t3, .pf-hero.t3 .pf-lad .pf-tier.t3 {   /* النخبة: بلاتين أسود أعمق من اللوح، بحافة بلاتينية لامعة — لا فضة فاتحة */
+      background: linear-gradient(180deg, #2C3339 0%, #191E23 100%); color: #E9EDF0;
+      box-shadow: inset 0 0 0 1px rgba(226, 232, 238, .58), inset 0 1.5px 0 rgba(240, 244, 247, .28); }
+    .pf-hero.t4 .pf-rt .pf-tier.t4, .pf-hero.t4 .pf-lad .pf-tier.t4 {   /* الأسطورة: ذهب عنبري أعمق من اللوح، بحافة ذهبية مضيئة — لا إسبريسو */
+      background: linear-gradient(180deg, #D9AC55 0%, #B3832F 100%); color: #24170A;
+      box-shadow: inset 0 0 0 1px #8E6420, inset 0 1.5px 0 rgba(255, 246, 214, .85); }
     .pf-prog-t b bdi { font-weight: 800; }
     /* 8.1 — لوحة التحكم: تبويبان («الصور والنشر» الأكثر استخدامًا أولًا، ثم «البيانات»)، بنفس تبويبات المباريات/الترتيب */
     .cd-tabs { display: grid; grid-template-columns: 1fr 1fr; gap: 4px; padding: 4px; border-radius: 16px; background: var(--surface-3); }
@@ -11778,11 +11792,15 @@ function buildLeagueStandingsCanvas() {
       const T = (ctx, s, x, cy, o) => exportText(ctx, s, x, cy - exportOptDy(o.size), o);   // نص عربي على محور العنصر
       const tw = (ctx, s, size) => { ctx.save(); ctx.font = `800 ${size}px ${EXPORT_FONT}`; const w = ctx.measureText(s).width; ctx.restore(); return w; };
       const pill = (ctx, level, label, xr, cy, size, inv) => {   // كبسولة المستوى (xr = حافتها اليمنى)؛ inv: معكوسة فوق لوحة النخبة/الأسطورة
-        const s = inv === 4 ? { grad: ['#4A3618', '#2E2008'], fg: '#F3DFAE' } : inv === 2 ? { grad: ['#CFD5DA', '#B4BCC3'], fg: '#1E252C' } : inv === 3 ? { grad: ['#EEF1F3', '#B9C1C8'], fg: '#1E252C' } : exportTierStyle(level);
+        const s = inv === 4 ? { grad: ['#D9AC55', '#B3832F'], fg: '#24170A', rim: '#8E6420', hi: 'rgba(255,246,214,0.85)' }   // 8.7: كبسولة من معدن البطاقة بحافة وضوء علوي
+          : inv === 3 ? { grad: ['#2C3339', '#191E23'], fg: '#E9EDF0', rim: 'rgba(226,232,238,0.58)', hi: 'rgba(240,244,247,0.28)' }
+          : inv === 2 ? { grad: ['#DCE1E5', '#C3CAD0'], fg: '#1E252C', rim: '#8E98A1', hi: 'rgba(253,254,254,0.85)' } : exportTierStyle(level);
         const h = Math.round(size * 1.85), pad = Math.round(size * 0.8), w = tw(ctx, label, size) + pad * 2, x0 = xr - w;
         ctx.save(); drawRoundedRect(ctx, x0, cy - h / 2, w, h, h / 2);
-        if (s.bg) ctx.fillStyle = s.bg; else { const g = ctx.createLinearGradient(x0, cy - h / 2, x0 + w, cy + h / 2); g.addColorStop(0, s.grad[0]); g.addColorStop(1, s.grad[1]); ctx.fillStyle = g; }
-        ctx.fill(); ctx.restore(); T(ctx, label, x0 + w / 2, cy, { size, weight: 800, color: s.fg }); return w;
+        if (s.bg) ctx.fillStyle = s.bg; else { const g = s.rim ? ctx.createLinearGradient(0, cy - h / 2, 0, cy + h / 2) : ctx.createLinearGradient(x0, cy - h / 2, x0 + w, cy + h / 2); g.addColorStop(0, s.grad[0]); g.addColorStop(1, s.grad[1]); ctx.fillStyle = g; }
+        ctx.fill();
+        if (s.rim) { ctx.clip(); ctx.fillStyle = s.hi; ctx.fillRect(x0, cy - h / 2 + 1.5, w, 2.5); drawRoundedRect(ctx, x0 + 1, cy - h / 2 + 1, w - 2, h - 2, h / 2 - 1); ctx.strokeStyle = s.rim; ctx.lineWidth = 2; ctx.stroke(); }
+        ctx.restore(); T(ctx, label, x0 + w / 2, cy, { size, weight: 800, color: s.fg }); return w;
       };
       const delta = (ctx, v, xr, cy, size) => {   // سهم + رقم، x = الحافة اليمنى
         const up = v > 0, col = up ? HS.up : HS.down, s = String(Math.abs(v)), w = tw(ctx, s, size), a = size * 0.6, g = size * 0.3, left = xr - (a + g + w);
