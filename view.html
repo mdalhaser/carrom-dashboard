@@ -13442,24 +13442,6 @@ function buildLeagueStandingsCanvas() {
       return { players: P, ranked };
     }
 
-    // تبديل المحتوى داخل نافذة الملف (ملف ↔ مباراة ↔ «صفحتي») بحركة دفع ناعمة كما في iOS:
-    // dir = 1 تقدّم (المحتوى الجديد يدخل من اليسار في الواجهة العربية) · dir = -1 رجوع (يدخل من اليمين)
-    // «عرض الكل / عرض أقل» بانسياب: الصندوق يتمدد أو ينكمش، والعناصر الإضافية تظهر تباعًا بفارق بسيط أو تتلاشى
-    // sizeEl: العنصر الذي يتمدد فعلًا (القائمة نفسها)، فلا يُقص ما تحتها من أقسام أثناء الحركة
-    function softToggle(box, cls, on, itemsSel, sizeEl) {
-      const el = sizeEl || box;
-      if (box.__st) { box.__st.a.cancel(); box.__st.done(); }
-      if (!el.animate || (window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches)) { box.classList.toggle(cls, on); return; }
-      const h0 = el.offsetHeight; box.classList.toggle(cls, on); const h1 = el.offsetHeight;
-      if (!on) box.classList.add(cls);   // تبقى ظاهرة أثناء الانكماش ثم تُخفى
-      const items = [...box.querySelectorAll(itemsSel)], E = 'cubic-bezier(.2, .8, .2, 1)';
-      el.style.overflow = 'hidden';
-      const a = el.animate([{ height: h0 + 'px' }, { height: h1 + 'px' }], { duration: 260, easing: E, fill: 'forwards' });   // يثبت حتى التنظيف (بلا ومضة بالارتفاع الكامل)
-      const fx = items.map((x, i) => on ? x.animate([{ opacity: 0, transform: 'translateY(-6px)' }, { opacity: 1, transform: 'none' }], { duration: 220, delay: Math.min(i, 6) * 30, easing: E, fill: 'backwards' })
-        : x.animate([{ opacity: 1 }, { opacity: 0 }], { duration: 140, easing: 'ease', fill: 'forwards' }));
-      const done = () => { box.__st = null; a.cancel(); el.style.overflow = ''; if (!on) { box.classList.remove(cls); fx.forEach(f => f.cancel()); } };
-      box.__st = { a, done }; a.onfinish = () => { if (box.__st && box.__st.a === a) done(); };
-    }
     // ===== 9.7 — محرك الطي الموحد (FLIP) لكل ما يُفتح ويُطوى في التطبيق =====
     // المبدأ (كما في واجهات Apple): الصفحة تأخذ شكلها النهائي مرة واحدة فقط، ثم لا يتحرك إلا ما ترسمه بطاقة الرسوميات مباشرة:
     //  · حافة البطاقة السفلية تُكشف بقصّ يتبع زوايا البطاقة نفسها (clip-path) — لا يتغير أي ارتفاع حقيقي أثناء الحركة
@@ -13471,14 +13453,14 @@ function buildLeagueStandingsCanvas() {
     // hold(b): إبقاء المحتوى مرصوفًا مفتوحًا رغم الحالة المطوية · fade: عناصر المحتوى التي تتلاشى
     const FOLD_E = 'cubic-bezier(.2, .8, .2, 1)';
     const foldReduced = () => !document.body.animate || !!(window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches);
-    function foldFollowers(src) {   // كل ما يلي العنصر في الصفحة: إخوته التالون، ثم إخوة كل أب حتى الجسم
-      const out = [];
-      for (let n = src; n && n !== document.body && n !== document.documentElement; n = n.parentElement)
+    function foldFollowers(src, stop) {   // كل ما يلي العنصر: إخوته التالون، ثم إخوة كل أب حتى stop (افتراضيًا الجسم)
+      const out = []; stop = stop || document.body;
+      for (let n = src; n && n !== stop && n !== document.body && n !== document.documentElement; n = n.parentElement)
         for (let x = n.nextElementSibling; x; x = x.nextElementSibling) out.push(x);
       return out.filter(el => { if (!el.getClientRects().length) return false; const p = getComputedStyle(el).position; return p !== 'fixed' && p !== 'sticky'; });
     }
     function foldStop(src) { const st = src && src.__ff; if (!st) return; src.__ff = null; if (st.card.__ffBy === st) st.card.__ffBy = null; st.fx.forEach(a => a.cancel()); st.hold(false); }
-    function foldFlip({ card, src, on, apply, hold, fade }) {
+    function foldFlip({ card, src, on, apply, hold, fade, stagger, inner }) {
       src = src || card;
       const st = src.__ff;
       if (st) {   // لمسة أثناء الحركة: نعكس الحركة نفسها من موضعها الحالي
@@ -13487,7 +13469,7 @@ function buildLeagueStandingsCanvas() {
       }
       if (card.__ffBy) foldStop(card.__ffBy.src);   // حركة أخرى على نفس البطاقة (قسم داخلي): تُنهى فورًا
       if (foldReduced()) { apply(on); return; }
-      const fol = foldFollowers(src), tops = () => fol.map(el => el.getBoundingClientRect().top), hgt = () => card.getBoundingClientRect().height;
+      const fol = foldFollowers(src).concat(inner ? inner() : []), tops = () => fol.map(el => el.getBoundingClientRect().top), hgt = () => card.getBoundingClientRect().height;
       const t0 = tops(), h0 = hgt();
       apply(on); const t1 = tops(), h1 = hgt();
       const clip = Math.abs(h1 - h0); if (clip < 1) return;
@@ -13497,11 +13479,25 @@ function buildLeagueStandingsCanvas() {
       const fx = [card.animate({ clipPath: on ? [ins(clip), ins(0)] : [ins(0), ins(clip)] }, opt)];
       fol.forEach((el, i) => { const d = t1[i] - t0[i]; if (Math.abs(d) < 0.5) return;
         fx.push(el.animate({ transform: on ? [`translateY(${-d}px)`, 'translateY(0px)'] : ['translateY(0px)', `translateY(${d}px)`] }, opt)); });
-      [].concat(fade || []).filter(Boolean).forEach(el => fx.push(on
-        ? el.animate([{ opacity: 0, transform: 'translateY(-6px)' }, { opacity: 1, transform: 'translateY(0px)' }], { duration: 260, easing: FOLD_E, fill: 'both' })
+      [].concat(fade || []).filter(Boolean).forEach((el, i) => fx.push(on
+        ? el.animate([{ opacity: 0, transform: 'translateY(-6px)' }, { opacity: 1, transform: 'translateY(0px)' }], { duration: stagger ? 220 : 260, delay: stagger ? Math.min(i, 6) * 30 : 0, easing: FOLD_E, fill: 'both' })
         : el.animate([{ opacity: 1 }, { opacity: 0 }], { duration: 140, easing: 'ease', fill: 'both' })));
       const me = { on, fx, card, src, hold }; src.__ff = me; card.__ffBy = me;
       fx[0].onfinish = () => { if (src.__ff !== me) return; src.__ff = null; if (card.__ffBy === me) card.__ffBy = null; hold(false); fx.forEach(a => a.cancel()); };
+    }
+    // «عرض الكل / عرض أقل» (الإحصائيات، أقسام الملف، «صفحتي») على نفس المحرك: القائمة تتمدد بالقص والانزلاق،
+    // والعناصر الإضافية تدخل تباعًا بفارق 30 ميلي ثانية، وعند الطي تتلاشى وتبقى مرصوفة حتى نهاية الحركة.
+    // sizeEl: العنصر الذي يتمدد فعلًا (القائمة نفسها)، فلا يُقص ما تحته من أقسام أثناء الحركة
+    function softToggle(box, cls, on, itemsSel, sizeEl) {
+      const el = sizeEl || box;
+      if (box.__stOn === undefined) box.__stOn = box.classList.contains(cls);
+      const sync = () => box.classList.toggle(cls, !!(box.__stOn || box.__stHold));
+      const items = () => [...box.querySelectorAll(itemsSel)];
+      // ما يلي العناصر داخل القائمة نفسها (مثل زر «عرض الكل») ينزلق مع الحافة؛ يُقاس والعناصر كلها ظاهرة
+      const inner = () => { const last = items().pop(); return last ? foldFollowers(last, el) : []; };
+      // لمسة أثناء الحركة تعكسها (المحرك يتجاهل بقية الخيارات حينها)
+      foldFlip({ card: el, src: el, on, inner, fade: items(), stagger: on,
+        apply: v => { box.__stOn = v; sync(); }, hold: b => { box.__stHold = b; sync(); } });
     }
     // قسم يُفتح بصنف (open) وغلافه grid ‏0fr/1fr في CSS. bodies[0] هو الغلاف الذي يتمدد ومحتواه (.in) يتلاشى؛ card: البطاقة المرئية (افتراضيًا host)
     function foldMotion(host, cls, on, bodies, card) {
@@ -13530,6 +13526,8 @@ function buildLeagueStandingsCanvas() {
           apply: v => { d.__on = v; sync(); }, hold: b => { d.__hold = b; sync(); } });
       });
     }
+    // تبديل المحتوى داخل نافذة الملف (ملف ↔ مباراة ↔ «صفحتي») بحركة دفع ناعمة كما في iOS:
+    // dir = 1 تقدّم (المحتوى الجديد يدخل من اليسار في الواجهة العربية) · dir = -1 رجوع (يدخل من اليمين)
     function pfSwapIn(dir) {
       const b = document.getElementById('profileBody');
       if (!b || !b.animate || (window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches)) return;
