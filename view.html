@@ -6423,7 +6423,7 @@ return teamName.replace('غير محدد', replacement);
     }
     function statsPaneMoreToggle(btn) {
       const pane = btn.closest('.st-pane'), id = btn.dataset.more, all = !pane.classList.contains('all'), n = pane.querySelectorAll('.st-item').length;
-      softToggle(pane, 'all', all, '.st-extra'); statsFoldAll[id] = all;
+      softToggle(pane, 'all', all, '.st-extra', pane.querySelector('.stp-wrap, .sth-wrap')); statsFoldAll[id] = all;   // القائمة نفسها تتحرك، والزر بعدها يتبعها
       btn.setAttribute('aria-expanded', String(all)); btn.firstChild.textContent = all ? 'عرض أقل' : `عرض الكل (${n})`;
       if (!all) { const tabs = statsContent.querySelector('.st-tabs'); if (tabs && tabs.getBoundingClientRect().top < 0) tabs.scrollIntoView({ block: 'start', behavior: rankFlipReduced() ? 'auto' : 'smooth' }); }
     }
@@ -14129,7 +14129,7 @@ function buildLeagueStandingsCanvas() {
     // ===================================
     // 🧭 سلوك التطبيق: إعادة الوضع للأعلى، تعديل العنوان بالضغط المطوّل، تنبيه التحديث، رقم الإصدار
     // ===================================
-    const APP_VERSION = '9.8';   // ترقيم الاعتماد: 1 ثم 1.1 … 1.9 ثم 2 — ويُرفع معه رقم الإصدار في sw.js
+    const APP_VERSION = '9.9';   // ترقيم الاعتماد: 1 ثم 1.1 … 1.9 ثم 2 — ويُرفع معه رقم الإصدار في sw.js
     (function setupAppBehaviors() {
       const root = document.documentElement;
 
