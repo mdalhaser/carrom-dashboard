@@ -2732,6 +2732,10 @@
     body.dark-mode .pf-tier.t3 { background: linear-gradient(135deg, #8C96A0 0%, #505961 55%, #343B42 100%); color: #F2F4F6; }   /* 8.3: أفتح قليلًا ليبقى واضحًا على الخلفية الداكنة، ومختلفًا عن الفضي الفاتح */
     /* توسيط النص بصريًا: حروف Tajawal تجلس أعلى من منتصف الكبسولة بنحو 0.2em؛ إزاحة ثابتة تعمل على كل المتصفحات */
     .pf-tier > .tx { display: inline; text-box: none; padding: 0; position: relative; top: .17em; }
+    /* 9.2 — عرض موحد لكل كبسولات المستوى = عرض أطول اسم («أسطورة المجلس» = 9.83em بحشوتها)، والنص في الوسط:
+       عمود منتظم في القوائم والملف، مطابق لصور التصدير. الاستثناء: الكبسولة داخل جملة (سطر التقدم، الإشعار) بعرضها الطبيعي. */
+    .pf-tier { box-sizing: border-box; justify-content: center; min-width: 9.9em; }
+    .pf-prog-t .pf-tier, .ach-r .pf-tier { min-width: 0; }
     /* شارة «أنت»: نفس الإزاحة البصرية (حشوة علوية أكبر بدل الوسط الهندسي) */
     #statsContent .stp-row.is-me .nm::after { padding: 3px 9px 0; line-height: 1.55; }
     .lgc-row.is-me .n b::after { padding: 3px 8px 0; line-height: 1.5; }
@@ -3276,7 +3280,7 @@
     .pf-ladder { display: flex; flex-direction: column; gap: 3px; }
     .pf-lad { display: flex; align-items: center; gap: 12px; padding: 4px 6px; border-radius: 12px; opacity: .7; }
     .pf-lad.on { opacity: 1; background: color-mix(in srgb, var(--hx, var(--text)) 7%, transparent); }
-    .pf-lad .pf-tier { justify-content: center; min-width: 100px; padding: 0 12px; font-size: 11px; line-height: 1.75; }
+    .pf-lad .pf-tier { justify-content: center; min-width: 10.2em; padding: 0 12px; font-size: 11px; line-height: 1.75; }
     .pf-lad .rg { font-size: 12px; font-weight: 800; color: var(--hx, var(--text)); font-variant-numeric: tabular-nums; }
     .pf-lad .me { margin-inline-start: auto; font-size: 11px; font-weight: 800; color: var(--gold-deep); }
     .pf-guide p { margin: 8px 4px 0; font-size: 12px; font-weight: 700; line-height: 1.65; color: var(--hm, var(--text-3)); }
@@ -13815,7 +13819,7 @@ function buildLeagueStandingsCanvas() {
     // ===================================
     // 🧭 سلوك التطبيق: إعادة الوضع للأعلى، تعديل العنوان بالضغط المطوّل، تنبيه التحديث، رقم الإصدار
     // ===================================
-    const APP_VERSION = '9.1';   // ترقيم الاعتماد: 1 ثم 1.1 … 1.9 ثم 2 — ويُرفع معه رقم الإصدار في sw.js
+    const APP_VERSION = '9.2';   // ترقيم الاعتماد: 1 ثم 1.1 … 1.9 ثم 2 — ويُرفع معه رقم الإصدار في sw.js
     (function setupAppBehaviors() {
       const root = document.documentElement;
 
