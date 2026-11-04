@@ -3234,6 +3234,18 @@
     .pf-trend-cap .pk.now { color: var(--gold-deep); }
     /* القوائم المجمعة: إطار واحد وفواصل رفيعة (المسيرة، المواجهات، الشركاء) */
     .pf-group { border: 1px solid var(--line); border-radius: 16px; overflow: hidden; background: var(--surface-2); }
+    /* 1.1 — «الهدف القادم»: صف لكل هدف (الاسم وسطره المرجعي يمينًا ← المتبقي رقمًا بارزًا يسارًا ← شريط تقدم رفيع بعرض الصف) */
+    .ng-list { border: 1px solid var(--line); border-radius: 16px; overflow: hidden; background: var(--surface-2); }
+    .ng-list > * + * { border-top: 1px solid var(--line); }
+    .ng { display: grid; grid-template-columns: minmax(0, 1fr) auto; align-items: center; column-gap: 12px; row-gap: 8px; padding: 12px; }
+    .ng .t { display: flex; flex-direction: column; gap: 2px; min-width: 0; }
+    .ng .t b { font-size: var(--fs-base); font-weight: 800; color: var(--text); }
+    .ng .t small { font-size: var(--fs-xs); font-weight: 700; color: var(--text-3); }
+    .ng .n { display: flex; flex-direction: column; align-items: center; min-width: 64px; }
+    .ng .n b { font-size: var(--fs-lg); font-weight: 900; line-height: 1.15; color: var(--gold-deep); font-variant-numeric: tabular-nums; }
+    .ng .n small { font-size: 11px; font-weight: 800; color: var(--text-3); white-space: nowrap; }
+    .ng .bar { grid-column: 1 / -1; height: 4px; border-radius: 999px; background: color-mix(in srgb, var(--text) 9%, transparent); overflow: hidden; }
+    .ng .bar i { display: block; height: 100%; border-radius: inherit; background: linear-gradient(90deg, #E3C47E, #B8913F); }
     .pf-group > * + * { border-top: 1px solid var(--line); }
     .pf-s.fold:not(.all) .pf-group > .x { display: none; }
     .pf-tr { display: grid; grid-template-columns: 76px minmax(0, 1fr) auto; align-items: center; gap: 12px; padding: 8px 12px; }
@@ -11754,6 +11766,59 @@ function buildLeagueStandingsCanvas() {
       else if (pk >= 1120) add('elite', '', `أعلى تقييم ${pk.toLocaleString('en-US')}`);
       return H;
     }
+    // ===== 1.1 — «الهدف القادم»: أقرب ما يستطيع اللاعب بلوغه (قراءة فقط، للعرض) =====
+    // المرشحون: الأوسمة التي لم ينلها بعد (بعتباتها المعتمدة) والأرقام القياسية التي لا يملكها (كسرها = تجاوز قيمتها بواحد).
+    // الترتيب بالقرب: تقدير بعدد الانتصارات اللازمة (اللقب ≈ بطولة كاملة، ونقاط التقييم ≈ 12 للفوز)، والأبعد من حدّ معقول لا يظهر.
+    // المستويات (النخبة والأسطورة) خارجها: شريط التقدم في رأس الملف و«أين أنا» يغطيانها. النصوص محايدة فتصلح للملف و«صفحتي» معًا.
+    function playerNextGoals(p, stats, C, recs) {
+      if (!p || !p.games) return [];
+      const by = (stats && stats.titlesBy) || {}, G = [], nf = n => Number(n).toLocaleString('en-US');
+      const titles = (C.titles || []).length, curW = p.streak && p.streak.type === 'w' ? p.streak.len : 0;
+      let curU = 0; for (let i = p.seq.length - 1; i >= 0 && p.seq[i] !== 'l'; i--) curU++;
+      const doneAsc = (C.done || []).slice().reverse(); let curT = 0; for (let i = doneAsc.length - 1; i >= 0 && doneAsc[i].res[0] === 'ch'; i--) curT++;
+      // need: المتبقي · unit: صيغة العدد · cur/target: للشريط والسطر الفرعي · w: وزن التقدير (انتصارات لكل وحدة)
+      const add = (k, t, kind, cur, target, unit, w, tail) => { const need = target - cur; if (need <= 0) return;
+        G.push({ k, t, kind, need, unit: unit(need), cur, target, pct: Math.max(4, Math.min(100, Math.round(cur / target * 100))), est: need * w,
+          sub: kind === 'محطة' ? `${kind} · الآن ${nf(cur)}` : `${kind} · ${nf(cur)} من ${nf(target)}${tail ? ' ' + tail : ''}` }); };   // المحطة: الهدف في عنوانها، فلا يتكرر
+      const D = HONOR_DEF;
+      // الأوسمة (لم ينلها بعد)
+      if (p.w < 100) add('century', D.century.name, 'وسام', p.w, 100, arWinsW, 1);
+      if (titles < 20) add('club20', D.club20.name, 'وسام', titles, 20, arTitlesW, 5);
+      // السلاسل لا تظهر إلا من منتصفها فأكثر: «15 انتصارًا متتاليًا» من سلسلة 5 هدف بعيد يُحبط ولا يحفّز
+      const half = (cur, target) => cur * 2 >= target;
+      if ((C.titleRun || 0) < 3 && curT >= 1 && half(curT, 3)) add('treble', D.treble.name, 'وسام', curT, 3, arTitlesW, 5, 'متتالية');
+      if ((p.bestWin || 0) < 20 && half(curW, 20)) add('storm', D.storm.name, 'وسام', curW, 20, arWinsW, 1.3, 'متتالية');
+      if ((by.league || 0) >= 1 && by.league < 5) add('king', D.king.name, 'وسام', by.league, 5, n => n === 1 ? 'لقب دوري' : n === 2 ? 'لقبا دوري' : 'ألقاب دوري', 15);
+      const kinds = [['single', 'الفردي'], ['team', 'الفرق'], ['league', 'الدوري']], miss = kinds.filter(([k]) => !by[k]);
+      if (miss.length === 1) add('all', D.all.name, 'وسام', 2, 3, () => `لقب ${miss[0][1]}`, miss[0][0] === 'league' ? 15 : 5);
+      { const duo = {}; (C.titles || []).forEach(x => { const t = x.t; if (!t || t.mode === 'single' || t.mode === 'league') return; historyMembers(t, t.champion).forEach(m => { if (m !== p.name) duo[m] = (duo[m] || 0) + 1; }); });
+        const best = Object.entries(duo).sort((a, b) => b[1] - a[1])[0];
+        if (best && best[1] === 1) add('duo', D.duo.name, 'وسام', 1, 2, () => 'لقب', 5, `مع ${best[0]}`); }
+      // الأرقام القياسية (لا يملكها): الحالي ← القيمة التي تكسرها
+      const R = Object.fromEntries((recs || []).map(r => [r.k, r]));
+      const rec = (k, cur, unit, w, tail) => { const r = R[k]; if (!r || r.holders.includes(p.name) || cur <= 0) return; add('r-' + k, r.label, 'رقم قياسي', cur, r.v + 1, unit, w, tail); };
+      rec('wtot', p.w, arWinsW, 1);
+      rec('ttot', titles, arTitlesW, 5);
+      rec('clean', C.clean || 0, arWinsW, 1.6);
+      if (R.peak && R.peak.v + 1 - p.rating <= 100) rec('peak', p.rating, arPtsW, 1 / 12);
+      if (R.win && half(curW, R.win.v + 1)) rec('win', curW, arWinsW, 1.3, 'متتالية');
+      if (R.unb && half(curU, R.unb.v + 1)) rec('unb', curU, arMatchesW, 1.1, 'بلا هزيمة');
+      if (R.titles && half(curT, R.titles.v + 1)) rec('titles', curT, arTitlesW, 6, 'متتالية');
+      // محطات شخصية: الرقم المستدير التالي للانتصارات والألقاب (عتبات الأوسمة 100 و20 لها صفها، فلا تتكرر)
+      const nextMark = (v, marks) => marks.find(m => m > v);
+      const wm = nextMark(p.w, [10, 25, 50, 75, 150, 200, 250, 300, 400, 500]);
+      if (wm && !(wm === 100)) add('m-w', `${wm} ${arWinsW(wm)}`, 'محطة', p.w, wm, arWinsW, 1);
+      const tm = nextMark(titles, [1, 5, 10, 15, 25, 30, 40, 50]);
+      if (tm && titles) add('m-t', `${tm} ${arTitlesW(tm)}`, 'محطة', titles, tm, arTitlesW, 5);
+      // الأقرب أولًا، بحد أقصى ثلاثة، ولا يُعرض ما يبعد كثيرًا (لا هدف يُحبط)
+      return G.filter(g => g.est <= 20).sort((a, b) => a.est - b.est || b.pct - a.pct).slice(0, 3);
+    }
+    function nextGoalsHTML(goals, H) {
+      if (!goals.length) return '';
+      return `<div class="ng-list">${goals.map(g => `<div class="ng"><span class="t"><b>${H(g.t)}</b><small>${H(g.sub)}</small></span>`
+        + `<span class="n"><b>${g.need.toLocaleString('en-US')}</b><small>${H(g.unit)}</small></span>`
+        + `<span class="bar" role="img" aria-label="${g.pct}%"><i style="width:${g.pct}%"></i></span></div>`).join('')}</div>`;
+    }
     // 8 — إكليل غار حقيقي: غصنان بساق منحنية يلتقيان أسفل الميدالية ويتركان القمة مفتوحة، وعلى كل غصن أزواج أوراق مدببة الطرفين
     // (خارجية وداخلية بالتناوب) تصغر نحو القمة، لكل ورقة عِرق أوسط وإضاءة من الأعلى. هندسة واحدة (64×64) للوسام وبطاقة معناه وصور التصدير.
     const LAUREL = (() => {
@@ -13649,6 +13714,9 @@ function buildLeagueStandingsCanvas() {
         const rc = (l, v, s, t, tx) => `<div class="pf-rc"><span class="rc-t">${H(l)}</span>${tx ? `<b class="rc-n tx"><bdi>${H(v)}</bdi></b>` : recValueHTML(v, H)}<span class="rc-low">${t ? `<span class="rc-h">${H(t)}</span>` : ''}${s ? `<span class="rc-s">${H(s)}</span>` : ''}</span></div>`;
         const recs = playerBests(p, C0).map(([l, v, s, t, tx]) => rc(l, v, s, t, tx));
         { let recsAll = []; try { recsAll = councilRecords(); } catch (e) {}
+          // 1.1: «أهدافه القادمة» قبل الأوسمة — أقرب وسام أو رقم قياسي يستطيع بلوغه (يختفي إن لم يوجد هدف قريب)
+          { let ng = []; try { ng = playerNextGoals(p, stats, C0, recsAll); } catch (e) {}
+            if (ng.length) html += sec('أهدافه القادمة', '', nextGoalsHTML(ng, H), 'ngs'); }
           const hn = playerHonors(p, stats, C0, recsAll);   // القسم يختفي تمامًا لمن لا يملك وسامًا
           if (hn.length) html += sec('أوسمته', hn.length === 1 ? 'وسام واحد' : `${hn.length} ${hn.length === 2 ? 'وسامان' : hn.length <= 10 ? 'أوسمة' : 'وسامًا'}`,
             `<div class="pf-honors">${hn.map(x => honorTileHTML(x, H, name)).join('')}</div>`, 'bdg'); }   // 7.5: لا دليل — لمس الوسام يكشف معناه
@@ -14129,7 +14197,7 @@ function buildLeagueStandingsCanvas() {
     // ===================================
     // 🧭 سلوك التطبيق: إعادة الوضع للأعلى، تعديل العنوان بالضغط المطوّل، تنبيه التحديث، رقم الإصدار
     // ===================================
-    const APP_VERSION = '1.0';   // ترقيم الاعتماد (من 4 نوفمبر 2026): 1.0 ثم 1.1 … 1.9 ثم 2.0 — ويُرفع معه رقم الإصدار في sw.js
+    const APP_VERSION = '1.1';   // ترقيم الاعتماد (من 4 نوفمبر 2026): 1.0 ثم 1.1 … 1.9 ثم 2.0 — ويُرفع معه رقم الإصدار في sw.js
     (function setupAppBehaviors() {
       const root = document.documentElement;
 
@@ -15019,6 +15087,10 @@ function buildLeagueStandingsCanvas() {
             whereHTML = `<div class="vm2-sec"><div class="vm2-h"><span>أين أنا</span></div><div class="vm2-cells">${cells.join('')}</div>
               ${notes.length ? `<p class="vm2-note">${notes.join(' · ')}</p>` : ''}${lgNote ? `<p class="vm2-note">${lgNote}</p>` : ''}</div>`;
           }
+          // 1.1 — أهدافي القادمة: نفس قائمة الملف (أقرب وسام أو رقم قياسي)، بعد «أين أنا»
+          let goalsHTML = '';
+          if (known) { try { const st0 = (getStatsData().players || {})[me] || {}, ng = playerNextGoals(p, st0, playerCareer(me, p), councilRecords());
+            if (ng.length) goalsHTML = `<div class="vm2-sec"><div class="vm2-h"><span>أهدافي القادمة</span></div>${nextGoalsHTML(ng, esc)}</div>`; } catch (e) {} }
           // (3) أدائي الأخير: آخر 5 نتائج · السلسلة الحالية · مسار التقييم · منذ زيارتك
           let formHTML = '';
           if (known) {
@@ -15074,7 +15146,7 @@ function buildLeagueStandingsCanvas() {
             <div class="vm2-top"><span class="vme-av" aria-hidden="true"><span class="ic ic-user"></span></span>
               <button type="button" class="vme-top"><span class="who"><b>${esc(me)}</b><span class="pf-tier t${tier.level}"><span class="tx">${esc(known ? tier.name : 'أول ظهور')}</span></span></span></button>
               <button type="button" class="vm2-key"><b>${fmt(r)}</b><small>التقييم${dl ? ` <em class="${dl > 0 ? 'up' : 'down'}"><bdi dir="ltr">${dl > 0 ? '▲' + dl : '▼' + Math.abs(dl)}</bdi></em>` : ''}</small></button></div>
-            <div class="vm2-body"><div class="vm2-col a">${matchesHTML}</div><div class="vm2-col b">${whereHTML}${formHTML}${rivalsHTML}</div></div></div>`;
+            <div class="vm2-body"><div class="vm2-col a">${matchesHTML}</div><div class="vm2-col b">${whereHTML}${goalsHTML}${formHTML}${rivalsHTML}</div></div></div>`;
           mineNx = nx;
           decorate();
         }
