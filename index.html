@@ -11743,7 +11743,8 @@ function buildLeagueStandingsCanvas() {
     // المرشحون: الأوسمة التي لم ينلها بعد (بعتباتها المعتمدة) والأرقام القياسية التي لا يملكها (كسرها = تجاوز قيمتها بواحد).
     // الترتيب بالقرب: تقدير بعدد الانتصارات اللازمة (اللقب ≈ بطولة كاملة، ونقاط التقييم ≈ 12 للفوز)، والأبعد من حدّ معقول لا يظهر.
     // المستويات (النخبة والأسطورة) خارجها: شريط التقدم في رأس الملف و«أين أنا» يغطيانها. النصوص محايدة فتصلح للملف و«صفحتي» معًا.
-    function playerNextGoals(p, stats, C, recs) {
+    // personal: المحطات الشخصية («صفحتي» فقط). الملف يراه الجميع، فيعرض مطاردة الأوسمة والأرقام القياسية وحدها، ويختفي إن لم يقترب من شيء منها.
+    function playerNextGoals(p, stats, C, recs, personal) {
       if (!p || !p.games) return [];
       const by = (stats && stats.titlesBy) || {}, G = [], nf = n => Number(n).toLocaleString('en-US');
       const titles = (C.titles || []).length, curW = p.streak && p.streak.type === 'w' ? p.streak.len : 0;
@@ -11778,7 +11779,7 @@ function buildLeagueStandingsCanvas() {
       if (R.unb && half(curU, R.unb.v + 1)) rec('unb', curU, arMatchesW, 1.1, 'بلا هزيمة');
       if (R.titles && half(curT, R.titles.v + 1)) rec('titles', curT, arTitlesW, 6, 'متتالية');
       // محطات شخصية: الرقم المستدير التالي للانتصارات والألقاب (عتبات الأوسمة 100 و20 لها صفها، فلا تتكرر)
-      const nextMark = (v, marks) => marks.find(m => m > v);
+      const nextMark = (v, marks) => personal ? marks.find(m => m > v) : null;
       const wm = nextMark(p.w, [10, 25, 50, 75, 150, 200, 250, 300, 400, 500]);
       if (wm && !(wm === 100)) add('m-w', `${wm} ${arWinsW(wm)}`, 'محطة', p.w, wm, arWinsW, 1);
       const tm = nextMark(titles, [1, 5, 10, 15, 25, 30, 40, 50]);
@@ -13688,7 +13689,7 @@ function buildLeagueStandingsCanvas() {
         const recs = playerBests(p, C0).map(([l, v, s, t, tx]) => rc(l, v, s, t, tx));
         { let recsAll = []; try { recsAll = councilRecords(); } catch (e) {}
           // 1.1: «أهدافه القادمة» قبل الأوسمة — أقرب وسام أو رقم قياسي يستطيع بلوغه (يختفي إن لم يوجد هدف قريب)
-          { let ng = []; try { ng = playerNextGoals(p, stats, C0, recsAll); } catch (e) {}
+          { let ng = []; try { ng = playerNextGoals(p, stats, C0, recsAll, false); } catch (e) {}
             if (ng.length) html += sec('أهدافه القادمة', '', nextGoalsHTML(ng, H), 'ngs'); }
           const hn = playerHonors(p, stats, C0, recsAll);   // القسم يختفي تمامًا لمن لا يملك وسامًا
           if (hn.length) html += sec('أوسمته', hn.length === 1 ? 'وسام واحد' : `${hn.length} ${hn.length === 2 ? 'وسامان' : hn.length <= 10 ? 'أوسمة' : 'وسامًا'}`,
@@ -15062,7 +15063,7 @@ function buildLeagueStandingsCanvas() {
           }
           // 1.1 — أهدافي القادمة: نفس قائمة الملف (أقرب وسام أو رقم قياسي)، بعد «أين أنا»
           let goalsHTML = '';
-          if (known) { try { const st0 = (getStatsData().players || {})[me] || {}, ng = playerNextGoals(p, st0, playerCareer(me, p), councilRecords());
+          if (known) { try { const st0 = (getStatsData().players || {})[me] || {}, ng = playerNextGoals(p, st0, playerCareer(me, p), councilRecords(), true);
             if (ng.length) goalsHTML = `<div class="vm2-sec"><div class="vm2-h"><span>أهدافي القادمة</span></div>${nextGoalsHTML(ng, esc)}</div>`; } catch (e) {} }
           // (3) أدائي الأخير: آخر 5 نتائج · السلسلة الحالية · مسار التقييم · منذ زيارتك
           let formHTML = '';
