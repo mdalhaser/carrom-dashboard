@@ -150,6 +150,7 @@
       --ic-league: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='1.9' stroke-linecap='round' stroke-linejoin='round'><path d='M20.5 6a1.5 1.5 0 1 1-3 0 1.5 1.5 0 0 1 3 0zM20.5 12a1.5 1.5 0 1 1-3 0 1.5 1.5 0 0 1 3 0zM20.5 18a1.5 1.5 0 1 1-3 0 1.5 1.5 0 0 1 3 0zM14.5 6H3.5M14.5 12H6M14.5 18H8.5'/></svg>");
       --ic-flag: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='1.9' stroke-linecap='round' stroke-linejoin='round'><path d='M18.5 21V3.5M18.5 4h-12l2.6 4.25L6.5 12.5h12'/></svg>");
       --ic-medal: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='1.9' stroke-linecap='round' stroke-linejoin='round'><path d='M17.5 15a5.5 5.5 0 1 1-11 0 5.5 5.5 0 0 1 11 0zM8 3l2.7 6.7M16 3l-2.7 6.7M8 3h8'/></svg>");
+      --ic-bolt: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='1.9' stroke-linecap='round' stroke-linejoin='round'><path d='M13.2 2.8 5.5 13.4h5.9l-.9 7.8 8-10.8h-6z'/></svg>");   /* 1.5: «على المحك» — مباراة مشحونة حاسمة */
       --ic-trophy: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='1.9' stroke-linecap='round' stroke-linejoin='round'><path d='M8 21h8M12 17v4M7 4h10v5a5 5 0 0 1-10 0z'/><path d='M7 6H4v1a4 4 0 0 0 3.5 4M17 6h3v1a4 4 0 0 1-3.5 4'/></svg>");
       --ic-table: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='1.9' stroke-linecap='round' stroke-linejoin='round'><rect x='3.5' y='4' width='17' height='16' rx='3'/><path d='M3.5 10h17M9 10v10'/></svg>");
       --ic-dice: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='1.9' stroke-linecap='round' stroke-linejoin='round'><rect x='4' y='4' width='16' height='16' rx='4'/><circle cx='9' cy='9' r='1' fill='black'/><circle cx='15' cy='9' r='1' fill='black'/><circle cx='9' cy='15' r='1' fill='black'/><circle cx='15' cy='15' r='1' fill='black'/></svg>");
@@ -256,7 +257,7 @@
     .ic-star { --ic: var(--ic-star); } .ic-rank { --ic: var(--ic-rank); }
     .ic-clock { --ic: var(--ic-clock); } .ic-quote { --ic: var(--ic-quote); } .ic-league { --ic: var(--ic-league); } .ic-flag { --ic: var(--ic-flag); } .ic-medal { --ic: var(--ic-medal); }
     .ic-moon { --ic: var(--ic-moon); } .ic-sun { --ic: var(--ic-sun); } .ic-sliders { --ic: var(--ic-sliders); }
-    .ic-shield { --ic: var(--ic-shield); } .ic-users { --ic: var(--ic-users); } .ic-crown { --ic: var(--ic-crown); } .ic-user { --ic: var(--ic-user); }
+    .ic-shield { --ic: var(--ic-shield); } .ic-bolt { --ic: var(--ic-bolt); } .ic-users { --ic: var(--ic-users); } .ic-crown { --ic: var(--ic-crown); } .ic-user { --ic: var(--ic-user); }
     .ic-trophy { --ic: var(--ic-trophy); } .ic-trophy3 { --ic: var(--ic-trophy3); } .ic-crowntri { --ic: var(--ic-crowntri); } .ic-peak { --ic: var(--ic-peak); } .ic-tornado { --ic: var(--ic-tornado); } .ic-crownk { --ic: var(--ic-crownk); } .ic-table { --ic: var(--ic-table); } .ic-dice { --ic: var(--ic-dice); }
     .ic-bracket { --ic: var(--ic-bracket); } .ic-image { --ic: var(--ic-image); } .ic-chart { --ic: var(--ic-chart); }
     .ic-trash { --ic: var(--ic-trash); } .ic-plus { --ic: var(--ic-plus); } .ic-check { --ic: var(--ic-check); }
@@ -708,7 +709,7 @@
     .vs-sep::before, .vs-sep::after { content: ""; flex: 1; height: 1px; background: var(--line); }
     /* 1.5 — «على المحك»: ميدالية ذهبية صغيرة بجانب رقم المباراة القادمة (إشارة فقط، بلا نص ولا تغيير في الحجم) */
     .match-card.has-stake .match-title { display: inline-flex; align-items: center; gap: 6px; }
-    .match-title .mc-medal { width: 15px; height: 15px; margin: 0; color: var(--gold-deep); flex: none; }
+    .match-title .mc-bolt { width: 15px; height: 15px; margin: 0; color: var(--gold-deep); flex: none; --ic-y: -1px; }   /* محاذاة بصرية مقيسة: مركز البرق على مركز حروف Tajawal */
     /* توسيط بصري دقيق للنص داخل الشارات والكبسولات: مقاييس خط Tajawal تجعل النص أعلى من المنتصف بنحو ربع حرف.
        text-box يقصّ صندوق السطر إلى ارتفاع الحروف (cap) وخط الأساس، والحشوة تعيد نفس الارتفاع الأصلي فلا يتغير التخطيط.
        المتصفحات التي لا تدعمه (iOS أقدم من 18.2) تبقى كما كانت تمامًا. */
@@ -2291,10 +2292,9 @@
     .vm-h2h span { font-size: var(--fs-xs); font-weight: 700; color: var(--text-2); }
     .sm-stake { margin: 0 0 16px; padding: 12px; border-radius: var(--r-md); background: var(--surface-2); text-align: center; }
     .sm-stake h4, .vm-stake h4 { display: flex; align-items: center; justify-content: center; gap: 6px; margin: 0 0 8px; font-size: var(--fs-xs); font-weight: 800; color: var(--gold-deep); }
-    .sm-stake h4 .ic { width: 15px; height: 15px; margin: 0; }
+    .sm-stake h4 .ic, .vm-stake h4 .ic { width: 15px; height: 15px; margin: 0; --ic-y: -1px; }   /* محاذاة بصرية مقيسة */
     .sm-stake p { margin: 4px 0 0; font-size: var(--fs-base); font-weight: 700; color: var(--text); line-height: 1.6; text-wrap: balance; }
     .vm-stake h4 { display: flex; align-items: center; justify-content: center; gap: 6px; color: var(--gold-deep); }
-    .vm-stake h4 .ic { width: 15px; height: 15px; margin: 0; }
     .vm-stake p { margin: 4px 0 0; text-align: center; font-size: var(--fs-base); font-weight: 700; color: var(--text); line-height: 1.6; text-wrap: balance; }
     .vm-last { margin-top: 8px; text-align: center; font-size: var(--fs-xs); font-weight: 700; color: var(--text-2); }
     /* ===== المراكز: كل الصفوف بنفس التصميم (بلا دوائر ولا خلفيات أو إطارات ملونة)، والتمييز الوحيد رقم «1» بذهبي مميز ===== */
@@ -9618,7 +9618,7 @@ function changeScore(inputId, amount){
     function setScoreStakes(list) {
       const esc = x => String(x == null ? '' : x).replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
       scoreStakesEl.hidden = !(list && list.length);
-      scoreStakesEl.innerHTML = list && list.length ? `<h4><span class="ic ic-medal" aria-hidden="true"></span>على المحك</h4>${list.map(x => `<p>${esc(stakeSentence(x))}</p>`).join('')}` : '';
+      scoreStakesEl.innerHTML = list && list.length ? `<h4><span class="ic ic-bolt" aria-hidden="true"></span>على المحك</h4>${list.map(x => `<p>${esc(stakeSentence(x))}</p>`).join('')}` : '';
     }
     const leagueScoreHintEl = document.getElementById('leagueScoreHint');
     const scoreInputA = document.getElementById('winnerScoreInput');   // نعيد استخدام البطاقة الأولى = اللاعب أ
@@ -9960,7 +9960,7 @@ function changeScore(inputId, amount){
       // 1.5 — «على المحك»: إشارة خفية فقط — ميدالية ذهبية صغيرة بجانب رقم المباراة (لا تغيّر الحجم ولا تمس شارة الحالة)؛ التفاصيل في ورقة المباراة ونافذة التسجيل
       if (sx) { let st = []; try { st = matchStakes(sx.mA, sx.mB, sx); } catch (e) {}
         const tt = st.length && card.querySelector('.match-title');
-        if (tt) { card.classList.add('has-stake'); tt.insertAdjacentHTML('beforeend', '<span class="ic ic-medal mc-medal" role="img" aria-label="على المحك"></span>');
+        if (tt) { card.classList.add('has-stake'); tt.insertAdjacentHTML('beforeend', '<span class="ic ic-bolt mc-bolt" role="img" aria-label="على المحك"></span>');
           card.setAttribute('aria-description', 'على المحك: ' + st.map(stakeSentence).join('، ')); } }
       return card;
     }
@@ -15124,7 +15124,7 @@ function buildLeagueStandingsCanvas() {
         }
         // 1.5 — «على المحك» في ورقة المباراة القادمة: جملة كاملة لكل إنجاز تحسمه
         if (!o.done && !o.void) { let sk = []; try { sk = matchStakes(o.mA, o.mB, { mode: o.lg ? 'league' : currentMode === 'single' ? 'single' : 'team', final: !!o.final, id: o.id }); } catch (e) {}
-          if (sk.length) h += `<div class="vm-box vm-stake"><h4><span class="ic ic-medal" aria-hidden="true"></span>على المحك</h4>${sk.map(x => `<p>${esc(stakeSentence(x))}</p>`).join('')}</div>`; }
+          if (sk.length) h += `<div class="vm-box vm-stake"><h4><span class="ic ic-bolt" aria-hidden="true"></span>على المحك</h4>${sk.map(x => `<p>${esc(stakeSentence(x))}</p>`).join('')}</div>`; }
         if (st) {
           const x = st.h;
           h += '<div class="vm-box"><h4>المواجهات السابقة</h4>' + (x.total
