@@ -2188,7 +2188,7 @@
     .vday:is(.open, .fold-hold) .vday-b > .in { padding-bottom: 8px; }
     .vday-r { display: grid; grid-template-columns: 32px minmax(0, 1fr) 50px minmax(0, 1fr); align-items: center; column-gap: 6px; width: 100%; min-height: 46px; padding: 6px 4px; border: 0; border-top: 1px solid var(--line); background: none; border-radius: 0; font: inherit; color: var(--text); cursor: pointer; -webkit-tap-highlight-color: transparent; transition: background .2s ease; }
     .vday-list > .vday-r:first-child { border-top: 0; }
-    /* 1.4 — «بلا خسارة الليلة»: سطر حقيقة هادئ فوق المباريات (عنوان صغير بدرع ← الأسماء أبجديًا)، بلا صندوق ولا أرقام؛ يفصله عن أول مباراة خط القائمة نفسه */
+    /* 1.4 — «بلا خسارة»: سطر حقيقة هادئ فوق المباريات (عنوان صغير بدرع ← الأسماء أبجديًا)، بلا صندوق ولا أرقام؛ يفصله عن أول مباراة خط القائمة نفسه */
     .vday-ub { display: flex; flex-direction: column; align-items: flex-start; gap: 4px; padding: 2px 4px 12px; }
     .vday-ub .lb { display: inline-flex; align-items: center; gap: 6px; font-size: var(--fs-xs); font-weight: 800; color: var(--gold-deep); }
     .vday-ub .lb .ic { width: 14px; height: 14px; margin: 0; }
@@ -3072,7 +3072,7 @@
     #statsModal .st-tabs { background: transparent; }
     #statsModal .st-tabs::after { content: ''; position: absolute; z-index: -1; inset: 0; border-radius: inherit; background: var(--surface-3); pointer-events: none; }
     @media (prefers-reduced-motion: reduce) { #statsModal .st-tabs::before { transition: none; } }
-    /* ===== «الحاضرون الليلة» (الإدارة): بطاقة بنفس هوية «لاعبو الدوري» — سطر ملخص قابل للفتح، أسماء للاختيار، ثم المباريات المتاحة ===== */
+    /* ===== «الحاضرون اليوم» (الإدارة): بطاقة بنفس هوية «لاعبو الدوري» — سطر ملخص قابل للفتح، أسماء للاختيار، ثم المباريات المتاحة ===== */
     #leagueTonight { display: none; }
     body.lg-focus #leagueTonight:not([hidden]) { display: block; margin: 0;   /* المسافة من فجوة العمود الموحدة (16) */ padding: 2px 16px; border-radius: 22px; border: 1px solid var(--line); background: var(--surface); box-shadow: var(--sh-1); }
     html.view-mode #leagueTonight, body.lg-focus #leagueMainPanel[data-tab="standings"] #leagueTonight { display: none !important; }
@@ -10773,7 +10773,7 @@ function buildLeagueStandingsCanvas() {
       const top = M + exportBrandHeaderHeight(meta) + 40;
       const ctxRes = exportContextResolve(context), gapC = ctxRes.shown ? 50 : 8;
       const secs = sections.filter(s => s.matches && s.matches.length).map(s => { const cols = !s.heading && sections.length === 1 && s.matches.length > 22 ? 2 : 1; return Object.assign({}, s, { cols, rows: Math.ceil(s.matches.length / cols) }); });
-      // 1.4: لوحة «بلا خسارة الليلة» فوق الجدول: عنوان صغير بدرع ← الأسماء أبجديًا في أسطر متوازنة
+      // 1.4: لوحة «بلا خسارة» فوق الجدول: عنوان صغير بدرع ← الأسماء أبجديًا في أسطر متوازنة
       const ubInfo = (secs.find(s => s.ub) || {}).ub || null, UB = { pad: 26, lab: 30, gap: 14, line: 46, fs: 32 };
       let ubLines = [];
       if (ubInfo) { const mc = document.createElement('canvas').getContext('2d'); mc.font = `800 ${UB.fs}px Tajawal`;
@@ -11233,9 +11233,9 @@ function buildLeagueStandingsCanvas() {
         if (lg) { const m = leagueMatches.find(x => x.id === e.id); if (m && m.forfeit) { it.ff = m.forfeit === 'A' ? 'a' : 'b'; it.auto = !!m.auto; } if (m && isLeagueMatchAnnulled(m)) it.annul = leagueIsExcluded(m.playerA) ? 'a' : 'b'; }
         else { const m = bracketState[e.id]; if (m && m.forfeit && m.winner === e.w && m.team1 === e.a && m.team2 === e.b) it.ff = e.w === e.a ? 'b' : 'a'; }
         return it; });
-      // 1.4: «بلا خسارة الليلة» بنفس قاعدة البطاقة (الدوري)
+      // 1.4: «بلا خسارة» بنفس قاعدة البطاقة (الدوري)
       const ub = lg ? unbeatenOfDay(list.map(e => leagueMatches.find(x => x.id === e.id)).filter(Boolean)) : [];
-      const ubLabel = key === nightKeyOf(Date.now()) ? 'بلا خسارة حتى الآن' : 'بلا خسارة الليلة';
+      const ubLabel = key === nightKeyOf(Date.now()) ? 'بلا خسارة حتى الآن' : 'بلا خسارة';
       setCaption(file, `نتائج يوم ${label} (${chipMatches(list.length)}):\n` + (ub.length ? `${ubLabel}: ${ub.join('، ')}\n` : '') + items.map(itemLine).join('\n'));
       await renderMatchSheet('نتائج اليوم', `${label} · ${chipMatches(list.length)}`, [{ heading: null, matches: items, ub: ub.length ? { label: ubLabel, names: ub } : null }], file);
     }
@@ -14541,7 +14541,7 @@ function buildLeagueStandingsCanvas() {
       renderLeague = function () { sync(); const r = _renderLeague.apply(this, arguments); sync(); return r; };
       sync(); if (document.body.classList.contains('lg-focus')) { renderLeagueRounds(); renderLeagueStandings(); }
     })();
-    // ===== «الحاضرون الليلة» (5.4 — الإدارة فقط): اختر الحاضرين فتظهر كل المباريات المتبقية بينهم من كل الجولات =====
+    // ===== «الحاضرون اليوم» (5.4 — الإدارة فقط): اختر الحاضرين فتظهر كل المباريات المتبقية بينهم من كل الجولات =====
     // عرض فقط: لا يغيّر جدول الدوري ولا ترتيبه. الاختيار يُحفظ على الجهاز لليلة اللعب الحالية ويُمسح مع بداية يوم لعب جديد.
     (function setupLeagueTonight() {
       if (window.CARROM_VIEW || !leagueRoundsEl) return;
@@ -14551,7 +14551,7 @@ function buildLeagueStandingsCanvas() {
       const write = names => { try { localStorage.setItem(KEY, JSON.stringify({ day: dayKey(), names })); } catch (e) {} };
       const esc = x => String(x == null ? '' : x).replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
       const chev = '<svg class="chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg>';
-      const box = document.createElement('section'); box.id = 'leagueTonight'; box.className = 'tn'; box.setAttribute('aria-label', 'الحاضرون الليلة');
+      const box = document.createElement('section'); box.id = 'leagueTonight'; box.className = 'tn'; box.setAttribute('aria-label', 'الحاضرون اليوم');
       host.insertBefore(box, leagueRoundsEl);
       let open = false;
       // 6.6: الترتيب المقترح لطاولة واحدة — «التساوي أولًا بحد مباراتين متتاليتين» (مقاس على كل تركيبات الحاضرين):
@@ -14588,7 +14588,7 @@ function buildLeagueStandingsCanvas() {
         const sum = sel.length >= 2 ? `<b>${sel.length}</b> ${sel.length <= 10 ? 'حاضرين' : 'حاضرًا'} · <b>${avail.length}</b> ${avail.length === 1 || avail.length > 10 ? 'مباراة' : avail.length === 2 ? 'مباراتان' : 'مباريات'}`
           : 'لم يُحدَّد بعد';
         box.classList.toggle('open', open);
-        box.innerHTML = `<button type="button" class="tn-sum" aria-expanded="${open}"><span class="ic ic-users" aria-hidden="true"></span><span class="t">الحاضرون الليلة</span><span class="d">${sum}</span>${chev}</button>
+        box.innerHTML = `<button type="button" class="tn-sum" aria-expanded="${open}"><span class="ic ic-users" aria-hidden="true"></span><span class="t">الحاضرون اليوم</span><span class="d">${sum}</span>${chev}</button>
           <div class="tn-pick"><div class="in"><div class="tn-chips">${players.map(n => `<button type="button" class="${set.has(n) ? 'on' : ''}" aria-pressed="${set.has(n)}" data-n="${esc(n)}">${esc(n)}</button>`).join('')}</div>
             <div class="tn-acts"><button type="button" data-act="all">تحديد الكل</button><button type="button" data-act="none"${sel.length ? '' : ' disabled'}>مسح الاختيار</button></div></div></div>
           ${sel.length >= 2 ? `<div class="tn-list">${avail.length ? `${avail.length > 1 ? '<p class="tn-hint">مرتّبة ليتساوى عدد المباريات بين الحاضرين</p>' : ''}<div class="league-matches tn-grid"></div>` : '<p class="tn-none">لا توجد مباريات متبقية بين الحاضرين</p>'}</div>` : ''}`;
@@ -14889,9 +14889,9 @@ function buildLeagueStandingsCanvas() {
     })();
 
     // ===== «آخر يوم لعب / نتائج اليوم» (6.x، والإدارة من 1.2): مباريات الدوري حسب يوم اللعب، الأحدث أولًا =====
-    // بطاقة واحدة للنسختين. اللاعبون: أول بطاقة في العمود الرئيسي، مفتوحة إن كان اليوم يوم لعب. الإدارة: بعد «الحاضرون الليلة»
+    // بطاقة واحدة للنسختين. اللاعبون: أول بطاقة في العمود الرئيسي، مفتوحة إن كان اليوم يوم لعب. الإدارة: بعد «الحاضرون اليوم»
     // وقبل الجولات، مطوية دائمًا، ولمس الصف يفتح نافذة تعديل النتيجة نفسها. قراءة فقط: لا تغيّر الجدول ولا السجل ولا التخزين.
-    // 1.4 — «بلا خسارة الليلة» (قراءة فقط): كل من لعب مباراتين على الأقل في يوم اللعب دون أي خسارة (الفوز والتعادل مقبولان).
+    // 1.4 — «بلا خسارة» (قراءة فقط): كل من لعب مباراتين على الأقل في يوم اللعب دون أي خسارة (الفوز والتعادل مقبولان).
     // فوز الانسحاب فوز، والمباراة الملغاة لا تُحتسب. الترتيب أبجدي بلا أرقام: حقيقة تُذكر لا ترتيب يُختلف عليه.
     function unbeatenOfDay(matches) {
       const S = {};
@@ -14925,7 +14925,7 @@ function buildLeagueStandingsCanvas() {
         const ffTag = (m, side) => isLeagueMatchAnnulled(m) ? (leagueIsExcluded(side === 'A' ? m.playerA : m.playerB) ? 'مستبعد' : '') : m.forfeit === side ? (m.auto ? 'مستبعد' : 'انسحب') : '';
         const rowsHTML = list => list.map((m, i) => `<button type="button" class="vday-r${i === 0 ? ' latest' : ''}${isLeagueMatchAnnulled(m) ? ' void' : ''}" data-id="${esc(m.id)}" aria-label="الجولة ${m.round}: ${esc(m.playerA)} ${isLeagueMatchAnnulled(m) ? 'ضد' : m.scoreA + ' مقابل ' + m.scoreB} ${esc(m.playerB)}${isLeagueMatchAnnulled(m) ? ' (ملغاة)' : ''}">
               <span class="rd">ج${m.round}</span>${nm(m.playerA, ffTag(m, 'A'), !isLeagueMatchAnnulled(m) && won(m, 'A'))}${isLeagueMatchAnnulled(m) ? '<span class="sc void-tx">ملغاة</span>' : `<span class="sc"><span class="${won(m, 'A') ? 'w' : ''}">${m.scoreA}</span><span class="dash">-</span><span class="${won(m, 'B') ? 'w' : ''}">${m.scoreB}</span></span>`}${nm(m.playerB, ffTag(m, 'B'), !isLeagueMatchAnnulled(m) && won(m, 'B'))}</button>`).join('');
-        // الإدارة: مطوية دائمًا (أداة مراجعة لا تزاحم «الحاضرون الليلة») · عند إعادة البناء تبقى حالتها واليوم المختار
+        // الإدارة: مطوية دائمًا (أداة مراجعة لا تزاحم «الحاضرون اليوم») · عند إعادة البناء تبقى حالتها واليوم المختار
         let sel = keep && keep.sel && days.has(keep.sel) && keep.sel !== keep.latest ? keep.sel : latest;   // من كان على أحدث يوم ينتقل مع اليوم الجديد
         const startOpen = keep ? keep.open : !admin && latest === todayKey;
         const box = document.createElement('section'); box.className = 'vday' + (startOpen ? ' open' : ''); box.id = 'viewPlayDay';
@@ -14933,7 +14933,7 @@ function buildLeagueStandingsCanvas() {
             <svg class="chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m6 9 6 6 6-6"/></svg></button>
           <div class="vday-b"><div class="in">${keys.length > 1 ? `<div class="vday-days" role="tablist" aria-label="أيام اللعب">${keys.map(k => `<button type="button" role="tab" class="vday-d${hasNew(k) ? ' has-new' : ''}" data-k="${k}" aria-label="${esc(nightLabel(k))}"><span class="tx">${short(k)}</span></button>`).join('')}</div>` : ''}<div class="vday-list"></div></div></div>`;
         if (keep && keep.box && keep.box.parentNode) keep.box.replaceWith(box);
-        else if (admin) { const rounds = document.getElementById('leagueRounds'); if (rounds && rounds.parentNode === host) host.insertBefore(box, rounds); else host.appendChild(box); }   // بعد «الحاضرون الليلة» وقبل الجولات
+        else if (admin) { const rounds = document.getElementById('leagueRounds'); if (rounds && rounds.parentNode === host) host.insertBefore(box, rounds); else host.appendChild(box); }   // بعد «الحاضرون اليوم» وقبل الجولات
         else host.prepend(box);
         const h = box.querySelector('.vday-h'), list = box.querySelector('.vday-list'), strip = box.querySelector('.vday-days');
         const reduce = () => window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches;
@@ -14943,7 +14943,7 @@ function buildLeagueStandingsCanvas() {
           const sm = h.querySelector('small'); sm.textContent = sel === todayKey ? '' : nightLabel(sel); sm.hidden = sel === todayKey;
           h.querySelector('.meta').textContent = countTxt(ms.length);
           const ub = unbeatenOfDay(ms);
-          list.innerHTML = (ub.length ? `<div class="vday-ub" role="note"><span class="lb"><span class="ic ic-shield" aria-hidden="true"></span>${sel === todayKey ? 'بلا خسارة حتى الآن' : 'بلا خسارة الليلة'}</span>`
+          list.innerHTML = (ub.length ? `<div class="vday-ub" role="note"><span class="lb"><span class="ic ic-shield" aria-hidden="true"></span>${sel === todayKey ? 'بلا خسارة حتى الآن' : 'بلا خسارة'}</span>`
             + `<span class="nms">${ub.map(n => `<bdi class="${me0 && n === me0 ? 'me' : ''}">${esc(n)}</bdi>`).join('<i aria-hidden="true">·</i>')}</span></div>` : '') + rowsHTML(ms);
           list.querySelectorAll('.vday-r').forEach(b => b.addEventListener('click', () => openLeagueScoreModal(b.dataset.id)));
           if (strip) {
@@ -15565,7 +15565,7 @@ function buildLeagueStandingsCanvas() {
 
     // ===== 6.8 — توزيع الكمبيوتر (≥ 960px، الدوري): بنية واحدة للنسختين، والجوال كما هو تمامًا =====
     // العمود الجانبي: بطاقة الهوية (سباق اللقب في الإدارة · «أنا» عند اللاعبين) ← تقدم الدوري (بطاقة) ← الترتيب
-    // العمود الرئيسي: «الحاضرون الليلة» (الإدارة) · «آخر يوم لعب» (اللاعبون) ← الجولات. أول بطاقتين بارتفاع واحد فيبدأ الصفان معًا.
+    // العمود الرئيسي: «الحاضرون اليوم» (الإدارة) · «آخر يوم لعب» (اللاعبون) ← الجولات. أول بطاقتين بارتفاع واحد فيبدأ الصفان معًا.
     // نقل عناصر فقط (نفس العناصر والمعرّفات) مع علامة مكان أصلي يُعاد إليها في الجوال. لا يمس أي بيانات.
     setTimeout(function setupDesktopLayout() {
       const mq = window.matchMedia && matchMedia('(min-width: 960px)');
