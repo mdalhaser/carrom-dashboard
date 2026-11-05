@@ -7618,7 +7618,7 @@ currentScoreWinnerName = null;
       const profileChips = n => { const p = playerElo(n); if (!p || !p.games) return; const R = safe(() => computePlayerRatings());
         add('prank', 'الترتيب العام', 'rank', R ? `المركز ${p.rank} من ${R.ranked.filter(x => x.games).length}` : '');
         add('prating', 'التقييم', 'chart', `التقييم ${p.rating.toLocaleString('en-US')} · ${p.tier.name}`);
-        add('pgames', 'المباريات', 'table', `${chipMatches(p.games)} · ${p.w} فوز`);
+        add('pgames', 'المباريات', 'table', `${chipMatches(p.games)} · ${chipN(p.w, 'فوز واحد', 'فوزان', 'انتصارات', 'فوزًا')}`);
         const S = safe(() => (getStatsData().players || {})[n]); if (S && S.championships) add('ptitles', 'الألقاب', 'trophy', chipN(S.championships, 'لقب واحد', 'لقبان', 'ألقاب', 'لقبًا'));
         if (p.streak && p.streak.type === 'w' && p.streak.len >= 2) add('pstreak', 'سلسلة الانتصارات', 'check', arNum(p.streak.len, 'انتصار واحد', 'انتصاران متتاليان', 'انتصارات متتالية', 'انتصارًا متتاليًا')); };
       switch (k) {
@@ -7638,9 +7638,9 @@ currentScoreWinnerName = null;
           dflt = ['night', 'nmatches', 'nstar']; break; }
         case 'lg-versus': case 'ko-versus': { const v = safe(() => versusCandidates().find(x => x.id === a.id)); if (v) { const s = safe(() => versusStory(v));
             add('vround', 'الجولة / الدور', 'flag', v.label);
-            if (s) { const pa = Math.round(s.pA * 100); add('vchance', 'فرص الفوز', 'chart', `فرص الفوز ${pa}% – ${100 - pa}%`); add('vh2h', 'المواجهات السابقة', 'users', s.h.total ? `التقيا ${chipN(s.h.total, 'مرة واحدة', 'مرتين', 'مرات', 'مرة')}` : 'اللقاء الأول بينهما'); } }
+            if (s) { const pa = Math.round(s.pA * 100); add('vchance', 'فرص الفوز', 'chart', `فرص الفوز ${pa}% مقابل ${100 - pa}%`); add('vh2h', 'المواجهات السابقة', 'users', s.h.total ? `التقيا ${chipN(s.h.total, 'مرة واحدة', 'مرتين', 'مرات', 'مرة')}` : 'اللقاء الأول بينهما'); } }
           if (String(a.time || '').trim()) add('vtime', 'موعد المباراة', 'clock', String(a.time).trim());
-          dflt = ['vround', 'vh2h', String(a.time || '').trim() ? 'vtime' : 'date']; break; }
+          dflt = ['date']; break; }   // 1.7: الجولة والموعد في السطر تحت الهيدر، والمواجهات السابقة في قسمها — لا تكرار
         case 'lg-top3': case 'lg-top5': case 'lg-champion': case 'lg-runner': case 'lg-final3': case 'lg-final5': case 'lg-podium': lgRoundChips(); leaderChips();
           if (lgP && lgP.completed) { add('lrounds', 'عدد الجولات', 'flag', `${arRoundsN(lgP.totalRounds)} · ${chipMatches(lgP.total)}`); add('lplayers', 'عدد اللاعبين', 'users', chipN(lgSt.length, 'لاعب واحد', 'لاعبان', 'لاعبين', 'لاعبًا')); }
           dflt = lgP && lgP.completed ? ['lrounds', 'lplayers', 'date'] : (k === 'lg-champion' ? ['lround', 'gap', 'date'] : ['lround', 'ldone', 'gap']); break;
@@ -7681,10 +7681,11 @@ currentScoreWinnerName = null;
         case 'stats': { const d = safe(() => getStatsData()); if (d) { const n = Object.keys(d.players || {}).length; add('splayers', 'عدد اللاعبين', 'users', n ? `${n} ${n > 2 && n <= 10 ? 'لاعبين' : 'لاعبًا'}` : ''); add('smatches', 'مجموع المباريات', 'chart', d.totalMatches ? chipMatches(d.totalMatches) : ''); }
           histChips(); ratingChips(); dflt = ['splayers', 'smatches', 'ntours']; break; }
         case 'rating': ratingChips(); histChips(); dflt = ['nrated', 'topRating', 'date']; break;
-        case 'profile': profileChips(a.name); dflt = ['prank', 'pgames', 'ptitles']; break;
+        case 'profile': profileChips(a.name); dflt = ['date']; break;   // 1.7: المركز والمباريات والألقاب داخل الصورة نفسها — لا تكرار في الشرائح
       }
       dflt = dflt.filter(id => defs[id] || ['date', 'count', 'time'].includes(id));
-      for (const id of Object.keys(defs)) { if (dflt.length >= 3) break; if (!dflt.includes(id)) dflt.push(id); }   // نقص بطاقة افتراضية (لا بيانات لها): تكمّلها بطاقة أخرى من بيانات الصورة
+      // 1.7: الملف والمواجهة كل بطاقاتهما مكررة داخل الصورة (المركز، التقييم، الجولة، فرص الفوز …) فلا تُكمَّل؛ تبقى متاحة في «تخصيص»
+      if (!['profile', 'lg-versus', 'ko-versus'].includes(k)) for (const id of Object.keys(defs)) { if (dflt.length >= 3) break; if (!dflt.includes(id)) dflt.push(id); }   // نقص بطاقة افتراضية (لا بيانات لها): تكمّلها بطاقة أخرى من بيانات الصورة
       exportChipCtxCache = { kind: k, defs, dflt };
       return exportChipCtxCache;
     }
@@ -11417,7 +11418,7 @@ function buildLeagueStandingsCanvas() {
       if (v.final) { head = 'النهائي الكبير'; sub = 'مباراة واحدة تحسم اللقب'; }
       else if (lgTop) { head = 'صراع الصدارة'; sub = 'الأول ضد الثاني في جدول الدوري'; }
       else if (A.rank && B.rank && A.rank <= 3 && B.rank <= 3 && A.known && B.known) { head = 'قمة المجلس'; sub = `المركز ${Math.min(A.rank, B.rank)} ضد المركز ${Math.max(A.rank, B.rank)} في تقييم المجلس`; }
-      else if (h.last && h.last.win) { const L = h.last.win === 'A' ? B : A; head = 'فرصة الثأر'; sub = `${L.label} ${L.single ? 'يبحث' : 'يبحثان'} عن الثأر بعد خسارة ${date(h.last.date)}`; }
+      else if (h.last && h.last.win) { const L = h.last.win === 'A' ? B : A; head = 'فرصة الثأر'; sub = `${L.label} ${L.single ? 'يبحث' : 'يبحثان'} عن الثأر بعد ${L.single ? 'خسارته' : 'خسارتهما'} يوم ${date(h.last.date)}`; }
       else if (!h.total) { head = 'اللقاء الأول'; sub = 'أول مواجهة بينهما في سجل المجلس'; }
       return { A, B, h, pA, head, sub, date };
     }
@@ -11539,7 +11540,7 @@ function buildLeagueStandingsCanvas() {
       const { canvas, st } = drawVersusCard(v, show, when);
       const pa = Math.round(st.pA * 100);
       setCaption(v.file + '.png', `${show.story ? st.head + ': ' : 'مواجهة قادمة: '}${v.a} × ${v.b}\n${v.label}${when ? '، ' + when : ''}` +
-        (show.rating ? `\nالتقييم: ${st.A.rating} × ${st.B.rating}` : '') + (show.prob ? `\nفرص الفوز: ${pa}% × ${100 - pa}%` : '') +
+        (show.rating ? `\nالتقييم: ${st.A.rating.toLocaleString('en-US')} × ${st.B.rating.toLocaleString('en-US')}` : '') + (show.prob ? `\nفرص الفوز: ${pa}% × ${100 - pa}%` : '') +
         (show.h2h ? (st.h.total ? `\nالمواجهات السابقة: ${st.h.a} - ${st.h.b}` : '\nاللقاء الأول بينهما') : ''));
       await downloadCanvasAsPng(canvas, v.file + '.png');
     }
@@ -12277,7 +12278,11 @@ function buildLeagueStandingsCanvas() {
           pill(ctx, prog.level, prog.name, XR - lw - 14, y + 262, 22, lv === 3 && prog.level === 4 ? 0 : 0);
           bar(ctx, bx, by, bw, 14, prog.pct / 100, lv === 3 || lv === 2 ? HS.hair : 'rgba(41,38,33,0.09)', NEXT_FILL[prog.level]);
         } else {
-          T(ctx, `أعلى مستوى في المجلس · \u200E+${(p.rating - ELO_TIERS[0][0]).toLocaleString('en-US')}\u200F فوق حد الأسطورة`, XR, y + 262, { size: 27, weight: 700, color: HS.muted, align: 'right', maxW: bw });
+          { // 1.7: الرقم بإشارته مقطع مستقل باتجاه LTR — علامات الاتجاه داخل نص اللوحة لا تُحترم في كل المتصفحات («66+» بدل «+66»)
+            const o = { size: 27, weight: 700, color: HS.muted, align: 'right' }; let xx = XR;
+            xx -= T(ctx, 'أعلى مستوى في المجلس · ', xx, y + 262, o).width;
+            xx -= T(ctx, '+' + (p.rating - ELO_TIERS[0][0]).toLocaleString('en-US'), xx, y + 262, Object.assign({}, o, { dir: 'ltr' })).width;
+            T(ctx, ' فوق حد الأسطورة', xx, y + 262, o); }
           bar(ctx, bx, by, bw, 14, 1, HS.hair, lv === 4 ? ['#2E2008', '#6B4E1C'] : ['#B8913F', '#E3C47E']);
         }
         // مسار التقييم داخل الرأس
@@ -12346,7 +12351,8 @@ function buildLeagueStandingsCanvas() {
           let recsAll = []; try { recsAll = councilRecords(); } catch (e) {}
           const hn = playerHonors(p, stats, C, recsAll);
           if (hn.length) {
-            const COLS = Math.min(3, hn.length), G = 14, TWd = (CW - 56 - G * (COLS - 1)) / COLS, TH = 196, rows = Math.ceil(hn.length / COLS);
+            const COLS = 3, G = 14,   /* 1.7: عرض البطاقة ثابت (3 أعمدة) والصف الناقص يتوسط — لا وسام وحيد بعرض كامل */
+            TWd = (CW - 56 - G * (COLS - 1)) / COLS, TH = 196, rows = Math.ceil(hn.length / COLS);
             const BH = 78 + rows * TH + (rows - 1) * G + 28;
             cuts.push(y - GAPS / 2); card(BH);
             T(ctx, 'أوسمته', M + CW - 28, y + 44, { size: 28, weight: 800, color: B.text, align: 'right' });
@@ -12468,7 +12474,7 @@ function buildLeagueStandingsCanvas() {
       exportFooterDivider(ctx, M, H - 40, CW);
       canvas.__cuts = cuts;
       const fn = `Honor-Profile-${safeName(name)}.png`;
-      setCaption(fn, `ملف ${name} — تقييم المجلس ${p.rating} (${p.tier.name})، المركز ${p.rank} من ${elo.ranked.length}.\n${stats.championships || 0} ${(stats.championships || 0) === 1 ? 'لقب' : 'ألقاب'} · ${stats.runnerUps || 0} وصافة · ${arMatchesN(p.games)} · نسبة الفوز ${winPct(p)}%.`);
+      setCaption(fn, `ملف ${name} — تقييم المجلس ${p.rating} (${p.tier.name})، المركز ${p.rank} من ${elo.ranked.length}.\n${stats.championships || 0} ${arTitlesW(stats.championships || 0)} · ${stats.runnerUps || 0} وصافة · ${arMatchesN(p.games)} · نسبة الفوز ${winPct(p)}%.`);
       canvas.__autoSplit = true;   // طويلة جدًا: تُقسَّم تلقائيًا في الستوري
       await downloadCanvasAsPng(canvas, fn);
     }
