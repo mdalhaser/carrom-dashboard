@@ -2161,6 +2161,15 @@
     .vday:is(.open, .fold-hold) .vday-b > .in { padding-bottom: 8px; }
     .vday-r { display: grid; grid-template-columns: 32px minmax(0, 1fr) 50px minmax(0, 1fr); align-items: center; column-gap: 6px; width: 100%; min-height: 46px; padding: 6px 4px; border: 0; border-top: 1px solid var(--line); background: none; border-radius: 0; font: inherit; color: var(--text); cursor: pointer; -webkit-tap-highlight-color: transparent; transition: background .2s ease; }
     .vday-list > .vday-r:first-child { border-top: 0; }
+    /* 1.4 — «بلا خسارة الليلة»: سطر حقيقة هادئ فوق المباريات (عنوان صغير بدرع ← الأسماء أبجديًا)، بلا صندوق ولا أرقام؛ يفصله عن أول مباراة خط القائمة نفسه */
+    .vday-ub { display: flex; flex-direction: column; align-items: flex-start; gap: 4px; padding: 2px 4px 12px; }
+    .vday-ub .lb { display: inline-flex; align-items: center; gap: 6px; font-size: var(--fs-xs); font-weight: 800; color: var(--gold-deep); }
+    .vday-ub .lb .ic { width: 14px; height: 14px; margin: 0; }
+    .vday-ub .nms { display: flex; flex-wrap: wrap; align-items: baseline; column-gap: 8px; row-gap: 2px; font-size: var(--fs-base); font-weight: 700; color: var(--text); line-height: 1.5; }
+    .vday-ub .nms i { font-style: normal; font-weight: 700; color: var(--text-3); }
+    .vday-ub .nms bdi.me { color: var(--gold-deep); }
+    .vday-ub + .vday-r { border-top: 1px solid var(--line); }
+    .vday-ub + .vday-r.latest { border-top-color: transparent; margin-top: 4px; }
     .vday-r.latest { background: var(--warn-bg); border-radius: var(--r-md); }
     .vday-r.latest + .vday-r { border-top-color: transparent; }
     .vday-r:active { background: var(--surface-2); }
@@ -10737,7 +10746,15 @@ function buildLeagueStandingsCanvas() {
       const top = M + exportBrandHeaderHeight(meta) + 40;
       const ctxRes = exportContextResolve(context), gapC = ctxRes.shown ? 50 : 8;
       const secs = sections.filter(s => s.matches && s.matches.length).map(s => { const cols = !s.heading && sections.length === 1 && s.matches.length > 22 ? 2 : 1; return Object.assign({}, s, { cols, rows: Math.ceil(s.matches.length / cols) }); });
-      const over = secs.reduce((a, s) => a + (s.heading ? HEAD : 0) + 2 * TP, 0) + SG * Math.max(0, secs.length - 1);
+      // 1.4: لوحة «بلا خسارة الليلة» فوق الجدول: عنوان صغير بدرع ← الأسماء أبجديًا في أسطر متوازنة
+      const ubInfo = (secs.find(s => s.ub) || {}).ub || null, UB = { pad: 26, lab: 30, gap: 14, line: 46, fs: 32 };
+      let ubLines = [];
+      if (ubInfo) { const mc = document.createElement('canvas').getContext('2d'); mc.font = `800 ${UB.fs}px Tajawal`;
+        const maxW = CW - UB.pad * 2, sep = '  ·  '; let cur = '';
+        ubInfo.names.forEach(n => { const t = cur ? cur + sep + n : n; if (cur && mc.measureText(t).width > maxW) { ubLines.push(cur); cur = n; } else cur = t; });
+        if (cur) ubLines.push(cur); }
+      const ubH = ubInfo ? UB.pad * 2 + UB.lab + UB.gap + ubLines.length * UB.line : 0, ubGap = ubInfo ? 18 : 0;
+      const over = secs.reduce((a, s) => a + (s.heading ? HEAD : 0) + 2 * TP, 0) + SG * Math.max(0, secs.length - 1) + ubH + ubGap;
       const totalRows = secs.reduce((a, s) => a + s.rows, 0);
       const TARGET = window.__dayTarget || 2150, fixed = top + gapC + over + 90;
       const rowH = Math.max(56, Math.min(100, Math.floor((TARGET - fixed) / Math.max(1, totalRows))));   // صفوف أعلى حين تسمح المساحة (الصور القصيرة)
@@ -10749,6 +10766,14 @@ function buildLeagueStandingsCanvas() {
       exportBrandHeader(ctx, M, M, CW, title, subtitle, meta);
       if (ctxRes.shown) exportDrawContext(ctx, ctxRes.text, M + CW / 2, top + 6, CW, 27);
       let y = top + gapC; const cuts = [];
+      if (ubInfo) {
+        drawRoundedRect(ctx, M, y, CW, ubH, 22); ctx.fillStyle = B.paper; ctx.fill(); ctx.strokeStyle = B.line; ctx.lineWidth = 2; ctx.stroke();
+        const rx = M + CW - UB.pad, ly = y + UB.pad + UB.lab / 2;
+        exportIcon(ctx, 'shield', rx - 13, ly, 26, B.goldDeep, 2.2);
+        exportText(ctx, ubInfo.label, rx - 36, ly, { size: 25, weight: 800, color: B.goldDeep, align: 'right' });
+        ubLines.forEach((t, i) => exportText(ctx, t, rx, y + UB.pad + UB.lab + UB.gap + UB.line * i + UB.line / 2, { size: UB.fs, weight: 800, color: B.ink, align: 'right', maxW: CW - UB.pad * 2, min: 22 }));
+        y += ubH + ubGap; cuts.push(y - ubGap / 2);
+      }
       secs.forEach((sec, si) => {
         if (si > 0) cuts.push(y - 7);
         const headH = sec.heading ? HEAD : 0, bodyH = sec.rows * rowH;
@@ -11181,8 +11206,11 @@ function buildLeagueStandingsCanvas() {
         if (lg) { const m = leagueMatches.find(x => x.id === e.id); if (m && m.forfeit) { it.ff = m.forfeit === 'A' ? 'a' : 'b'; it.auto = !!m.auto; } if (m && isLeagueMatchAnnulled(m)) it.annul = leagueIsExcluded(m.playerA) ? 'a' : 'b'; }
         else { const m = bracketState[e.id]; if (m && m.forfeit && m.winner === e.w && m.team1 === e.a && m.team2 === e.b) it.ff = e.w === e.a ? 'b' : 'a'; }
         return it; });
-      setCaption(file, `نتائج يوم ${label} (${chipMatches(list.length)}):\n` + items.map(itemLine).join('\n'));
-      await renderMatchSheet('نتائج اليوم', `${label} · ${chipMatches(list.length)}`, [{ heading: null, matches: items }], file);
+      // 1.4: «بلا خسارة الليلة» بنفس قاعدة البطاقة (الدوري)
+      const ub = lg ? unbeatenOfDay(list.map(e => leagueMatches.find(x => x.id === e.id)).filter(Boolean)) : [];
+      const ubLabel = key === nightKeyOf(Date.now()) ? 'بلا خسارة حتى الآن' : 'بلا خسارة الليلة';
+      setCaption(file, `نتائج يوم ${label} (${chipMatches(list.length)}):\n` + (ub.length ? `${ubLabel}: ${ub.join('، ')}\n` : '') + items.map(itemLine).join('\n'));
+      await renderMatchSheet('نتائج اليوم', `${label} · ${chipMatches(list.length)}`, [{ heading: null, matches: items, ub: ub.length ? { label: ubLabel, names: ub } : null }], file);
     }
 
     function historyRecords() {
@@ -14177,7 +14205,7 @@ function buildLeagueStandingsCanvas() {
     // ===================================
     // 🧭 سلوك التطبيق: إعادة الوضع للأعلى، تعديل العنوان بالضغط المطوّل، تنبيه التحديث، رقم الإصدار
     // ===================================
-    const APP_VERSION = '1.3';   // ترقيم الاعتماد (من 4 نوفمبر 2026): 1.0 ثم 1.1 … 1.9 ثم 2.0 — ويُرفع معه رقم الإصدار في sw.js
+    const APP_VERSION = '1.4';   // ترقيم الاعتماد (من 4 نوفمبر 2026): 1.0 ثم 1.1 … 1.9 ثم 2.0 — ويُرفع معه رقم الإصدار في sw.js
     (function setupAppBehaviors() {
       const root = document.documentElement;
 
@@ -14836,6 +14864,15 @@ function buildLeagueStandingsCanvas() {
     // ===== «آخر يوم لعب / نتائج اليوم» (6.x، والإدارة من 1.2): مباريات الدوري حسب يوم اللعب، الأحدث أولًا =====
     // بطاقة واحدة للنسختين. اللاعبون: أول بطاقة في العمود الرئيسي، مفتوحة إن كان اليوم يوم لعب. الإدارة: بعد «الحاضرون الليلة»
     // وقبل الجولات، مطوية دائمًا، ولمس الصف يفتح نافذة تعديل النتيجة نفسها. قراءة فقط: لا تغيّر الجدول ولا السجل ولا التخزين.
+    // 1.4 — «بلا خسارة الليلة» (قراءة فقط): كل من لعب مباراتين على الأقل في يوم اللعب دون أي خسارة (الفوز والتعادل مقبولان).
+    // فوز الانسحاب فوز، والمباراة الملغاة لا تُحتسب. الترتيب أبجدي بلا أرقام: حقيقة تُذكر لا ترتيب يُختلف عليه.
+    function unbeatenOfDay(matches) {
+      const S = {};
+      (matches || []).forEach(m => { if (!m || isLeagueMatchAnnulled(m) || !isLeagueMatchCompleted(m)) return;
+        const a = Number(m.scoreA), b = Number(m.scoreB);
+        [[m.playerA, a < b], [m.playerB, b < a]].forEach(([n, lost]) => { const x = S[n] || (S[n] = { g: 0, l: 0 }); x.g++; if (lost) x.l++; }); });
+      return Object.keys(S).filter(n => S[n].g >= 2 && !S[n].l).sort((x, y) => x.localeCompare(y, 'ar'));
+    }
     function playDayLog() { try { return readMatchLog().filter(e => e.k === 'lg' && matchLogStillValid(e)); } catch (e) { return []; } }
     function mountPlayDay(admin, keep) {
 
@@ -14878,7 +14915,9 @@ function buildLeagueStandingsCanvas() {
           h.querySelector('b').textContent = sel === todayKey ? 'نتائج اليوم' : sel === latest ? 'آخر يوم لعب' : 'يوم لعب';
           const sm = h.querySelector('small'); sm.textContent = sel === todayKey ? '' : nightLabel(sel); sm.hidden = sel === todayKey;
           h.querySelector('.meta').textContent = countTxt(ms.length);
-          list.innerHTML = rowsHTML(ms);
+          const ub = unbeatenOfDay(ms);
+          list.innerHTML = (ub.length ? `<div class="vday-ub" role="note"><span class="lb"><span class="ic ic-shield" aria-hidden="true"></span>${sel === todayKey ? 'بلا خسارة حتى الآن' : 'بلا خسارة الليلة'}</span>`
+            + `<span class="nms">${ub.map(n => `<bdi class="${me0 && n === me0 ? 'me' : ''}">${esc(n)}</bdi>`).join('<i aria-hidden="true">·</i>')}</span></div>` : '') + rowsHTML(ms);
           list.querySelectorAll('.vday-r').forEach(b => b.addEventListener('click', () => openLeagueScoreModal(b.dataset.id)));
           if (strip) {
             strip.querySelectorAll('.vday-d').forEach(d => { const on = d.dataset.k === sel; d.classList.toggle('active', on); d.setAttribute('aria-selected', String(on)); });
