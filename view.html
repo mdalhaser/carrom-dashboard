@@ -3497,7 +3497,7 @@
       #profileBody .pf-body2 > .pf-s.fold:first-of-type { margin-top: 0; padding-top: 0; border-top: 0; }   /* رأس العمود الأيسر على خط رأس الملف */
       #profileBody > .pf-note { column-span: all; }
     }
-    /* 8.1 — ألوان المعنى في الملف: الأخضر والأحمر للفوز والخسارة فقط. «غريمه/يتفوق عليه/أفضل شريك» بلون مرجعي واحد،
+    /* 8.1 — ألوان المعنى في الملف: الأخضر والأحمر للفوز والخسارة فقط. «أصعب خصومه/أسهل خصومه/أفضل شريك» بلون مرجعي واحد،
        والمسيرة نمطان: كبسولتا «بطل/وصيف» بأسلوبهما المعتمد، وبقية المراحل نص هادئ («جارية» بنقطة خضراء صغيرة كمؤشر حي) */
     .vm2-cells .nem .l, .vm2-cells .vic .l, .vm2-cells .par .l { color: var(--text-3); }
     .pf-res.sf, .pf-res.pt, .pf-res.live { padding: 0; background: none; box-shadow: none; color: var(--text-3); font-weight: 700; }
@@ -11441,7 +11441,12 @@ function buildLeagueStandingsCanvas() {
       const mainH = 44 + storyH + nameH + rateH + 30;
       const probH = show.prob ? 136 : 0;
       const R = [...(show.rating ? [] : [['التقييم', st.A.rating, st.B.rating, x => x.toLocaleString('en-US')]]), ['الألقاب', st.A.titles, st.B.titles, String], ['نسبة الفوز', st.A.winRate, st.B.winRate, x => x + '%']];   // التقييم ظاهر تحت الأسماء: لا يتكرر هنا
-      if (!teams) R.push(['انتصارات آخر 5', st.A.form ? st.A.form.filter(x => x === 'w').length : null, st.B.form ? st.B.form.filter(x => x === 'w').length : null, x => `${x} من 5`]);
+      if (!teams) {   // 1.7: العدد الفعلي لآخر المباريات (لاعب جديد لعب 3 فقط: «1 من 3») والمعدود مذكور
+        const fa = st.A.form || [], fb = st.B.form || [], N = Math.max(fa.length, fb.length);
+        const lab = N === 1 ? 'انتصارات آخر مباراة' : N === 2 ? 'انتصارات آخر مباراتين' : `انتصارات آخر ${N} ${N <= 10 ? 'مباريات' : 'مباراة'}`;
+        const val = f => f.length ? `${f.filter(x => x === 'w').length} من ${f.length}` : null;
+        R.push([lab, val(fa), val(fb), String]);
+      }
       else R.push(['انتصارات معًا', st.A.together ? st.A.together.w : 0, st.B.together ? st.B.together.w : 0, String]);
       const TP = EXPORT_TABLE_PAD;   // الأقسام إطارات: العنوان أعلى الإطار والمحتوى داخله
       const tapeH = show.tape ? 70 + TP + 48 + R.length * 70 - 8 + TP : 0, h2hH = show.h2h ? 70 + TP + 186 + TP : 0;
@@ -12449,10 +12454,10 @@ function buildLeagueStandingsCanvas() {
             y += RH; });
           y += TP - 10 + GAPS;
         }
-        // (6) أبرز المواجهات: غريمه · يتفوق عليه · أفضل شريك
+        // (6) أبرز المواجهات: أصعب خصومه · أسهل خصومه · أفضل شريك (1.7: إضافة إلى صاحب الملف فلا تُقرأ بالعكس)
         const keys = [];
-        if (show.h2h && d.nem) { const x = d.h2h.find(q => q.o === d.nem); keys.push([d.nem, 'غريمه', B.faint, `فاز ${x.w} · خسر ${x.l}`]); }
-        if (show.h2h && d.vic) { const x = d.h2h.find(q => q.o === d.vic); keys.push([d.vic, 'يتفوق عليه', B.faint, `فاز ${x.w} · خسر ${x.l}`]); }
+        if (show.h2h && d.nem) { const x = d.h2h.find(q => q.o === d.nem); keys.push([d.nem, 'أصعب خصومه', B.faint, `فاز ${x.w} · خسر ${x.l}`]); }
+        if (show.h2h && d.vic) { const x = d.h2h.find(q => q.o === d.vic); keys.push([d.vic, 'أسهل خصومه', B.faint, `فاز ${x.w} · خسر ${x.l}`]); }
         if ((show.h2h || show.partners) && d.best) { const x = d.parts.find(q => q.o === d.best); keys.push([d.best, 'أفضل شريك', B.faint, `${Math.round(x.w / x.games * 100)}% فوز`]); }
         if (keys.length) {
           cuts.push(y - GAPS / 2); const KH = 168; card(KH); const cw = CW / keys.length;
@@ -13901,8 +13906,8 @@ function buildLeagueStandingsCanvas() {
         const vic = enough.slice().sort((a, b) => (b.w - b.l) - (a.w - a.l) || b.w - a.w)[0];
         const bp = parts.filter(x => x.games >= 3 && x.w / x.games >= 0.5).sort((a, b) => b.w / b.games - a.w / a.games || b.games - a.games)[0];
         const keys = [];
-        if (nem && nem.l > nem.w) keys.push(cl(H(nem.o), 'غريمه', `فاز ${nem.w} · خسر ${nem.l}`, 'nem'));
-        if (vic && vic.w > vic.l) keys.push(cl(H(vic.o), 'يتفوق عليه', `فاز ${vic.w} · خسر ${vic.l}`, 'vic'));
+        if (nem && nem.l > nem.w) keys.push(cl(H(nem.o), 'أصعب خصومه', `فاز ${nem.w} · خسر ${nem.l}`, 'nem'));
+        if (vic && vic.w > vic.l) keys.push(cl(H(vic.o), 'أسهل خصومه', `فاز ${vic.w} · خسر ${vic.l}`, 'vic'));
         if (bp) keys.push(cl(H(bp.o), 'أفضل شريك', `${Math.round(bp.w / bp.games * 100)}% فوز`, 'par'));
         if (keys.length) html += `<div class="vm2-sec pf-s"><div class="vm2-cells pf-keys">${keys.join('').replace(/class="v"/g, 'class="v nm"')}</div></div>`;
         const listSec = (title, side, rows, n) => sec(title, side, `<div class="pf-group">${rows.join('')}</div>${n > 6 ? `<button type="button" class="vm2-more pf-more" aria-expanded="false">عرض الكل (${n})</button>` : ''}`, 'fold');
@@ -14364,7 +14369,7 @@ function buildLeagueStandingsCanvas() {
     // ===================================
     // 🧭 سلوك التطبيق: إعادة الوضع للأعلى، تعديل العنوان بالضغط المطوّل، تنبيه التحديث، رقم الإصدار
     // ===================================
-    const APP_VERSION = '1.6';   // ترقيم الاعتماد (من 4 نوفمبر 2026): 1.0 ثم 1.1 … 1.9 ثم 2.0 — ويُرفع معه رقم الإصدار في sw.js
+    const APP_VERSION = '1.7';   // ترقيم الاعتماد (من 4 نوفمبر 2026): 1.0 ثم 1.1 … 1.9 ثم 2.0 — ويُرفع معه رقم الإصدار في sw.js
     (function setupAppBehaviors() {
       const root = document.documentElement;
 
@@ -15418,7 +15423,7 @@ function buildLeagueStandingsCanvas() {
               ${fcell(`<b class="${p.streak && p.streak.len >= 2 ? (p.streak.type === 'w' ? 'up' : p.streak.type === 'l' ? 'down' : '') : ''}">${stV}</b>`, stL)}
             </div>${since}</div>`;
           }
-          // (4) خصومي وشركائي: عقدتك (أكثر من خسرت أمامه) · ضحيتك (أكثر من فزت عليه) · أفضل شريك (أعلى نسبة فوز معًا)
+          // (4) خصومي وشركائي: أصعب خصومك (أكثر من خسرت أمامه) · أسهل خصومك (أكثر من فزت عليه) · أفضل شريك (أعلى نسبة فوز معًا)
           let rivalsHTML = '';
           if (known) {
             const H = Object.entries(p.h2h || {}).map(([n, x]) => ({ n, w: x.w || 0, l: x.l || 0, g: (x.w || 0) + (x.l || 0) + (x.d || 0) }));
@@ -15430,7 +15435,7 @@ function buildLeagueStandingsCanvas() {
             // نفس شريط الخانات: الاسم ← الدور (بلونه) ← السجل. الخانات الثلاث ثابتة؛ الدور غير المتحقق يظهر بشرطة
             const rc = (cls, lbl, x, rec) => `<span class="cl ${cls}${x ? '' : ' empty'}"><b class="v nm">${x ? `<bdi>${esc(x.n)}</bdi>` : '—'}</b><small class="l">${lbl}</small>${x ? `<span class="s">${rec}</span>` : ''}</span>`;
             if (nem || vic || par) rivalsHTML = `<div class="vm2-sec"><div class="vm2-h"><span>خصومي وشركائي</span></div><div class="vm2-cells">
-              ${rc('nem', 'عقدتك', nem, nem ? `خسرت ${nem.l} من ${nem.g}` : '')}${rc('vic', 'ضحيتك', vic, vic ? `فزت ${vic.w} من ${vic.g}` : '')}${rc('par', 'شريكك', par, par ? `فزتما ${par.w} من ${par.g}` : '')}</div></div>`;
+              ${rc('nem', 'أصعب خصومك', nem, nem ? `خسرت ${nem.l} من ${nem.g}` : '')}${rc('vic', 'أسهل خصومك', vic, vic ? `فزت ${vic.w} من ${vic.g}` : '')}${rc('par', 'شريكك', par, par ? `فزتما ${par.w} من ${par.g}` : '')}</div></div>`;
           }
           // ===== المستوى 1: شريط مختصر في الصفحة الرئيسية (اسمي · مباراتي القادمة · تقييمي) — يفتح «صفحتي» =====
           const n0 = nx[0];
