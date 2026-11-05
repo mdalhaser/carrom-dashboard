@@ -706,13 +706,9 @@
 /* الاسمان في المنتصف على محور «ضد»؛ بعد النتيجة تعود البطاقة للشكل المعتاد (الاسم يمينًا والنتيجة يسارًا) */
     .vs-sep { display: flex; align-items: center; gap: 8px; margin: 0 8px; color: var(--text-3); }
     .vs-sep::before, .vs-sep::after { content: ""; flex: 1; height: 1px; background: var(--line); }
-    /* 1.5 — «على المحك»: سطر هادئ في أسفل بطاقة المباراة القادمة على محور «ضد» نفسه (عنوان صغير بميدالية ← ما يُحسم، سطر لكل إنجاز) */
-    .mc-stake { display: flex; flex-direction: column; align-items: center; gap: 4px; margin: 0 8px; padding-top: 8px; border-top: 1px solid var(--line); text-align: center; }
-    .mc-stake .lb { display: inline-flex; align-items: center; gap: 4px; font-size: var(--fs-xs); font-weight: 800; color: var(--gold-deep); }
-    .mc-stake .lb .ic { width: 13px; height: 13px; margin: 0; }
-    .mc-stake .it { display: flex; flex-direction: column; align-items: center; gap: 2px; font-size: var(--fs-sm); font-weight: 700; color: var(--text-2); line-height: 1.45; }
-    .mc-stake .it bdi { color: var(--text); font-weight: 800; }
-    .mc-stake .it > span { text-wrap: balance; }
+    /* 1.5 — «على المحك»: ميدالية ذهبية صغيرة بجانب رقم المباراة القادمة (إشارة فقط، بلا نص ولا تغيير في الحجم) */
+    .match-card.has-stake .match-title { display: inline-flex; align-items: center; gap: 6px; }
+    .match-title .mc-medal { width: 15px; height: 15px; margin: 0; color: var(--gold-deep); flex: none; }
     /* توسيط بصري دقيق للنص داخل الشارات والكبسولات: مقاييس خط Tajawal تجعل النص أعلى من المنتصف بنحو ربع حرف.
        text-box يقصّ صندوق السطر إلى ارتفاع الحروف (cap) وخط الأساس، والحشوة تعيد نفس الارتفاع الأصلي فلا يتغير التخطيط.
        المتصفحات التي لا تدعمه (iOS أقدم من 18.2) تبقى كما كانت تمامًا. */
@@ -1885,7 +1881,6 @@
     .tools-card.solo-reset #clearDataBtn { width: auto; padding-inline: 16px; }
     /* المباراة القادمة بجانب مكتملة في نفس الصف: المحتوى في منتصف البطاقة بدل فراغ أسفلها */
     .match-card.vs > .match-body { flex: 1 1 auto; align-content: center; justify-content: center; }
-    .match-card.vs.row-stake > .match-body { flex: 0 0 auto; justify-content: flex-start; }   /* 1.5: صف فيه «على المحك»: الأسماء على خط واحد */
     /* 6.9 — بطاقة البطل الموحدة: محتوى متمركز بتسلسل القراءة، وعرضها على قدر محتواها */
     .st-last.kc { display: block; width: 100%; max-width: 520px; margin-inline: auto; padding: 20px 20px 16px; text-align: center; font: inherit; }
     .kc .kc-t { font-size: 13px; font-weight: 800; color: var(--lk-gold); line-height: 1.5; }
@@ -2294,6 +2289,10 @@
     .vm-h2h { display: grid; grid-template-columns: 1fr auto 1fr; align-items: center; text-align: center; }
     .vm-h2h b { font-size: 26px; font-weight: 800; color: var(--text); font-variant-numeric: tabular-nums; }
     .vm-h2h span { font-size: var(--fs-xs); font-weight: 700; color: var(--text-2); }
+    .sm-stake { margin: 0 0 16px; padding: 12px; border-radius: var(--r-md); background: var(--surface-2); text-align: center; }
+    .sm-stake h4, .vm-stake h4 { display: flex; align-items: center; justify-content: center; gap: 6px; margin: 0 0 8px; font-size: var(--fs-xs); font-weight: 800; color: var(--gold-deep); }
+    .sm-stake h4 .ic { width: 15px; height: 15px; margin: 0; }
+    .sm-stake p { margin: 4px 0 0; font-size: var(--fs-base); font-weight: 700; color: var(--text); line-height: 1.6; text-wrap: balance; }
     .vm-stake h4 { display: flex; align-items: center; justify-content: center; gap: 6px; color: var(--gold-deep); }
     .vm-stake h4 .ic { width: 15px; height: 15px; margin: 0; }
     .vm-stake p { margin: 4px 0 0; text-align: center; font-size: var(--fs-base); font-weight: 700; color: var(--text); line-height: 1.6; text-wrap: balance; }
@@ -6917,6 +6916,9 @@ currentScoreWinnerName = null;
       if (leagueForfeitRow) { leagueForfeitRow.hidden = false;
         leagueForfeitRow.querySelectorAll('.lg-ff-btn').forEach(b => { b.textContent = `انسحب ${getDisplayTeamName(b.dataset.side === 'A' ? match.team1 : match.team2)}`; }); }
       koFfSync();
+      { let sk = []; if (!match.winner) try { const mem = t => currentMode === 'single' ? [t] : String(getDisplayTeamName(t)).split(' + ').map(x => x.trim()).filter(Boolean);
+          sk = matchStakes(mem(match.team1), mem(match.team2), { mode: currentMode === 'single' ? 'single' : 'team', final: !!(isFinalMatch(match) && !match.nextMatchId) }); } catch (e) {}
+        if (typeof setScoreStakes === 'function') setScoreStakes(sk); }
 
       document.getElementById('scoreModal').style.display = 'flex';
     }
@@ -9611,6 +9613,13 @@ function changeScore(inputId, amount){
     const scoreModalEl = document.getElementById('scoreModal');
     const scoreModalSubtitleEl = document.getElementById('scoreModalSubtitle');
     const scoreModalSubtitleOriginal = scoreModalSubtitleEl.innerHTML;
+    // 1.5 — «على المحك» في نافذة تسجيل النتيجة (الإدارة): نفس جمل ورقة المباراة، للمباراة القادمة فقط
+    const scoreStakesEl = (() => { const d = document.createElement('div'); d.className = 'sm-stake'; d.hidden = true; scoreModalSubtitleEl.after(d); return d; })();
+    function setScoreStakes(list) {
+      const esc = x => String(x == null ? '' : x).replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
+      scoreStakesEl.hidden = !(list && list.length);
+      scoreStakesEl.innerHTML = list && list.length ? `<h4><span class="ic ic-medal" aria-hidden="true"></span>على المحك</h4>${list.map(x => `<p>${esc(stakeSentence(x))}</p>`).join('')}` : '';
+    }
     const leagueScoreHintEl = document.getElementById('leagueScoreHint');
     const scoreInputA = document.getElementById('winnerScoreInput');   // نعيد استخدام البطاقة الأولى = اللاعب أ
     const scoreInputB = document.getElementById('loserScoreInput');    // والثانية = اللاعب ب
@@ -9948,26 +9957,14 @@ function changeScore(inputId, amount){
       if (rows.length !== 2) return card;
       card.classList.add('vs');
       rows[0].insertAdjacentHTML('afterend', '<div class="vs-sep" aria-hidden="true"><span><i class="tx">ضد</i></span></div>');
-      // 1.5 — «على المحك»: سطر هادئ أسفل البطاقة حين تحسم المباراة إنجازًا (وسامًا أو رقمًا قياسيًا) لأحد الطرفين
+      // 1.5 — «على المحك»: إشارة خفية فقط — ميدالية ذهبية صغيرة بجانب رقم المباراة (لا تغيّر الحجم ولا تمس شارة الحالة)؛ التفاصيل في ورقة المباراة ونافذة التسجيل
       if (sx) { let st = []; try { st = matchStakes(sx.mA, sx.mB, sx); } catch (e) {}
-        if (st.length) {
-          const esc = x => String(x == null ? '' : x).replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
-          card.classList.add('has-stake');
-          card.querySelector('.match-body').insertAdjacentHTML('afterend', `<div class="mc-stake"><span class="lb"><span class="ic ic-medal" aria-hidden="true"></span>على المحك</span>`
-            + `<span class="it">${st.map(x => `<span><bdi>${esc(x.who)}</bdi> · ${esc(x.rec ? 'رقم ' + x.t : x.t)}</span>`).join('')}</span></div>`);
-          card.setAttribute('aria-description', 'على المحك: ' + st.map(stakeSentence).join('، '));
-          queueStakeRows();
-        } }
+        const tt = st.length && card.querySelector('.match-title');
+        if (tt) { card.classList.add('has-stake'); tt.insertAdjacentHTML('beforeend', '<span class="ic ic-medal mc-medal" role="img" aria-label="على المحك"></span>');
+          card.setAttribute('aria-description', 'على المحك: ' + st.map(stakeSentence).join('، ')); } }
       return card;
     }
-    // بطاقة «على المحك» أطول من جاراتها: بطاقات صفّها نفسه تُثبَّت محتواها أعلى (بدل التوسيط) فتبقى الأسماء على خط واحد عبر الصف.
-    // يُعاد عند كل رسم وعند تغيّر العرض (عدد الأعمدة).
-    let __stakeRowsQ = 0;
-    function queueStakeRows() { if (__stakeRowsQ) return; __stakeRowsQ = requestAnimationFrame(() => { __stakeRowsQ = 0;
-      document.querySelectorAll('.match-card.vs.row-stake').forEach(c => c.classList.remove('row-stake'));
-      document.querySelectorAll('.match-card.has-stake').forEach(sc => { const top = sc.offsetTop; if (!sc.parentElement) return;
-        [...sc.parentElement.children].forEach(c => { if (c.classList.contains('match-card') && Math.abs(c.offsetTop - top) < 2) c.classList.add('row-stake'); }); }); }); }
-    window.addEventListener('resize', () => { if (document.querySelector('.match-card.has-stake')) queueStakeRows(); });
+
     function createLeagueMatchCard(m) {
       const done = isLeagueMatchCompleted(m), annul = isLeagueMatchAnnulled(m);
       const d = done && !annul ? deriveLeagueResult(m.scoreA, m.scoreB) : null;
@@ -10115,6 +10112,7 @@ function changeScore(inputId, amount){
 
       scoreModalEl.classList.add('league-score');
       scoreModalSubtitleEl.innerHTML = 'أدخل نتيجة كل لاعب كما هي، بدون حد أعلى. النقاط تُحسب تلقائياً.';
+      { let sk = []; if (!isLeagueMatchCompleted(m) && !isLeagueMatchAnnulled(m)) try { sk = matchStakes([m.playerA], [m.playerB], { mode: 'league', final: false, id: m.id }); } catch (e) {} setScoreStakes(sk); }
       scoreLabelA.innerHTML = `<span class="lg-role">اللاعب أ</span><span class="lg-pname">${leagueEscape(m.playerA)}</span>`;
       scoreLabelB.innerHTML = `<span class="lg-role">اللاعب ب</span><span class="lg-pname">${leagueEscape(m.playerB)}</span>`;
       scoreInputA.removeAttribute('max');
