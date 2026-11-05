@@ -11606,7 +11606,10 @@ function buildLeagueStandingsCanvas() {
       order.forEach((rank, i) => {
         const it = list.find(x => x.rank === rank); if (!it) return;
         const x = right - (i + 1) * colW - i * gap, cx = x + colW / 2, h = stepH[rank], sy = floor - h;
-        const id = drawRankCardSurface(ctx, x, sy, colW, h + 24, 24, rank);       // الدرجة بهوية المركز (24 تُخفى تحت الأرضية)
+        // الدرجة بهوية المركز؛ أسفلها (24) يُقص عند منتصف الأرضية فلا تظهر زواياها ولا ظلها تحت الخط (1.8)
+        ctx.save(); ctx.beginPath(); ctx.rect(0, 0, W, floor + 11); ctx.clip();
+        const id = drawRankCardSurface(ctx, x, sy, colW, h + 24, 24, rank);
+        ctx.restore();
         exportText(ctx, String(rank), cx, sy + Math.min(h / 2, 110), { size: rank === 1 ? 120 : 96, weight: 800, color: rankHexToRgba(id.deep, 0.55), dir: 'ltr' });
         // فوق الدرجة: الأيقونة ثم اللقب ثم الاسم ثم السطر الفرعي
         const iy = sy - 290;
@@ -14374,7 +14377,7 @@ function buildLeagueStandingsCanvas() {
     // ===================================
     // 🧭 سلوك التطبيق: إعادة الوضع للأعلى، تعديل العنوان بالضغط المطوّل، تنبيه التحديث، رقم الإصدار
     // ===================================
-    const APP_VERSION = '1.8';   // ترقيم الاعتماد (من 4 نوفمبر 2026): 1.0 ثم 1.1 … 1.9 ثم 2.0 — ويُرفع معه رقم الإصدار في sw.js
+    const APP_VERSION = '1.9';   // ترقيم الاعتماد (من 4 نوفمبر 2026): 1.0 ثم 1.1 … 1.9 ثم 2.0 — ويُرفع معه رقم الإصدار في sw.js
     (function setupAppBehaviors() {
       const root = document.documentElement;
 
