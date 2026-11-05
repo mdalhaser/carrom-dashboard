@@ -733,6 +733,13 @@
 /* الاسمان في المنتصف على محور «ضد»؛ بعد النتيجة تعود البطاقة للشكل المعتاد (الاسم يمينًا والنتيجة يسارًا) */
     .vs-sep { display: flex; align-items: center; gap: 8px; margin: 0 8px; color: var(--text-3); }
     .vs-sep::before, .vs-sep::after { content: ""; flex: 1; height: 1px; background: var(--line); }
+    /* 1.5 — «على المحك»: سطر هادئ في أسفل بطاقة المباراة القادمة على محور «ضد» نفسه (عنوان صغير بميدالية ← ما يُحسم، سطر لكل إنجاز) */
+    .mc-stake { display: flex; flex-direction: column; align-items: center; gap: 4px; margin: 0 8px; padding-top: 8px; border-top: 1px solid var(--line); text-align: center; }
+    .mc-stake .lb { display: inline-flex; align-items: center; gap: 4px; font-size: var(--fs-xs); font-weight: 800; color: var(--gold-deep); }
+    .mc-stake .lb .ic { width: 13px; height: 13px; margin: 0; }
+    .mc-stake .it { display: flex; flex-direction: column; align-items: center; gap: 2px; font-size: var(--fs-sm); font-weight: 700; color: var(--text-2); line-height: 1.45; }
+    .mc-stake .it bdi { color: var(--text); font-weight: 800; }
+    .mc-stake .it > span { text-wrap: balance; }
     /* توسيط بصري دقيق للنص داخل الشارات والكبسولات: مقاييس خط Tajawal تجعل النص أعلى من المنتصف بنحو ربع حرف.
        text-box يقصّ صندوق السطر إلى ارتفاع الحروف (cap) وخط الأساس، والحشوة تعيد نفس الارتفاع الأصلي فلا يتغير التخطيط.
        المتصفحات التي لا تدعمه (iOS أقدم من 18.2) تبقى كما كانت تمامًا. */
@@ -1905,6 +1912,7 @@
     .tools-card.solo-reset #clearDataBtn { width: auto; padding-inline: 16px; }
     /* المباراة القادمة بجانب مكتملة في نفس الصف: المحتوى في منتصف البطاقة بدل فراغ أسفلها */
     .match-card.vs > .match-body { flex: 1 1 auto; align-content: center; justify-content: center; }
+    .match-card.vs.row-stake > .match-body { flex: 0 0 auto; justify-content: flex-start; }   /* 1.5: صف فيه «على المحك»: الأسماء على خط واحد */
     /* 6.9 — بطاقة البطل الموحدة: محتوى متمركز بتسلسل القراءة، وعرضها على قدر محتواها */
     .st-last.kc { display: block; width: 100%; max-width: 520px; margin-inline: auto; padding: 20px 20px 16px; text-align: center; font: inherit; }
     .kc .kc-t { font-size: 13px; font-weight: 800; color: var(--lk-gold); line-height: 1.5; }
@@ -2313,6 +2321,9 @@
     .vm-h2h { display: grid; grid-template-columns: 1fr auto 1fr; align-items: center; text-align: center; }
     .vm-h2h b { font-size: 26px; font-weight: 800; color: var(--text); font-variant-numeric: tabular-nums; }
     .vm-h2h span { font-size: var(--fs-xs); font-weight: 700; color: var(--text-2); }
+    .vm-stake h4 { display: flex; align-items: center; justify-content: center; gap: 6px; color: var(--gold-deep); }
+    .vm-stake h4 .ic { width: 15px; height: 15px; margin: 0; }
+    .vm-stake p { margin: 4px 0 0; text-align: center; font-size: var(--fs-base); font-weight: 700; color: var(--text); line-height: 1.6; text-wrap: balance; }
     .vm-last { margin-top: 8px; text-align: center; font-size: var(--fs-xs); font-weight: 700; color: var(--text-2); }
     /* ===== المراكز: كل الصفوف بنفس التصميم (بلا دوائر ولا خلفيات أو إطارات ملونة)، والتمييز الوحيد رقم «1» بذهبي مميز ===== */
     :root { --rk1: #B8892E; }
@@ -3248,6 +3259,9 @@
     /* القوائم المجمعة: إطار واحد وفواصل رفيعة (المسيرة، المواجهات، الشركاء) */
     .pf-group { border: 1px solid var(--line); border-radius: 16px; overflow: hidden; background: var(--surface-2); }
     /* 1.1 — «الهدف القادم»: صف لكل هدف (الاسم وسطره المرجعي يمينًا ← المتبقي رقمًا بارزًا يسارًا ← شريط تقدم رفيع بعرض الصف) */
+    .cr-th { margin-top: 16px; }
+    .cr-th h5 { display: flex; align-items: center; gap: 6px; margin: 0 0 8px; font-size: var(--fs-sm); font-weight: 800; color: var(--text); }
+    .cr-th h5 .ic { width: 15px; height: 15px; margin: 0; color: var(--gold-deep); }
     .ng-list { border: 1px solid var(--line); border-radius: 16px; overflow: hidden; background: var(--surface-2); }
     .ng-list > * + * { border-top: 1px solid var(--line); }
     .ng { display: grid; grid-template-columns: minmax(0, 1fr) auto; align-items: center; column-gap: 12px; row-gap: 8px; padding: 12px; }
@@ -7163,7 +7177,10 @@ currentScoreWinnerName = null;
                         </div>
                     </div>
                 `;
-          if (isPlayable && !match.winner && !String(match.team1).includes('Bye') && !String(match.team2).includes('Bye')) vsDecorate(matchDiv);
+          if (isPlayable && !match.winner && !String(match.team1).includes('Bye') && !String(match.team2).includes('Bye')) {
+            const mem = t => currentMode === 'single' ? [t] : String(getDisplayTeamName(t)).split(' + ').map(x => x.trim()).filter(Boolean);
+            vsDecorate(matchDiv, { mA: mem(match.team1), mB: mem(match.team2), mode: currentMode === 'single' ? 'single' : 'team', final: !!(isFinalMatch(match) && !match.nextMatchId) });
+          }
           // 6.9: البطاقة كلها زر واحد — الضغط في أي مكان منها يفتح التسجيل (أو ورقة المباراة للاعبين)، والأسماء بلا ضغط مستقل
           const rowTaps = matchDiv.querySelectorAll('.match-body > .match-team[onclick]');
           if (rowTaps.length) {
@@ -9953,13 +9970,31 @@ function changeScore(inputId, amount){
     // بطاقة المباراة القادمة بشكل مواجهة: الطرفان متقابلان وبينهما «ضد» (الأسماء فقط؛ التقييم والفرص في نافذة المباراة عند الضغط).
     // البطاقة العريضة: الطرفان جنبًا إلى جنب؛ الضيقة (جدول خروج المغلوب على الهاتف): فوق بعض وبينهما فاصل «ضد».
     // الأسماء تبقى أول عنصر في صفها (يعتمد عليه تمييز «أنا» في صفحة اللاعبين)، والضغط كما هو.
-    function vsDecorate(card) {
+    function vsDecorate(card, sx) {
       const rows = card.querySelectorAll('.match-body > .match-team');
       if (rows.length !== 2) return card;
       card.classList.add('vs');
       rows[0].insertAdjacentHTML('afterend', '<div class="vs-sep" aria-hidden="true"><span><i class="tx">ضد</i></span></div>');
+      // 1.5 — «على المحك»: سطر هادئ أسفل البطاقة حين تحسم المباراة إنجازًا (وسامًا أو رقمًا قياسيًا) لأحد الطرفين
+      if (sx) { let st = []; try { st = matchStakes(sx.mA, sx.mB, sx); } catch (e) {}
+        if (st.length) {
+          const esc = x => String(x == null ? '' : x).replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
+          card.classList.add('has-stake');
+          card.querySelector('.match-body').insertAdjacentHTML('afterend', `<div class="mc-stake"><span class="lb"><span class="ic ic-medal" aria-hidden="true"></span>على المحك</span>`
+            + `<span class="it">${st.map(x => `<span><bdi>${esc(x.who)}</bdi> · ${esc(x.rec ? 'رقم ' + x.t : x.t)}</span>`).join('')}</span></div>`);
+          card.setAttribute('aria-description', 'على المحك: ' + st.map(stakeSentence).join('، '));
+          queueStakeRows();
+        } }
       return card;
     }
+    // بطاقة «على المحك» أطول من جاراتها: بطاقات صفّها نفسه تُثبَّت محتواها أعلى (بدل التوسيط) فتبقى الأسماء على خط واحد عبر الصف.
+    // يُعاد عند كل رسم وعند تغيّر العرض (عدد الأعمدة).
+    let __stakeRowsQ = 0;
+    function queueStakeRows() { if (__stakeRowsQ) return; __stakeRowsQ = requestAnimationFrame(() => { __stakeRowsQ = 0;
+      document.querySelectorAll('.match-card.vs.row-stake').forEach(c => c.classList.remove('row-stake'));
+      document.querySelectorAll('.match-card.has-stake').forEach(sc => { const top = sc.offsetTop; if (!sc.parentElement) return;
+        [...sc.parentElement.children].forEach(c => { if (c.classList.contains('match-card') && Math.abs(c.offsetTop - top) < 2) c.classList.add('row-stake'); }); }); }); }
+    window.addEventListener('resize', () => { if (document.querySelector('.match-card.has-stake')) queueStakeRows(); });
     function createLeagueMatchCard(m) {
       const done = isLeagueMatchCompleted(m), annul = isLeagueMatchAnnulled(m);
       const d = done && !annul ? deriveLeagueResult(m.scoreA, m.scoreB) : null;
@@ -9989,7 +10024,7 @@ function changeScore(inputId, amount){
           ${row(m.playerB, done && !annul ? m.scoreB : null, !!d && d.result === 'B', 'B')}
         </div>`;
 
-      if (!done && !annul) vsDecorate(card);
+      if (!done && !annul) vsDecorate(card, { mA: [m.playerA], mB: [m.playerB], mode: 'league', final: false, id: m.id });
       const go = () => { if (annul && !done && !window.CARROM_VIEW) { uiToast(`مباراة ملغاة: ${leagueExcluded.find(n => n === m.playerA || n === m.playerB)} مستبعد من الدوري`, 'warn'); return; } openLeagueScoreModal(m.id); };
       card.addEventListener('click', go);
       card.addEventListener('keydown', e => {
@@ -11805,7 +11840,8 @@ function buildLeagueStandingsCanvas() {
     // الترتيب بالقرب: تقدير بعدد الانتصارات اللازمة (اللقب ≈ بطولة كاملة، ونقاط التقييم ≈ 12 للفوز)، والأبعد من حدّ معقول لا يظهر.
     // المستويات (النخبة والأسطورة) خارجها: شريط التقدم في رأس الملف و«أين أنا» يغطيانها. النصوص محايدة فتصلح للملف و«صفحتي» معًا.
     // personal: المحطات الشخصية («صفحتي» فقط). الملف يراه الجميع، فيعرض مطاردة الأوسمة والأرقام القياسية وحدها، ويختفي إن لم يقترب من شيء منها.
-    function playerNextGoals(p, stats, C, recs, personal) {
+    // 1.5: كل المرشحين بلا تصفية (منها تُبنى «الهدف القادم» و«على المحك» و«أرقام مهددة» بقاعدة واحدة)
+    function goalCandidates(p, stats, C, recs, personal) {
       if (!p || !p.games) return [];
       const by = (stats && stats.titlesBy) || {}, G = [], nf = n => Number(n).toLocaleString('en-US');
       const titles = (C.titles || []).length, curW = p.streak && p.streak.type === 'w' ? p.streak.len : 0;
@@ -11825,13 +11861,14 @@ function buildLeagueStandingsCanvas() {
       if ((p.bestWin || 0) < 20 && half(curW, 20)) add('storm', D.storm.name, 'وسام', curW, 20, arWinsW, 1.3, 'متتالية');
       if ((by.league || 0) >= 1 && by.league < 5) add('king', D.king.name, 'وسام', by.league, 5, n => n === 1 ? 'لقب دوري' : n === 2 ? 'لقبا دوري' : 'ألقاب دوري', 15);
       const kinds = [['single', 'الفردي'], ['team', 'الفرق'], ['league', 'الدوري']], miss = kinds.filter(([k]) => !by[k]);
-      if (miss.length === 1) add('all', D.all.name, 'وسام', 2, 3, () => `لقب ${miss[0][1]}`, miss[0][0] === 'league' ? 15 : 5);
+      if (miss.length === 1) { add('all', D.all.name, 'وسام', 2, 3, () => `لقب ${miss[0][1]}`, miss[0][0] === 'league' ? 15 : 5); G[G.length - 1].missKind = miss[0][0]; }
       { const duo = {}; (C.titles || []).forEach(x => { const t = x.t; if (!t || t.mode === 'single' || t.mode === 'league') return; historyMembers(t, t.champion).forEach(m => { if (m !== p.name) duo[m] = (duo[m] || 0) + 1; }); });
         const best = Object.entries(duo).sort((a, b) => b[1] - a[1])[0];
-        if (best && best[1] === 1) add('duo', D.duo.name, 'وسام', 1, 2, () => 'لقب', 5, `مع ${best[0]}`); }
+        if (best && best[1] === 1) { add('duo', D.duo.name, 'وسام', 1, 2, () => 'لقب', 5, `مع ${best[0]}`); G[G.length - 1].partner = best[0]; } }
       // الأرقام القياسية (لا يملكها): الحالي ← القيمة التي تكسرها
       const R = Object.fromEntries((recs || []).map(r => [r.k, r]));
-      const rec = (k, cur, unit, w, tail) => { const r = R[k]; if (!r || r.holders.includes(p.name) || cur <= 0) return; add('r-' + k, r.label, 'رقم قياسي', cur, r.v + 1, unit, w, tail); };
+      // الشريك في الرقم يطارده أيضًا (تجاوزه بواحد يجعله صاحبه وحده)؛ صاحبه الوحيد لا يُعرض
+      const rec = (k, cur, unit, w, tail) => { const r = R[k]; if (!r || (r.holders.length === 1 && r.holders[0] === p.name) || cur <= 0) return; const n0 = G.length; add('r-' + k, r.label, 'رقم قياسي', cur, r.v + 1, unit, w, tail); if (G.length > n0) Object.assign(G[G.length - 1], { recK: k, recV: r.v, recTxt: r.txt, holders: r.holders }); };
       rec('wtot', p.w, arWinsW, 1);
       rec('ttot', titles, arTitlesW, 5);
       rec('clean', C.clean || 0, arWinsW, 1.6);
@@ -11845,9 +11882,49 @@ function buildLeagueStandingsCanvas() {
       if (wm && !(wm === 100)) add('m-w', `${wm} ${arWinsW(wm)}`, 'محطة', p.w, wm, arWinsW, 1);
       const tm = nextMark(titles, [1, 5, 10, 15, 25, 30, 40, 50]);
       if (tm && titles) add('m-t', `${tm} ${arTitlesW(tm)}`, 'محطة', titles, tm, arTitlesW, 5);
-      // الأقرب أولًا، بحد أقصى ثلاثة، ولا يُعرض ما يبعد كثيرًا (لا هدف يُحبط)
-      return G.filter(g => g.est <= 20).sort((a, b) => a.est - b.est || b.pct - a.pct).slice(0, 3);
+      return G;
     }
+    // الأقرب أولًا، بحد أقصى ثلاثة، ولا يُعرض ما يبعد كثيرًا (لا هدف يُحبط)
+    function playerNextGoals(p, stats, C, recs, personal) {
+      return goalCandidates(p, stats, C, recs, personal).filter(g => g.est <= 20).sort((a, b) => a.est - b.est || b.pct - a.pct).slice(0, 3);
+    }
+    // ===== 1.5 — «على المحك» و«أرقام مهددة» (قراءة فقط): محسوبة مرة لكل تغيّر في النتائج، ومنها تقرأ البطاقات والأوراق والجدول =====
+    const TITLE_GOALS = new Set(['club20', 'treble', 'all', 'duo', 'king', 'r-ttot', 'r-titles']);
+    let __stakesMemo = null;
+    function stakesData() {
+      let sig = ''; try { sig = (leagueMatches || []).map(m => isLeagueMatchCompleted(m) ? m.scoreA + '-' + m.scoreB : '.').join('') + '|' + Object.values(bracketState || {}).map(m => m.winner ? m.winner + m.winnerScore + m.loserScore : '.').join('') + '|' + statsSourceRecords().length; } catch (e) {}
+      if (__stakesMemo && __stakesMemo.sig === sig) return __stakesMemo;
+      const by = {}, threats = {}, nextLg = {};
+      try {
+        // الدوري: «على المحك» على أقرب مباراة متبقية لكل لاعب فقط (أقدم جولة)، فهي التي تحسمه؛ لا يتكرر على كل مبارياته
+        (leagueMatches || []).filter(m => !isLeagueMatchSettled(m)).sort((a, b) => a.round - b.round || String(a.id).localeCompare(String(b.id), 'en', { numeric: true }))
+          .forEach(m => [m.playerA, m.playerB].forEach(n => { if (!nextLg[n]) nextLg[n] = m.id; }));
+        const elo = computePlayerRatings(), recs = councilRecords(), SP = getStatsData().players || {};
+        elo.ranked.filter(p => p.games).forEach(p => {
+          const G = goalCandidates(p, SP[p.name] || {}, playerCareer(p.name, p), recs, false);
+          by[p.name] = G.filter(g => g.need === 1);   // ما تحسمه مباراة واحدة
+          // أرقام مهددة: انتصارات أو مباريات ≤ 3 تقريبًا، أو لقب واحد، أو نقاط تقييم ≤ فوزين
+          G.filter(g => g.recK && (TITLE_GOALS.has(g.k) ? g.need === 1 : g.est <= 3)).forEach(g => { (threats[g.recK] || (threats[g.recK] = [])).push(Object.assign({ name: p.name }, g)); });
+        });
+      } catch (e) { console.error(e); }
+      return (__stakesMemo = { sig, by, threats, nextLg });
+    }
+    // ما على المحك في مباراة قادمة: لكل لاعب في الطرفين، ما يحسمه الفوز بها. ctx: { final, mode: 'league'|'single'|'team', partners }
+    function matchStakes(mA, mB, ctx) {
+      const SD = stakesData(), D = SD.by, out = [], lg = ctx.mode === 'league';
+      const side = (members, mates) => members.forEach(n => (lg && ctx.id && SD.nextLg[n] !== ctx.id ? [] : D[n] || []).forEach(g => {
+        if (TITLE_GOALS.has(g.k)) {   // اللقب لا يُحسم إلا في نهائي الفردي والفرق
+          if (!ctx.final || lg || g.k === 'king') return;
+          if (g.k === 'all' && g.missKind !== ctx.mode) return;
+          if (g.k === 'duo' && !mates.includes(g.partner)) return;
+        }
+        const how = TITLE_GOALS.has(g.k) ? 'التتويج باللقب' : g.k === 'r-clean' ? 'فوز نظيف' : g.k === 'r-unb' && lg ? 'فوز أو تعادل' : 'فوز';
+        out.push({ who: n, t: g.t, rec: !!g.recK, recTxt: g.recTxt, how });
+      }));
+      side(mA, mA); side(mB, mB);
+      return out;
+    }
+    function stakeSentence(x) { return x.rec ? `${x.how} يكسر به ${x.who} رقم «${x.t}»` : `${x.how} يمنح ${x.who} «${x.t}»`; }
     function nextGoalsHTML(goals, H) {
       if (!goals.length) return '';
       return `<div class="ng-list">${goals.map(g => `<div class="ng"><span class="t"><b>${H(g.t)}</b><small>${H(g.sub)}</small></span>`
@@ -11967,7 +12044,18 @@ function buildLeagueStandingsCanvas() {
       const who = h => h.length === 1 ? escHTML(h[0]) : h.length === 2 ? `${escHTML(h[0])} و${escHTML(h[1])}` : `${escHTML(h[0])} و${h.length - 1} آخرون`;
       return `<div class="stats-section cr"><h4><span class="ic ic-star" aria-hidden="true"></span>أرقام المجلس القياسية</h4>
         <div class="cr-grid">${R.map(r => `<div class="cr-c"><span class="rc-t">${r.label}</span>${recValueHTML(r.txt, escHTML)}<span class="rc-low"><span class="rc-h">${who(r.holders)}</span>` +
-          `${r.cur ? '<span class="cr-tag">مستمرة</span>' : r.live ? '<span class="rc-s">البطولة الجارية</span>' : r.date ? `<span class="rc-s">${fmtDayDate(r.date)}</span>` : ''}</span></div>`).join('')}</div></div>`;
+          `${r.cur ? '<span class="cr-tag">مستمرة</span>' : r.live ? '<span class="rc-s">البطولة الجارية</span>' : r.date ? `<span class="rc-s">${fmtDayDate(r.date)}</span>` : ''}</span></div>`).join('')}</div>${recordThreatsHTML(R)}</div>`;
+    }
+    // 1.5 — «أرقام مهددة»: تحت الجدول، لكل رقم يقترب منه أحد: الرقم ← المطارد وقيمة الرقم ← المتبقي لكسره رقمًا ذهبيًا ← شريط التقدم.
+    // نفس صف «الهدف القادم» (هوية واحدة). المطارد: الأقرب (ومن يتساوى معه)، والأقرب أولًا. قراءة فقط.
+    function recordThreatsHTML(R) {
+      let T = {}; try { T = stakesData().threats; } catch (e) { return ''; }
+      const rows = R.map(r => { const L = (T[r.k] || []).slice().sort((a, b) => a.need - b.need || b.pct - a.pct); if (!L.length) return null;
+        const best = L[0], tied = L.filter(x => x.need === best.need).map(x => x.name);
+        const who = tied.length === 1 ? `المطارد: ${tied[0]}` : tied.length === 2 ? `المطاردان: ${tied[0]} و${tied[1]}` : `المطاردون: ${tied[0]} و${tied.length - 1} آخرون`;
+        return { t: r.label, sub: `${who} · الرقم ${r.txt}`, need: best.need, unit: best.unit, pct: best.pct, est: best.est }; }).filter(Boolean).sort((a, b) => a.est - b.est);
+      if (!rows.length) return '';
+      return `<div class="cr-th"><h5><span class="ic ic-flag" aria-hidden="true"></span>أرقام مهددة</h5>${nextGoalsHTML(rows, escHTML)}</div>`;
     }
     const arWinsW = n => n === 1 ? 'فوز' : n === 2 ? 'فوزان' : n <= 10 ? 'انتصارات' : 'انتصارًا';
     // المستوى التالي ونسبة التقدم نحوه (نفس حساب الملف): null للأسطورة
@@ -14232,7 +14320,7 @@ function buildLeagueStandingsCanvas() {
     // ===================================
     // 🧭 سلوك التطبيق: إعادة الوضع للأعلى، تعديل العنوان بالضغط المطوّل، تنبيه التحديث، رقم الإصدار
     // ===================================
-    const APP_VERSION = '1.4';   // ترقيم الاعتماد (من 4 نوفمبر 2026): 1.0 ثم 1.1 … 1.9 ثم 2.0 — ويُرفع معه رقم الإصدار في sw.js
+    const APP_VERSION = '1.5';   // ترقيم الاعتماد (من 4 نوفمبر 2026): 1.0 ثم 1.1 … 1.9 ثم 2.0 — ويُرفع معه رقم الإصدار في sw.js
     (function setupAppBehaviors() {
       const root = document.documentElement;
 
@@ -15063,6 +15151,9 @@ function buildLeagueStandingsCanvas() {
             <div class="vm-box"><h4>فرص الفوز حسب التقييم</h4><div class="vm-prob"><span><bdi dir="ltr">${pa}%</bdi></span><span><bdi dir="ltr">${pb}%</bdi></span></div>
             <div class="vm-bar"><i class="${pa >= pb ? 'fav' : 'dog'}" style="width:${pa}%"></i><i class="${pb > pa ? 'fav' : 'dog'}" style="width:${pb}%"></i></div></div>`;
         }
+        // 1.5 — «على المحك» في ورقة المباراة القادمة: جملة كاملة لكل إنجاز تحسمه
+        if (!o.done && !o.void) { let sk = []; try { sk = matchStakes(o.mA, o.mB, { mode: o.lg ? 'league' : currentMode === 'single' ? 'single' : 'team', final: !!o.final, id: o.id }); } catch (e) {}
+          if (sk.length) h += `<div class="vm-box vm-stake"><h4><span class="ic ic-medal" aria-hidden="true"></span>على المحك</h4>${sk.map(x => `<p>${esc(stakeSentence(x))}</p>`).join('')}</div>`; }
         if (st) {
           const x = st.h;
           h += '<div class="vm-box"><h4>المواجهات السابقة</h4>' + (x.total
