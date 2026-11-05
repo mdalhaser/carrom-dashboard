@@ -2166,10 +2166,12 @@
     .vday-r:active { background: var(--surface-2); }
     .vday-r .rd { justify-self: start; display: grid; place-items: center; width: 32px; height: 24px; padding: 0; border-radius: 999px; background: var(--surface-2); font-size: 12px; font-weight: 800; color: var(--text-2); font-variant-numeric: tabular-nums; }
     .vday-r.latest .rd { background: var(--surface); }
-    .vday-r .nm { min-width: 0; font-size: 15px; font-weight: 700; color: var(--text); line-height: 1.35; }
+    .vday-r .nm { min-width: 0; font-size: 15px; font-weight: 700; color: var(--text-3); line-height: 1.35; }
+    .vday-r .nm.w { color: var(--text); }   /* 1.3: التمييز باللون فقط، بنفس الوزن (هوية صفوف المسار وصور التصدير) */
     .vday-r .nm:nth-of-type(2) { text-align: end; }   /* الأول: ملتصق بالنتيجة من جهتها */
     .vday-r .nm:last-child { text-align: start; }      /* الثاني: ملتصق بالنتيجة من جهتها */
-    .vday-r .nm.me { color: var(--gold-deep); }
+    .vday-r .nm.me { color: color-mix(in srgb, var(--gold-deep) 45%, var(--text-3)); }   /* «أنا» يبقى ذهبيًا: كاملًا إن فاز، ورماديًا مذهّبًا إن خسر (مقروء في الوضعين) */
+    .vday-r .nm.me.w { color: var(--gold-deep); }
     .vday-r.void .nm, .vday-r.void .sc { color: var(--text-3); }
     .vday-r .sc.void-tx { font-size: 12px; font-weight: 800; letter-spacing: 0; }
     .vday-r .nm .ffl { display: block; font-size: 11px; font-weight: 700; color: var(--text-3); line-height: 1.3; }
@@ -14171,7 +14173,7 @@ function buildLeagueStandingsCanvas() {
     // ===================================
     // 🧭 سلوك التطبيق: إعادة الوضع للأعلى، تعديل العنوان بالضغط المطوّل، تنبيه التحديث، رقم الإصدار
     // ===================================
-    const APP_VERSION = '1.2';   // ترقيم الاعتماد (من 4 نوفمبر 2026): 1.0 ثم 1.1 … 1.9 ثم 2.0 — ويُرفع معه رقم الإصدار في sw.js
+    const APP_VERSION = '1.3';   // ترقيم الاعتماد (من 4 نوفمبر 2026): 1.0 ثم 1.1 … 1.9 ثم 2.0 — ويُرفع معه رقم الإصدار في sw.js
     (function setupAppBehaviors() {
       const root = document.documentElement;
 
@@ -14849,10 +14851,12 @@ function buildLeagueStandingsCanvas() {
         const hasNew = k => matchesOf(k).some(m => fresh.has(sigOf(m)));
         const short = k => { const [, mo, d] = k.split('-'); return `${d}.${mo}`; };   // شريط أيام اللعب مختصر عمدًا (مستثنى من قاعدة اليوم مع التاريخ؛ التاريخ الكامل في رأس البطاقة)
         const countTxt = n => n === 1 ? 'مباراة واحدة' : n === 2 ? 'مباراتان' : n <= 10 ? `${n} مباريات` : `${n} مباراة`;
-        const nm = (name, tag) => `<span class="nm${me0 && name === me0 ? ' me' : ''}">${esc(name)}${tag ? `<small class="ffl">${tag}</small>` : ''}</span>`;
+        const nm = (name, tag, w) => `<span class="nm${w ? ' w' : ''}${me0 && name === me0 ? ' me' : ''}">${esc(name)}${tag ? `<small class="ffl">${tag}</small>` : ''}</span>`;
+        // 1.3: الفائز بلون النص والخاسر بالرمادي الهادئ، بنفس الحجم والوزن (مثل صفوف المسار في ورقة البطولة وصور التصدير)؛ التعادل: الاسمان فائزان
+        const won = (m, side) => { const a = Number(m.scoreA), b = Number(m.scoreB); return side === 'A' ? a >= b : b >= a; };
         const ffTag = (m, side) => isLeagueMatchAnnulled(m) ? (leagueIsExcluded(side === 'A' ? m.playerA : m.playerB) ? 'مستبعد' : '') : m.forfeit === side ? (m.auto ? 'مستبعد' : 'انسحب') : '';
         const rowsHTML = list => list.map((m, i) => `<button type="button" class="vday-r${i === 0 ? ' latest' : ''}${isLeagueMatchAnnulled(m) ? ' void' : ''}" data-id="${esc(m.id)}" aria-label="الجولة ${m.round}: ${esc(m.playerA)} ${isLeagueMatchAnnulled(m) ? 'ضد' : m.scoreA + ' مقابل ' + m.scoreB} ${esc(m.playerB)}${isLeagueMatchAnnulled(m) ? ' (ملغاة)' : ''}">
-              <span class="rd">ج${m.round}</span>${nm(m.playerA, ffTag(m, 'A'))}${isLeagueMatchAnnulled(m) ? '<span class="sc void-tx">ملغاة</span>' : `<span class="sc"><span>${m.scoreA}</span><span class="dash">-</span><span>${m.scoreB}</span></span>`}${nm(m.playerB, ffTag(m, 'B'))}</button>`).join('');
+              <span class="rd">ج${m.round}</span>${nm(m.playerA, ffTag(m, 'A'), !isLeagueMatchAnnulled(m) && won(m, 'A'))}${isLeagueMatchAnnulled(m) ? '<span class="sc void-tx">ملغاة</span>' : `<span class="sc"><span>${m.scoreA}</span><span class="dash">-</span><span>${m.scoreB}</span></span>`}${nm(m.playerB, ffTag(m, 'B'), !isLeagueMatchAnnulled(m) && won(m, 'B'))}</button>`).join('');
         // الإدارة: مطوية دائمًا (أداة مراجعة لا تزاحم «الحاضرون الليلة») · عند إعادة البناء تبقى حالتها واليوم المختار
         let sel = keep && keep.sel && days.has(keep.sel) && keep.sel !== keep.latest ? keep.sel : latest;   // من كان على أحدث يوم ينتقل مع اليوم الجديد
         const startOpen = keep ? keep.open : !admin && latest === todayKey;
