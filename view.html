@@ -3061,7 +3061,7 @@
     @media (prefers-reduced-motion: reduce) { #statsModal .st-tabs::before { transition: none; } }
     /* ===== «الحاضرون الليلة» (الإدارة): بطاقة بنفس هوية «لاعبو الدوري» — سطر ملخص قابل للفتح، أسماء للاختيار، ثم المباريات المتاحة ===== */
     #leagueTonight { display: none; }
-    body.lg-focus #leagueTonight:not([hidden]) { display: block; margin: 0 0 var(--s3); padding: 2px 16px; border-radius: 22px; border: 1px solid var(--line); background: var(--surface); box-shadow: var(--sh-1); }
+    body.lg-focus #leagueTonight:not([hidden]) { display: block; margin: 0;   /* المسافة من فجوة العمود الموحدة (16) */ padding: 2px 16px; border-radius: 22px; border: 1px solid var(--line); background: var(--surface); box-shadow: var(--sh-1); }
     html.view-mode #leagueTonight, body.lg-focus #leagueMainPanel[data-tab="standings"] #leagueTonight { display: none !important; }
     .tn-sum { display: flex; align-items: center; gap: 12px; width: 100%; min-height: 52px; padding: 0 2px; margin: 0; border: 0; background: none; font: inherit; color: var(--text); text-align: start; cursor: pointer; -webkit-tap-highlight-color: transparent; }
     .tn-sum > .ic { width: 18px; height: 18px; flex: none; color: var(--gold-deep); }
@@ -14198,7 +14198,7 @@ function buildLeagueStandingsCanvas() {
     // ===================================
     // 🧭 سلوك التطبيق: إعادة الوضع للأعلى، تعديل العنوان بالضغط المطوّل، تنبيه التحديث، رقم الإصدار
     // ===================================
-    const APP_VERSION = '1.1';   // ترقيم الاعتماد (من 4 نوفمبر 2026): 1.0 ثم 1.1 … 1.9 ثم 2.0 — ويُرفع معه رقم الإصدار في sw.js
+    const APP_VERSION = '1.2';   // ترقيم الاعتماد (من 4 نوفمبر 2026): 1.0 ثم 1.1 … 1.9 ثم 2.0 — ويُرفع معه رقم الإصدار في sw.js
     (function setupAppBehaviors() {
       const root = document.documentElement;
 
@@ -14854,6 +14854,108 @@ function buildLeagueStandingsCanvas() {
       const _sl = saveLeagueMatchResult; saveLeagueMatchResult = function () { const r = _sl.apply(this, arguments); setTimeout(check, 60); return r; };
     })();
 
+    // ===== «آخر يوم لعب / نتائج اليوم» (6.x، والإدارة من 1.2): مباريات الدوري حسب يوم اللعب، الأحدث أولًا =====
+    // بطاقة واحدة للنسختين. اللاعبون: أول بطاقة في العمود الرئيسي، مفتوحة إن كان اليوم يوم لعب. الإدارة: بعد «الحاضرون الليلة»
+    // وقبل الجولات، مطوية دائمًا، ولمس الصف يفتح نافذة تعديل النتيجة نفسها. قراءة فقط: لا تغيّر الجدول ولا السجل ولا التخزين.
+    function playDayLog() { try { return readMatchLog().filter(e => e.k === 'lg' && matchLogStillValid(e)); } catch (e) { return []; } }
+    function mountPlayDay(admin, keep) {
+
+        const host = document.querySelector('#leagueMainPanel .lv-main'); if (!host) return null;
+        const esc = x => String(x == null ? '' : x).replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
+        let me0 = null; if (!admin) try { me0 = (JSON.parse(localStorage.getItem('__carrom_me_v1') || 'null') || {}).name || null; } catch (e) {}   // «أنا» للاعبين فقط
+        const log = playDayLog();
+        if (!log.length) return null;   // لا نتائج مسجلة بوقت: لا بطاقة أصلًا
+        // أيام اللعب: لكل يوم مبارياته (سجل واحد لكل مباراة = آخر حفظ لها)، والأحدث أولًا داخل اليوم
+        const byId = new Map(); log.slice().sort((a, b) => a.at - b.at).forEach(e => byId.set(e.id, e));
+        const days = new Map(); byId.forEach(e => { const k = nightKeyOf(e.at); if (!days.has(k)) days.set(k, []); days.get(k).push(e); });
+        const keys = [...days.keys()].sort();   // الأقدم أولًا (يمين الشريط في RTL)
+        const todayKey = nightKeyOf(Date.now()), latest = keys[keys.length - 1];
+        const fresh = window.__carromFresh || new Set();
+        const sigOf = m => `lg|${m.id}|${m.playerA}|${m.playerB}|${m.scoreA}|${m.scoreB}`;
+        const matchesOf = k => days.get(k).slice().sort((a, b) => b.at - a.at).map(e => leagueMatches.find(m => m.id === e.id)).filter(Boolean);
+        const hasNew = k => matchesOf(k).some(m => fresh.has(sigOf(m)));
+        const short = k => { const [, mo, d] = k.split('-'); return `${d}.${mo}`; };   // شريط أيام اللعب مختصر عمدًا (مستثنى من قاعدة اليوم مع التاريخ؛ التاريخ الكامل في رأس البطاقة)
+        const countTxt = n => n === 1 ? 'مباراة واحدة' : n === 2 ? 'مباراتان' : n <= 10 ? `${n} مباريات` : `${n} مباراة`;
+        const nm = (name, tag) => `<span class="nm${me0 && name === me0 ? ' me' : ''}">${esc(name)}${tag ? `<small class="ffl">${tag}</small>` : ''}</span>`;
+        const ffTag = (m, side) => isLeagueMatchAnnulled(m) ? (leagueIsExcluded(side === 'A' ? m.playerA : m.playerB) ? 'مستبعد' : '') : m.forfeit === side ? (m.auto ? 'مستبعد' : 'انسحب') : '';
+        const rowsHTML = list => list.map((m, i) => `<button type="button" class="vday-r${i === 0 ? ' latest' : ''}${isLeagueMatchAnnulled(m) ? ' void' : ''}" data-id="${esc(m.id)}" aria-label="الجولة ${m.round}: ${esc(m.playerA)} ${isLeagueMatchAnnulled(m) ? 'ضد' : m.scoreA + ' مقابل ' + m.scoreB} ${esc(m.playerB)}${isLeagueMatchAnnulled(m) ? ' (ملغاة)' : ''}">
+              <span class="rd">ج${m.round}</span>${nm(m.playerA, ffTag(m, 'A'))}${isLeagueMatchAnnulled(m) ? '<span class="sc void-tx">ملغاة</span>' : `<span class="sc"><span>${m.scoreA}</span><span class="dash">-</span><span>${m.scoreB}</span></span>`}${nm(m.playerB, ffTag(m, 'B'))}</button>`).join('');
+        // الإدارة: مطوية دائمًا (أداة مراجعة لا تزاحم «الحاضرون الليلة») · عند إعادة البناء تبقى حالتها واليوم المختار
+        let sel = keep && keep.sel && days.has(keep.sel) && keep.sel !== keep.latest ? keep.sel : latest;   // من كان على أحدث يوم ينتقل مع اليوم الجديد
+        const startOpen = keep ? keep.open : !admin && latest === todayKey;
+        const box = document.createElement('section'); box.className = 'vday' + (startOpen ? ' open' : ''); box.id = 'viewPlayDay';
+        box.innerHTML = `<button type="button" class="vday-h" aria-expanded="${startOpen}"><span class="ttl"><b></b><small></small></span><span class="meta"></span>
+            <svg class="chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m6 9 6 6 6-6"/></svg></button>
+          <div class="vday-b"><div class="in">${keys.length > 1 ? `<div class="vday-days" role="tablist" aria-label="أيام اللعب">${keys.map(k => `<button type="button" role="tab" class="vday-d${hasNew(k) ? ' has-new' : ''}" data-k="${k}" aria-label="${esc(nightLabel(k))}"><span class="tx">${short(k)}</span></button>`).join('')}</div>` : ''}<div class="vday-list"></div></div></div>`;
+        if (keep && keep.box && keep.box.parentNode) keep.box.replaceWith(box);
+        else if (admin) { const rounds = document.getElementById('leagueRounds'); if (rounds && rounds.parentNode === host) host.insertBefore(box, rounds); else host.appendChild(box); }   // بعد «الحاضرون الليلة» وقبل الجولات
+        else host.prepend(box);
+        const h = box.querySelector('.vday-h'), list = box.querySelector('.vday-list'), strip = box.querySelector('.vday-days');
+        const reduce = () => window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches;
+        function paint(dir) {
+          const ms = matchesOf(sel);
+          h.querySelector('b').textContent = sel === todayKey ? 'نتائج اليوم' : sel === latest ? 'آخر يوم لعب' : 'يوم لعب';
+          const sm = h.querySelector('small'); sm.textContent = sel === todayKey ? '' : nightLabel(sel); sm.hidden = sel === todayKey;
+          h.querySelector('.meta').textContent = countTxt(ms.length);
+          list.innerHTML = rowsHTML(ms);
+          list.querySelectorAll('.vday-r').forEach(b => b.addEventListener('click', () => openLeagueScoreModal(b.dataset.id)));
+          if (strip) {
+            strip.querySelectorAll('.vday-d').forEach(d => { const on = d.dataset.k === sel; d.classList.toggle('active', on); d.setAttribute('aria-selected', String(on)); });
+            requestAnimationFrame(() => centerDay(dir && !reduce()));
+          }
+          if (dir && !reduce()) { list.style.setProperty('--dx', (dir > 0 ? -22 : 22) + 'px'); list.classList.remove('lg-enter'); void list.offsetWidth; list.classList.add('lg-enter'); }
+        }
+        // شريط الأيام: اليوم المختار في المنتصف (لا يُقاس والبطاقة مطوية، فيُضبط أيضًا لحظة الفتح قبل الحركة)
+        function centerDay(smooth) {
+          const a = strip && strip.querySelector('.vday-d.active'); if (!a || !strip.clientWidth) return;
+          strip.scrollTo({ left: a.offsetLeft - (strip.clientWidth - a.offsetWidth) / 2, behavior: smooth ? 'smooth' : 'auto' });
+        }
+        // الفتح والإغلاق بحركة الطي الموحدة (foldMotion)؛ المحتوى جاهز مسبقًا فلا يُعاد بناؤه عند الفتح
+        const bodyEl = box.querySelector('.vday-b');
+        function toggleDay(o) { foldMotion(box, 'open', o, bodyEl); h.setAttribute('aria-expanded', String(o)); if (o) centerDay(false); }
+        h.addEventListener('click', () => toggleDay(!box.classList.contains('open')));
+        if (strip) strip.addEventListener('click', e => { const d = e.target.closest('.vday-d'); if (!d || d.dataset.k === sel) return;
+          const dir = d.dataset.k > sel ? 1 : -1; sel = d.dataset.k; paint(dir); });   // الأحدث يسارًا: الانتقال إليه يدخل من اليسار
+        paint(0);
+        box.__pd = () => ({ open: box.classList.contains('open'), sel, latest, box });   // لإعادة البناء في الإدارة دون فقد الحالة
+        // 7.9 — الكمبيوتر: أول بطاقتين بارتفاع واحد مهما كان محتواهما (مثل «من أنت؟» بسطرين). رأس «آخر يوم لعب» يأخذ ارتفاع بطاقة «أنا» أو العكس؛
+        // القائمة المفتوحة تمتد تحت الرأس كما هي. عرض فقط، والجوال لا يتأثر.
+        const wide = window.matchMedia && matchMedia('(min-width: 960px)');
+        function syncHead() {
+          const mc = document.getElementById('viewMeCard');
+          h.style.minHeight = ''; if (mc) mc.style.minHeight = '';
+          if (!wide || !wide.matches || !mc || mc.hidden || !mc.closest('.lv-side') || !box.closest('.lv-main')) return;
+          const edge = box.offsetHeight - box.clientHeight, T = Math.max(mc.offsetHeight, h.offsetHeight + edge);
+          if (h.offsetHeight + edge < T) h.style.minHeight = (T - edge) + 'px';
+          if (mc.offsetHeight < T) mc.style.minHeight = T + 'px';
+        }
+        if (!admin && wide && window.ResizeObserver) {   // بطاقة «أنا» في نسخة اللاعبين فقط
+          const ro = new ResizeObserver(() => syncHead()); ro.observe(h);
+          const mc = document.getElementById('viewMeCard'); if (mc) { ro.observe(mc); new MutationObserver(() => syncHead()).observe(mc, { childList: true, attributes: true, attributeFilter: ['class', 'hidden'] }); }
+          if (wide.addEventListener) wide.addEventListener('change', syncHead);
+        }
+            return box;
+    }
+    // 1.2 — «نتائج اليوم» في الإدارة: تُبنى عند التحميل، وتُعاد بهدوء عند أي تغيير في نتائج اليوم (حفظ، تعديل، إلغاء)
+    (function setupAdminPlayDay() {
+      if (window.CARROM_VIEW || typeof renderLeagueStandings !== 'function') return;
+      const sig = () => playDayLog().map(e => `${e.id}|${e.sa}|${e.sb}|${e.at}`).join(',');
+      let last = null;
+      const sync = () => {
+        const now = sig(); if (now === last) return; last = now;
+        const cur = document.getElementById('viewPlayDay');
+        if (cur && cur.__ff) return void (last = null);   // أثناء حركة طي: يُعاد في الاستدعاء التالي
+        const keep = cur && cur.__pd ? cur.__pd() : null;
+        const box = mountPlayDay(true, keep);
+        if (!box && cur) cur.remove();   // لم يبقَ نتائج بوقت: لا بطاقة
+      };
+      const _rs = renderLeagueStandings;
+      renderLeagueStandings = function () { const r = _rs.apply(this, arguments); try { sync(); } catch (e) { console.error(e); } return r; };
+      // وقت اللعب يُسجَّل بعد الحفظ وإعادة رسم الترتيب، فتُراجع البطاقة بعد الحفظ أيضًا
+      if (typeof saveLeagueMatchResult === 'function') { const _sv = saveLeagueMatchResult;
+        saveLeagueMatchResult = function () { const r = _sv.apply(this, arguments); try { sync(); } catch (e) { console.error(e); } return r; }; }
+      try { sync(); } catch (e) { console.error(e); }
+    })();
     // ===================================
     // 👀 صفحة المشاهدة للاعبين (view.html — تُولَّد من هذا الملف نفسه)
     // تقرأ البيانات من data.json المنشور (تخزين في الذاكرة فقط، لا يمس جهاز اللاعب)، وتخفي كل أدوات التعديل.
@@ -15188,77 +15290,8 @@ function buildLeagueStandingsCanvas() {
         // المباريات القادمة وفرصها تتغير مع تبديل القسم: نعيد الرسم بهدوء
         ['modeLeagueBtn', 'modeSingleBtn', 'modeFixedBtn'].forEach(id => { const b = document.getElementById(id); if (b) b.addEventListener('click', () => setTimeout(() => { if (me) paintMe(); else decorate(); }, 60)); });
       })();
-      // ===== «نتائج اليوم»: مباريات الدوري حسب يوم اللعب (يبدأ عند ساعة «بداية يوم اللعب») — الأحدث أولًا =====
-      (function setupPlayDay() {
-        const host = document.querySelector('#leagueMainPanel .lv-main'); if (!host) return;
-        let me0 = null; try { me0 = (JSON.parse(localStorage.getItem('__carrom_me_v1') || 'null') || {}).name || null; } catch (e) {}
-        const log = (() => { try { return readMatchLog().filter(e => e.k === 'lg' && matchLogStillValid(e)); } catch (e) { return []; } })();
-        if (!log.length) return;   // لا نتائج مسجلة بوقت: لا بطاقة أصلًا
-        // أيام اللعب: لكل يوم مبارياته (سجل واحد لكل مباراة = آخر حفظ لها)، والأحدث أولًا داخل اليوم
-        const byId = new Map(); log.slice().sort((a, b) => a.at - b.at).forEach(e => byId.set(e.id, e));
-        const days = new Map(); byId.forEach(e => { const k = nightKeyOf(e.at); if (!days.has(k)) days.set(k, []); days.get(k).push(e); });
-        const keys = [...days.keys()].sort();   // الأقدم أولًا (يمين الشريط في RTL)
-        const todayKey = nightKeyOf(Date.now()), latest = keys[keys.length - 1];
-        const fresh = window.__carromFresh || new Set();
-        const sigOf = m => `lg|${m.id}|${m.playerA}|${m.playerB}|${m.scoreA}|${m.scoreB}`;
-        const matchesOf = k => days.get(k).slice().sort((a, b) => b.at - a.at).map(e => leagueMatches.find(m => m.id === e.id)).filter(Boolean);
-        const hasNew = k => matchesOf(k).some(m => fresh.has(sigOf(m)));
-        const short = k => { const [, mo, d] = k.split('-'); return `${d}.${mo}`; };   // شريط أيام اللعب مختصر عمدًا (مستثنى من قاعدة اليوم مع التاريخ؛ التاريخ الكامل في رأس البطاقة)
-        const countTxt = n => n === 1 ? 'مباراة واحدة' : n === 2 ? 'مباراتان' : n <= 10 ? `${n} مباريات` : `${n} مباراة`;
-        const nm = (name, tag) => `<span class="nm${me0 && name === me0 ? ' me' : ''}">${esc(name)}${tag ? `<small class="ffl">${tag}</small>` : ''}</span>`;
-        const ffTag = (m, side) => isLeagueMatchAnnulled(m) ? (leagueIsExcluded(side === 'A' ? m.playerA : m.playerB) ? 'مستبعد' : '') : m.forfeit === side ? (m.auto ? 'مستبعد' : 'انسحب') : '';
-        const rowsHTML = list => list.map((m, i) => `<button type="button" class="vday-r${i === 0 ? ' latest' : ''}${isLeagueMatchAnnulled(m) ? ' void' : ''}" data-id="${esc(m.id)}" aria-label="الجولة ${m.round}: ${esc(m.playerA)} ${isLeagueMatchAnnulled(m) ? 'ضد' : m.scoreA + ' مقابل ' + m.scoreB} ${esc(m.playerB)}${isLeagueMatchAnnulled(m) ? ' (ملغاة)' : ''}">
-              <span class="rd">ج${m.round}</span>${nm(m.playerA, ffTag(m, 'A'))}${isLeagueMatchAnnulled(m) ? '<span class="sc void-tx">ملغاة</span>' : `<span class="sc"><span>${m.scoreA}</span><span class="dash">-</span><span>${m.scoreB}</span></span>`}${nm(m.playerB, ffTag(m, 'B'))}</button>`).join('');
-        let sel = latest;
-        const box = document.createElement('section'); box.className = 'vday' + (latest === todayKey ? ' open' : ''); box.id = 'viewPlayDay';
-        box.innerHTML = `<button type="button" class="vday-h" aria-expanded="${latest === todayKey}"><span class="ttl"><b></b><small></small></span><span class="meta"></span>
-            <svg class="chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m6 9 6 6 6-6"/></svg></button>
-          <div class="vday-b"><div class="in">${keys.length > 1 ? `<div class="vday-days" role="tablist" aria-label="أيام اللعب">${keys.map(k => `<button type="button" role="tab" class="vday-d${hasNew(k) ? ' has-new' : ''}" data-k="${k}" aria-label="${esc(nightLabel(k))}"><span class="tx">${short(k)}</span></button>`).join('')}</div>` : ''}<div class="vday-list"></div></div></div>`;
-        host.prepend(box);
-        const h = box.querySelector('.vday-h'), list = box.querySelector('.vday-list'), strip = box.querySelector('.vday-days');
-        const reduce = () => window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches;
-        function paint(dir) {
-          const ms = matchesOf(sel);
-          h.querySelector('b').textContent = sel === todayKey ? 'نتائج اليوم' : sel === latest ? 'آخر يوم لعب' : 'يوم لعب';
-          const sm = h.querySelector('small'); sm.textContent = sel === todayKey ? '' : nightLabel(sel); sm.hidden = sel === todayKey;
-          h.querySelector('.meta').textContent = countTxt(ms.length);
-          list.innerHTML = rowsHTML(ms);
-          list.querySelectorAll('.vday-r').forEach(b => b.addEventListener('click', () => openLeagueScoreModal(b.dataset.id)));
-          if (strip) {
-            strip.querySelectorAll('.vday-d').forEach(d => { const on = d.dataset.k === sel; d.classList.toggle('active', on); d.setAttribute('aria-selected', String(on)); });
-            requestAnimationFrame(() => centerDay(dir && !reduce()));
-          }
-          if (dir && !reduce()) { list.style.setProperty('--dx', (dir > 0 ? -22 : 22) + 'px'); list.classList.remove('lg-enter'); void list.offsetWidth; list.classList.add('lg-enter'); }
-        }
-        // شريط الأيام: اليوم المختار في المنتصف (لا يُقاس والبطاقة مطوية، فيُضبط أيضًا لحظة الفتح قبل الحركة)
-        function centerDay(smooth) {
-          const a = strip && strip.querySelector('.vday-d.active'); if (!a || !strip.clientWidth) return;
-          strip.scrollTo({ left: a.offsetLeft - (strip.clientWidth - a.offsetWidth) / 2, behavior: smooth ? 'smooth' : 'auto' });
-        }
-        // الفتح والإغلاق بحركة الطي الموحدة (foldMotion)؛ المحتوى جاهز مسبقًا فلا يُعاد بناؤه عند الفتح
-        const bodyEl = box.querySelector('.vday-b');
-        function toggleDay(o) { foldMotion(box, 'open', o, bodyEl); h.setAttribute('aria-expanded', String(o)); if (o) centerDay(false); }
-        h.addEventListener('click', () => toggleDay(!box.classList.contains('open')));
-        if (strip) strip.addEventListener('click', e => { const d = e.target.closest('.vday-d'); if (!d || d.dataset.k === sel) return;
-          const dir = d.dataset.k > sel ? 1 : -1; sel = d.dataset.k; paint(dir); });   // الأحدث يسارًا: الانتقال إليه يدخل من اليسار
-        paint(0);
-        // 7.9 — الكمبيوتر: أول بطاقتين بارتفاع واحد مهما كان محتواهما (مثل «من أنت؟» بسطرين). رأس «آخر يوم لعب» يأخذ ارتفاع بطاقة «أنا» أو العكس؛
-        // القائمة المفتوحة تمتد تحت الرأس كما هي. عرض فقط، والجوال لا يتأثر.
-        const wide = window.matchMedia && matchMedia('(min-width: 960px)');
-        function syncHead() {
-          const mc = document.getElementById('viewMeCard');
-          h.style.minHeight = ''; if (mc) mc.style.minHeight = '';
-          if (!wide || !wide.matches || !mc || mc.hidden || !mc.closest('.lv-side') || !box.closest('.lv-main')) return;
-          const edge = box.offsetHeight - box.clientHeight, T = Math.max(mc.offsetHeight, h.offsetHeight + edge);
-          if (h.offsetHeight + edge < T) h.style.minHeight = (T - edge) + 'px';
-          if (mc.offsetHeight < T) mc.style.minHeight = T + 'px';
-        }
-        if (wide && window.ResizeObserver) {
-          const ro = new ResizeObserver(() => syncHead()); ro.observe(h);
-          const mc = document.getElementById('viewMeCard'); if (mc) { ro.observe(mc); new MutationObserver(() => syncHead()).observe(mc, { childList: true, attributes: true, attributeFilter: ['class', 'hidden'] }); }
-          if (wide.addEventListener) wide.addEventListener('change', syncHead);
-        }
-      })();
+      // ===== «نتائج اليوم»: البطاقة المشتركة (mountPlayDay) — في نسخة اللاعبين مفتوحة إن كان اليوم يوم لعب =====
+      mountPlayDay(false);
       // ===== بطل الفردي/الفرق (خروج المغلوب): احتفال مرة واحدة لكل جهاز، ومن جديد إذا تغيّر البطل بتصحيح نتيجة النهائي =====
       (function setupKoChampion() {
         const KEY = '__carrom_ko_champ_seen_v1', ids = { single: 'modeSingleBtn', fixed: 'modeFixedBtn' };
