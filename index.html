@@ -3091,6 +3091,33 @@
     .tn-hint { margin: 0 2px 12px; font-size: 12px; font-weight: 700; color: var(--text-3); }   /* كلها جاهزة للتسجيل: رقم الجولة أهم من الحالة */
     .tn-sum .d { white-space: nowrap; }
     .tn-none { margin: 0; padding: 6px 0 2px; text-align: center; font-size: 13px; font-weight: 700; color: var(--text-3); }
+    /* 1.6 — طابور «الحاضرون اليوم»: «التالية» بطاقة كاملة، وما بعدها صفوف بعمود واحد تُقرأ من أعلى لأسفل.
+       نفس هيكل صفوف «آخر يوم لعب» (الخانة الأولى ← الاسم ← المنتصف ← الاسم)، مع خانة أخيرة بعرض الأولى (برق «على المحك») فيقع «ضد» على محور «التالية» تمامًا */
+    .tn-grid .tn-first .match-title .tn-r { color: var(--text-2); font-weight: 700; }   /* المرجعي يخف: الذهبي للرقم و«التالية» فقط */
+    .tn-q { margin-top: 12px; }
+    .tn-qh { margin: 0 2px 4px; font-size: 12px; font-weight: 700; color: var(--text-3); }
+    .tn-row { display: grid; grid-template-columns: 32px minmax(0, 1fr) 44px minmax(0, 1fr) 32px; align-items: center; column-gap: 6px; width: 100%; min-height: 48px; padding: 6px 4px; border: 0; border-top: 1px solid var(--line); background: none; border-radius: 0; font: inherit; color: var(--text); text-align: inherit; cursor: pointer; -webkit-tap-highlight-color: transparent; transition: background var(--t-fast) var(--ease); }
+    .tn-qh + .tn-row { border-top: 0; }
+    .tn-row:active { background: var(--surface-2); border-radius: var(--r-md); }
+    .tn-row + .tn-row:active, .tn-row:active + .tn-row { border-top-color: transparent; }
+    .tn-row .rd { justify-self: start; display: grid; place-items: center; width: 32px; height: 24px; border-radius: 999px; background: var(--surface-2); font-size: 12px; font-weight: 800; color: var(--text-2); font-variant-numeric: tabular-nums; }
+    .tn-row .rd .tx { padding-top: 3px; }
+    .tn-row .nm { min-width: 0; font-size: 15px; font-weight: 700; color: var(--text); line-height: 1.35; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .tn-row .nm.a { text-align: end; }      /* الأول ملتصق بـ«ضد» من جهته */
+    .tn-row .nm.b { text-align: start; }
+    .tn-row .vs { justify-self: center; font-size: 12px; font-weight: 700; color: var(--text-3); }
+    .tn-row .mc-bolt { justify-self: end; width: 15px; height: 15px; margin: 0 8px 0 0; color: var(--gold-deep); --ic-y: -1px; }
+    .tn-q:not(.all) .tn-x { display: none !important; }
+    .tn-more { margin-top: 8px !important; }
+    .tn-more svg { width: 15px; height: 15px; transition: transform var(--t-base) var(--ease); }
+    .tn-q.all .tn-more svg { transform: rotate(180deg); }
+    @media (prefers-reduced-motion: reduce) { .tn-more svg, .tn-row { transition: none; } }
+    @media (max-width: 370px) {
+      .tn-row { grid-template-columns: 24px minmax(0, 1fr) 30px minmax(0, 1fr) 24px; column-gap: 4px; padding-inline: 2px; }
+      .tn-row .rd { width: 24px; height: 22px; font-size: 11px; }
+      .tn-row .mc-bolt { margin: 0 4px 0 0; }
+      .tn-row .nm { font-size: 13px; white-space: normal; }   /* 320 بكسل: الاسم الطويل ينكسر لسطرين كصفوف «آخر يوم لعب» بدل أن يُقص */
+    }
     /* ===== «سباق اللقب» (6 — الإدارة فقط): بطاقة واحدة فوق ترتيب الدوري — المرحلة وعدد المنافسين، جملة الضمان، ثم المنافسون =====
        عرض فقط: يُحسب لحظيًا من بيانات الدوري ولا يُخزَّن ولا يُنشر ولا يُرسم في صفحة المشاهدة */
     #leagueRace { display: none; }
@@ -14291,7 +14318,7 @@ function buildLeagueStandingsCanvas() {
     // ===================================
     // 🧭 سلوك التطبيق: إعادة الوضع للأعلى، تعديل العنوان بالضغط المطوّل، تنبيه التحديث، رقم الإصدار
     // ===================================
-    const APP_VERSION = '1.5';   // ترقيم الاعتماد (من 4 نوفمبر 2026): 1.0 ثم 1.1 … 1.9 ثم 2.0 — ويُرفع معه رقم الإصدار في sw.js
+    const APP_VERSION = '1.6';   // ترقيم الاعتماد (من 4 نوفمبر 2026): 1.0 ثم 1.1 … 1.9 ثم 2.0 — ويُرفع معه رقم الإصدار في sw.js
     (function setupAppBehaviors() {
       const root = document.documentElement;
 
@@ -14612,7 +14639,8 @@ function buildLeagueStandingsCanvas() {
       const chev = '<svg class="chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg>';
       const box = document.createElement('section'); box.id = 'leagueTonight'; box.className = 'tn'; box.setAttribute('aria-label', 'الحاضرون اليوم');
       host.insertBefore(box, leagueRoundsEl);
-      let open = false;
+      let open = false, qAll = false;   // qAll: «عرض الكل» في الطابور، في الذاكرة فقط ويبقى عبر إعادة الرسم
+      const TN_PEEK = 5;
       // 6.6: الترتيب المقترح لطاولة واحدة — «التساوي أولًا بحد مباراتين متتاليتين» (مقاس على كل تركيبات الحاضرين):
       //  0) لا يلعب لاعب أكثر من مباراتين متتاليتين (يُتجاوز الحد فقط إذا لم يبقَ غيره)
       //  1) أقل مجموع مباريات للاعبَين (العدد يشمل ما سبقها في ترتيب الليلة) = أسرع اقتراب لتساوي عدد المباريات بين الحاضرين
@@ -14653,17 +14681,36 @@ function buildLeagueStandingsCanvas() {
           ${sel.length >= 2 ? `<div class="tn-list">${avail.length ? `${avail.length > 1 ? '<p class="tn-hint">مرتّبة ليتساوى عدد المباريات بين الحاضرين</p>' : ''}<div class="league-matches tn-grid"></div>` : '<p class="tn-none">لا توجد مباريات متبقية بين الحاضرين</p>'}</div>` : ''}`;
         const grid = box.querySelector('.tn-grid');
         if (grid) {
-          avail.forEach((m, i) => { const c = createLeagueMatchCard(m), t = c.querySelector('.match-title'), seq = seqOf(m) || '';
-            if (t) t.innerHTML = `<span class="tn-n"><span class="tx">${i + 1}</span></span><span class="tn-t"><span class="tn-r">الجولة ${m.round}</span> · مباراة ${seq}</span>`;
-            if (i === 0) { const st = c.querySelector('.match-status'); if (st) { st.className = 'match-status ready tn-next'; st.innerHTML = '<span class="tx">التالية</span>'; } c.classList.add('tn-first', 'lg-wide'); }
-            grid.appendChild(c); });
-          if (avail.length > 1 && (avail.length - 1) % 2 === 1) grid.lastElementChild.classList.add('lg-wide');   // الأولى بعرض كامل؛ لا يبقى نصف السطر فارغًا بعدها
+          // 1.6: «التالية» بطاقة المباراة نفسها بعرض كامل (تبقى بتصميم بطاقات المباريات القادمة)
+          const m0 = avail[0], c = createLeagueMatchCard(m0), t = c.querySelector('.match-title');
+          if (t) { const bolt = t.querySelector('.mc-bolt'); t.innerHTML = `<span class="tn-n"><span class="tx">1</span></span><span class="tn-t"><span class="tn-r">الجولة ${m0.round}</span> · مباراة ${seqOf(m0) || ''}</span>`; if (bolt) t.appendChild(bolt); }
+          const st = c.querySelector('.match-status'); if (st) { st.className = 'match-status ready tn-next'; st.innerHTML = '<span class="tx">التالية</span>'; }
+          c.classList.add('tn-first', 'lg-wide'); grid.appendChild(c);
+          // ما بعدها: طابور بعمود واحد — رقم الدور ← الاسم ← «ضد» ← الاسم. أول 5 ظاهرة، والبقية خلف «عرض الكل» إن زادت عن 6
+          const rest = avail.slice(1);
+          if (rest.length) {
+            const fold = rest.length > TN_PEEK + 1;
+            const sk = rest.map(m => { try { return matchStakes([m.playerA], [m.playerB], { mode: 'league', final: false, id: m.id }); } catch (e) { return []; } });
+            const q = document.createElement('div'); q.className = 'tn-q' + (fold && qAll ? ' all' : '');
+            q.innerHTML = `<p class="tn-qh">بعدها</p>` + rest.map((m, i) => { const s = sk[i] && sk[i].length ? sk[i].map(stakeSentence).join('، ') : '';
+                return `<button type="button" class="tn-row${fold && i >= TN_PEEK ? ' tn-x' : ''}" data-id="${esc(m.id)}" aria-label="${i + 2}: ${esc(m.playerA)} ضد ${esc(m.playerB)}، الجولة ${m.round}${s ? '. على المحك: ' + esc(s) : ''}">`
+                  + `<span class="rd"><span class="tx">${i + 2}</span></span><span class="nm a">${esc(m.playerA)}</span><span class="vs">ضد</span><span class="nm b">${esc(m.playerB)}</span>`
+                  + (s ? '<span class="ic ic-bolt mc-bolt" aria-hidden="true"></span>' : '<span></span>') + '</button>'; }).join('')
+              + (fold ? `<button type="button" class="st-fold-more tn-more" aria-expanded="${qAll}">${qAll ? 'عرض أقل' : `عرض الكل (${rest.length})`}<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg></button>` : '');
+            grid.after(q);
+          }
           if (anim && grid.animate && !(window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches))
-            [...grid.children].forEach((c, i) => c.animate([{ opacity: 0, transform: 'translateY(-6px)' }, { opacity: 1, transform: 'none' }], { duration: 220, delay: Math.min(i, 6) * 30, easing: 'cubic-bezier(.2, .8, .2, 1)', fill: 'backwards' }));
+            [c, ...box.querySelectorAll('.tn-qh, .tn-row:not(.tn-x), .tn-more')].forEach((el, i) => el.animate([{ opacity: 0, transform: 'translateY(-6px)' }, { opacity: 1, transform: 'none' }], { duration: 220, delay: Math.min(i, 6) * 30, easing: 'cubic-bezier(.2, .8, .2, 1)', fill: 'backwards' }));
         }
       }
       box.addEventListener('click', e => {
         if (e.target.closest('.tn-sum')) { open = !open; foldMotion(box, 'open', open, box.querySelector('.tn-pick')); e.target.closest('.tn-sum').setAttribute('aria-expanded', String(open)); return; }
+        const row = e.target.closest('.tn-row'); if (row) { openLeagueScoreModal(row.dataset.id); return; }
+        const more = e.target.closest('.tn-more');
+        if (more) { const q = more.closest('.tn-q'), n = q.querySelectorAll('.tn-row').length; qAll = !q.classList.contains('all');
+          softToggle(q, 'all', qAll, '.tn-x'); more.setAttribute('aria-expanded', String(qAll)); more.firstChild.textContent = qAll ? 'عرض أقل' : `عرض الكل (${n})`;
+          if (!qAll) { const h = box.querySelector('.tn-sum'), r = h && h.getBoundingClientRect(); if (r && r.top < 0) h.scrollIntoView({ block: 'start', behavior: matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth' }); }
+          return; }
         const chip = e.target.closest('.tn-chips button'), act = e.target.closest('.tn-acts button');
         if (!chip && !act) return;
         const players = (leaguePlayers || []).filter(n => !leagueIsExcluded(n));
