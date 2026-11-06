@@ -13472,12 +13472,13 @@ function buildLeagueStandingsCanvas() {
         w: { hi: '#EDC07F', mid: '#D99E5C', lo: '#B9783F', cut: 'rgba(120,62,16,.7)', lit: 'rgba(255,232,186,.75)', edge: '#A9682F' },   // خشب طبيعي
         b: { hi: '#4A403C', mid: '#2E2725', lo: '#1A1514', cut: 'rgba(0,0,0,.75)', lit: 'rgba(255,255,255,.16)', edge: '#151110' },        // أسود
         q: { hi: '#D8434B', mid: '#B8242E', lo: '#8C1820', cut: 'rgba(90,8,14,.75)', lit: 'rgba(255,190,190,.5)', edge: '#7A141B' },       // الملكة
-        g: { hi: '#FBE7A8', mid: '#E2BC68', lo: '#B88A3A', cut: 'rgba(110,72,14,.6)', lit: 'rgba(255,248,215,.85)', edge: '#9C7228' }       // البطل الذهبي
+        g: { hi: '#FFF0B8', mid: '#E9B23C', lo: '#9A6512', cut: 'rgba(78,44,4,.8)', lit: 'rgba(255,250,222,.95)', edge: '#6B4208', rim: 'rgba(58,32,2,.85)', glint: true }   // البطل الذهبي: ذهب مصقول غني (درجات أعمق وتباين أعلى) بحافة داكنة
       };
       function coinSprite(k) {
         if (COIN_SPRITES[k]) return COIN_SPRITES[k];
         const st = COIN_STYLE[k] || COIN_STYLE.w, N = 96, R = N / 2, c = document.createElement('canvas'); c.width = c.height = N; const x = c.getContext('2d');
         const g = x.createRadialGradient(R * .7, R * .55, R * .1, R, R, R); g.addColorStop(0, st.hi); g.addColorStop(.6, st.mid); g.addColorStop(1, st.lo);
+        if (st.glint) { g.addColorStop(.3, '#F8D671'); g.addColorStop(.85, '#B57A1C'); }
         x.beginPath(); x.arc(R, R, R - .5, 0, 6.2832); x.fillStyle = g; x.fill();
         const groove = (r, w) => { x.lineWidth = w; x.strokeStyle = st.cut; x.beginPath(); x.arc(R, R, r, 0, 6.2832); x.stroke();
           x.lineWidth = w * .7; x.strokeStyle = st.lit; x.beginPath(); x.arc(R + w * .45, R + w * .55, r, .2, 2.9); x.stroke(); };   // ضوء الحافة السفلية للحزّ
@@ -13485,7 +13486,10 @@ function buildLeagueStandingsCanvas() {
         groove(R * .40, 2.8);            // الحزّ الداخلي حول الحلقة البارزة
         x.beginPath(); x.arc(R, R, R * .13, 0, 6.2832); x.fillStyle = st.cut; x.fill();                                     // النقرة
         x.beginPath(); x.arc(R + 1, R + 1.2, R * .08, 0, 6.2832); x.fillStyle = st.lit; x.fill();
-        x.lineWidth = 1.5; x.strokeStyle = 'rgba(0,0,0,.28)'; x.beginPath(); x.arc(R, R, R - 1, 0, 6.2832); x.stroke();      // حدّ القطعة
+        if (st.glint) {   // لمعة مصقولة ثابتة أعلى يسار القطعة
+          const gl = x.createRadialGradient(R * .62, R * .48, 0, R * .62, R * .48, R * .55); gl.addColorStop(0, 'rgba(255,253,235,.85)'); gl.addColorStop(1, 'rgba(255,253,235,0)');
+          x.beginPath(); x.arc(R, R, R - 2, 0, 6.2832); x.fillStyle = gl; x.fill(); }
+        x.lineWidth = st.rim ? 3 : 1.5; x.strokeStyle = st.rim || 'rgba(0,0,0,.28)'; x.beginPath(); x.arc(R, R, R - (st.rim ? 1.5 : 1), 0, 6.2832); x.stroke();      // حدّ القطعة (أغمق وأعرض للذهبي)
         return (COIN_SPRITES[k] = { c, edge: st.edge });
       }
       function confetti(canvas, at) {
