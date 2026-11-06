@@ -11277,7 +11277,8 @@ function buildLeagueStandingsCanvas() {
         return it; });
       // 1.4: «بلا خسارة» بنفس قاعدة البطاقة (الدوري)
       const ub = lg ? unbeatenOfDay(list.map(e => leagueMatches.find(x => x.id === e.id)).filter(Boolean)) : [];
-      const ubLabel = key === nightKeyOf(Date.now()) ? 'بلا خسارة حتى الآن' : 'بلا خسارة';
+      // 2.0: الصورة ونصها يُنشران بعد انتهاء يوم اللعب غالبًا (واليوم يمتد حتى ساعة بدء اليوم التالي)، فالعنوان «بلا خسارة» دائمًا؛ «حتى الآن» للبطاقة الحية في التطبيق فقط
+      const ubLabel = 'بلا خسارة';
       setCaption(file, `نتائج يوم ${label} (${chipMatches(list.length)}):\n` + (ub.length ? `${ubLabel}: ${ub.join('، ')}\n` : '') + items.map(itemLine).join('\n'));
       await renderMatchSheet('نتائج اليوم', `${label} · ${chipMatches(list.length)}`, [{ heading: null, matches: items, ub: ub.length ? { label: ubLabel, names: ub } : null }], file);
     }
@@ -14350,7 +14351,7 @@ function buildLeagueStandingsCanvas() {
     // ===================================
     // 🧭 سلوك التطبيق: إعادة الوضع للأعلى، تعديل العنوان بالضغط المطوّل، تنبيه التحديث، رقم الإصدار
     // ===================================
-    const APP_VERSION = '1.9';   // ترقيم الاعتماد (من 4 نوفمبر 2026): 1.0 ثم 1.1 … 1.9 ثم 2.0 — ويُرفع معه رقم الإصدار في sw.js
+    const APP_VERSION = '2.0';   // ترقيم الاعتماد (من 4 نوفمبر 2026): 1.0 ثم 1.1 … 1.9 ثم 2.0 — ويُرفع معه رقم الإصدار في sw.js
     (function setupAppBehaviors() {
       const root = document.documentElement;
 
