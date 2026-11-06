@@ -9469,15 +9469,18 @@ function changeScore(inputId, amount){
     // حسم اللقب مبكرًا: نقاط المتصدر أكبر (لا تساوي) من أقصى ما يبلغه أي لاعب آخر بالفوز في كل مبارياته الباقية.
     // يُرجع null إن لم يُحسم، أو { name, points, roundsLeft, matchesLeft, final }.
     // 2.1 — تركيبات الضمان (سباق اللقب، الإدارة فقط): كل (فوز، تعادل، خسارة) مجموعها = المباريات المتبقية ونقاطها ≥ المطلوب.
-    // تُعرض التركيبات التي تبلغ المطلوب أو تتجاوزه بنقطتين على الأكثر (ما فوقها تركيبة أخرى بنتيجة زائدة لا تضيف معنى).
-    // الترتيب: المطابقة للمطلوب تمامًا ← الأقل تجاوزًا ← الأقل انتصارات ← الأكثر تعادلات. كل تركيبة مرة واحدة. بدائل حسابية بأي ترتيب للمباريات، لا توقعات.
+    // كل تركيبة «حد أدنى»: w انتصارات وd تعادلات والبقية (l) بأي نتيجة. تُعرض الدنيا فقط: التي لا يمكن إنزال أي نتيجة فيها
+    // (فوز ← تعادل، أو تعادل ← أي نتيجة) دون أن تقل عن المطلوب؛ فلا تكرار ولا تركيبة داخلة في غيرها (9 انتصارات وتعادل داخلة في «9 انتصارات»).
+    // الترتيب: المطابقة للمطلوب تمامًا ← الأقل تجاوزًا ← الأقل انتصارات. بدائل حسابية بأي ترتيب للمباريات، لا توقعات.
     function getLeagueClinchScenarios(need, left, W = 3, D = 1, Ls = 0) {
       const out = [];
       if (!(left >= 0) || need > W * left) return out;
       if (need <= 0) return [{ w: 0, d: 0, l: left, pts: Ls * left, over: 0 }];
       for (let w = 0; w <= left; w++) for (let d = 0; d + w <= left; d++) {
         const l = left - w - d, pts = w * W + d * D + l * Ls, over = pts - need;
-        if (over >= 0 && over <= 2) out.push({ w, d, l, pts, over });
+        if (over < 0) continue;
+        const dropWin = w > 0 && pts - (W - D) >= need, dropDraw = d > 0 && pts - (D - Ls) >= need;
+        if (!dropWin && !dropDraw) out.push({ w, d, l, pts, over });
       }
       return out.sort((a, b) => a.over - b.over || a.w - b.w || b.d - a.d);
     }
@@ -14375,7 +14378,7 @@ function buildLeagueStandingsCanvas() {
     // ===================================
     // 🧭 سلوك التطبيق: إعادة الوضع للأعلى، تعديل العنوان بالضغط المطوّل، تنبيه التحديث، رقم الإصدار
     // ===================================
-    const APP_VERSION = '2.0';   // ترقيم الاعتماد (من 4 نوفمبر 2026): 1.0 ثم 1.1 … 1.9 ثم 2.0 — ويُرفع معه رقم الإصدار في sw.js
+    const APP_VERSION = '2.1';   // ترقيم الاعتماد (من 4 نوفمبر 2026): 1.0 ثم 1.1 … 1.9 ثم 2.0 — ويُرفع معه رقم الإصدار في sw.js
     (function setupAppBehaviors() {
       const root = document.documentElement;
 
@@ -14899,9 +14902,9 @@ function buildLeagueStandingsCanvas() {
         // تركيبات الضمان: للمطلوب «بأي نتائج» فقط (لا تعتمد على خصم بعينه)
         const ways = phase < 5 && L.left && anyOk ? getLeagueClinchScenarios(need, L.left) : [];
         const cnt = (n, one, two, few, many) => n === 1 ? one : n === 2 ? two : `${n} ${n <= 10 ? few : many}`;
-        const wayTxt = x => [x.w && cnt(x.w, 'انتصار واحد', 'انتصاران', 'انتصارات', 'انتصارًا'), x.d && cnt(x.d, 'تعادل واحد', 'تعادلان', 'تعادلات', 'تعادلًا'), x.l && cnt(x.l, 'خسارة واحدة', 'خسارتان', 'خسائر', 'خسارة')].filter(Boolean).join(' و');
-        const waysHTML = ways.length ? `<div class="tr-ways${waysAll ? ' all' : ''}"><div class="tr-wh"><span>تركيبات تكفي للضمان</span><small>بأي ترتيب للمباريات</small></div>
-          ${ways.map((x, i) => `<div class="tr-way${i >= 3 && !waysAll ? ' x' : ''}" aria-label="${wayTxt(x)}: ${ptsN(x.pts)}"><span class="w">${wayTxt(x)}</span><span class="p">${x.pts}<small>${x.pts === 1 ? 'نقطة' : x.pts === 2 ? 'نقطتان' : x.pts <= 10 ? 'نقاط' : 'نقطة'}</small></span></div>`).join('')}
+        const wayTxt = x => [x.w && cnt(x.w, 'انتصار واحد', 'انتصاران', 'انتصارات', 'انتصارًا'), x.d && cnt(x.d, 'تعادل واحد', 'تعادلان', 'تعادلات', 'تعادلًا')].filter(Boolean).join(' و');   // حد أدنى: البقية بأي نتيجة
+        const waysHTML = ways.length ? `<div class="tr-ways${waysAll ? ' all' : ''}"><div class="tr-wh"><span>ما يكفيه للضمان</span><small>الفوز يغني عن التعادل · والبقية بأي نتيجة</small></div>
+          ${ways.map((x, i) => `<div class="tr-way${i >= 3 && !waysAll ? ' x' : ''}" aria-label="${wayTxt(x)}، والبقية بأي نتيجة: ${ptsN(x.pts)}"><span class="w">${wayTxt(x)}</span><span class="p">${x.pts}<small>${x.pts === 1 ? 'نقطة' : x.pts === 2 ? 'نقطتان' : x.pts <= 10 ? 'نقاط' : 'نقطة'}</small></span></div>`).join('')}
           ${ways.length > 3 ? `<button type="button" class="vm2-more tr-wmore" aria-expanded="${waysAll}">${waysAll ? 'عرض أقل' : `عرض الكل (${ways.length})`}</button>` : ''}</div>` : '';
         box.classList.toggle('open', open);
         box.innerHTML = `<button type="button" class="tr-sum" aria-expanded="${open}"><span class="ic ic-flag" aria-hidden="true"></span><span class="t">سباق اللقب</span><span class="tr-ph p${phase}">${PH[phase]}</span>${chev}<span class="sub"><span class="in">${phase === 5 ? `<b>${esc(L.name)}</b> · قبل ${arRounds(cl.roundsLeft)} من النهاية` : selfOk ? (n => `<b>${esc(L.name)}</b> يحتاج <b class="k">${n}</b> ${n === 1 ? 'نقطة' : n === 2 ? 'نقطتين' : n <= 10 ? 'نقاط' : 'نقطة'} للضمان`)(anyOk ? need : direct.need) : `<b>${esc(L.name)}</b> لا يضمنه بنتائجه وحدها`}</span></span></button>
