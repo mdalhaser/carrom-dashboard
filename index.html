@@ -13465,20 +13465,43 @@ function buildLeagueStandingsCanvas() {
       // ---------- احتفال التتويج ----------
       // 6.9: القصاصات تتراكم — كل استدعاء يضيف دفعة فوق الجارية (لا يمسحها)، من موضع الإصبع إن وُجد وإلا من المنتصف.
       // حلقة رسم واحدة لكل لوحة، وكل قطعة بعمرها الخاص (تتلاشى بعد 3 ثوانٍ). حد أعلى 1,000 قطعة: الأقدم يُستبدل بالجديد.
+      // 2.3 — وجه قطعة الكيرم كما في قطع المجلس: سطح خشب بإضاءة علوية، حافة مسطحة عريضة، حزّ محفور، حلقة داخلية بارزة، وحزّ ثانٍ ونقرة في المنتصف.
+      // الحزّ = خط داكن ومعه خط ضوء ملاصق من جهة الضوء (حفر حقيقي). يُرسم مرة لكل لون ويُعاد استخدامه (أداء ثابت مهما كثرت القطع).
+      const COIN_SPRITES = {};
+      const COIN_STYLE = {
+        w: { hi: '#EDC07F', mid: '#D99E5C', lo: '#B9783F', cut: 'rgba(120,62,16,.7)', lit: 'rgba(255,232,186,.75)', edge: '#A9682F' },   // خشب طبيعي
+        b: { hi: '#4A403C', mid: '#2E2725', lo: '#1A1514', cut: 'rgba(0,0,0,.75)', lit: 'rgba(255,255,255,.16)', edge: '#151110' },        // أسود
+        q: { hi: '#D8434B', mid: '#B8242E', lo: '#8C1820', cut: 'rgba(90,8,14,.75)', lit: 'rgba(255,190,190,.5)', edge: '#7A141B' },       // الملكة
+        g: { hi: '#FBE7A8', mid: '#E2BC68', lo: '#B88A3A', cut: 'rgba(110,72,14,.6)', lit: 'rgba(255,248,215,.85)', edge: '#9C7228' }       // البطل الذهبي
+      };
+      function coinSprite(k) {
+        if (COIN_SPRITES[k]) return COIN_SPRITES[k];
+        const st = COIN_STYLE[k] || COIN_STYLE.w, N = 96, R = N / 2, c = document.createElement('canvas'); c.width = c.height = N; const x = c.getContext('2d');
+        const g = x.createRadialGradient(R * .7, R * .55, R * .1, R, R, R); g.addColorStop(0, st.hi); g.addColorStop(.6, st.mid); g.addColorStop(1, st.lo);
+        x.beginPath(); x.arc(R, R, R - .5, 0, 6.2832); x.fillStyle = g; x.fill();
+        const groove = (r, w) => { x.lineWidth = w; x.strokeStyle = st.cut; x.beginPath(); x.arc(R, R, r, 0, 6.2832); x.stroke();
+          x.lineWidth = w * .7; x.strokeStyle = st.lit; x.beginPath(); x.arc(R + w * .45, R + w * .55, r, .2, 2.9); x.stroke(); };   // ضوء الحافة السفلية للحزّ
+        groove(R * .74, 3.4);            // الحزّ الخارجي بعد الحافة المسطحة
+        groove(R * .40, 2.8);            // الحزّ الداخلي حول الحلقة البارزة
+        x.beginPath(); x.arc(R, R, R * .13, 0, 6.2832); x.fillStyle = st.cut; x.fill();                                     // النقرة
+        x.beginPath(); x.arc(R + 1, R + 1.2, R * .08, 0, 6.2832); x.fillStyle = st.lit; x.fill();
+        x.lineWidth = 1.5; x.strokeStyle = 'rgba(0,0,0,.28)'; x.beginPath(); x.arc(R, R, R - 1, 0, 6.2832); x.stroke();      // حدّ القطعة
+        return (COIN_SPRITES[k] = { c, edge: st.edge });
+      }
       function confetti(canvas, at) {
         const ctx = canvas.getContext('2d'); if (!ctx) return;
         const dpr = Math.min(2, window.devicePixelRatio || 1);
         const W = canvas.clientWidth, H = canvas.clientHeight;
         if (canvas.width !== Math.round(W * dpr) || canvas.height !== Math.round(H * dpr)) { canvas.width = Math.round(W * dpr); canvas.height = Math.round(H * dpr); }
         const golds = ['#CFA963', '#E3CCA0', '#F3DFAE', '#A67C32', '#FFF4D6'];
-        const coins = canvas.__gold ? ['#F7E7B0', '#E3BF6E', '#CFA963', '#B88A3A', '#FFF4D6'] : ['#F3EBDD', '#F3EBDD', '#1E1A17', '#1E1A17', '#B3261E'];   // البطل الذهبي: قطع الكيرم كلها ذهبية
+        const coins = canvas.__gold ? ['g', 'g', 'g', 'g', 'g'] : ['w', 'b', 'w', 'b', 'q'];   // 2.3: قطع المجلس الحقيقية (خشب طبيعي · أسود · ملكة حمراء)؛ البطل الذهبي: كلها ذهبية
         const R = (a, b) => a + Math.random() * (b - a), now = performance.now();
         const ps = canvas.__ps || (canvas.__ps = []);
         const ox = at ? at.x : W / 2, oy = at ? at.y : H * 0.42, tap = !!at;
         const n = tap ? (W < 500 ? 55 : 80) : (W < 500 ? 90 : 140);
         for (let i = 0; i < n; i++) ps.push({ b: now, x: ox + R(-14, 14), y: oy + R(-10, 10), vx: R(-7.5, 7.5), vy: R(-14, -5), g: R(.22, .32), r: R(0, 6.28), vr: R(-.25, .25), w: R(6, 11), h: R(3, 6), c: golds[i % golds.length], k: 'r' });
-        if (tap) for (let i = 0; i < 6; i++) ps.push({ b: now, x: ox + R(-10, 10), y: oy, vx: R(-5, 5), vy: R(-11, -5), g: R(.2, .28), r: 0, vr: 0, w: R(8, 11), c: coins[i % coins.length], k: 'c' });
-        else for (let i = 0; i < 16; i++) ps.push({ b: now, x: R(0, W), y: R(-H * .5, -20), vx: R(-1.2, 1.2), vy: R(1, 3), g: R(.12, .2), r: 0, vr: 0, w: R(8, 11), c: coins[i % coins.length], k: 'c' });
+        if (tap) for (let i = 0; i < 6; i++) ps.push({ b: now, x: ox + R(-10, 10), y: oy, vx: R(-5, 5), vy: R(-11, -5), g: R(.2, .28), r: R(0, 6.28), vr: R(-.06, .06), f: R(0, 6.28), vf: R(-.16, .16), w: R(9, 12), c: coins[i % coins.length], k: 'c' });
+        else for (let i = 0; i < 16; i++) ps.push({ b: now, x: R(0, W), y: R(-H * .5, -20), vx: R(-1.2, 1.2), vy: R(1, 3), g: R(.12, .2), r: R(0, 6.28), vr: R(-.04, .04), f: R(0, 6.28), vf: R(-.12, .12), w: R(9, 12), c: coins[i % coins.length], k: 'c' });
         if (ps.length > 1000) ps.splice(0, ps.length - 1000);
         if (canvas.__loop) return;   // الحلقة تعمل: الدفعة الجديدة تنضم إليها
         canvas.__loop = true;
@@ -13494,10 +13517,11 @@ function buildLeagueStandingsCanvas() {
             ctx.globalAlpha = life > 3 ? Math.max(0, 1 - (life - 3) / .8) : 1;
             ctx.save(); ctx.translate(p.x, p.y);
             if (p.k === 'r') { ctx.rotate(p.r); ctx.scale(1, Math.cos(p.r * 2.2)); ctx.fillStyle = p.c; ctx.fillRect(-p.w / 2, -p.h / 2, p.w, p.h); }
-            else {
-              ctx.beginPath(); ctx.arc(0, 0, p.w, 0, 6.2832); ctx.fillStyle = p.c; ctx.fill();
-              ctx.lineWidth = 1.2; ctx.strokeStyle = p.c === '#1E1A17' ? 'rgba(255,255,255,.22)' : canvas.__gold ? 'rgba(120,80,20,.35)' : 'rgba(0,0,0,.22)';
-              ctx.beginPath(); ctx.arc(0, 0, p.w * .62, 0, 6.2832); ctx.stroke();
+            else {   // قطعة كيرم تتقلّب: الحافة (سُمك القطعة) تظهر بقدر ميلها، والوجه المنقوش بيضاوي حسب زاوية القلب
+              p.f += p.vf; ctx.rotate(p.r); const cf = Math.cos(p.f), sy = Math.max(.1, Math.abs(cf)), th = p.w * .34 * Math.sqrt(1 - cf * cf), S = coinSprite(p.c);
+              ctx.beginPath(); ctx.ellipse(0, th, p.w, p.w * sy, 0, 0, 6.2832); ctx.fillStyle = S.edge; ctx.fill();
+              ctx.fillRect(-p.w, 0, p.w * 2, th);
+              ctx.drawImage(S.c, -p.w, -p.w * sy, p.w * 2, p.w * 2 * sy);
             }
             ctx.restore();
           }
