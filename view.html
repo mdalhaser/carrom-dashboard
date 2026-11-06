@@ -14405,7 +14405,7 @@ function buildLeagueStandingsCanvas() {
     // ===================================
     // 🧭 سلوك التطبيق: إعادة الوضع للأعلى، تعديل العنوان بالضغط المطوّل، تنبيه التحديث، رقم الإصدار
     // ===================================
-    const APP_VERSION = '2.1';   // ترقيم الاعتماد (من 4 نوفمبر 2026): 1.0 ثم 1.1 … 1.9 ثم 2.0 — ويُرفع معه رقم الإصدار في sw.js
+    const APP_VERSION = '2.2';   // ترقيم الاعتماد (من 4 نوفمبر 2026): 1.0 ثم 1.1 … 1.9 ثم 2.0 — ويُرفع معه رقم الإصدار في sw.js
     (function setupAppBehaviors() {
       const root = document.documentElement;
 
@@ -14930,7 +14930,7 @@ function buildLeagueStandingsCanvas() {
         const ways = phase < 5 && L.left && anyOk ? getLeagueClinchScenarios(need, L.left) : [];
         const cnt = (n, one, two, few, many) => n === 1 ? one : n === 2 ? two : `${n} ${n <= 10 ? few : many}`;
         const wayTxt = x => [x.w && cnt(x.w, 'انتصار واحد', 'انتصاران', 'انتصارات', 'انتصارًا'), x.d && cnt(x.d, 'تعادل واحد', 'تعادلان', 'تعادلات', 'تعادلًا')].filter(Boolean).join(' و');   // حد أدنى: البقية بأي نتيجة
-        const waysHTML = ways.length ? `<div class="tr-ways${waysAll ? ' all' : ''}"><div class="tr-wh"><span>ما يكفيه للضمان</span><small>الفوز يغني عن التعادل · والبقية بأي نتيجة</small></div>
+        const waysHTML = ways.length ? `<div class="tr-ways${waysAll ? ' all' : ''}"><div class="tr-wh"><span>أقل ما يكفيه للضمان</span><small>والبقية بأي نتيجة</small></div>
           ${ways.map((x, i) => `<div class="tr-way${i >= 3 && !waysAll ? ' x' : ''}" aria-label="${wayTxt(x)}، والبقية بأي نتيجة: ${ptsN(x.pts)}"><span class="w">${wayTxt(x)}</span><span class="p">${x.pts}<small>${x.pts === 1 ? 'نقطة' : x.pts === 2 ? 'نقطتان' : x.pts <= 10 ? 'نقاط' : 'نقطة'}</small></span></div>`).join('')}
           ${ways.length > 3 ? `<button type="button" class="vm2-more tr-wmore" aria-expanded="${waysAll}">${waysAll ? 'عرض أقل' : `عرض الكل (${ways.length})`}</button>` : ''}</div>` : '';
         box.classList.toggle('open', open);
