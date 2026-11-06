@@ -3159,6 +3159,17 @@
     .tr-say b { font-weight: 800; color: var(--text); }
     .tr-say .k { color: var(--gold-deep); }
     .tr-list { display: flex; flex-direction: column; padding: 0 0 8px; }
+    /* 2.1 — تركيبات الضمان: صفوف هادئة بلا صندوق (لا صندوق داخل بطاقة)، الوصف يمينًا والمجموع ذهبيًا يسارًا */
+    .tr-ways { margin: 0 0 16px; }
+    .tr-wh { display: flex; align-items: baseline; justify-content: space-between; gap: 8px; padding: 0 2px 6px; font-size: 12px; font-weight: 800; color: var(--text-3); }
+    .tr-wh small { font-size: 12px; font-weight: 700; color: var(--text-3); }
+    .tr-way { display: flex; align-items: center; justify-content: space-between; gap: 12px; min-height: 40px; padding: 0 2px; border-top: 1px solid var(--line); }
+    .tr-way:last-of-type { border-bottom: 1px solid var(--line); }
+    .tr-way .w { font-size: 13px; font-weight: 700; color: var(--text); }
+    .tr-way .p { flex: none; font-size: 15px; font-weight: 900; color: var(--gold-deep); font-variant-numeric: tabular-nums; }
+    .tr-way .p small { margin-inline-start: 4px; font-size: 12px; font-weight: 700; color: var(--text-3); }
+    .tr-ways:not(.all) .tr-way.x { display: none !important; }
+    .tr-wmore { width: 100%; margin: 4px 0 6px; }
     .tr-head, .tr-row { display: grid; grid-template-columns: minmax(0, 1fr) 40px 44px 76px; align-items: center; gap: 4px; }
     .tr-head { padding: 0 2px 6px; border-bottom: 1px solid var(--line); font-size: 12px; font-weight: 800; color: var(--text-3); text-align: center; }
     .tr-head .n, .tr-row .n { text-align: start; }
@@ -9457,6 +9468,19 @@ function changeScore(inputId, amount){
 
     // حسم اللقب مبكرًا: نقاط المتصدر أكبر (لا تساوي) من أقصى ما يبلغه أي لاعب آخر بالفوز في كل مبارياته الباقية.
     // يُرجع null إن لم يُحسم، أو { name, points, roundsLeft, matchesLeft, final }.
+    // 2.1 — تركيبات الضمان (سباق اللقب، الإدارة فقط): كل (فوز، تعادل، خسارة) مجموعها = المباريات المتبقية ونقاطها ≥ المطلوب.
+    // تُعرض التركيبات التي تبلغ المطلوب أو تتجاوزه بنقطتين على الأكثر (ما فوقها تركيبة أخرى بنتيجة زائدة لا تضيف معنى).
+    // الترتيب: المطابقة للمطلوب تمامًا ← الأقل تجاوزًا ← الأقل انتصارات ← الأكثر تعادلات. كل تركيبة مرة واحدة. بدائل حسابية بأي ترتيب للمباريات، لا توقعات.
+    function getLeagueClinchScenarios(need, left, W = 3, D = 1, Ls = 0) {
+      const out = [];
+      if (!(left >= 0) || need > W * left) return out;
+      if (need <= 0) return [{ w: 0, d: 0, l: left, pts: Ls * left, over: 0 }];
+      for (let w = 0; w <= left; w++) for (let d = 0; d + w <= left; d++) {
+        const l = left - w - d, pts = w * W + d * D + l * Ls, over = pts - need;
+        if (over >= 0 && over <= 2) out.push({ w, d, l, pts, over });
+      }
+      return out.sort((a, b) => a.over - b.over || a.w - b.w || b.d - a.d);
+    }
     function leagueClinch() {
       try {
         if (!leagueStarted || leagueFixtureError || !leagueMatches.length) return null;
@@ -14802,26 +14826,48 @@ function buildLeagueStandingsCanvas() {
         const cl = leagueClinch(), clinched = !!(cl && !cl.final && cl.name === L.name);
         // أقوى منافس = صاحب أعلى رصيد ممكن (وعند التساوي الأعلى ترتيبًا)
         const best = others.reduce((a, b) => (!a || b.max > a.max) ? b : a, null);
-        const need = best ? Math.max(0, best.max + 1 - L.points) : 0;   // نقاط الضمان دون الاعتماد على نتائج غيره
-        const selfOk = need <= 3 * L.left;
+        const need = best ? Math.max(0, best.max + 1 - L.points) : 0;   // نقاط الضمان بأي نتائج ومن أي مباريات (أسوأ حال: يأخذ نقاطه من غير منافسيه)
+        // 2.1: المواجهات المباشرة — فوز المتصدر على منافس يضيف له 3 ويُسقط 3 من أقصى رصيد ذلك المنافس.
+        // نبحث في كل نتائج مبارياته المتبقية ضد المنافسين (فوز/تعادل/خسارة) عن أقل مجموع يضمن اللقب، والبقية من مبارياته الأخرى بأي نتيجة.
+        // المساواة في النقاط لا تُحسب ضمانًا (كسر التعادل قد يتغير)، فالشرط دائمًا: رصيده النهائي أكبر من أقصى رصيد كل منافس.
+        const direct = (() => {
+          const ms = leagueMatches.filter(m => !isLeagueMatchSettled(m) && (m.playerA === L.name || m.playerB === L.name))
+            .map(m => m.playerA === L.name ? m.playerB : m.playerA).filter(o => rivals.some(r => r.name === o));
+          if (!ms.length || ms.length > 11) return null;   // 3^11 حالة حدًا أعلى للبحث
+          const other = L.left - ms.length, maxBase = {}; rivals.forEach(r => { maxBase[r.name] = r.max - 3 * ms.filter(o => o === r.name).length; });
+          let bestT = Infinity, bestV = null; const v = new Array(ms.length).fill(0), PTS = [3, 1, 0], GIVE = [0, 1, 3];   // نتيجة المتصدر: 0 فوز · 1 تعادل · 2 خسارة
+          const N = Math.pow(3, ms.length);
+          for (let c = 0; c < N; c++) {
+            let x = c, own = 0; const mx = Object.assign({}, maxBase);
+            for (let i = 0; i < ms.length; i++) { v[i] = x % 3; x = (x - v[i]) / 3; own += PTS[v[i]]; mx[ms[i]] += GIVE[v[i]]; }
+            const top = Math.max(...rivals.map(r => mx[r.name])), rest = Math.max(0, top + 1 - L.points - own);
+            if (rest > 3 * other) continue;
+            const t = own + rest; if (t < bestT || (t === bestT && own < bestV.own)) { bestT = t; bestV = { own, res: v.slice() }; }
+          }
+          if (!bestV) return null;
+          const wins = [], draws = []; ms.forEach((o, i) => { if (bestV.res[i] === 0) wins.push(o); else if (bestV.res[i] === 1) draws.push(o); });
+          return { need: bestT, wins, draws };
+        })();
+        const selfOk = need <= 3 * L.left || !!direct;
         // المرحلة = الأكثر تقدمًا بين قراءتين: عدد المنافسين، وقرب المتصدر من الضمان بنتائجه وحدها (3 انتصارات أو أقل · ثم 3 نقاط أو أقل)
         const byCount = rivals.length <= 1 ? 4 : rivals.length <= 3 ? 3 : rivals.length <= 5 ? 2 : 1;
-        const byNeed = !selfOk ? 1 : need <= 3 ? 4 : need <= 9 ? 3 : 1;
+        const eff = need <= 3 * L.left ? need : direct ? direct.need : need;   // أقرب طريق مضمون: بأي نتائج، أو بمواجهاته المباشرة إن لم يكفِ غيرها
+        const byNeed = !selfOk ? 1 : eff <= 3 ? 4 : eff <= 9 ? 3 : 1;
         const phase = clinched ? 5 : Math.max(byCount, byNeed);
         rivals.forEach(r => { r.hot = r.max - L.points <= 2; });   // أي خسارة تخرجه: أقصاه ينقص 3 فيصبح دون نقاط المتصدر
         rivals.sort((a, b) => b.max - a.max); out.sort((a, b) => b.max - a.max);   // sort ثابت: عند التساوي يبقى ترتيب الدوري
-        return { L, rivals, out, need, selfOk, phase, cl: clinched ? cl : null };
+        return { L, rivals, out, need, selfOk, phase, cl: clinched ? cl : null, direct: direct && direct.need < need ? direct : null, anyOk: need <= 3 * L.left };
       }
 
       const box = document.createElement('section'); box.id = 'leagueRace'; box.className = 'tr'; box.setAttribute('aria-label', 'سباق اللقب');
       host.insertBefore(box, leagueStandingsEl);
-      let open = false, outOpen = false, gOpen = false;   // حالة الطي في الذاكرة فقط
+      let open = false, outOpen = false, gOpen = false, waysAll = false;   // حالة الطي في الذاكرة فقط
       // دليل سباق اللقب: نفس نمط «دليل المستويات» و«دليل الأوسمة» (رابط ذهبي هادئ يفتح لوحة تحته)، والمرحلة الحالية مميزة
       const PH_DESC = ['', '6 منافسين فأكثر', '4 أو 5 منافسين', 'منافسان أو 3', 'منافس واحد', 'لا أحد يلحق بالمتصدر'];
       const TERMS = [['متبقي', 'مبارياته التي لم تُلعب بعد'], ['الأقصى', 'رصيده لو فاز في كل مبارياته المتبقية'], ['منافس', 'أقصاه يبلغ نقاط المتصدر الحالية'],
         ['بلا هامش', 'أي خسارة تخرجه من السباق'], ['خرج حسابيًا', 'لا يبلغ نقاط المتصدر مهما فاز']];
       const guideHTML = phase => `<div class="pf-guide-in"><div class="pf-ladder">${[1, 2, 3, 4, 5].map(i => `<div class="pf-lad tr-lad${i === phase ? ' on' : ''}"><span class="tr-ph p${i}">${PH[i]}</span><span class="rg">${PH_DESC[i]}</span>${i === phase ? '<span class="me">الآن</span>' : ''}</div>`).join('')}</div>
-          <p class="tr-gnote">وتتقدّم المرحلة أيضًا كلما اقترب المتصدر من الضمان: «منافسة محصورة» إذا كفته 3 انتصارات، و«المتصدر يقترب» إذا كفته 3 نقاط.</p>
+          <p class="tr-gnote">وتتقدّم المرحلة أيضًا كلما اقترب المتصدر من الضمان: «منافسة محصورة» إذا كفته 9 نقاط أو أقل، و«المتصدر يقترب» إذا كفته 3 نقاط أو أقل.</p>
           <dl class="tr-terms">${TERMS.map(([t, d]) => `<div><dt>${t}</dt><dd>${d}</dd></div>`).join('')}</dl>
           <p>التساوي في النقاط يُبقي اللاعب منافسًا حتى يُحسم بفارق الأشواط والمواجهات، فلا يُعلن الحسم مبكرًا. والخروج نهائي ما لم تُعدَّل نتيجة.</p></div>`;
       const row = (r, kind) => {
@@ -14834,18 +14880,36 @@ function buildLeagueStandingsCanvas() {
       function paint() {
         const R = compute();
         box.hidden = !R; if (!R) return;
-        const { L, rivals, out, need, selfOk, phase, cl } = R;
+        const { L, rivals, out, need, selfOk, phase, cl, direct, anyOk } = R;
+        // 2.1: العبارات بالنقاط لا بالانتصارات، وبصياغة حسابية محايدة (طرق ضمان، لا توقعات)
+        const ptsN = n => n === 1 ? 'نقطة\u00A0واحدة' : n === 2 ? 'نقطتين' : n <= 10 ? `${n}\u00A0نقاط` : `${n}\u00A0نقطة`;   // الرقم ووحدته لا ينفصلان على سطرين
+        const leftN = n => n === 1 ? 'مباراة واحدة متبقية' : n === 2 ? 'مباراتين متبقيتين' : n <= 10 ? `${n} مباريات متبقية` : `${n} مباراة متبقية`;
+        const names = a => a.map(esc).join(' و');
+        const directTxt = d => `${d.wins.length ? `فوزه على ${names(d.wins)}` : ''}${d.wins.length && d.draws.length ? ' و' : ''}${d.draws.length ? `تعادله مع ${names(d.draws)}` : ''}`;
         const say = phase === 5
-          ? `لم يعد بإمكان أي لاعب اللحاق بـ<b>${esc(L.name)}</b>، حُسم اللقب قبل ${arRounds(cl.roundsLeft)} من النهاية.`
-          : selfOk
-            ? `يضمن <b>${esc(L.name)}</b> اللقب <b class="k">${byPts(need)}</b> من ${nLeft(L.left)} · ${need === 1 ? 'تعادل واحد يكفيه' : nWins(Math.ceil(need / 3))}`
-            : `لا يستطيع <b>${esc(L.name)}</b> ضمان اللقب بنتائجه وحدها؛ ${L.left ? `أقصى ما يبلغه <b>${L.max}</b> نقطة، ويحتاج إلى تعثّر منافسيه.` : 'انتهت مبارياته، والحسم بيد منافسيه.'}`;
+          ? `حُسم لقب الدوري حسابيًا لصالح <b>${esc(L.name)}</b> قبل ${arRounds(cl.roundsLeft)} من النهاية، ولم يعد بإمكان أي منافس اللحاق به.`
+          : !L.left
+            ? `انتهت مباريات <b>${esc(L.name)}</b>، وأصبح حسم اللقب مرتبطًا بنتائج المنافسين المتبقية.`
+            : anyOk
+              ? `يحتاج <b>${esc(L.name)}</b> إلى <b class="k">${ptsN(need)}</b> من ${leftN(L.left)} لضمان اللقب حسابيًا، دون الاعتماد على نتائج المنافسين.`
+                + (direct && direct.wins.length + direct.draws.length <= 2 ? ` وتكفيه <b class="k">${ptsN(direct.need)}</b> إن كان منها ${directTxt(direct)} في ${direct.wins.length + direct.draws.length === 1 ? 'مواجهتهما' : 'المواجهات'} المباشرة.` : '')
+              : direct
+                ? `يستطيع <b>${esc(L.name)}</b> ضمان اللقب حسابيًا بنتائجه وحدها بـ<b class="k">${ptsN(direct.need)}</b> من ${leftN(L.left)}، بشرط أن يكون منها ${direct.wins.length + direct.draws.length <= 3 ? directTxt(direct) : 'نتائج في مواجهاته المباشرة مع منافسيه'}${direct.wins.length + direct.draws.length <= 3 ? ' في المواجهات المباشرة' : ''}.`
+                : `لا يستطيع <b>${esc(L.name)}</b> ضمان اللقب بنتائجه وحدها حتى الآن؛ أقصى ما يبلغه <b>${L.max}</b> نقطة، ويعتمد الحسم على نتائجه مع تعثّر منافسيه.`;
+        // تركيبات الضمان: للمطلوب «بأي نتائج» فقط (لا تعتمد على خصم بعينه)
+        const ways = phase < 5 && L.left && anyOk ? getLeagueClinchScenarios(need, L.left) : [];
+        const cnt = (n, one, two, few, many) => n === 1 ? one : n === 2 ? two : `${n} ${n <= 10 ? few : many}`;
+        const wayTxt = x => [x.w && cnt(x.w, 'انتصار واحد', 'انتصاران', 'انتصارات', 'انتصارًا'), x.d && cnt(x.d, 'تعادل واحد', 'تعادلان', 'تعادلات', 'تعادلًا'), x.l && cnt(x.l, 'خسارة واحدة', 'خسارتان', 'خسائر', 'خسارة')].filter(Boolean).join(' و');
+        const waysHTML = ways.length ? `<div class="tr-ways${waysAll ? ' all' : ''}"><div class="tr-wh"><span>تركيبات تكفي للضمان</span><small>بأي ترتيب للمباريات</small></div>
+          ${ways.map((x, i) => `<div class="tr-way${i >= 3 && !waysAll ? ' x' : ''}" aria-label="${wayTxt(x)}: ${ptsN(x.pts)}"><span class="w">${wayTxt(x)}</span><span class="p">${x.pts}<small>${x.pts === 1 ? 'نقطة' : x.pts === 2 ? 'نقطتان' : x.pts <= 10 ? 'نقاط' : 'نقطة'}</small></span></div>`).join('')}
+          ${ways.length > 3 ? `<button type="button" class="vm2-more tr-wmore" aria-expanded="${waysAll}">${waysAll ? 'عرض أقل' : `عرض الكل (${ways.length})`}</button>` : ''}</div>` : '';
         box.classList.toggle('open', open);
-        box.innerHTML = `<button type="button" class="tr-sum" aria-expanded="${open}"><span class="ic ic-flag" aria-hidden="true"></span><span class="t">سباق اللقب</span><span class="tr-ph p${phase}">${PH[phase]}</span>${chev}<span class="sub"><span class="in">${phase === 5 ? `<b>${esc(L.name)}</b> · قبل ${arRounds(cl.roundsLeft)} من النهاية` : selfOk ? `<b>${esc(L.name)}</b> يحتاج <b class="k">${need}</b> ${need === 1 ? 'نقطة' : need === 2 ? 'نقطتين' : need <= 10 ? 'نقاط' : 'نقطة'} للضمان` : `<b>${esc(L.name)}</b> لا يضمنه بنتائجه وحدها`}</span></span></button>
+        box.innerHTML = `<button type="button" class="tr-sum" aria-expanded="${open}"><span class="ic ic-flag" aria-hidden="true"></span><span class="t">سباق اللقب</span><span class="tr-ph p${phase}">${PH[phase]}</span>${chev}<span class="sub"><span class="in">${phase === 5 ? `<b>${esc(L.name)}</b> · قبل ${arRounds(cl.roundsLeft)} من النهاية` : selfOk ? (n => `<b>${esc(L.name)}</b> يحتاج <b class="k">${n}</b> ${n === 1 ? 'نقطة' : n === 2 ? 'نقطتين' : n <= 10 ? 'نقاط' : 'نقطة'} للضمان`)(anyOk ? need : direct.need) : `<b>${esc(L.name)}</b> لا يضمنه بنتائجه وحدها`}</span></span></button>
           <div class="tr-body"><div class="in">
             <div class="tr-steps" aria-hidden="true">${[1, 2, 3, 4, 5].map(i => `<i${i <= phase ? ' class="on"' : ''}></i>`).join('')}</div>
             ${phase < 5 ? `<div class="tr-cap">المتصدر و${nRivals(rivals.length)}</div>` : ''}
             <p class="tr-say">${say}</p>
+            ${waysHTML}
             <div class="tr-list">
               <div class="tr-head" aria-hidden="true"><span class="n">اللاعب</span><span>متبقي</span><span>الأقصى</span><span></span></div>
               ${row(L, 'lead')}${rivals.map(r => row(r)).join('')}
@@ -14863,6 +14927,8 @@ function buildLeagueStandingsCanvas() {
         if (o) { outOpen = !outOpen; foldMotion(o.parentElement, 'open', outOpen, o.parentElement.querySelector('.tr-outlist'), box); o.setAttribute('aria-expanded', String(outOpen)); return; }
         const g = e.target.closest('.tr-gbtn');
         if (g) { gOpen = !gOpen; foldMotion(g.parentElement, 'open', gOpen, g.parentElement.querySelector('.tr-guide'), box); g.setAttribute('aria-expanded', String(gOpen)); return; }
+        const wm = e.target.closest('.tr-wmore');
+        if (wm) { const w = wm.parentElement; waysAll = !w.classList.contains('all'); softToggle(w, 'all', waysAll, '.tr-way.x'); wm.setAttribute('aria-expanded', String(waysAll)); wm.textContent = waysAll ? 'عرض أقل' : `عرض الكل (${w.querySelectorAll('.tr-way').length})`; return; }
         const r = e.target.closest('.tr-row');
         if (r) openLeaguePlayerHistory(r.dataset.player);
       });
