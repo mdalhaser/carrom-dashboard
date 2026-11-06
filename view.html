@@ -6641,6 +6641,16 @@ return teamName.replace('غير محدد', replacement);
       // صفّان متوازيان: البطل (كبسولة ذهبية · اسم بارز · نتيجته بخط كبير) فوق الوصيف (كبسولة فضية · اسم وخط أهدأ · نتيجته باهتة).
       // العين تقرأ صف البطل أولًا مع رقمه، والوصيف معلومة ثانوية تحته. الدوري: البطل وحده — نقاطه مكان النتيجة وسجله تحت اسمه، بلا صف للوصيف.
       const lastCardHTML = (() => {
+        // 2.3: لقب الدوري المحسوم مبكرًا يظهر هنا فور حسمه (قراءة فقط من leagueClinch والترتيب الحالي)، بنفس بطاقة البطل.
+        // لا يدخل السجل ولا عدادات الألقاب إلا عند اكتمال الدوري (قاعدة محمية)؛ وعند الاكتمال تعود البطاقة إلى السجل تلقائيًا.
+        // ليست زرًا: الدوري ليس في السجل بعد فلا ورقة بطولة له. «البطل الذهبي» لا يُعلن قبل الاكتمال (قد يخسر فيما تبقى).
+        const cl = (() => { try { return leagueClinch(); } catch (e) { return null; } })();
+        if (cl && !cl.final) {
+          const row = (() => { try { return calculateLeagueStandings().find(r => r.name === cl.name); } catch (e) { return null; } })();
+          const pts = row ? row.points : cl.points, pw = pts === 1 ? 'نقطة' : pts === 2 ? 'نقطتان' : pts >= 3 && pts <= 10 ? 'نقاط' : 'نقطة';
+          const when = `حُسم قبل ${arRounds(cl.roundsLeft)} من النهاية`;
+          return `<section class="st-last kc st-last-live" aria-label="بطل الدوري: ${escHTML(cl.name)}، ${pts} ${pw}، ${when}">${champCardHTML('بطل الدوري', `<bdi>${escHTML(cl.name)}</bdi>`, `${pts} ${pw}`, when)}</section>`;
+        }
         if (!lastHist || !lastHist.champion) return '';
         const t = lastHist, fs = t.finalScore || {}, hasSc = fs.winner != null && fs.loser != null;
         const names = side => { const ms = sideNames(t, side); return ms.length ? ms.map(x => `<bdi>${escHTML(x)}</bdi>`).join('<span class="pl" aria-hidden="true">+</span>') : '—'; };
