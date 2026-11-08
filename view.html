@@ -1979,7 +1979,7 @@
        transform وopacity فقط (بلا filter)، داخل حدود البطاقة، و«تقليل الحركة»: أشعة وهالة ثابتة فقط. عند اكتمال الدوري يعود كل شيء للمعة العادية. */
     /* 2.6: قصاصات لمس بطاقة الحسم على الشاشة كلها (فوق الإحصائيات) كاحتفال البطل، لا داخل البطاقة فقط */
     canvas.kc-fx { position: fixed; inset: 0; width: 100vw; height: 100vh; pointer-events: none; z-index: 10050; }
-    .st-last-live .kc-top { margin: -4px 0 10px; font-size: 12px; font-weight: 700; color: var(--lk-muted); letter-spacing: .2px; }
+    .st-last.kc .kc-top { margin: -4px 0 10px; font-size: 12px; font-weight: 700; color: var(--lk-muted); letter-spacing: .2px; }
     .st-last-live .kc-rays { position: absolute; left: 50%; top: 46%; width: 420px; height: 420px; margin: -210px 0 0 -210px; border-radius: 50%; z-index: -2; pointer-events: none;
       background: repeating-conic-gradient(from 0deg, rgba(255, 251, 236, .62) 0deg 6deg, rgba(255, 251, 236, 0) 6deg 18deg);
       -webkit-mask-image: radial-gradient(circle, #000 12%, transparent 54%); mask-image: radial-gradient(circle, #000 12%, transparent 54%);
@@ -2043,7 +2043,7 @@
     .kc-trophy .ctrophy { position: relative; z-index: 1; display: block; width: 134px; height: 160px; overflow: visible; }
     /* التتويج عند نهاية البطولة: الميدالية ثم الاسم (اللمعة كما في البطاقة الذهبية) */
     .kc-enter .kc-cup { animation: kcCupIn var(--t-slow) var(--ease) both; }
-    .kc-enter .kc-t, .kc-enter .kc-n, .kc-enter .kc-m, .kc-enter .kc-s, .kc-enter .kc-rest { animation: kcUp var(--t-slow) var(--ease) .12s both; }
+    .kc-enter .kc-top, .kc-enter .kc-t, .kc-enter .kc-n, .kc-enter .kc-m, .kc-enter .kc-s, .kc-enter .kc-rest { animation: kcUp var(--t-slow) var(--ease) .12s both; }
     @keyframes kcCupIn { from { opacity: 0; transform: scale(.82); } to { opacity: 1; transform: none; } }
     @keyframes kcUp { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: none; } }
     @media (prefers-reduced-motion: reduce) {
@@ -6126,9 +6126,9 @@ return teamName.replace('غير محدد', replacement);
       const bodyG = G ? `<g transform="translate(0 ${(160 * (1 - GS)).toFixed(2)}) scale(1 ${GS}) translate(100 0) scale(${GS} 1) translate(-100 0)">` : '<g>';
       return `<svg class="ctrophy" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 240" aria-hidden="true"><defs>${defs}</defs>${shadow}${ped}${ribbon}${castSh}${collar}${bodyG}${laurels}${frame}${board}</g>${crown}${txt}</svg>`;
     }
-    function champCardHTML(title, nameHTML, meta, sub) {
+    function champCardHTML(title, nameHTML, meta, sub, top) {
       const gold = String(title).includes('البطل الذهبي');   // 9.3: درع بطولة الكيرم · 9.4: البطل الذهبي بدرعه الذهبي
-      return `<span class="kc-cup kc-trophy${gold ? ' gold' : ''}" aria-hidden="true">${carromTrophySVG({ golden: gold })}</span><div class="kc-t">${title}</div><div class="kc-n">${nameHTML}</div>${meta ? `<div class="kc-m">${meta}</div>` : ''}${sub ? `<div class="kc-s">${sub}</div>` : ''}`;
+      return `${top ? `<div class="kc-top">${escHTML(top)}</div>` : ''}<span class="kc-cup kc-trophy${gold ? ' gold' : ''}" aria-hidden="true">${carromTrophySVG({ golden: gold })}</span><div class="kc-t">${title}</div><div class="kc-n">${nameHTML}</div>${meta ? `<div class="kc-m">${meta}</div>` : ''}${sub ? `<div class="kc-s">${sub}</div>` : ''}`;
     }
     function isFinalMatch(match) {
       return !!match && (String(match.roundName).includes('المباراة النهائية') || String(match.roundName).includes('🏆 المباراة النهائية 🏆'));
@@ -6280,6 +6280,14 @@ return teamName.replace('غير محدد', replacement);
     }
     function histNumberTitle(t) { return `${HIST_KIND_TITLE[t.mode] || HIST_KIND_TITLE.fixed} ${histNumber(t)}`; }
     function histTitle(t) { if (t && t.live) return String(t.name || '').trim() || 'البطولة الجارية'; return histCustomName(t) || histNumberTitle(t); }
+    // 2.8 — عنوان كل بطاقة بطل: رقم البطولة (أو اسمها الخاص)، والبطولة الجارية أو المكتملة للتو برقمها التالي
+    function liveChampRec(mode) {
+      const id = mode === 'league' ? leagueTournamentId : (mode === currentMode ? currentTournamentId : null);
+      return id ? (tournamentHistory || []).find(t => t && t.id === id && (t.mode || 'fixed') === mode) || null : null;
+    }
+    function liveChampTitle(mode) { const r = liveChampRec(mode); return r ? histTitle(r) : `${HIST_KIND_TITLE[mode] || HIST_KIND_TITLE.fixed} ${histNumber({ mode, id: '__live__' })}`; }
+    function koChampLabel(mode) { return mode === 'single' ? 'بطل البطولة الفردية' : 'بطل بطولة الفرق'; }
+    function koFinalLine(a, b) { a = Number(a); b = Number(b); return (isFinite(a) && isFinite(b)) ? `فوز في النهائي · ${Math.max(a, b)} - ${Math.min(a, b)}` : 'فوز في النهائي'; }
     function liveMatchesCount() { return liveTournamentRecords().reduce((n, t) => n + t.matches.length, 0); }
 
     // تفصيل الألقاب حسب نوع البطولة، مثل «فردي 10 · فرق 6» (الأنواع بلا ألقاب لا تُذكر)
@@ -6674,7 +6682,7 @@ return teamName.replace('غير محدد', replacement);
         const cl = (() => { try { return leagueClinch(); } catch (e) { return null; } })();
         if (cl && !cl.final) {
           const row = (() => { try { return calculateLeagueStandings().find(r => r.name === cl.name); } catch (e) { return null; } })();
-          return `<section class="st-last kc st-last-live" aria-label="بطل الدوري: ${escHTML(cl.name)}، ${CLINCH_LINE}، ${CLINCH_WHY}">${champCardHTML('بطل الدوري', `<bdi>${escHTML(cl.name)}</bdi>`, CLINCH_LINE, CLINCH_WHY).replace('<span class="kc-cup kc-trophy', '<span class="kc-cup kc-trophy kc-live').replace(/(<span class="kc-cup kc-trophy kc-live[^>]*>)/, '$1<span class="kc-rays" aria-hidden="true"></span><span class="kc-halo" aria-hidden="true"></span><span class="kc-ring" aria-hidden="true"></span><span class="kc-ring r2" aria-hidden="true"></span>').replace(/^/, `<div class="kc-top">${escHTML((tournamentName && tournamentName.textContent.trim()) || 'دوري المجلس للكيرم')}</div>`)}</section>`;
+          return `<section class="st-last kc st-last-live" aria-label="بطل الدوري: ${escHTML(cl.name)}، ${CLINCH_LINE}، ${CLINCH_WHY}">${champCardHTML('بطل الدوري', `<bdi>${escHTML(cl.name)}</bdi>`, CLINCH_LINE, CLINCH_WHY).replace('<span class="kc-cup kc-trophy', '<span class="kc-cup kc-trophy kc-live').replace(/(<span class="kc-cup kc-trophy kc-live[^>]*>)/, '$1<span class="kc-rays" aria-hidden="true"></span><span class="kc-halo" aria-hidden="true"></span><span class="kc-ring" aria-hidden="true"></span><span class="kc-ring r2" aria-hidden="true"></span>').replace(/^/, `<div class="kc-top">${escHTML(liveChampTitle('league'))}</div>`)}</section>`;
         }
         if (!lastHist || !lastHist.champion) return '';
         const t = lastHist, fs = t.finalScore || {}, hasSc = fs.winner != null && fs.loser != null;
@@ -6688,10 +6696,10 @@ return teamName.replace('غير محدد', replacement);
         const tag = (k, l) => `<span class="sb-tag ${k}">${l}</span>`;
         const ruRow = !isLg && t.runnerUp ?   // الدوري: البطاقة للبطل وحده
           `<div class="sb-row l">${tag('ru', 'الوصيف')}<span class="nm"><span>${names(t.runnerUp)}</span></span>${lSc}</div>` : '';
-        const meta = isLg ? `${L.pts} ${ptsW(L.pts)}` : hasSc ? `النهائي · ${Math.max(fs.winner, fs.loser)} - ${Math.min(fs.winner, fs.loser)}` : '';
-        const sub = isLg ? `فوز ${L.w} · تعادل ${L.d} · خسارة ${L.l}` : escHTML(fmtDate(t.date));   // سطر واحد لمعلومة واحدة: سجل الدوري، أو تاريخ البطولة
-        const gd = isLg ? leagueGoldenOf(t) : null, ttl = gd ? 'البطل الذهبي · آخر دوري' : isLg ? 'بطل آخر دوري' : 'بطل آخر بطولة';
-        return `<section class="st-last kc ht-open${gd ? ' kc-gold' : ''}" data-tid="${escHTML(t.id)}" role="button" tabindex="0" title="عرض البطولة" aria-label="${ttl}: ${escHTML(sideNames(t, t.champion).join(' و'))}">${champCardHTML(ttl, names(t.champion), meta, gd ? goldenLine(gd) : sub)}</section>`;
+        const meta = isLg ? `${L.pts} ${ptsW(L.pts)}` : hasSc ? koFinalLine(fs.winner, fs.loser) : '';
+        const sub = isLg ? `فوز ${L.w} · تعادل ${L.d} · خسارة ${L.l}` : escHTML(fmtDayDate(t.date));   // سطر واحد لمعلومة واحدة: سجل الدوري، أو يوم البطولة وتاريخها
+        const gd = isLg ? leagueGoldenOf(t) : null, ttl = gd ? 'البطل الذهبي' : isLg ? 'بطل الدوري' : koChampLabel(t.mode || 'fixed');   // 2.8: رقم البطولة عنوانًا علويًا
+        return `<section class="st-last kc ht-open${gd ? ' kc-gold' : ''}" data-tid="${escHTML(t.id)}" role="button" tabindex="0" title="عرض البطولة" aria-label="${escHTML(histTitle(t))} · ${ttl}: ${escHTML(sideNames(t, t.champion).join(' و'))}">${champCardHTML(ttl, names(t.champion), meta, gd ? goldenLine(gd) : sub, histTitle(t))}</section>`;
       })();
 
       statsContent.innerHTML = `
@@ -7280,8 +7288,9 @@ currentScoreWinnerName = null;
         const fm = Object.values(bracketState).find(isFinalMatch), hasSc = fm && fm.winnerScore != null && fm.loserScore != null;
         const nm = String(winnerDisplay).split(' + ').map(x => `<bdi>${escHTML(x)}</bdi>`).join('<span class="pl" aria-hidden="true">+</span>');
         const finalWinner = document.createElement('section');
-        finalWinner.className = 'st-last kc ko-champ kc-enter'; finalWinner.setAttribute('aria-label', 'بطل البطولة: ' + winnerDisplay);
-        finalWinner.innerHTML = champCardHTML('بطل البطولة', nm, hasSc ? `النهائي · ${Math.max(fm.winnerScore, fm.loserScore)} - ${Math.min(fm.winnerScore, fm.loserScore)}` : '');
+        const kRec = liveChampRec(currentMode), kTop = liveChampTitle(currentMode);   // 2.8: رقم البطولة ← العنوان ← الاسم ← «فوز في النهائي» ← اليوم والتاريخ
+        finalWinner.className = 'st-last kc ko-champ kc-enter'; finalWinner.setAttribute('aria-label', `${kTop} · ${koChampLabel(currentMode)}: ${winnerDisplay}`);
+        finalWinner.innerHTML = champCardHTML(koChampLabel(currentMode), nm, hasSc ? koFinalLine(fm.winnerScore, fm.loserScore) : '', escHTML(fmtDayDate(kRec && kRec.date ? kRec.date : new Date())), kTop);
         bracketArea.appendChild(finalWinner);
       }
     }
@@ -9993,7 +10002,7 @@ function changeScore(inputId, amount){
       if (!c) return;
       const rest = leagueGoldenOf() ? '' : top.slice(1).map(r => `<div class="kc-r"><span class="rk">${r.rank}</span><span class="n"><bdi>${leagueEscape(r.name)}</bdi></span><span class="p">${ptsW(r.points)}</span></div>`).join('');
       const gd = leagueGoldenOf();
-      leagueFinalEl.innerHTML = `<section class="st-last kc lg-final-kc${gd ? ' kc-gold' : ' kc-enter'}" aria-label="${gd ? 'البطل الذهبي' : 'بطل الدوري'}: ${leagueEscape(c.name)}">${champCardHTML(gd ? 'البطل الذهبي' : 'بطل الدوري', `<bdi>${leagueEscape(c.name)}</bdi>`, ptsW(c.points), gd ? goldenLine(gd) : `فوز ${c.wins} · تعادل ${c.draws} · خسارة ${c.losses}`)}${rest ? `<div class="kc-rest">${rest}</div>` : ''}</section>`;
+      leagueFinalEl.innerHTML = `<section class="st-last kc lg-final-kc${gd ? ' kc-gold' : ' kc-enter'}" aria-label="${gd ? 'البطل الذهبي' : 'بطل الدوري'}: ${leagueEscape(c.name)}">${champCardHTML(gd ? 'البطل الذهبي' : 'بطل الدوري', `<bdi>${leagueEscape(c.name)}</bdi>`, ptsW(c.points), gd ? goldenLine(gd) : `فوز ${c.wins} · تعادل ${c.draws} · خسارة ${c.losses}`, liveChampTitle('league'))}${rest ? `<div class="kc-rest">${rest}</div>` : ''}</section>`;
     }
 
     function renderLeagueRounds() {
@@ -10393,7 +10402,7 @@ function changeScore(inputId, amount){
       try {
         const cl = leagueClinch();
         if (cl && window.carromCelebrate && (!wasCl || wasCl.name !== cl.name || (!wasDone && cl.final))) {
-          const t = tournamentName.textContent.trim();
+          const t = liveChampTitle('league');
           const gd = cl.final ? leagueGoldenOf() : null; window.carromCelebrate(gd ? 'البطل الذهبي' : 'بطل الدوري', cl.name, (cl.final ? celebLeagueDetails(cl.name, cl) || exportPointsLabel(cl.points) : null), { clinch: !cl.final, golden: !!gd, top: t, note: gd ? goldenLine(gd) : celebClinchNote(cl), share: () => exportLeagueAchievementImage('champion', calculateLeagueStandings(), true) });
         }
       } catch (e) {}
@@ -12591,7 +12600,7 @@ function buildLeagueStandingsCanvas() {
         const top = (standings || []).filter(r => !r.excluded).slice(0, 3), c = top[0], full = getExportCenterSnapshot().completed;
         await renderAchievementCanvas([{ rank: 1, name: c.name, cup: true, final: true, champ: { title: gold ? 'البطل الذهبي' : 'بطل الدوري', golden: !!gold, parts: [c.name], meta: !full && earlyLine ? CLINCH_LINE : ptsW(c.points),
           sub: gold ? goldenLine(gold) : (!full && earlyLine) ? earlyLine : `فوز ${c.wins} · تعادل ${c.draws} · خسارة ${c.losses}`,
-          rest: gold || !full ? [] : top.slice(1).map(r => [r.rank, r.name, ptsW(r.points)]) } }], 'الدوري', '', title, `League-${kind}-Final.png`);
+          rest: gold || !full ? [] : top.slice(1).map(r => [r.rank, r.name, ptsW(r.points)]) } }], liveChampTitle('league'), '', title, `League-${kind}-Final.png`);
         return;
       }
       await renderAchievementCanvas(selected.map(r => ({ rank:r.rank, name:r.name, detail:exportPointsLabel(r.points), points:exportPointsLabel(r.points), medal:r.rank, final: leagueDone, cup: leagueDone && r.rank === 1, golden: !!gold && r.rank === 1 })), gold ? 'البطل الذهبي' : subtitle, (gold ? `دوري كامل · فوز ${gold.w}${gold.d ? ` · تعادل ${gold.d}` : ''}` : null) || earlyLine || `${isFinal ? 'الترتيب النهائي' : 'الترتيب الحالي'} للدوري`, title,
@@ -12622,11 +12631,11 @@ function buildLeagueStandingsCanvas() {
       // 8.5: البطل (وحده أو مع الوصيف) ببطاقة التطبيق نفسها؛ الوصيف صف هادئ داخلها. الوصيف وحده يبقى بتصميم 7.2.
       if (kind !== 'runnerUp') {
         const fm = Object.values(bracketState || {}).find(isFinalMatch), hasSc = fm && fm.winnerScore != null && fm.loserScore != null;
-        champ.champ = { title: 'بطل البطولة', parts: champ.name.split(' + '), meta: hasSc ? `النهائي · ${Math.max(fm.winnerScore, fm.loserScore)} - ${Math.min(fm.winnerScore, fm.loserScore)}` : '',
+        champ.champ = { title: koChampLabel(currentMode), parts: champ.name.split(' + '), meta: hasSc ? koFinalLine(fm.winnerScore, fm.loserScore) : '',
           sub: fmtDayDate(fm && fm.at ? fm.at : Date.now()), rest: kind === 'both' ? [['2', runner.name, '']] : [] };
         items = [champ];
       }
-      const subtitle = kind === 'runnerUp' ? 'وصيف البطولة' : (currentMode === 'single' ? 'البطولة الفردية' : 'بطولة الفرق');   // 8.5: البطاقة تقول «بطل البطولة»، فالشريط يذكر نوعها بلا تكرار
+      const subtitle = kind === 'runnerUp' ? 'وصيف البطولة' : liveChampTitle(currentMode);   // 2.8: الشريط يحمل رقم البطولة، والبطاقة «بطل البطولة الفردية»   // 8.5: البطاقة تقول «بطل البطولة»، فالشريط يذكر نوعها بلا تكرار
       const detail = kind === 'runnerUp' ? (finalData.score ? `نتيجة النهائي: ${finalData.score}` : 'النتيجة النهائية') : '';   // النتيجة داخل بطاقة البطل
       const extra = [];
       if (exportParts('koFinal').path) {
@@ -13623,7 +13632,7 @@ function buildLeagueStandingsCanvas() {
         const subEl = card.querySelector('.celeb-sub');
         if (Array.isArray(sub) && sub.length) { subEl.className = 'celeb-stats'; subEl.innerHTML = sub.map(([v, l]) => { const x = escHTML(String(v)); const xv = /\d/.test(String(v)) ? x : String(v).split(/\s*\+\s*/).map(z => `<span class="nw">${escHTML(z)}</span>`).join('<span class="pl"> + </span>');
             return `<span${/\d/.test(String(v)) ? '' : ' class="tx"'}><b>${/^[+\-−]\d/.test(String(v)) ? `<bdi dir="ltr">${x}</bdi>` : xv}</b><i>${escHTML(l)}</i></span>`; }).join(''); }
-        else if (opts.clinch) { subEl.className = 'celeb-sub celeb-clinch'; subEl.innerHTML = `<b>${escHTML(CLINCH_LINE)}</b><span>${escHTML(CLINCH_WHY)}</span>`; }   // 2.5: اسم الدوري ← الدرع ← «بطل الدوري» ← الاسم ← الحقيقة ← سببها
+        else if (opts.clinch || opts.lines) { const ln = opts.lines || [CLINCH_LINE, CLINCH_WHY]; subEl.className = 'celeb-sub celeb-clinch'; subEl.innerHTML = `<b>${escHTML(ln[0])}</b>${ln[1] ? `<span>${escHTML(ln[1])}</span>` : ''}`; }   // 2.8: والفردي والفرق: «فوز في النهائي · 2 - 1» ← يوم البطولة   // 2.5: اسم الدوري ← الدرع ← «بطل الدوري» ← الاسم ← الحقيقة ← سببها
         else if (sub) subEl.textContent = sub; else subEl.remove();
         if (opts.clinch) opts.note = null;   // 2.5: اسم الدوري سطرًا علويًا، والحسم تحت الاسم لا فوق العنوان
         if (opts.top) { const tp = document.createElement('div'); tp.className = 'celeb-top'; tp.textContent = opts.top; card.prepend(tp); }
@@ -13653,6 +13662,14 @@ function buildLeagueStandingsCanvas() {
         if (cv) setTimeout(() => { if (!closed && el.isConnected) goldDust(el, () => closed); }, 7600);
       }
       window.carromCelebrate = celebrate;
+      // 2.8 — احتفال بطل الفردي/الفرق للفائز وحده: رقم البطولة سطرًا علويًا ← الدرع ← «بطل البطولة الفردية» ← الاسم ← «فوز في النهائي · 2 - 1» ← اليوم والتاريخ
+      window.koCelebInfo = function (mode, champion, ws, ls) {
+        const recs = (tournamentHistory || []).filter(t => t && (t.mode || 'fixed') === mode);
+        const rec = recs.find(t => mode === currentMode && currentTournamentId && t.id === currentTournamentId && t.champion === champion)
+          || recs.filter(t => t.champion === champion).sort((a, b) => new Date(b.date) - new Date(a.date))[0] || null;
+        const top = rec ? histTitle(rec) : liveChampTitle(mode);
+        return { top, label: koChampLabel(mode), mineLabel: 'مبروك! أنت ' + koChampLabel(mode), lines: [koFinalLine(ws, ls), fmtDayDate(rec && rec.date ? rec.date : new Date())] };
+      };
       window.carromConfetti = confetti;   // 2.3: قصاصات اللمس على بطاقة الحسم المبكر في الإحصائيات
       // لمس بطاقة الحسم المبكر: قصاصات من مكان الإصبع (نفس قصاصات الاحتفال، وتتراكم مع كل لمسة بحدها الأعلى)
       document.addEventListener('click', e => {
@@ -13677,9 +13694,9 @@ function buildLeagueStandingsCanvas() {
             }
             const after = getVerifiedTournamentChampion();
             if (after && (!before || before.champion !== after.champion)) {
-              const t = tournamentName.textContent.trim();
-              celebrate(currentMode === 'single' ? 'بطل المنافسة الفردية' : 'بطل البطولة', getDisplayTeamName(after.champion), [[String(after.score).replace(/\s*[–-]\s*/, ' - '), 'نتيجة النهائي'], [getDisplayTeamName(after.runnerUp), 'الوصيف']],
-                { top: t, share: () => exportTournamentAchievementImage('champion', getCurrentFinalistData()) });
+              const [ws, ls] = String(after.score).split(/\s*[–-]\s*/), k = window.koCelebInfo(currentMode, after.champion, ws, ls);
+              celebrate(k.label, getDisplayTeamName(after.champion), null,
+                { top: k.top, lines: k.lines, share: () => exportTournamentAchievementImage('champion', getCurrentFinalistData()) });
             }
           }
         } catch (e) { console.error(e); }
@@ -13695,11 +13712,11 @@ function buildLeagueStandingsCanvas() {
           if (leagueCompleted) {
             // تتويج: عند اكتمال الدوري، أو عند تغيّر البطل بتعديل نتيجة بعد اكتماله
             const st = calculateLeagueStandings();
-            if (st[0] && (!wasDone || !wasCl || wasCl.name !== st[0].name)) { const t = tournamentName.textContent.trim(); const gd = leagueGoldenOf(); celebrate(gd ? 'البطل الذهبي' : 'بطل الدوري', st[0].name, celebLeagueDetails(st[0].name) || exportPointsLabel(st[0].points), { golden: !!gd, note: gd ? goldenLine(gd) : undefined, top: t, share: () => exportLeagueAchievementImage('champion', calculateLeagueStandings(), true) }); }
+            if (st[0] && (!wasDone || !wasCl || wasCl.name !== st[0].name)) { const t = liveChampTitle('league'); const gd = leagueGoldenOf(); celebrate(gd ? 'البطل الذهبي' : 'بطل الدوري', st[0].name, celebLeagueDetails(st[0].name) || exportPointsLabel(st[0].points), { golden: !!gd, note: gd ? goldenLine(gd) : undefined, top: t, share: () => exportLeagueAchievementImage('champion', calculateLeagueStandings(), true) }); }
           } else if (!leagueCompleted) {
             // احتفال عند لحظة حسم جديدة: لم يكن محسومًا، أو صار محسومًا للاعب آخر بعد تعديل نتيجة
             const cl = leagueClinch();
-            if (cl && !cl.final && (!wasCl || wasCl.name !== cl.name)) celebrate('بطل الدوري', cl.name, null, { clinch: true, top: tournamentName.textContent.trim(), share: () => exportLeagueAchievementImage('champion', calculateLeagueStandings(), true) });
+            if (cl && !cl.final && (!wasCl || wasCl.name !== cl.name)) celebrate('بطل الدوري', cl.name, null, { clinch: true, top: liveChampTitle('league'), share: () => exportLeagueAchievementImage('champion', calculateLeagueStandings(), true) });
           }
         } catch (e) { console.error(e); }
         return r;
@@ -14175,7 +14192,7 @@ function buildLeagueStandingsCanvas() {
             `</div>${(t.excluded || []).length ? `<p class="ht-note">مستبعد من الدوري: ${t.excluded.map(H).join('، ')}</p>` : ''}</div>`;
         } else {
           const fs = t.finalScore || {}, hasSc = fs.winner != null && fs.loser != null;
-          h += `<section class="st-last kc ht-card">${champCardHTML('بطل البطولة', names(t, t.champion), hasSc ? `النهائي · ${Math.max(fs.winner, fs.loser)} - ${Math.min(fs.winner, fs.loser)}` : '')}</section>`;
+          h += `<section class="st-last kc ht-card">${champCardHTML(koChampLabel(t.mode || 'fixed'), names(t, t.champion), hasSc ? koFinalLine(fs.winner, fs.loser) : '')}</section>`;
           h += `<div class="ht-sec"><div class="ht-sec-h">المسار</div>` + koRounds(t).map(r => `<div class="ht-round${r.final ? ' fin' : ''}"><div class="ht-rh">${H(r.name)}</div>` +
             r.ms.map(m => { const { sa, sb } = scoreOf(m), w = m.winner;
               const noSc = !Number.isFinite(Number(sa)) || !Number.isFinite(Number(sb)) || sa == null || sb == null;
@@ -14480,7 +14497,7 @@ function buildLeagueStandingsCanvas() {
     // ===================================
     // 🧭 سلوك التطبيق: إعادة الوضع للأعلى، تعديل العنوان بالضغط المطوّل، تنبيه التحديث، رقم الإصدار
     // ===================================
-    const APP_VERSION = '2.7';   // ترقيم الاعتماد (من 4 نوفمبر 2026): 1.0 ثم 1.1 … 1.9 ثم 2.0 — ويُرفع معه رقم الإصدار في sw.js
+    const APP_VERSION = '2.8';   // ترقيم الاعتماد (من 4 نوفمبر 2026): 1.0 ثم 1.1 … 1.9 ثم 2.0 — ويُرفع معه رقم الإصدار في sw.js
     (function setupAppBehaviors() {
       const root = document.documentElement;
 
@@ -15672,9 +15689,8 @@ function buildLeagueStandingsCanvas() {
           const name = (() => { try { return getDisplayTeamName(c.champion); } catch (e) { return c.champion; } })();
           const members = String(name).split(' + ').map(x => x.trim());
           const mine = me && (members.includes(me) || name === me);
-          const label = mine ? (mode === 'single' ? 'مبروك! أنت بطل المنافسة الفردية' : 'مبروك! أنت بطل البطولة') : (mode === 'single' ? 'بطل المنافسة الفردية' : 'بطل البطولة');
-          const t = (() => { try { return tournamentName.textContent.trim(); } catch (e) { return ''; } })();
-          window.carromCelebrate && window.carromCelebrate(label, name, (t ? t + ' · ' : '') + 'النهائي ' + c.score);
+          const [ws, ls] = String(c.score).split(' - '), k = window.koCelebInfo(mode, c.champion, ws, ls);
+          window.carromCelebrate && window.carromCelebrate(mine ? k.mineLabel : k.label, name, null, { top: k.top, lines: k.lines });
         };
         ['single', 'fixed'].forEach(mode => {
           const c = champOf(mode); if (!c) return;
@@ -15696,7 +15712,7 @@ function buildLeagueStandingsCanvas() {
         const note = cl.final ? `${exportPointsLabel(cl.points)} · ${arRounds(totalRounds)}` : CLINCH_LINE;   // الأهم (النقاط) أولًا · 2.4: الحسم المبكر بعبارته الثابتة
         const card = document.createElement('button'); card.type = 'button'; card.className = 'st-last kc kc-btn'; card.id = 'viewChampion';
         card.setAttribute('aria-label', `بطل الدوري: ${cl.name}، ${note}${cl.final ? '' : '، ' + CLINCH_WHY}`);
-        card.innerHTML = champCardHTML('بطل الدوري', `<bdi>${esc(cl.name)}</bdi>`, esc(note), cl.final ? '' : CLINCH_WHY);
+        card.innerHTML = champCardHTML('بطل الدوري', `<bdi>${esc(cl.name)}</bdi>`, esc(note), cl.final ? '' : CLINCH_WHY, liveChampTitle('league'));
         card.addEventListener('click', () => { try { window.carromOpenProfile(cl.name); } catch (e) {} });
         if (!cl.final) host.prepend(card);   // 6.9: الدوري المكتمل يعرض بطله في بطاقة «بطل الدوري» الموحدة (بلا تكرار)
         // شارة «البطل» بجانب اسمه في الترتيب
@@ -15712,7 +15728,7 @@ function buildLeagueStandingsCanvas() {
           const gd = cl.final ? leagueGoldenOf() : null;   // البطل الذهبي: نفس الاحتفال الذهبي للجميع، وصاحبه يرى «مبروك! أنت البطل الذهبي»
           const label = gd ? (mine ? 'مبروك! أنت البطل الذهبي' : 'البطل الذهبي') : mine ? 'مبروك! أنت بطل الدوري' : 'بطل الدوري';   // 2.5: العنوان نفسه للحسم المبكر والاكتمال؛ الحسم يُقال تحت الاسم
           const sub = cl.final ? exportPointsLabel(cl.points) : CLINCH_WHY;
-          const gopts = gd ? { golden: true, note: goldenLine(gd) } : cl.final ? undefined : { clinch: true, top: tournamentName.textContent.trim() };
+          const lgTop = liveChampTitle('league'), gopts = gd ? { golden: true, note: goldenLine(gd), top: lgTop } : cl.final ? { top: lgTop } : { clinch: true, top: lgTop };
           setTimeout(() => { try { if (currentMode === 'league' && window.carromCelebrate) window.carromCelebrate(label, cl.name, sub, gopts); else { const b = document.getElementById('modeLeagueBtn'); const once = () => { b.removeEventListener('click', once); setTimeout(() => window.carromCelebrate && window.carromCelebrate(label, cl.name, sub, gopts), 450); }; if (b) b.addEventListener('click', once); } } catch (e) {} }, 700);
         }
       })();
