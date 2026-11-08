@@ -1125,6 +1125,7 @@
     .pf-titles .t-cap { font-size: 13px; padding: 2px 9px 2px 7px; gap: 4px; }
     .pf-titles .t-cap .ic { width: 13px; height: 13px; }
     .stats-section { margin-top: var(--s5); }
+    .stats-section.st-last-sec { margin-top: 0; }
     .stats-section h4 { display: flex; align-items: center; gap: 8px; font-size: var(--fs-md); font-weight: 800; margin-bottom: var(--s3); }
     .stats-section h4 .ic { color: var(--gold-deep); }
     /* القوائم المنسدلة في الإحصائيات: رأس بطاقة قابل للضغط (عنوان + ملخص سطر واحد + سهم)، والجسم يُطوى بانسياب */
@@ -6702,8 +6703,9 @@ return teamName.replace('غير محدد', replacement);
         return `<section class="st-last kc ht-open${gd ? ' kc-gold' : ''}" data-tid="${escHTML(t.id)}" role="button" tabindex="0" title="عرض البطولة" aria-label="${escHTML(histTitle(t))} · ${ttl}: ${escHTML(sideNames(t, t.champion).join(' و'))}">${champCardHTML(ttl, names(t.champion), meta, gd ? goldenLine(gd) : sub, histTitle(t))}</section>`;
       })();
 
+      // 2.9: عنوان القسم يشرح سبب البطاقة هنا، والبطاقة نفسها بتسلسل كل بطاقات البطل (رقم البطولة ← العنوان ← الاسم …)
       statsContent.innerHTML = `
-        ${lastCardHTML}
+        ${lastCardHTML ? `<div class="stats-section st-last-sec"><h4><span class="ic ic-trophy" aria-hidden="true"></span>آخر بطل للمجلس</h4>${lastCardHTML}</div>` : ''}
         <section class="st-over" aria-label="ملخص البطولات">
           <div class="st-over-row"><div class="st-over-main">
             <span class="ov"><b>${d.completedTournaments}</b><i>بطولة مكتملة</i></span>
@@ -14497,7 +14499,7 @@ function buildLeagueStandingsCanvas() {
     // ===================================
     // 🧭 سلوك التطبيق: إعادة الوضع للأعلى، تعديل العنوان بالضغط المطوّل، تنبيه التحديث، رقم الإصدار
     // ===================================
-    const APP_VERSION = '2.8';   // ترقيم الاعتماد (من 4 نوفمبر 2026): 1.0 ثم 1.1 … 1.9 ثم 2.0 — ويُرفع معه رقم الإصدار في sw.js
+    const APP_VERSION = '2.9';   // ترقيم الاعتماد (من 4 نوفمبر 2026): 1.0 ثم 1.1 … 1.9 ثم 2.0 — ويُرفع معه رقم الإصدار في sw.js
     (function setupAppBehaviors() {
       const root = document.documentElement;
 
