@@ -1947,13 +1947,29 @@
     .st-last.st-last-live::after { animation: none; opacity: 0; }
     .st-last-live { position: relative; cursor: pointer; -webkit-tap-highlight-color: transparent; }
     .st-last-live .kc-cup { isolation: isolate; }
+    /* 2.6 — «مسرح» الحسم المبكر خلف الدرع (من لغة شاشة الاحتفال نفسها، بألوان تُرى على الذهب):
+       أشعة عاجية تدور ببطء شديد (حي ومستمر) ← هالة تتنفس ثلاث مرات ثم تستقر ← حلقتا ضوء تنطلقان عند الفتح ← أربع ومضات نجمية تتلألأ بالتناوب.
+       transform وopacity فقط (بلا filter)، داخل حدود البطاقة، و«تقليل الحركة»: أشعة وهالة ثابتة فقط. عند اكتمال الدوري يعود كل شيء للمعة العادية. */
+    .st-last-live .kc-top { margin: -4px 0 10px; font-size: 12px; font-weight: 700; color: var(--lk-muted); letter-spacing: .2px; }
+    .st-last-live .kc-rays { position: absolute; left: 50%; top: 46%; width: 420px; height: 420px; margin: -210px 0 0 -210px; border-radius: 50%; z-index: -2; pointer-events: none;
+      background: repeating-conic-gradient(from 0deg, rgba(255, 251, 236, .62) 0deg 6deg, rgba(255, 251, 236, 0) 6deg 18deg);
+      -webkit-mask-image: radial-gradient(circle, #000 12%, transparent 54%); mask-image: radial-gradient(circle, #000 12%, transparent 54%);
+      opacity: 0; animation: raysIn 1.2s ease .2s forwards, raysSpin 60s linear .2s infinite; }
     .st-last-live .kc-halo { position: absolute; left: 50%; top: 44%; width: 300px; height: 300px; margin: -150px 0 0 -150px; border-radius: 50%; z-index: -1; pointer-events: none;
       background: radial-gradient(closest-side, rgba(255, 253, 240, 1), rgba(255, 246, 214, .75) 34%, rgba(255, 236, 180, .3) 62%, rgba(255, 236, 180, 0));
-      opacity: .35; transform: scale(.86); animation: kcBreathe 2.4s cubic-bezier(.45, 0, .55, 1) .3s 3 both; }
-    @keyframes kcBreathe { 0%, 100% { opacity: .35; transform: scale(.86); } 50% { opacity: 1; transform: scale(1.1); } }
-    /* 2.6: قصاصات لمس بطاقة الحسم على الشاشة كلها (فوق الإحصائيات) كاحتفال البطل، لا داخل البطاقة فقط */
-    canvas.kc-fx { position: fixed; inset: 0; width: 100vw; height: 100vh; pointer-events: none; z-index: 10050; }
-    @media (prefers-reduced-motion: reduce) { .st-last-live .kc-halo { animation: none; } }
+      opacity: .45; transform: scale(.86); animation: kcBreathe 2.4s cubic-bezier(.45, 0, .55, 1) .3s 3 both; }
+    @keyframes kcBreathe { 0%, 100% { opacity: .45; transform: scale(.86); } 50% { opacity: 1; transform: scale(1.1); } }
+    .st-last-live .kc-ring { position: absolute; left: 50%; top: 44%; width: 120px; height: 120px; margin: -60px 0 0 -60px; border-radius: 50%; z-index: -1; pointer-events: none;
+      border: 2px solid rgba(255, 250, 228, .95); opacity: 0; animation: ringOut 1.6s cubic-bezier(.2, .7, .2, 1) .5s both; }
+    .st-last-live .kc-ring.r2 { border-width: 1.5px; animation-delay: .85s; }
+    .st-last-live .kc-spark { position: absolute; width: 16px; height: 16px; z-index: 2; pointer-events: none; background: #FFFBEA; opacity: 0;
+      clip-path: polygon(50% 0, 60% 40%, 100% 50%, 60% 60%, 50% 100%, 40% 60%, 0 50%, 40% 40%); animation: kcTwinkle 3.2s ease-in-out infinite; }
+    .st-last-live .kc-spark.s1 { top: 6%; left: 8%; animation-delay: .6s; }
+    .st-last-live .kc-spark.s2 { top: 30%; right: -2%; width: 12px; height: 12px; animation-delay: 1.4s; }
+    .st-last-live .kc-spark.s3 { top: 62%; left: -4%; width: 11px; height: 11px; animation-delay: 2.2s; }
+    .st-last-live .kc-spark.s4 { top: -4%; right: 18%; width: 13px; height: 13px; animation-delay: 3s; }
+    @keyframes kcTwinkle { 0%, 70%, 100% { opacity: 0; transform: scale(.3) rotate(0deg); } 82% { opacity: 1; transform: scale(1) rotate(45deg); } }
+    @media (prefers-reduced-motion: reduce) { .st-last-live .kc-halo, .st-last-live .kc-rays { animation: none; opacity: .8; } .st-last-live .kc-ring, .st-last-live .kc-spark { display: none; } }
     @keyframes kcShine { from { transform: translateX(-90px); opacity: 1; } to { transform: translateX(calc(50% + 90px)); opacity: 1; } }
     .st-last.kc .kc-t { letter-spacing: .2px; text-shadow: 0 1px 0 rgba(255, 245, 210, .6); }
     .st-last.kc .kc-n { text-shadow: 0 1px 0 rgba(255, 244, 205, .7), 0 -1px 0 rgba(90, 55, 10, .25); }
@@ -6635,7 +6651,7 @@ return teamName.replace('غير محدد', replacement);
         const cl = (() => { try { return leagueClinch(); } catch (e) { return null; } })();
         if (cl && !cl.final) {
           const row = (() => { try { return calculateLeagueStandings().find(r => r.name === cl.name); } catch (e) { return null; } })();
-          return `<section class="st-last kc st-last-live" aria-label="بطل الدوري: ${escHTML(cl.name)}، ${CLINCH_LINE}، ${CLINCH_WHY}">${champCardHTML('بطل الدوري', `<bdi>${escHTML(cl.name)}</bdi>`, CLINCH_LINE, CLINCH_WHY).replace('<span class="kc-cup kc-trophy', '<span class="kc-cup kc-trophy kc-live').replace(/(<span class="kc-cup kc-trophy kc-live[^>]*>)/, '$1<span class="kc-halo" aria-hidden="true"></span>')}</section>`;
+          return `<section class="st-last kc st-last-live" aria-label="بطل الدوري: ${escHTML(cl.name)}، ${CLINCH_LINE}، ${CLINCH_WHY}">${champCardHTML('بطل الدوري', `<bdi>${escHTML(cl.name)}</bdi>`, CLINCH_LINE, CLINCH_WHY).replace('<span class="kc-cup kc-trophy', '<span class="kc-cup kc-trophy kc-live').replace(/(<span class="kc-cup kc-trophy kc-live[^>]*>)/, '$1<span class="kc-rays" aria-hidden="true"></span><span class="kc-halo" aria-hidden="true"></span><span class="kc-ring" aria-hidden="true"></span><span class="kc-ring r2" aria-hidden="true"></span><i class="kc-spark s1" aria-hidden="true"></i><i class="kc-spark s2" aria-hidden="true"></i><i class="kc-spark s3" aria-hidden="true"></i><i class="kc-spark s4" aria-hidden="true"></i>').replace(/^/, `<div class="kc-top">${escHTML((tournamentName && tournamentName.textContent.trim()) || 'دوري المجلس للكيرم')}</div>`)}</section>`;
         }
         if (!lastHist || !lastHist.champion) return '';
         const t = lastHist, fs = t.finalScore || {}, hasSc = fs.winner != null && fs.loser != null;
