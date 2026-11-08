@@ -2845,6 +2845,9 @@
     .celeb-orn b:last-child { background: linear-gradient(90deg, rgba(227, 191, 110, .6), transparent); }
     .celeb-orn span { width: 6px; height: 6px; transform: rotate(45deg); background: #E3BF6E; }
     #celebration .celeb-sub { margin-top: 0; font-size: 15px; font-weight: 700; color: rgba(246, 238, 223, .72); animation: rise .5s ease 1.25s both; }
+    #celebration .celeb-sub.celeb-clinch { display: flex; flex-direction: column; align-items: center; gap: 6px; }
+    #celebration .celeb-clinch b { font-size: 17px; font-weight: 800; color: #F3DFAE; }
+    #celebration .celeb-clinch span { font-size: 15px; font-weight: 700; color: rgba(246, 238, 223, .72); }
     #celebration .celeb-actions { width: 100%; margin-top: 0; padding-top: 32px; gap: 8px; animation: rise .5s ease 1.5s both; }
     @media (max-height: 640px) { .celeb-stage { height: 140px; } #celebration .celeb-trophy { width: 92px; height: 92px; } #celebration .celeb-trophy.tro { width: 112px; height: 134px; } #celebration .celeb-name { font-size: 32px; } }
     @media (min-width: 640px) {
@@ -7647,7 +7650,7 @@ currentScoreWinnerName = null;
           dflt = ['date']; break; }   // 1.7: الجولة والموعد في السطر تحت الهيدر، والمواجهات السابقة في قسمها — لا تكرار
         case 'lg-top3': case 'lg-top5': case 'lg-champion': case 'lg-runner': case 'lg-final3': case 'lg-final5': case 'lg-podium': lgRoundChips(); leaderChips();
           if (lgP && lgP.completed) { add('lrounds', 'عدد الجولات', 'flag', `${arRoundsN(lgP.totalRounds)} · ${chipMatches(lgP.total)}`); add('lplayers', 'عدد اللاعبين', 'users', chipN(lgSt.length, 'لاعب واحد', 'لاعبان', 'لاعبين', 'لاعبًا')); }
-          dflt = lgP && lgP.completed ? ['lrounds', 'lplayers', 'date'] : (k === 'lg-champion' ? ['lround', 'gap', 'date'] : ['lround', 'ldone', 'gap']); break;
+          dflt = lgP && lgP.completed ? ['lrounds', 'lplayers', 'date'] : (k === 'lg-champion' ? ['date'] : ['lround', 'ldone', 'gap']); break;   // 2.5: صورة بطل محسوم مبكرًا بلا أرقام متغيرة (الجولة، الفارق)
         case 'lg-card': case 'lg-log': { const r = safe(() => leagueRow(a.name)), hist = safe(() => getLeaguePlayerHistory(a.name)) || [];
           if (r) { add('prank', 'المركز في الدوري', 'rank', `المركز ${r.rank} من ${lgSt.length}`); add('ppts', 'النقاط', 'chart', chipPts(r.points)); add('precord', 'فوز / تعادل / خسارة', 'table', `${r.wins} فوز · ${r.draws} تعادل · ${r.losses} خسارة`); add('pwin', 'نسبة الفوز', 'chart', r.played ? `نسبة الفوز ${Math.round(r.wins / r.played * 100)}%` : ''); }
           const left = hist.filter(h => !h.bye && !h.completed && !h.annul).length; add('pleft', 'المتبقية له', 'table', left ? `متبقية له: ${chipMatches(left)}` : 'أنهى مبارياته');
@@ -7689,7 +7692,7 @@ currentScoreWinnerName = null;
       }
       dflt = dflt.filter(id => defs[id] || ['date', 'count', 'time'].includes(id));
       // 1.7: الملف والمواجهة كل بطاقاتهما مكررة داخل الصورة (المركز، التقييم، الجولة، فرص الفوز …) فلا تُكمَّل؛ تبقى متاحة في «تخصيص»
-      if (!['profile', 'lg-versus', 'ko-versus', 'lg-rounds', 'lg-upcoming', 'lg-report', 'lg-card', 'lg-compare', 'lg-today', 'ko-today', 'history', 'honor', 'rating', 'stats', 'lg-standings'].includes(k)) for (const id of Object.keys(defs)) { if (dflt.length >= 3) break; if (!dflt.includes(id)) dflt.push(id); }   // نقص بطاقة افتراضية (لا بيانات لها): تكمّلها بطاقة أخرى من بيانات الصورة
+      if (!(k === 'lg-champion' && !(lgP && lgP.completed)) && !['profile', 'lg-versus', 'ko-versus', 'lg-rounds', 'lg-upcoming', 'lg-report', 'lg-card', 'lg-compare', 'lg-today', 'ko-today', 'history', 'honor', 'rating', 'stats', 'lg-standings'].includes(k)) for (const id of Object.keys(defs)) { if (dflt.length >= 3) break; if (!dflt.includes(id)) dflt.push(id); }   // نقص بطاقة افتراضية (لا بيانات لها): تكمّلها بطاقة أخرى من بيانات الصورة
       exportChipCtxCache = { kind: k, defs, dflt };
       return exportChipCtxCache;
     }
@@ -10351,7 +10354,7 @@ function changeScore(inputId, amount){
         const cl = leagueClinch();
         if (cl && window.carromCelebrate && (!wasCl || wasCl.name !== cl.name || (!wasDone && cl.final))) {
           const t = tournamentName.textContent.trim();
-          const gd = cl.final ? leagueGoldenOf() : null; window.carromCelebrate(gd ? 'البطل الذهبي' : cl.final ? 'بطل الدوري' : 'حسم لقب الدوري', cl.name, (cl.final ? celebLeagueDetails(cl.name, cl) || exportPointsLabel(cl.points) : CLINCH_WHY), { golden: !!gd, top: t, note: gd ? goldenLine(gd) : celebClinchNote(cl), share: () => exportLeagueAchievementImage('champion', calculateLeagueStandings(), true) });
+          const gd = cl.final ? leagueGoldenOf() : null; window.carromCelebrate(gd ? 'البطل الذهبي' : 'بطل الدوري', cl.name, (cl.final ? celebLeagueDetails(cl.name, cl) || exportPointsLabel(cl.points) : null), { clinch: !cl.final, golden: !!gd, top: t, note: gd ? goldenLine(gd) : celebClinchNote(cl), share: () => exportLeagueAchievementImage('champion', calculateLeagueStandings(), true) });
         }
       } catch (e) {}
     }
@@ -10541,7 +10544,7 @@ function buildLeagueStandingsCanvas() {
       return [[me.points, 'نقطة'], [`${me.wins} · ${me.draws} · ${me.losses}`, 'ف · ت · خ'], [diff, 'فارق الأشواط']];
     }
     // 2.4: الحسم المبكر بعبارة واحدة ثابتة في كل مكان — بلا أرقام تتغير (نقاط حالية، جولات متبقية) فلا تثير أسئلة بين اللاعبين
-    const CLINCH_LINE = 'حسم اللقب قبل نهاية الدوري', CLINCH_WHY = 'لا يستطيع أي لاعب بلوغ نقاطه';
+    const CLINCH_LINE = 'حسم اللقب قبل نهاية الدوري', CLINCH_WHY = 'لا يستطيع أي لاعب في المجلس بلوغ نقاطه';
     function celebClinchNote(cl) { return cl && !cl.final ? CLINCH_LINE : ''; }
 
     function getCurrentFinalistData() {
@@ -13580,7 +13583,9 @@ function buildLeagueStandingsCanvas() {
         const subEl = card.querySelector('.celeb-sub');
         if (Array.isArray(sub) && sub.length) { subEl.className = 'celeb-stats'; subEl.innerHTML = sub.map(([v, l]) => { const x = escHTML(String(v)); const xv = /\d/.test(String(v)) ? x : String(v).split(/\s*\+\s*/).map(z => `<span class="nw">${escHTML(z)}</span>`).join('<span class="pl"> + </span>');
             return `<span${/\d/.test(String(v)) ? '' : ' class="tx"'}><b>${/^[+\-−]\d/.test(String(v)) ? `<bdi dir="ltr">${x}</bdi>` : xv}</b><i>${escHTML(l)}</i></span>`; }).join(''); }
+        else if (opts.clinch) { subEl.className = 'celeb-sub celeb-clinch'; subEl.innerHTML = `<b>${escHTML(CLINCH_LINE)}</b><span>${escHTML(CLINCH_WHY)}</span>`; }   // 2.5: اسم الدوري ← الدرع ← «بطل الدوري» ← الاسم ← الحقيقة ← سببها
         else if (sub) subEl.textContent = sub; else subEl.remove();
+        if (opts.clinch) opts.note = null;   // 2.5: اسم الدوري سطرًا علويًا، والحسم تحت الاسم لا فوق العنوان
         if (opts.top) { const tp = document.createElement('div'); tp.className = 'celeb-top'; tp.textContent = opts.top; card.prepend(tp); }
         if (opts.note) { const nt = document.createElement('div'); nt.className = 'celeb-note'; nt.textContent = opts.note; card.querySelector('.celeb-label').before(nt); }
         const acts = card.querySelector('.celeb-actions');
@@ -13654,7 +13659,7 @@ function buildLeagueStandingsCanvas() {
           } else if (!leagueCompleted) {
             // احتفال عند لحظة حسم جديدة: لم يكن محسومًا، أو صار محسومًا للاعب آخر بعد تعديل نتيجة
             const cl = leagueClinch();
-            if (cl && !cl.final && (!wasCl || wasCl.name !== cl.name)) celebrate('حسم لقب الدوري', cl.name, celebLeagueDetails(cl.name, cl) || CLINCH_WHY, { top: tournamentName.textContent.trim(), note: celebClinchNote(cl), share: () => exportLeagueAchievementImage('champion', calculateLeagueStandings(), true) });
+            if (cl && !cl.final && (!wasCl || wasCl.name !== cl.name)) celebrate('بطل الدوري', cl.name, null, { clinch: true, top: tournamentName.textContent.trim(), share: () => exportLeagueAchievementImage('champion', calculateLeagueStandings(), true) });
           }
         } catch (e) { console.error(e); }
         return r;
@@ -14435,7 +14440,7 @@ function buildLeagueStandingsCanvas() {
     // ===================================
     // 🧭 سلوك التطبيق: إعادة الوضع للأعلى، تعديل العنوان بالضغط المطوّل، تنبيه التحديث، رقم الإصدار
     // ===================================
-    const APP_VERSION = '2.4';   // ترقيم الاعتماد (من 4 نوفمبر 2026): 1.0 ثم 1.1 … 1.9 ثم 2.0 — ويُرفع معه رقم الإصدار في sw.js
+    const APP_VERSION = '2.5';   // ترقيم الاعتماد (من 4 نوفمبر 2026): 1.0 ثم 1.1 … 1.9 ثم 2.0 — ويُرفع معه رقم الإصدار في sw.js
     (function setupAppBehaviors() {
       const root = document.documentElement;
 
@@ -15665,9 +15670,9 @@ function buildLeagueStandingsCanvas() {
           try { localStorage.setItem(KEY, sig); } catch (e) {}
           const mine = me1 && me1 === cl.name;
           const gd = cl.final ? leagueGoldenOf() : null;   // البطل الذهبي: نفس الاحتفال الذهبي للجميع، وصاحبه يرى «مبروك! أنت البطل الذهبي»
-          const label = gd ? (mine ? 'مبروك! أنت البطل الذهبي' : 'البطل الذهبي') : mine ? (cl.final ? 'مبروك! أنت بطل الدوري' : 'مبروك! حسمت لقب الدوري') : (cl.final ? 'بطل الدوري' : 'حسم لقب الدوري');
+          const label = gd ? (mine ? 'مبروك! أنت البطل الذهبي' : 'البطل الذهبي') : mine ? 'مبروك! أنت بطل الدوري' : 'بطل الدوري';   // 2.5: العنوان نفسه للحسم المبكر والاكتمال؛ الحسم يُقال تحت الاسم
           const sub = cl.final ? exportPointsLabel(cl.points) : CLINCH_WHY;
-          const gopts = gd ? { golden: true, note: goldenLine(gd) } : undefined;
+          const gopts = gd ? { golden: true, note: goldenLine(gd) } : cl.final ? undefined : { clinch: true, top: tournamentName.textContent.trim() };
           setTimeout(() => { try { if (currentMode === 'league' && window.carromCelebrate) window.carromCelebrate(label, cl.name, sub, gopts); else { const b = document.getElementById('modeLeagueBtn'); const once = () => { b.removeEventListener('click', once); setTimeout(() => window.carromCelebrate && window.carromCelebrate(label, cl.name, sub, gopts), 450); }; if (b) b.addEventListener('click', once); } } catch (e) {} }, 700);
         }
       })();
