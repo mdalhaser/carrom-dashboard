@@ -1948,13 +1948,16 @@
     .st-last-live { position: relative; cursor: pointer; -webkit-tap-highlight-color: transparent; }
     .st-last-live .kc-cup { isolation: isolate; }
     /* 2.6 — «مسرح» الحسم المبكر خلف الدرع (من لغة شاشة الاحتفال نفسها، بألوان تُرى على الذهب):
-       أشعة عاجية تدور ببطء شديد (حي ومستمر) ← هالة تتنفس ثلاث مرات ثم تستقر ← حلقتا ضوء تنطلقان عند الفتح.
+       أشعة عاجية تدور مع أنفاس الهالة ثم تستقر ساكنة (2.7: لا حركة مستمرة) ← هالة تتنفس ثلاث مرات ثم تستقر ← حلقتا ضوء تنطلقان عند الفتح.
        transform وopacity فقط (بلا filter)، داخل حدود البطاقة، و«تقليل الحركة»: أشعة وهالة ثابتة فقط. عند اكتمال الدوري يعود كل شيء للمعة العادية. */
+    /* 2.6: قصاصات لمس بطاقة الحسم على الشاشة كلها (فوق الإحصائيات) كاحتفال البطل، لا داخل البطاقة فقط */
+    canvas.kc-fx { position: fixed; inset: 0; width: 100vw; height: 100vh; pointer-events: none; z-index: 10050; }
     .st-last-live .kc-top { margin: -4px 0 10px; font-size: 12px; font-weight: 700; color: var(--lk-muted); letter-spacing: .2px; }
     .st-last-live .kc-rays { position: absolute; left: 50%; top: 46%; width: 420px; height: 420px; margin: -210px 0 0 -210px; border-radius: 50%; z-index: -2; pointer-events: none;
       background: repeating-conic-gradient(from 0deg, rgba(255, 251, 236, .62) 0deg 6deg, rgba(255, 251, 236, 0) 6deg 18deg);
       -webkit-mask-image: radial-gradient(circle, #000 12%, transparent 54%); mask-image: radial-gradient(circle, #000 12%, transparent 54%);
-      opacity: 0; animation: raysIn 1.2s ease .2s forwards, raysSpin 60s linear .2s infinite; }
+      opacity: 0; animation: kcRaysIntro 7.6s cubic-bezier(.3, 0, .2, 1) .2s 1 forwards; }   /* 2.7: محدودة كالهالة: تدور مع أنفاسها الثلاثة ثم تستقر ساكنة */
+    @keyframes kcRaysIntro { 0% { opacity: 0; transform: rotate(0deg); } 12% { opacity: 1; } 75% { opacity: 1; } 100% { opacity: .55; transform: rotate(42deg); } }
     .st-last-live .kc-halo { position: absolute; left: 50%; top: 44%; width: 300px; height: 300px; margin: -150px 0 0 -150px; border-radius: 50%; z-index: -1; pointer-events: none;
       background: radial-gradient(closest-side, rgba(255, 253, 240, 1), rgba(255, 246, 214, .75) 34%, rgba(255, 236, 180, .3) 62%, rgba(255, 236, 180, 0));
       opacity: .45; transform: scale(.86); animation: kcBreathe 2.4s cubic-bezier(.45, 0, .55, 1) .3s 3 both; }
@@ -14450,7 +14453,7 @@ function buildLeagueStandingsCanvas() {
     // ===================================
     // 🧭 سلوك التطبيق: إعادة الوضع للأعلى، تعديل العنوان بالضغط المطوّل، تنبيه التحديث، رقم الإصدار
     // ===================================
-    const APP_VERSION = '2.6';   // ترقيم الاعتماد (من 4 نوفمبر 2026): 1.0 ثم 1.1 … 1.9 ثم 2.0 — ويُرفع معه رقم الإصدار في sw.js
+    const APP_VERSION = '2.7';   // ترقيم الاعتماد (من 4 نوفمبر 2026): 1.0 ثم 1.1 … 1.9 ثم 2.0 — ويُرفع معه رقم الإصدار في sw.js
     (function setupAppBehaviors() {
       const root = document.documentElement;
 
