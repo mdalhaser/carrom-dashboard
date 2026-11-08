@@ -1952,7 +1952,7 @@
        transform وopacity فقط (بلا filter)، داخل حدود البطاقة، و«تقليل الحركة»: أشعة وهالة ثابتة فقط. عند اكتمال الدوري يعود كل شيء للمعة العادية. */
     /* 2.6: قصاصات لمس بطاقة الحسم على الشاشة كلها (فوق الإحصائيات) كاحتفال البطل، لا داخل البطاقة فقط */
     canvas.kc-fx { position: fixed; inset: 0; width: 100vw; height: 100vh; pointer-events: none; z-index: 10050; }
-    .st-last-live .kc-top { margin: -4px 0 10px; font-size: 12px; font-weight: 700; color: var(--lk-muted); letter-spacing: .2px; }
+    .st-last-live .kc-top, .ko-champ .kc-top { margin: -4px 0 10px; font-size: 12px; font-weight: 700; color: var(--lk-muted); letter-spacing: .2px; }   /* السطر العلوي: اسم الدوري أو رقم البطولة */
     .st-last-live .kc-rays { position: absolute; left: 50%; top: 46%; width: 420px; height: 420px; margin: -210px 0 0 -210px; border-radius: 50%; z-index: -2; pointer-events: none;
       background: repeating-conic-gradient(from 0deg, rgba(255, 251, 236, .62) 0deg 6deg, rgba(255, 251, 236, 0) 6deg 18deg);
       -webkit-mask-image: radial-gradient(circle, #000 12%, transparent 54%); mask-image: radial-gradient(circle, #000 12%, transparent 54%);
@@ -7253,8 +7253,14 @@ currentScoreWinnerName = null;
         const fm = Object.values(bracketState).find(isFinalMatch), hasSc = fm && fm.winnerScore != null && fm.loserScore != null;
         const nm = String(winnerDisplay).split(' + ').map(x => `<bdi>${escHTML(x)}</bdi>`).join('<span class="pl" aria-hidden="true">+</span>');
         const finalWinner = document.createElement('section');
-        finalWinner.className = 'st-last kc ko-champ kc-enter'; finalWinner.setAttribute('aria-label', 'بطل البطولة: ' + winnerDisplay);
-        finalWinner.innerHTML = champCardHTML('بطل البطولة', nm, hasSc ? `النهائي · ${Math.max(fm.winnerScore, fm.loserScore)} - ${Math.min(fm.winnerScore, fm.loserScore)}` : '');
+        // 2.8: البطاقة للفائز وحده: رقم البطولة (أو اسمها الخاص) ← الدرع ← «بطل البطولة الفردية/بطل بطولة الفرق» ← الاسم ← «فوز في النهائي · 2 - 1» ← اليوم والتاريخ
+        const kind = currentMode === 'single' ? 'single' : 'fixed', rec = (tournamentHistory || []).find(t => t && t.id === currentTournamentId) || null;
+        const topT = rec ? histTitle(rec) : histNumberTitle({ mode: kind, id: '__live__' });
+        const ttl = kind === 'single' ? 'بطل البطولة الفردية' : 'بطل بطولة الفرق';
+        const meta = hasSc ? `فوز في النهائي · ${Math.max(fm.winnerScore, fm.loserScore)} - ${Math.min(fm.winnerScore, fm.loserScore)}` : 'فوز في النهائي';
+        const when = fmtDayDate(rec && rec.date ? rec.date : new Date());
+        finalWinner.className = 'st-last kc ko-champ kc-enter'; finalWinner.setAttribute('aria-label', `${topT}، ${ttl}: ${winnerDisplay}، ${meta}، ${when}`);
+        finalWinner.innerHTML = `<div class="kc-top">${escHTML(topT)}</div>` + champCardHTML(ttl, nm, meta, escHTML(when));
         bracketArea.appendChild(finalWinner);
       }
     }
