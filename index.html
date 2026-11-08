@@ -6631,9 +6631,7 @@ return teamName.replace('غير محدد', replacement);
         const cl = (() => { try { return leagueClinch(); } catch (e) { return null; } })();
         if (cl && !cl.final) {
           const row = (() => { try { return calculateLeagueStandings().find(r => r.name === cl.name); } catch (e) { return null; } })();
-          const pts = row ? row.points : cl.points, pw = pts === 1 ? 'نقطة' : pts === 2 ? 'نقطتان' : pts >= 3 && pts <= 10 ? 'نقاط' : 'نقطة';
-          const when = `حُسم قبل ${arRounds(cl.roundsLeft)} من النهاية`;
-          return `<section class="st-last kc st-last-live" aria-label="بطل الدوري: ${escHTML(cl.name)}، ${pts} ${pw}، ${when}">${champCardHTML('بطل الدوري', `<bdi>${escHTML(cl.name)}</bdi>`, `${pts} ${pw}`, when).replace('<span class="kc-cup kc-trophy', '<span class="kc-cup kc-trophy kc-live').replace(/(<span class="kc-cup kc-trophy kc-live[^>]*>)/, '$1<span class="kc-halo" aria-hidden="true"></span>')}</section>`;
+          return `<section class="st-last kc st-last-live" aria-label="بطل الدوري: ${escHTML(cl.name)}، ${CLINCH_LINE}، ${CLINCH_WHY}">${champCardHTML('بطل الدوري', `<bdi>${escHTML(cl.name)}</bdi>`, CLINCH_LINE, CLINCH_WHY).replace('<span class="kc-cup kc-trophy', '<span class="kc-cup kc-trophy kc-live').replace(/(<span class="kc-cup kc-trophy kc-live[^>]*>)/, '$1<span class="kc-halo" aria-hidden="true"></span>')}</section>`;
         }
         if (!lastHist || !lastHist.champion) return '';
         const t = lastHist, fs = t.finalScore || {}, hasSc = fs.winner != null && fs.loser != null;
@@ -10353,7 +10351,7 @@ function changeScore(inputId, amount){
         const cl = leagueClinch();
         if (cl && window.carromCelebrate && (!wasCl || wasCl.name !== cl.name || (!wasDone && cl.final))) {
           const t = tournamentName.textContent.trim();
-          const gd = cl.final ? leagueGoldenOf() : null; window.carromCelebrate(gd ? 'البطل الذهبي' : cl.final ? 'بطل الدوري' : 'حسم لقب الدوري', cl.name, celebLeagueDetails(cl.name, cl) || exportPointsLabel(cl.points), { golden: !!gd, top: t, note: gd ? goldenLine(gd) : celebClinchNote(cl), share: () => exportLeagueAchievementImage('champion', calculateLeagueStandings(), true) });
+          const gd = cl.final ? leagueGoldenOf() : null; window.carromCelebrate(gd ? 'البطل الذهبي' : cl.final ? 'بطل الدوري' : 'حسم لقب الدوري', cl.name, (cl.final ? celebLeagueDetails(cl.name, cl) || exportPointsLabel(cl.points) : CLINCH_WHY), { golden: !!gd, top: t, note: gd ? goldenLine(gd) : celebClinchNote(cl), share: () => exportLeagueAchievementImage('champion', calculateLeagueStandings(), true) });
         }
       } catch (e) {}
     }
@@ -10388,7 +10386,7 @@ function buildLeagueStandingsCanvas() {
   const headH = 70, rowGap = 0; let rowH = 92;   // 6.3: صفوف متصلة بلا صناديق، وارتفاعها يملأ مقاس الستوري بإطار عريض
   // سطر الشرح تحت الهيدر (مثل بقية الصور): «اكتمل الدوري · 6 جولات · 12 مباراة» — يُعدَّل أو يُخفى من «تخصيص»
   const ctxOrig = leagueCompleted ? `اكتمل الدوري · ${arRounds(progress.totalRounds)} · ${arMatchesN(progress.total)}`
-    : champRow ? `حُسم اللقب قبل ${arRounds(clinch.roundsLeft)} من النهاية` : '';
+    : champRow ? CLINCH_LINE : '';
   const ctxRes = exportContextResolve(ctxOrig);
   let y = M + headerH + 34 + (ctxRes.shown ? 50 : 0);
   const bannerY = y;
@@ -10498,7 +10496,7 @@ function buildLeagueStandingsCanvas() {
         const canvas = buildLeagueStandingsCanvas();
         { const st = calculateLeagueStandings(), pr = getLeagueProgress(), top = st.slice(0, 3).map(r => `${r.rank}- ${r.name} (${exportPointsLabel(r.points)})`).join('، ');
           const cl = !pr.completed ? leagueClinch() : null;
-          setCaption('League-Standings.png', pr.completed ? `بطل الدوري: ${(st.find(r => !r.excluded && r.rank === 1) || {}).name || '—'}\nالترتيب النهائي للدوري: ${top}.` : (cl ? `حسم اللقب: ${cl.name} (قبل ${arRounds(cl.roundsLeft)} من النهاية)\n` : '') + `ترتيب الدوري بعد ${pr.done} من ${pr.total} ${arMatchW(pr.total)}: ${top}.`); }
+          setCaption('League-Standings.png', pr.completed ? `بطل الدوري: ${(st.find(r => !r.excluded && r.rank === 1) || {}).name || '—'}\nالترتيب النهائي للدوري: ${top}.` : (cl ? `حسم اللقب قبل نهاية الدوري: ${cl.name}\n` : '') + `ترتيب الدوري بعد ${pr.done} من ${pr.total} ${arMatchW(pr.total)}: ${top}.`); }
         await downloadCanvasAsPng(canvas, 'League-Standings.png');
       } catch (err) {
         console.error(err);
@@ -10538,10 +10536,13 @@ function buildLeagueStandingsCanvas() {
       const st = calculateLeagueStandings().filter(x => !x.excluded), me = st.find(x => x.name === name); if (!me) return null;
       const second = st.find(x => x.name !== name);
       const diff = me.setDifference > 0 ? '+' + me.setDifference : String(me.setDifference);
-      if (clinch && !clinch.final) return [[me.points, 'نقطة'], [second ? '+' + (me.points - second.points) : '—', 'التقدم على الثاني'], [clinch.matchesLeft, clinch.matchesLeft === 1 ? 'مباراة متبقية' : 'مباريات متبقية']];
+      if (clinch && !clinch.final) return null;   // 2.4: الحسم المبكر بلا أرقام متغيرة؛ يظهر CLINCH_WHY
+      if (false) return [[me.points, 'نقطة'], [second ? '+' + (me.points - second.points) : '—', 'التقدم على الثاني'], [clinch.matchesLeft, clinch.matchesLeft === 1 ? 'مباراة متبقية' : 'مباريات متبقية']];
       return [[me.points, 'نقطة'], [`${me.wins} · ${me.draws} · ${me.losses}`, 'ف · ت · خ'], [diff, 'فارق الأشواط']];
     }
-    function celebClinchNote(cl) { return cl && !cl.final ? `حُسم قبل النهاية بـ${arRounds(cl.roundsLeft)}` : ''; }
+    // 2.4: الحسم المبكر بعبارة واحدة ثابتة في كل مكان — بلا أرقام تتغير (نقاط حالية، جولات متبقية) فلا تثير أسئلة بين اللاعبين
+    const CLINCH_LINE = 'حسم اللقب قبل نهاية الدوري', CLINCH_WHY = 'لا يستطيع أي لاعب بلوغ نقاطه';
+    function celebClinchNote(cl) { return cl && !cl.final ? CLINCH_LINE : ''; }
 
     function getCurrentFinalistData() {
       const v = getVerifiedTournamentChampion();
@@ -12540,12 +12541,12 @@ function buildLeagueStandingsCanvas() {
       const title = tournamentName.textContent.trim() || 'بطولة المجلس للكيرم';
       const subtitle = kind === 'champion' ? 'بطل الدوري' : kind === 'runnerUp' ? 'وصيف الدوري' : (kind === 'top5' ? 'أفضل 5 مراكز' : 'أفضل 3 مراكز');
       const leagueDone = !!(isFinal && (getExportCenterSnapshot().completed || clinched));
-      const earlyLine = clinched && !clinched.final ? `حسم اللقب قبل ${arRounds(clinched.roundsLeft)} من النهاية` : null;
+      const earlyLine = clinched && !clinched.final ? CLINCH_WHY : null;
       const gold = kind === 'champion' && leagueDone ? leagueGoldenOf() : null;
       if (kind === 'champion' && leagueDone) {   // 8.5: بطل الدوري ببطاقة التطبيق نفسها (renderLeagueFinal): النقاط ← السجل ← المركزان الثاني والثالث
         const ptsW = n => `${n} ${n === 1 ? 'نقطة' : n === 2 ? 'نقطتان' : n >= 3 && n <= 10 ? 'نقاط' : 'نقطة'}`;
         const top = (standings || []).filter(r => !r.excluded).slice(0, 3), c = top[0], full = getExportCenterSnapshot().completed;
-        await renderAchievementCanvas([{ rank: 1, name: c.name, cup: true, final: true, champ: { title: gold ? 'البطل الذهبي' : 'بطل الدوري', golden: !!gold, parts: [c.name], meta: ptsW(c.points),
+        await renderAchievementCanvas([{ rank: 1, name: c.name, cup: true, final: true, champ: { title: gold ? 'البطل الذهبي' : 'بطل الدوري', golden: !!gold, parts: [c.name], meta: !full && earlyLine ? CLINCH_LINE : ptsW(c.points),
           sub: gold ? goldenLine(gold) : (!full && earlyLine) ? earlyLine : `فوز ${c.wins} · تعادل ${c.draws} · خسارة ${c.losses}`,
           rest: gold || !full ? [] : top.slice(1).map(r => [r.rank, r.name, ptsW(r.points)]) } }], 'الدوري', '', title, `League-${kind}-Final.png`);
         return;
@@ -13653,7 +13654,7 @@ function buildLeagueStandingsCanvas() {
           } else if (!leagueCompleted) {
             // احتفال عند لحظة حسم جديدة: لم يكن محسومًا، أو صار محسومًا للاعب آخر بعد تعديل نتيجة
             const cl = leagueClinch();
-            if (cl && !cl.final && (!wasCl || wasCl.name !== cl.name)) celebrate('حسم لقب الدوري', cl.name, celebLeagueDetails(cl.name, cl) || `قبل ${arRounds(cl.roundsLeft)} من النهاية`, { top: tournamentName.textContent.trim(), note: celebClinchNote(cl), share: () => exportLeagueAchievementImage('champion', calculateLeagueStandings(), true) });
+            if (cl && !cl.final && (!wasCl || wasCl.name !== cl.name)) celebrate('حسم لقب الدوري', cl.name, celebLeagueDetails(cl.name, cl) || CLINCH_WHY, { top: tournamentName.textContent.trim(), note: celebClinchNote(cl), share: () => exportLeagueAchievementImage('champion', calculateLeagueStandings(), true) });
           }
         } catch (e) { console.error(e); }
         return r;
@@ -14434,7 +14435,7 @@ function buildLeagueStandingsCanvas() {
     // ===================================
     // 🧭 سلوك التطبيق: إعادة الوضع للأعلى، تعديل العنوان بالضغط المطوّل، تنبيه التحديث، رقم الإصدار
     // ===================================
-    const APP_VERSION = '2.3';   // ترقيم الاعتماد (من 4 نوفمبر 2026): 1.0 ثم 1.1 … 1.9 ثم 2.0 — ويُرفع معه رقم الإصدار في sw.js
+    const APP_VERSION = '2.4';   // ترقيم الاعتماد (من 4 نوفمبر 2026): 1.0 ثم 1.1 … 1.9 ثم 2.0 — ويُرفع معه رقم الإصدار في sw.js
     (function setupAppBehaviors() {
       const root = document.documentElement;
 
@@ -14946,7 +14947,7 @@ function buildLeagueStandingsCanvas() {
         const names = a => a.map(esc).join(' و');
         const directTxt = d => `${d.wins.length ? `فوزه على ${names(d.wins)}` : ''}${d.wins.length && d.draws.length ? ' و' : ''}${d.draws.length ? `تعادله مع ${names(d.draws)}` : ''}`;
         const say = phase === 5
-          ? `حُسم لقب الدوري حسابيًا لصالح <b>${esc(L.name)}</b> قبل ${arRounds(cl.roundsLeft)} من النهاية، ولم يعد بإمكان أي منافس اللحاق به.`
+          ? `حُسم لقب الدوري حسابيًا لصالح <b>${esc(L.name)}</b> قبل نهاية الدوري، ولم يعد بإمكان أي منافس اللحاق به.`
           : !L.left
             ? `انتهت مباريات <b>${esc(L.name)}</b>، وأصبح حسم اللقب مرتبطًا بنتائج المنافسين المتبقية.`
             : anyOk
@@ -14963,7 +14964,7 @@ function buildLeagueStandingsCanvas() {
           ${ways.map((x, i) => `<div class="tr-way${i >= 3 && !waysAll ? ' x' : ''}" aria-label="${wayTxt(x)}، والبقية بأي نتيجة: ${ptsN(x.pts)}"><span class="w">${wayTxt(x)}</span><span class="p">${x.pts}<small>${x.pts === 1 ? 'نقطة' : x.pts === 2 ? 'نقطتان' : x.pts <= 10 ? 'نقاط' : 'نقطة'}</small></span></div>`).join('')}
           ${ways.length > 3 ? `<button type="button" class="vm2-more tr-wmore" aria-expanded="${waysAll}">${waysAll ? 'عرض أقل' : `عرض الكل (${ways.length})`}</button>` : ''}</div>` : '';
         box.classList.toggle('open', open);
-        box.innerHTML = `<button type="button" class="tr-sum" aria-expanded="${open}"><span class="ic ic-flag" aria-hidden="true"></span><span class="t">سباق اللقب</span><span class="tr-ph p${phase}">${PH[phase]}</span>${chev}<span class="sub"><span class="in">${phase === 5 ? `<b>${esc(L.name)}</b> · قبل ${arRounds(cl.roundsLeft)} من النهاية` : selfOk ? (n => `<b>${esc(L.name)}</b> يحتاج <b class="k">${n}</b> ${n === 1 ? 'نقطة' : n === 2 ? 'نقطتين' : n <= 10 ? 'نقاط' : 'نقطة'} للضمان`)(anyOk ? need : direct.need) : `<b>${esc(L.name)}</b> لا يضمنه بنتائجه وحدها`}</span></span></button>
+        box.innerHTML = `<button type="button" class="tr-sum" aria-expanded="${open}"><span class="ic ic-flag" aria-hidden="true"></span><span class="t">سباق اللقب</span><span class="tr-ph p${phase}">${PH[phase]}</span>${chev}<span class="sub"><span class="in">${phase === 5 ? `<b>${esc(L.name)}</b> · ${CLINCH_LINE}` : selfOk ? (n => `<b>${esc(L.name)}</b> يحتاج <b class="k">${n}</b> ${n === 1 ? 'نقطة' : n === 2 ? 'نقطتين' : n <= 10 ? 'نقاط' : 'نقطة'} للضمان`)(anyOk ? need : direct.need) : `<b>${esc(L.name)}</b> لا يضمنه بنتائجه وحدها`}</span></span></button>
           <div class="tr-body"><div class="in">
             <div class="tr-steps" aria-hidden="true">${[1, 2, 3, 4, 5].map(i => `<i${i <= phase ? ' class="on"' : ''}></i>`).join('')}</div>
             ${phase < 5 ? `<div class="tr-cap">المتصدر و${nRivals(rivals.length)}</div>` : ''}
@@ -15647,10 +15648,10 @@ function buildLeagueStandingsCanvas() {
         if (!host || !cl) return;
         let me1 = null; try { me1 = (JSON.parse(localStorage.getItem('__carrom_me_v1') || 'null') || {}).name || null; } catch (e) {}
         const totalRounds = (() => { try { return getLeagueProgress().totalRounds; } catch (e) { return 0; } })();
-        const note = cl.final ? `${exportPointsLabel(cl.points)} · ${arRounds(totalRounds)}` : `حُسم قبل ${arRounds(cl.roundsLeft)}`;   // الأهم (النقاط) أولًا
+        const note = cl.final ? `${exportPointsLabel(cl.points)} · ${arRounds(totalRounds)}` : CLINCH_LINE;   // الأهم (النقاط) أولًا · 2.4: الحسم المبكر بعبارته الثابتة
         const card = document.createElement('button'); card.type = 'button'; card.className = 'st-last kc kc-btn'; card.id = 'viewChampion';
-        card.setAttribute('aria-label', `بطل الدوري: ${cl.name}، ${note}`);
-        card.innerHTML = champCardHTML(cl.final ? 'بطل الدوري' : 'حسم لقب الدوري', `<bdi>${esc(cl.name)}</bdi>`, esc(note));
+        card.setAttribute('aria-label', `بطل الدوري: ${cl.name}، ${note}${cl.final ? '' : '، ' + CLINCH_WHY}`);
+        card.innerHTML = champCardHTML('بطل الدوري', `<bdi>${esc(cl.name)}</bdi>`, esc(note), cl.final ? '' : CLINCH_WHY);
         card.addEventListener('click', () => { try { window.carromOpenProfile(cl.name); } catch (e) {} });
         if (!cl.final) host.prepend(card);   // 6.9: الدوري المكتمل يعرض بطله في بطاقة «بطل الدوري» الموحدة (بلا تكرار)
         // شارة «البطل» بجانب اسمه في الترتيب
@@ -15665,7 +15666,7 @@ function buildLeagueStandingsCanvas() {
           const mine = me1 && me1 === cl.name;
           const gd = cl.final ? leagueGoldenOf() : null;   // البطل الذهبي: نفس الاحتفال الذهبي للجميع، وصاحبه يرى «مبروك! أنت البطل الذهبي»
           const label = gd ? (mine ? 'مبروك! أنت البطل الذهبي' : 'البطل الذهبي') : mine ? (cl.final ? 'مبروك! أنت بطل الدوري' : 'مبروك! حسمت لقب الدوري') : (cl.final ? 'بطل الدوري' : 'حسم لقب الدوري');
-          const sub = cl.final ? exportPointsLabel(cl.points) : `قبل ${arRounds(cl.roundsLeft)} من النهاية`;
+          const sub = cl.final ? exportPointsLabel(cl.points) : CLINCH_WHY;
           const gopts = gd ? { golden: true, note: goldenLine(gd) } : undefined;
           setTimeout(() => { try { if (currentMode === 'league' && window.carromCelebrate) window.carromCelebrate(label, cl.name, sub, gopts); else { const b = document.getElementById('modeLeagueBtn'); const once = () => { b.removeEventListener('click', once); setTimeout(() => window.carromCelebrate && window.carromCelebrate(label, cl.name, sub, gopts), 450); }; if (b) b.addEventListener('click', once); } } catch (e) {} }, 700);
         }
