@@ -852,7 +852,8 @@
     .league-dot.part:not(.active) { color: var(--text); }
     .league-dot.active .rg .tr { stroke: var(--line-strong); }
     .league-dot.active.done .rg .tr { stroke: var(--ok); }
-    #leagueRounds .league-round-dots { gap: 12px; }   /* مسافة تتسع للحلقات فلا تتلامس */
+    #leagueRounds .league-round-dots { gap: 12px; }
+    .league-round-note { margin: 8px 0 0; text-align: center; font-size: 12px; font-weight: 700; line-height: 1.5; color: var(--text-3); }   /* مسافة تتسع للحلقات فلا تتلامس */
     body.lg-focus #leagueRounds .league-round-dots { padding-top: 8px; padding-bottom: 8px; }
     .league-bye {
       text-align: center; color: var(--text-2); font-size: var(--fs-sm); font-weight: 600;
@@ -10045,6 +10046,11 @@ function changeScore(inputId, amount){
       nav.appendChild(title);
       nav.appendChild(next);
       el.appendChild(nav);
+      // 3.1: الحقيقة الثابتة التي تشرح الحلقات: الجولات تنظيم للجدول، واللعب بالحضور (لا ترتيب ملزم)
+      const note = document.createElement('p');
+      note.className = 'league-round-note';
+      note.textContent = 'الجولات لتنظيم الجدول فقط، والمباريات تُلعب حسب حضور اللاعبين';
+      el.appendChild(note);
 
       // نقاط سريعة للانتقال إلى أي جولة
       const dots = document.createElement('div');
@@ -10112,13 +10118,13 @@ function changeScore(inputId, amount){
           <span>${leagueEscape(name)}${annul && leagueIsExcluded(name) ? '<em class="ff-tag">مستبعد</em>' : ff === side ? `<em class="ff-tag">${m.auto ? 'مستبعد' : 'انسحب'}</em>` : ''}</span>
           ${score === null ? '' : `<span class="score-badge ${won ? 'winner-badge' : 'loser-badge'}"><span class="tx">${score}</span></span>`}
         </div>`;
-      const seq = (String(m.id).match(/M(\d+)$/) || [])[1] || '';
+      // 3.1: لا «مباراة N» داخل الجولة — رقم آلي يوحي بدور وترتيب لعب غير موجود (اللعب بالحضور)؛ السطر العلوي للحالة (والبرق) وحدها
       const status = annul ? '<span class="match-status done ff void"><span class="tx">ملغاة</span></span>' : done
         ? (ff ? `<span class="match-status done ff"><span class="tx">${m.auto ? 'استبعاد' : 'انسحاب'}</span></span>` : `<span class="match-status done"><span class="tx">${d.result === 'draw' ? 'تعادل' : 'مكتملة'}</span></span>`)
         : '<span class="match-status ready"><span class="tx">جاهزة للتسجيل</span></span>';
 
       card.innerHTML = `
-        <div class="match-head"><div class="match-title">مباراة ${seq}</div>${status}</div>
+        <div class="match-head"><div class="match-title"></div>${status}</div>
         <div class="match-body">
           ${row(m.playerA, done && !annul ? m.scoreA : null, !!d && d.result === 'A', 'A')}
           ${row(m.playerB, done && !annul ? m.scoreB : null, !!d && d.result === 'B', 'B')}
