@@ -844,7 +844,7 @@
     body.dark-mode .league-dot.active { background: var(--gold-fill); border-color: var(--gold-fill); color: #1A140F; }
     /* 3.1 — حلقة تقدم الجولة: المسار خافت والممتلئ ذهبي بقدر ما لُعب؛ المكتملة حلقة كاملة بلونها الأخضر المعتاد */
     .league-dot { position: relative; border-color: transparent; }
-    .league-dot .rg { position: absolute; inset: -5px; width: calc(100% + 10px); height: calc(100% + 10px); transform: rotate(-90deg) scaleY(-1); pointer-events: none; overflow: visible; }
+    .league-dot .rg { position: absolute; inset: -5px; width: calc(100% + 10px); height: calc(100% + 10px); transform: rotate(-90deg); pointer-events: none; overflow: visible; }
     .league-dot .rg circle { fill: none; stroke-width: 2.2; }
     .league-dot .rg .tr { stroke: var(--line-strong); }
     .league-dot .rg .pg { stroke: var(--gold); stroke-linecap: round; }
@@ -14546,7 +14546,7 @@ function buildLeagueStandingsCanvas() {
     // ===================================
     // 🧭 سلوك التطبيق: إعادة الوضع للأعلى، تعديل العنوان بالضغط المطوّل، تنبيه التحديث، رقم الإصدار
     // ===================================
-    const APP_VERSION = '3.3';   // ترقيم الاعتماد (من 4 نوفمبر 2026): 1.0 ثم 1.1 … 1.9 ثم 2.0 — ويُرفع معه رقم الإصدار في sw.js
+    const APP_VERSION = '3.4';   // ترقيم الاعتماد (من 4 نوفمبر 2026): 1.0 ثم 1.1 … 1.9 ثم 2.0 — ويُرفع معه رقم الإصدار في sw.js
     (function setupAppBehaviors() {
       const root = document.documentElement;
 
