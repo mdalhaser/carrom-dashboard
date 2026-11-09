@@ -869,6 +869,19 @@
     .league-dot.done { background: var(--ok-bg); border-color: var(--ok-line); color: var(--ok); }
     .league-dot.active { background: var(--wood); border-color: var(--wood); color: var(--gold); }
     body.dark-mode .league-dot.active { background: var(--gold-fill); border-color: var(--gold-fill); color: #1A140F; }
+    /* 3.1 — حلقة تقدم الجولة: المسار خافت والممتلئ ذهبي بقدر ما لُعب؛ المكتملة حلقة كاملة بلونها الأخضر المعتاد */
+    .league-dot { position: relative; border-color: transparent; }
+    .league-dot .rg { position: absolute; inset: -5px; width: calc(100% + 10px); height: calc(100% + 10px); transform: rotate(-90deg) scaleY(-1); pointer-events: none; overflow: visible; }
+    .league-dot .rg circle { fill: none; stroke-width: 2.2; }
+    .league-dot .rg .tr { stroke: var(--line-strong); }
+    .league-dot .rg .pg { stroke: var(--gold); stroke-linecap: round; }
+    .league-dot.done .rg .tr { stroke: var(--ok); }
+    .league-dot.part:not(.active) { color: var(--text); }
+    .league-dot.active .rg .tr { stroke: var(--line-strong); }
+    .league-dot.active.done .rg .tr { stroke: var(--ok); }
+    #leagueRounds .league-round-dots { gap: 12px; }
+    .league-round-note { margin: 8px 0 0; text-align: center; font-size: 12px; font-weight: 700; line-height: 1.5; color: var(--text-3); }   /* مسافة تتسع للحلقات فلا تتلامس */
+    body.lg-focus #leagueRounds .league-round-dots { padding-top: 8px; padding-bottom: 8px; }
     .league-bye {
       text-align: center; color: var(--text-2); font-size: var(--fs-sm); font-weight: 600;
       margin-top: var(--s3); padding: 12px; border: 1px dashed var(--line-strong); border-radius: var(--r-sm);
@@ -10060,6 +10073,13 @@ function changeScore(inputId, amount){
       nav.appendChild(title);
       nav.appendChild(next);
       el.appendChild(nav);
+      // 3.1: الحقيقة الثابتة التي تشرح الحلقات: الجولات تنظيم للجدول، واللعب بالحضور (لا ترتيب ملزم)
+      if (leagueMatches.some(m => !isLeagueMatchSettled(m))) {   // بعد اكتمال الدوري لا يبقى ما يشرحه
+        const note = document.createElement('p');
+        note.className = 'league-round-note';
+        note.textContent = 'الجولات لتنظيم الجدول فقط، والمباريات تُلعب حسب حضور اللاعبين';
+        el.appendChild(note);
+      }
 
       // نقاط سريعة للانتقال إلى أي جولة
       const dots = document.createElement('div');
@@ -10067,15 +10087,27 @@ function changeScore(inputId, amount){
       for (let r = 1; r <= totalRounds; r++) {
         const rm = getLeagueRoundMatches(r);
         const done = rm.length > 0 && rm.every(isLeagueMatchSettled);
+        // 3.1: حلقة تقدم تمتلئ بقدر ما لُعب من الجولة — الجولات تمتلئ متفرقة حسب الحضور، لا بالترتيب
+        const nDone = rm.filter(isLeagueMatchSettled).length, pct = rm.length ? Math.round(nDone / rm.length * 100) : 0;
         const dot = document.createElement('button');
         dot.type = 'button';
-        dot.className = 'league-dot' + (done ? ' done' : '') + (r === round ? ' active' : '');
-        dot.innerHTML = `<span class="tx">${r}</span>`;
-        dot.title = `الجولة ${r}`;
+        dot.className = 'league-dot' + (done ? ' done' : nDone ? ' part' : '') + (r === round ? ' active' : '');
+        dot.innerHTML = `<svg class="rg" viewBox="0 0 40 40" aria-hidden="true"><circle class="tr" cx="20" cy="20" r="18" pathLength="100"/>${nDone && !done ? `<circle class="pg" cx="20" cy="20" r="18" pathLength="100" stroke-dasharray="${pct} 100"/>` : ''}</svg><span class="tx">${r}</span>`;
+        dot.title = `الجولة ${r}: ${nDone} من ${rm.length} ${arMatchW(rm.length)}`;
+        dot.setAttribute('aria-label', dot.title);
+        dot.dataset.pct = done ? 100 : pct;
         dot.addEventListener('click', () => goToLeagueRound(r));
         dots.appendChild(dot);
       }
       el.appendChild(dots);
+      // 3.1: حين تُسجَّل نتيجة يمتلئ الجزء الجديد من حلقة جولتها بانسياب، والمكتملة تتحول للأخضر بهدوء (أول رسم بلا حركة)
+      { const prev = el.__ringPct, now = {}, calm = !document.body.animate || (window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches);
+        dots.querySelectorAll('.league-dot').forEach((d, i) => { const r = i + 1, v = Number(d.dataset.pct) || 0; now[r] = v;
+          if (!prev || calm || prev[r] == null || prev[r] >= v) return;
+          const o = { duration: 300, easing: 'cubic-bezier(.2, .8, .2, 1)' }, pg = d.querySelector('.rg .pg'), tr = d.querySelector('.rg .tr');
+          if (pg) pg.animate([{ strokeDasharray: `${prev[r]} 100` }, { strokeDasharray: `${v} 100` }], o);
+          else if (v === 100 && tr) tr.animate([{ stroke: getComputedStyle(document.documentElement).getPropertyValue('--gold').trim() || '#CFA963' }, { stroke: getComputedStyle(tr).stroke }], { ...o, duration: 420 }); });
+        el.__ringPct = now; }
 
       const bye = getLeagueRoundBye(round);
       if (bye) {
@@ -10124,13 +10156,13 @@ function changeScore(inputId, amount){
           <span>${leagueEscape(name)}${annul && leagueIsExcluded(name) ? '<em class="ff-tag">مستبعد</em>' : ff === side ? `<em class="ff-tag">${m.auto ? 'مستبعد' : 'انسحب'}</em>` : ''}</span>
           ${score === null ? '' : `<span class="score-badge ${won ? 'winner-badge' : 'loser-badge'}"><span class="tx">${score}</span></span>`}
         </div>`;
-      const seq = (String(m.id).match(/M(\d+)$/) || [])[1] || '';
+      // 3.1: لا «مباراة N» داخل الجولة — رقم آلي يوحي بدور وترتيب لعب غير موجود (اللعب بالحضور)؛ السطر العلوي للحالة (والبرق) وحدها
       const status = annul ? '<span class="match-status done ff void"><span class="tx">ملغاة</span></span>' : done
         ? (ff ? `<span class="match-status done ff"><span class="tx">${m.auto ? 'استبعاد' : 'انسحاب'}</span></span>` : `<span class="match-status done"><span class="tx">${d.result === 'draw' ? 'تعادل' : 'مكتملة'}</span></span>`)
         : '<span class="match-status ready"><span class="tx">جاهزة للتسجيل</span></span>';
 
       card.innerHTML = `
-        <div class="match-head"><div class="match-title">مباراة ${seq}</div>${status}</div>
+        <div class="match-head"><div class="match-title"></div>${status}</div>
         <div class="match-body">
           ${row(m.playerA, done && !annul ? m.scoreA : null, !!d && d.result === 'A', 'A')}
           ${row(m.playerB, done && !annul ? m.scoreB : null, !!d && d.result === 'B', 'B')}
@@ -14504,7 +14536,7 @@ function buildLeagueStandingsCanvas() {
     // ===================================
     // 🧭 سلوك التطبيق: إعادة الوضع للأعلى، تعديل العنوان بالضغط المطوّل، تنبيه التحديث، رقم الإصدار
     // ===================================
-    const APP_VERSION = '3.0';   // ترقيم الاعتماد (من 4 نوفمبر 2026): 1.0 ثم 1.1 … 1.9 ثم 2.0 — ويُرفع معه رقم الإصدار في sw.js
+    const APP_VERSION = '3.1';   // ترقيم الاعتماد (من 4 نوفمبر 2026): 1.0 ثم 1.1 … 1.9 ثم 2.0 — ويُرفع معه رقم الإصدار في sw.js
     (function setupAppBehaviors() {
       const root = document.documentElement;
 
@@ -14869,7 +14901,7 @@ function buildLeagueStandingsCanvas() {
         if (grid) {
           // 1.6: «التالية» بطاقة المباراة نفسها بعرض كامل (تبقى بتصميم بطاقات المباريات القادمة)
           const m0 = avail[0], c = createLeagueMatchCard(m0), t = c.querySelector('.match-title');
-          if (t) { const bolt = t.querySelector('.mc-bolt'); t.innerHTML = `<span class="tn-n"><span class="tx">1</span></span><span class="tn-t"><span class="tn-r">الجولة ${m0.round}</span> · مباراة ${seqOf(m0) || ''}</span>`; if (bolt) t.appendChild(bolt); }
+          if (t) { const bolt = t.querySelector('.mc-bolt'); t.innerHTML = `<span class="tn-n"><span class="tx">1</span></span>`; /* 3.1: ترتيبها في طابور اليوم وحده؛ لا جولة ولا «مباراة N» */ if (bolt) t.appendChild(bolt); }
           const st = c.querySelector('.match-status'); if (st) { st.className = 'match-status ready tn-next'; st.innerHTML = '<span class="tx">التالية</span>'; }
           c.classList.add('tn-first', 'lg-wide'); grid.appendChild(c);
           // ما بعدها: طابور بعمود واحد — رقم الدور ← الاسم ← «ضد» ← الاسم. أول 5 ظاهرة، والبقية خلف «عرض الكل» إن زادت عن 6
@@ -14879,7 +14911,7 @@ function buildLeagueStandingsCanvas() {
             const sk = rest.map(m => { try { return matchStakes([m.playerA], [m.playerB], { mode: 'league', final: false, id: m.id }); } catch (e) { return []; } });
             const q = document.createElement('div'); q.className = 'tn-q' + (fold && qAll ? ' all' : '');
             q.innerHTML = `<p class="tn-qh">بعدها</p>` + rest.map((m, i) => { const s = sk[i] && sk[i].length ? sk[i].map(stakeSentence).join('، ') : '';
-                return `<button type="button" class="tn-row${fold && i >= TN_PEEK ? ' tn-x' : ''}" data-id="${esc(m.id)}" aria-label="${i + 2}: ${esc(m.playerA)} ضد ${esc(m.playerB)}، الجولة ${m.round}${s ? '. على المحك: ' + esc(s) : ''}">`
+                return `<button type="button" class="tn-row${fold && i >= TN_PEEK ? ' tn-x' : ''}" data-id="${esc(m.id)}" aria-label="${i + 2}: ${esc(m.playerA)} ضد ${esc(m.playerB)}${s ? '. على المحك: ' + esc(s) : ''}">`
                   + `<span class="rd"><span class="tx">${i + 2}</span></span><span class="nm a">${esc(m.playerA)}</span><span class="vs">ضد</span><span class="nm b">${esc(m.playerB)}</span>`
                   + (s ? '<span class="ic ic-bolt mc-bolt" aria-hidden="true"></span>' : '<span></span>') + '</button>'; }).join('')
               + (fold ? `<button type="button" class="st-fold-more tn-more" aria-expanded="${qAll}">${qAll ? 'عرض أقل' : `عرض الكل (${rest.length})`}<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg></button>` : '');
