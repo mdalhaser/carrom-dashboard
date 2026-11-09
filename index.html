@@ -826,6 +826,32 @@
       background: var(--surface); border: 1px solid var(--line); border-radius: var(--r-lg); padding: var(--s4); box-shadow: var(--sh-1);
     }
     #leagueRounds:empty { display: none; }
+    /* 3.1 — «المباريات المتبقية»: رأس ← شبكة اللاعبين (3 أعمدة) ← مباريات اللاعب المختار بصفوف «ضد» المضغوطة */
+    .lr-h { display: flex; align-items: baseline; justify-content: space-between; gap: 12px; margin: 0 2px 12px; }
+    .lr-h b { font-size: var(--fs-md); font-weight: 800; }
+    .lr-h .meta { font-size: 12px; font-weight: 700; color: var(--text-3); white-space: nowrap; }
+    .lr-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; }
+    .lr-p { position: relative; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 2px; min-width: 0; min-height: 56px; padding: 8px 6px 6px; border: 1px solid transparent; border-radius: var(--r-md); background: var(--surface-2); font: inherit; color: var(--text); cursor: pointer; -webkit-tap-highlight-color: transparent; transition: background var(--t-fast) var(--ease), border-color var(--t-fast) var(--ease), transform var(--t-fast) var(--ease); }
+    .lr-p:active { transform: scale(.97); }
+    .lr-p .nm { max-width: 100%; font-size: 15px; font-weight: 700; line-height: 1.35; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .lr-p .ct { display: inline-flex; align-items: center; gap: 3px; font-size: 12px; font-weight: 700; color: var(--text-3); white-space: nowrap; }
+    .lr-p .ct .ic { width: 12px; height: 12px; --ic-y: -1px; }
+    .lr-p.on { background: var(--surface); border-color: var(--gold); box-shadow: 0 0 0 1px var(--gold) inset; }
+    .lr-p.on .ct { color: var(--gold-deep); }
+    .lr-p.fin { background: none; border-color: var(--line); cursor: default; }
+    .lr-p.fin .nm { color: var(--text-2); }
+    .lr-p.fin:active { transform: none; }
+    .lr-p.me:not(.on) { background: color-mix(in srgb, var(--gold) 10%, var(--surface-2)); }
+    .lr-me { position: absolute; top: -7px; inset-inline-start: 8px; padding: 2px 6px 0; border-radius: 999px; background: var(--gold); color: #fff; font-size: 11px; font-style: normal; font-weight: 800; line-height: 1.4; }
+    .lr-p .nm.sm { font-size: 13px; }   /* الاسم الطويل كاملًا في خانته بدل القص */
+    .lr-list { margin-top: 8px; }
+    .lr-row { display: grid; grid-template-columns: auto minmax(0, 1fr) auto 16px; align-items: center; column-gap: 10px; width: 100%; min-height: 48px; padding: 6px 10px; border: 0; border-top: 1px solid var(--line); background: none; font: inherit; color: var(--text); text-align: start; cursor: pointer; -webkit-tap-highlight-color: transparent; transition: background var(--t-fast) var(--ease); }
+    .lr-list .lr-row:first-child { border-top: 0; }
+    .lr-row:active { background: var(--surface-2); border-radius: var(--r-md); }
+    .lr-row .vs { font-size: 12px; font-weight: 700; color: var(--text-3); }
+    .lr-row .nm { min-width: 0; font-size: 15px; font-weight: 700; line-height: 1.35; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .lr-row .mc-bolt { width: 15px; height: 15px; color: var(--gold-deep); --ic-y: -1px; }
+    .lr-row .ic-chev-l { width: 16px; height: 16px; color: var(--text-3); }
     .league-round-nav { display: flex; align-items: center; justify-content: space-between; gap: var(--s2); }
     .league-round-nav .btn { min-height: var(--h-control-sm); padding: 0 16px; font-size: var(--fs-sm); }
     .league-round-title { text-align: center; font-weight: 800; font-size: var(--fs-lg); line-height: 1.25; }
@@ -9986,6 +10012,7 @@ function changeScore(inputId, amount){
       leagueFinalEl.innerHTML = `<section class="st-last kc lg-final-kc${gd ? ' kc-gold' : ' kc-enter'}" aria-label="${champTitle('league', liveChampRec('league'), !!gd)}: ${leagueEscape(c.name)}">${champCardHTML(champTitle('league', liveChampRec('league'), !!gd), `<bdi>${leagueEscape(c.name)}</bdi>`, ptsW(c.points), gd ? goldenLine(gd) : `فوز ${c.wins} · تعادل ${c.draws} · خسارة ${c.losses}`)}${rest ? `<div class="kc-rest">${rest}</div>` : ''}</section>`;
     }
 
+    let lgRemSel = null, lgRemInit = false;   // 3.1: اللاعب المختار في «المباريات المتبقية» (ذاكرة الجلسة فقط)
     function renderLeagueRounds() {
       const el = leagueRoundsEl;
       el.innerHTML = '';
@@ -9999,69 +10026,42 @@ function changeScore(inputId, amount){
         return;
       }
 
-      const totalRounds = leagueExpectedTotals(leaguePlayers.length).rounds;
-      const round = leagueCurrentRound;
-      const matches = getLeagueRoundMatches(round);
-      const liveMs = matches.filter(m => !isLeagueMatchAnnulled(m));
-      const doneCount = liveMs.filter(isLeagueMatchCompleted).length;
-      const roundDone = matches.length > 0 && matches.every(isLeagueMatchSettled);
-
-      // شريط التنقل بين الجولات
-      const nav = document.createElement('div');
-      nav.className = 'league-round-nav';
-
-      const prev = document.createElement('button');
-      prev.type = 'button';
-      prev.className = 'btn';
-      // أيقونات SVG لا تنعكس مع اتجاه النص (حرف › كان يُعكس تلقائيًا في العربية): السابقة يمينًا وسهمها لليمين، والتالية يسارًا وسهمها لليسار
-      prev.innerHTML = '<span class="ic ic-chev-r" aria-hidden="true"></span><span>السابقة</span>';
-      prev.disabled = round <= 1;
-      prev.addEventListener('click', () => goToLeagueRound(round - 1));
-
-      const title = document.createElement('div');
-      title.className = 'league-round-title';
-      title.innerHTML = `الجولة ${round}<small>${roundDone ? 'اكتملت الجولة' : `${doneCount} من ${liveMs.length} ${arMatchW(liveMs.length)} مكتملة`}</small>`;
-
-      const next = document.createElement('button');
-      next.type = 'button';
-      next.className = 'btn';
-      next.innerHTML = '<span>التالية</span><span class="ic ic-chev-l" aria-hidden="true"></span>';
-      next.disabled = round >= totalRounds;
-      next.addEventListener('click', () => goToLeagueRound(round + 1));
-
-      nav.appendChild(prev);
-      nav.appendChild(title);
-      nav.appendChild(next);
-      el.appendChild(nav);
-
-      // نقاط سريعة للانتقال إلى أي جولة
-      const dots = document.createElement('div');
-      dots.className = 'league-round-dots';
-      for (let r = 1; r <= totalRounds; r++) {
-        const rm = getLeagueRoundMatches(r);
-        const done = rm.length > 0 && rm.every(isLeagueMatchSettled);
-        const dot = document.createElement('button');
-        dot.type = 'button';
-        dot.className = 'league-dot' + (done ? ' done' : '') + (r === round ? ' active' : '');
-        dot.innerHTML = `<span class="tx">${r}</span>`;
-        dot.title = `الجولة ${r}`;
-        dot.addEventListener('click', () => goToLeagueRound(r));
-        dots.appendChild(dot);
-      }
-      el.appendChild(dots);
-
-      const bye = getLeagueRoundBye(round);
-      if (bye) {
-        const byeEl = document.createElement('div');
-        byeEl.className = 'league-bye';
-        byeEl.textContent = `يستريح في هذه الجولة: ${bye}`;
-        el.appendChild(byeEl);
-      }
-
-      const grid = document.createElement('div');
-      grid.className = 'league-matches';
-      matches.forEach(m => grid.appendChild(createLeagueMatchCard(m)));
-      el.appendChild(grid);
+      // 3.1 — «المباريات المتبقية» بدل التنقل بالجولات: المجلس يلعب بالحضور لا بالجولات، فالسؤال «من بقي لفلان؟».
+      // شبكة اللاعبين (الأكثر متبقيًا أولًا) ولمس لاعب يفتح مبارياته المتبقية تحته. الجولات باقية في البيانات والمنطق كما هي (عرض فقط).
+      const pend = leagueMatches.filter(m => !isLeagueMatchSettled(m))
+        .sort((a, b) => (a.round - b.round) || String(a.id).localeCompare(String(b.id), undefined, { numeric: true }));
+      const leftOf = n => pend.filter(m => m.playerA === n || m.playerB === n);
+      const people = leaguePlayers.filter(n => !leagueIsExcluded(n)).map(n => ({ n, k: leftOf(n).length }))
+        .sort((a, b) => (b.k - a.k) || a.n.localeCompare(b.n, 'ar'));
+      if (!lgRemInit) { lgRemInit = true; if (window.CARROM_VIEW) { try { const me = (JSON.parse(localStorage.getItem('__carrom_me_v1') || 'null') || {}).name; if (me && people.some(p => p.n === me && p.k)) lgRemSel = me; } catch (e) {} } }
+      if (lgRemSel && !people.some(p => p.n === lgRemSel)) lgRemSel = null;
+      let meName = null; if (window.CARROM_VIEW) { try { meName = (JSON.parse(localStorage.getItem('__carrom_me_v1') || 'null') || {}).name || null; } catch (e) {} }
+      const esc = leagueEscape;
+      el.innerHTML = `<div class="lr-h"><b>المباريات المتبقية</b><span class="meta">${pend.length ? arMatchesN(pend.length) : 'اكتملت كل المباريات'}</span></div>`
+        + `<div class="lr-grid" role="group" aria-label="اختر لاعبًا لعرض مبارياته المتبقية">${people.map(p => `<button type="button" class="lr-p${p.k ? '' : ' fin'}${p.n === lgRemSel ? ' on' : ''}${p.n === meName ? ' me' : ''}" data-n="${esc(p.n)}" aria-pressed="${p.n === lgRemSel}"${p.k ? '' : ' disabled'}>`
+          + `<span class="nm${p.n.length > 11 ? ' sm' : ''}"><bdi>${esc(p.n)}</bdi></span><span class="ct">${p.k ? arMatchesN(p.k) : '<span class="ic ic-check" aria-hidden="true"></span>أنهى مبارياته'}</span>${p.n === meName ? '<i class="lr-me">أنت</i>' : ''}</button>`).join('')}</div>`
+        + `<div class="lr-list"${lgRemSel ? '' : ' hidden'}></div>`;
+      const list = el.querySelector('.lr-list');
+      const rowsFor = n => leftOf(n).map(m => {
+        const b = m.playerA === n ? m.playerB : m.playerA;   // اسم المختار في الشبكة فوقها، فالصف يذكر الخصم وحده
+        let s = ''; try { const sk = matchStakes([m.playerA], [m.playerB], { mode: 'league', final: false, id: m.id }); s = sk && sk.length ? sk.map(stakeSentence).join('، ') : ''; } catch (e) {}
+        return `<button type="button" class="lr-row" data-id="${esc(m.id)}" aria-label="${esc(n)} ضد ${esc(b)}${s ? '. على المحك: ' + esc(s) : ''}"><span class="vs">ضد</span><span class="nm"><bdi>${esc(b)}</bdi></span>`
+          + (s ? '<span class="ic ic-bolt mc-bolt" aria-hidden="true"></span>' : '<span></span>') + '<span class="ic ic-chev-l" aria-hidden="true"></span></button>';
+      }).join('');
+      if (lgRemSel) list.innerHTML = rowsFor(lgRemSel);
+      list.addEventListener('click', e => { const r = e.target.closest('.lr-row'); if (r) openLeagueScoreModal(r.dataset.id); });
+      el.querySelector('.lr-grid').addEventListener('click', e => {
+        const b = e.target.closest('.lr-p'); if (!b || b.disabled) return;
+        const n = b.dataset.n, was = lgRemSel;
+        el.querySelectorAll('.lr-p').forEach(x => { const on = x.dataset.n === n && was !== n; x.classList.toggle('on', on); x.setAttribute('aria-pressed', on); });
+        if (was === n) { lgRemSel = null; revealMotion(list, false); return; }
+        lgRemSel = n;
+        if (!was) { list.innerHTML = rowsFor(n); revealMotion(list, true); return; }
+        // تبديل لاعب بلاعب: القائمة تأخذ طولها الجديد بنفس محرك الطي، والصفوف الجديدة تدخل تباعًا
+        const grow = leftOf(n).length >= leftOf(was).length;
+        foldFlip({ card: list, src: list, on: grow, stagger: true, fade: [], hold: () => {},
+          apply: () => { list.innerHTML = rowsFor(n); if (!foldReduced()) [...list.children].forEach((r, i) => r.animate([{ opacity: 0, transform: 'translateY(-6px)' }, { opacity: 1, transform: 'none' }], { duration: 220, delay: Math.min(i, 6) * 30, easing: FOLD_E, fill: 'both' })); } });
+      });
     }
 
     // بطاقة المباراة القادمة بشكل مواجهة: الطرفان متقابلان وبينهما «ضد» (الأسماء فقط؛ التقييم والفرص في نافذة المباراة عند الضغط).
@@ -14254,7 +14254,7 @@ function buildLeagueStandingsCanvas() {
         } else {
           const m = leagueMatches.find(x => x.id === id); if (!m || !isLeagueMatchCompleted(m)) return false;
           const d = deriveLeagueResult(m.scoreA, m.scoreB);
-          title = `مباراة ${(String(m.id).match(/M(\d+)$/) || [])[1] || ''}`; sub = `الجولة ${m.round}`;
+          title = 'مباراة الدوري'; { const at = leagueMatchTimes()[m.id]; sub = at ? fmtDayDate(at) : ''; }   // 3.1: يوم اللعب بدل رقم الجولة
           draw = d.result === 'draw';
           outcome = isLeagueMatchAnnulled(m) ? `ملغاة · ${leagueExcluded.find(n => n === m.playerA || n === m.playerB)} مستبعد من الدوري` : m.forfeit ? `فاز ${m.forfeit === 'A' ? m.playerB : m.playerA} ب${m.auto ? 'الاستبعاد' : 'الانسحاب'} · ${m.auto ? 'استُبعد' : 'انسحب'} ${m.forfeit === 'A' ? m.playerA : m.playerB}`
             : draw ? 'تعادل · نقطة لكل لاعب' : `الفائز: ${d.result === 'A' ? m.playerA : m.playerB} · 3 نقاط`;
@@ -14477,7 +14477,7 @@ function buildLeagueStandingsCanvas() {
     // ===================================
     // 🧭 سلوك التطبيق: إعادة الوضع للأعلى، تعديل العنوان بالضغط المطوّل، تنبيه التحديث، رقم الإصدار
     // ===================================
-    const APP_VERSION = '3.0';   // ترقيم الاعتماد (من 4 نوفمبر 2026): 1.0 ثم 1.1 … 1.9 ثم 2.0 — ويُرفع معه رقم الإصدار في sw.js
+    const APP_VERSION = '3.1';   // ترقيم الاعتماد (من 4 نوفمبر 2026): 1.0 ثم 1.1 … 1.9 ثم 2.0 — ويُرفع معه رقم الإصدار في sw.js
     (function setupAppBehaviors() {
       const root = document.documentElement;
 
@@ -14842,7 +14842,7 @@ function buildLeagueStandingsCanvas() {
         if (grid) {
           // 1.6: «التالية» بطاقة المباراة نفسها بعرض كامل (تبقى بتصميم بطاقات المباريات القادمة)
           const m0 = avail[0], c = createLeagueMatchCard(m0), t = c.querySelector('.match-title');
-          if (t) { const bolt = t.querySelector('.mc-bolt'); t.innerHTML = `<span class="tn-n"><span class="tx">1</span></span><span class="tn-t"><span class="tn-r">الجولة ${m0.round}</span> · مباراة ${seqOf(m0) || ''}</span>`; if (bolt) t.appendChild(bolt); }
+          if (t) { const bolt = t.querySelector('.mc-bolt'); t.innerHTML = `<span class="tn-n"><span class="tx">1</span></span>`; /* 3.1: ترتيبها في طابور اليوم وحده؛ لا رقم جولة (اللعب بالحضور) */ if (bolt) t.appendChild(bolt); }
           const st = c.querySelector('.match-status'); if (st) { st.className = 'match-status ready tn-next'; st.innerHTML = '<span class="tx">التالية</span>'; }
           c.classList.add('tn-first', 'lg-wide'); grid.appendChild(c);
           // ما بعدها: طابور بعمود واحد — رقم الدور ← الاسم ← «ضد» ← الاسم. أول 5 ظاهرة، والبقية خلف «عرض الكل» إن زادت عن 6
@@ -14852,7 +14852,7 @@ function buildLeagueStandingsCanvas() {
             const sk = rest.map(m => { try { return matchStakes([m.playerA], [m.playerB], { mode: 'league', final: false, id: m.id }); } catch (e) { return []; } });
             const q = document.createElement('div'); q.className = 'tn-q' + (fold && qAll ? ' all' : '');
             q.innerHTML = `<p class="tn-qh">بعدها</p>` + rest.map((m, i) => { const s = sk[i] && sk[i].length ? sk[i].map(stakeSentence).join('، ') : '';
-                return `<button type="button" class="tn-row${fold && i >= TN_PEEK ? ' tn-x' : ''}" data-id="${esc(m.id)}" aria-label="${i + 2}: ${esc(m.playerA)} ضد ${esc(m.playerB)}، الجولة ${m.round}${s ? '. على المحك: ' + esc(s) : ''}">`
+                return `<button type="button" class="tn-row${fold && i >= TN_PEEK ? ' tn-x' : ''}" data-id="${esc(m.id)}" aria-label="${i + 2}: ${esc(m.playerA)} ضد ${esc(m.playerB)}${s ? '. على المحك: ' + esc(s) : ''}">`
                   + `<span class="rd"><span class="tx">${i + 2}</span></span><span class="nm a">${esc(m.playerA)}</span><span class="vs">ضد</span><span class="nm b">${esc(m.playerB)}</span>`
                   + (s ? '<span class="ic ic-bolt mc-bolt" aria-hidden="true"></span>' : '<span></span>') + '</button>'; }).join('')
               + (fold ? `<button type="button" class="st-fold-more tn-more" aria-expanded="${qAll}">${qAll ? 'عرض أقل' : `عرض الكل (${rest.length})`}<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg></button>` : '');
@@ -15230,7 +15230,7 @@ function buildLeagueStandingsCanvas() {
         // 1.3: الفائز بلون النص والخاسر بالرمادي الهادئ، بنفس الحجم والوزن (مثل صفوف المسار في ورقة البطولة وصور التصدير)؛ التعادل: الاسمان فائزان
         const won = (m, side) => { const a = Number(m.scoreA), b = Number(m.scoreB); return side === 'A' ? a >= b : b >= a; };
         const ffTag = (m, side) => isLeagueMatchAnnulled(m) ? (leagueIsExcluded(side === 'A' ? m.playerA : m.playerB) ? 'مستبعد' : '') : m.forfeit === side ? (m.auto ? 'مستبعد' : 'انسحب') : '';
-        const rowsHTML = list => list.map((m, i) => `<button type="button" class="vday-r${i === 0 ? ' latest' : ''}${isLeagueMatchAnnulled(m) ? ' void' : ''}" data-id="${esc(m.id)}" aria-label="الجولة ${m.round}: ${esc(m.playerA)} ${isLeagueMatchAnnulled(m) ? 'ضد' : m.scoreA + ' مقابل ' + m.scoreB} ${esc(m.playerB)}${isLeagueMatchAnnulled(m) ? ' (ملغاة)' : ''}">
+        const rowsHTML = list => list.map((m, i) => `<button type="button" class="vday-r${i === 0 ? ' latest' : ''}${isLeagueMatchAnnulled(m) ? ' void' : ''}" data-id="${esc(m.id)}" aria-label="${esc(m.playerA)} ${isLeagueMatchAnnulled(m) ? 'ضد' : m.scoreA + ' مقابل ' + m.scoreB} ${esc(m.playerB)}${isLeagueMatchAnnulled(m) ? ' (ملغاة)' : ''}">
               <span class="rd">ج${m.round}</span>${nm(m.playerA, ffTag(m, 'A'), !isLeagueMatchAnnulled(m) && won(m, 'A'))}${isLeagueMatchAnnulled(m) ? '<span class="sc void-tx">ملغاة</span>' : `<span class="sc"><span class="${won(m, 'A') ? 'w' : ''}">${m.scoreA}</span><span class="dash">-</span><span class="${won(m, 'B') ? 'w' : ''}">${m.scoreB}</span></span>`}${nm(m.playerB, ffTag(m, 'B'), !isLeagueMatchAnnulled(m) && won(m, 'B'))}</button>`).join('');
         // الإدارة: مطوية دائمًا (أداة مراجعة لا تزاحم «الحاضرون اليوم») · عند إعادة البناء تبقى حالتها واليوم المختار
         let sel = keep && keep.sel && days.has(keep.sel) && keep.sel !== keep.latest ? keep.sel : latest;   // من كان على أحدث يوم ينتقل مع اليوم الجديد
@@ -15399,7 +15399,7 @@ function buildLeagueStandingsCanvas() {
       openLeagueScoreModal = function (id) {   // الدوري: عرض فقط
         const m = leagueMatches.find(x => x.id === id); if (!m) return;
         const done = isLeagueMatchCompleted(m), d = done ? deriveLeagueResult(m.scoreA, m.scoreB) : null;
-        showMatch({ kind: 'lg', id, a: m.playerA, b: m.playerB, mA: [m.playerA], mB: [m.playerB], lg: true, final: false, round: `الجولة ${m.round}`, done, sa: m.scoreA, sb: m.scoreB, void: isLeagueMatchAnnulled(m),
+        showMatch({ kind: 'lg', id, a: m.playerA, b: m.playerB, mA: [m.playerA], mB: [m.playerB], lg: true, final: false, round: 'مباراة الدوري', done, sa: m.scoreA, sb: m.scoreB, void: isLeagueMatchAnnulled(m),
           outcome: isLeagueMatchAnnulled(m) ? `ملغاة · ${leagueExcluded.find(n => n === m.playerA || n === m.playerB)} مستبعد من الدوري` : d ? (m.forfeit ? `فاز ${m.forfeit === 'A' ? m.playerB : m.playerA} ب${m.auto ? 'الاستبعاد' : 'الانسحاب'} · ${m.auto ? 'استُبعد' : 'انسحب'} ${m.forfeit === 'A' ? m.playerA : m.playerB}` : d.result === 'draw' ? 'تعادل' : 'فاز ' + (d.result === 'A' ? m.playerA : m.playerB)) : '' });
       };
       // ===== «أنا» + «الجديد منذ آخر زيارة» (يُحفظان على جهاز اللاعب فقط) =====
@@ -15488,7 +15488,7 @@ function buildLeagueStandingsCanvas() {
           if (Array.isArray(leagueMatches)) {
             leagueMatches.filter(x => !isLeagueMatchSettled(x) && (x.playerA === me || x.playerB === me) && real(x.playerA) && real(x.playerB))
               .sort((a, b) => a.round - b.round || String(a.id).localeCompare(String(b.id), 'en', { numeric: true }))
-              .forEach(m => { const opp = m.playerA === me ? m.playerB : m.playerA; out.push({ mode: 'league', id: m.id, label: `الدوري · الجولة ${m.round}`, opp, mA: [me], mB: [opp], lg: true, final: false }); });
+              .forEach(m => { const opp = m.playerA === me ? m.playerB : m.playerA; out.push({ mode: 'league', id: m.id, label: 'الدوري', opp, mA: [me], mB: [opp], lg: true, final: false }); });
           }
           return out;   // كل مبارياتي القادمة (القائمة تعرض أول 3 ثم «عرض الكل»)
         }
