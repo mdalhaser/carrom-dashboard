@@ -14536,7 +14536,7 @@ function buildLeagueStandingsCanvas() {
     // ===================================
     // 🧭 سلوك التطبيق: إعادة الوضع للأعلى، تعديل العنوان بالضغط المطوّل، تنبيه التحديث، رقم الإصدار
     // ===================================
-    const APP_VERSION = '3.1';   // ترقيم الاعتماد (من 4 نوفمبر 2026): 1.0 ثم 1.1 … 1.9 ثم 2.0 — ويُرفع معه رقم الإصدار في sw.js
+    const APP_VERSION = '3.2';   // ترقيم الاعتماد (من 4 نوفمبر 2026): 1.0 ثم 1.1 … 1.9 ثم 2.0 — ويُرفع معه رقم الإصدار في sw.js
     (function setupAppBehaviors() {
       const root = document.documentElement;
 
@@ -14771,6 +14771,8 @@ function buildLeagueStandingsCanvas() {
       let roundDir = 0, firstPaint = true;
       const _renderRounds = renderLeagueRounds;
       renderLeagueRounds = function () {
+        // 3.2: شريط الجولات يُعاد بناؤه مع كل تبديل؛ نحفظ موضع تمريره فلا يقفز لبدايته ثم «يطير» عبر كل الجولات
+        const od = leagueRoundsEl.querySelector('.league-round-dots'), oldLeft = od ? od.scrollLeft : null;
         const r = _renderRounds.apply(this, arguments);
         if (document.body.classList.contains('lg-focus')) {
           const grid = leagueRoundsEl.querySelector('.league-matches');
@@ -14783,6 +14785,12 @@ function buildLeagueStandingsCanvas() {
           }
           const dots = leagueRoundsEl.querySelector('.league-round-dots'), act = dots && dots.querySelector('.league-dot.active');
           if (dots) balanceDots(dots);
+          if (dots && oldLeft !== null) dots.scrollLeft = oldLeft;   // يبدأ من حيث كان، والانزلاق التالي قصير بقدر المسافة الفعلية
+          if (roundDir && !reduce()) {
+            if (act) act.animate([{ transform: 'scale(.86)' }, { transform: 'scale(1)' }], { duration: 260, easing: 'cubic-bezier(.2, .8, .2, 1)' });
+            const ttl = leagueRoundsEl.querySelector('.league-round-title');
+            if (ttl) ttl.animate([{ opacity: 0, transform: `translateX(${roundDir > 0 ? -10 : 10}px)` }, { opacity: 1, transform: 'none' }], { duration: 220, easing: 'cubic-bezier(.2, .8, .2, 1)' });
+          }
           if (dots && act) requestAnimationFrame(() => {
             const left = act.offsetLeft - (dots.clientWidth - act.offsetWidth) / 2;
             dots.scrollTo({ left, behavior: firstPaint || reduce() ? 'auto' : 'smooth' }); firstPaint = false;
