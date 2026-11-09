@@ -10073,14 +10073,51 @@ function changeScore(inputId, amount){
         dots.appendChild(dot);
       }
       el.appendChild(dots);
-      // 3.1: حين تُسجَّل نتيجة يمتلئ الجزء الجديد من حلقة جولتها بانسياب، والمكتملة تتحول للأخضر بهدوء (أول رسم بلا حركة)
-      { const prev = el.__ringPct, now = {}, calm = !document.body.animate || (window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches);
+      // 3.3: حركة الحلقة في الإدارة تُرى فعلًا: لا تبدأ إلا بعد إغلاق نافذة النتيجة وحين يكون الشريط ظاهرًا على الشاشة
+      // (التسجيل غالبًا من «الحاضرون اليوم» أعلى الصفحة)، والشريط ينزلق للدائرة إن كانت خارج جزئه الظاهر. حتى ذلك تبقى الحلقة على حالها القديمة.
+      // امتلاء 0.7 ثانية بخط يزداد سمكه ثم يعود، واكتمال الجولة: تكمل دورتها بالذهبي ثم تتحول للأخضر بنبضة صغيرة. الحالة في ذاكرة الصفحة فقط.
+      { const prev = el.__ringPct, now = {}, calm = !!window.CARROM_VIEW || !document.body.animate || (window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches);
+        const pend = el.__ringPend || (el.__ringPend = {});
         dots.querySelectorAll('.league-dot').forEach((d, i) => { const r = i + 1, v = Number(d.dataset.pct) || 0; now[r] = v;
-          if (!prev || calm || prev[r] == null || prev[r] >= v) return;
-          const o = { duration: 300, easing: 'cubic-bezier(.2, .8, .2, 1)' }, pg = d.querySelector('.rg .pg'), tr = d.querySelector('.rg .tr');
-          if (pg) pg.animate([{ strokeDasharray: `${prev[r]} 100` }, { strokeDasharray: `${v} 100` }], o);
-          else if (v === 100 && tr) tr.animate([{ stroke: getComputedStyle(document.documentElement).getPropertyValue('--gold').trim() || '#CFA963' }, { stroke: getComputedStyle(tr).stroke }], { ...o, duration: 420 }); });
-        el.__ringPct = now; }
+          if (calm || !prev || prev[r] == null) return;
+          if (prev[r] < v) pend[r] = { from: pend[r] ? pend[r].from : prev[r], to: v };
+          else if (pend[r] && v <= pend[r].from) delete pend[r];   // تراجع (تعديل نتيجة): بلا حركة
+          else if (pend[r]) pend[r].to = v;
+          const p = pend[r]; if (!p) return;
+          // ارسمها على حالها القديمة حتى تُرى
+          d.classList.remove('done'); if (p.from > 0) d.classList.add('part'); else d.classList.remove('part');
+          const svg = d.querySelector('.rg'); let pg = svg.querySelector('.pg');
+          if (!pg) { pg = document.createElementNS('http://www.w3.org/2000/svg', 'circle'); pg.setAttribute('class', 'pg'); pg.setAttribute('cx', '20'); pg.setAttribute('cy', '20'); pg.setAttribute('r', '18'); pg.setAttribute('pathLength', '100'); svg.appendChild(pg); }
+          pg.setAttribute('stroke-dasharray', `${p.from} 100`); });
+        el.__ringPct = now;
+        if (!calm && Object.keys(pend).length && !el.__ringTimer) {
+          const E = 'cubic-bezier(.2, .8, .2, 1)', wait = ms => new Promise(r => setTimeout(r, ms));
+          const modalOpen = () => [...document.querySelectorAll('[id$="Modal"]')].some(m => getComputedStyle(m).display !== 'none' && getComputedStyle(m).visibility !== 'hidden' && m.getBoundingClientRect().height > 0) || !!document.querySelector('.ui-backdrop.open');
+          const seen = strip => { const b = strip.getBoundingClientRect(); return b.height > 0 && b.top > 90 && b.bottom < innerHeight - 8; };
+          let busy = false;
+          el.__ringTimer = setInterval(async () => {
+            if (busy) return; const strip = el.querySelector('.league-round-dots');
+            if (!Object.keys(pend).length || !strip) { clearInterval(el.__ringTimer); el.__ringTimer = null; return; }
+            if (document.hidden || modalOpen() || !seen(strip)) return;
+            busy = true;
+            for (const r of Object.keys(pend).map(Number).sort((a, b) => a - b)) {
+              const p = pend[r], dot = strip.querySelectorAll('.league-dot')[r - 1]; delete pend[r];
+              if (!dot) continue;
+              const sb = strip.getBoundingClientRect(), db = dot.getBoundingClientRect();
+              if (db.left < sb.left + 8 || db.right > sb.right - 8) { strip.scrollTo({ left: strip.scrollLeft + (db.left + db.width / 2) - (sb.left + sb.width / 2), behavior: 'smooth' }); await wait(420); }
+              const pg = dot.querySelector('.rg .pg'); if (!pg) continue;
+              const full = p.to >= 100;
+              pg.setAttribute('stroke-dasharray', `${p.to} 100`);
+              const a = pg.animate([{ strokeDasharray: `${p.from} 100`, strokeWidth: 2.2 }, { strokeWidth: 3.4, offset: .6 }, { strokeDasharray: `${p.to} 100`, strokeWidth: 2.2 }], { duration: 700, easing: E });
+              await a.finished.catch(() => {});
+              if (full) { dot.classList.remove('part'); dot.classList.add('done'); pg.remove();
+                dot.animate([{ transform: 'scale(1)' }, { transform: 'scale(1.1)' }, { transform: 'scale(1)' }], { duration: 420, easing: E });
+                const tr = dot.querySelector('.rg .tr'); if (tr) tr.animate([{ stroke: getComputedStyle(document.documentElement).getPropertyValue('--gold').trim() || '#CFA963' }, { stroke: getComputedStyle(tr).stroke }], { duration: 420, easing: E });
+                await wait(200); }
+            }
+            busy = false;
+          }, 250);
+        } }
 
       const bye = getLeagueRoundBye(round);
       if (bye) {
@@ -14509,7 +14546,7 @@ function buildLeagueStandingsCanvas() {
     // ===================================
     // 🧭 سلوك التطبيق: إعادة الوضع للأعلى، تعديل العنوان بالضغط المطوّل، تنبيه التحديث، رقم الإصدار
     // ===================================
-    const APP_VERSION = '3.2';   // ترقيم الاعتماد (من 4 نوفمبر 2026): 1.0 ثم 1.1 … 1.9 ثم 2.0 — ويُرفع معه رقم الإصدار في sw.js
+    const APP_VERSION = '3.3';   // ترقيم الاعتماد (من 4 نوفمبر 2026): 1.0 ثم 1.1 … 1.9 ثم 2.0 — ويُرفع معه رقم الإصدار في sw.js
     (function setupAppBehaviors() {
       const root = document.documentElement;
 
