@@ -1976,13 +1976,21 @@
     body.dark-mode .st-last.kc { border-color: rgba(250, 224, 150, .55);
       box-shadow: inset 0 0 0 1px rgba(255, 244, 205, .5), inset 0 2px 0 rgba(255, 255, 255, .75), inset 0 -4px 10px rgba(105, 65, 12, .38), inset 0 10px 24px -14px rgba(255, 252, 235, .9), 0 22px 46px -16px rgba(0, 0, 0, .85), 0 0 36px -6px rgba(227, 185, 95, .45); }
     .st-last.kc::before { height: 1.5px; background: linear-gradient(90deg, transparent, rgba(255, 255, 255, .95), transparent); }
-    /* 8 — اللمعة: شريط ضوء بعرض ثابت (لا يتغير مع عرض البطاقة) يعبر مرة واحدة بـ transform (ناعم على الآيفون)،
-       ويُدمج بـ overlay فيضيء الذهب ولا يغسل الاسم المحفور. تظهر مرة لكل بطل في الجلسة (انظر kcShineOnce). */
+    /* 3.5 — «لمعة الإمالة»: البطاقة ثابتة والضوء وحده يتحرك كأنها مالت في اليد ثم عادت — ذهاب يتباطأ عند حد الإمالة (1.4 ثانية)
+       ثم عودة أقصر تخفت (1.2 ثانية) ثم سكون (ضوء الزاوية الطبيعي في خلفية البطاقة نفسها). طبقتان بعرض ثابت لا يتغير مع عرض البطاقة:
+       انعكاس عريض خافت (سطح المعدن) وخط رفيع أنصع (الصقل)، مدموجتان بـ overlay فتضيئان الذهب ولا تغسلان الاسم المحفور.
+       transform وopacity فقط. تبدأ حين تظهر البطاقة على الشاشة وتستقر (kcTiltShine)، مرة لكل بطل في الجلسة. */
     .st-last.kc { isolation: isolate; }
     .st-last.kc::after, .pf-hero.t4::after { content: ""; position: absolute; top: 0; bottom: 0; left: -100%; width: 200%; pointer-events: none; mix-blend-mode: overlay;
-      background: linear-gradient(105deg, transparent calc(50% - 64px), rgba(255, 255, 255, .35) calc(50% - 22px), rgba(255, 255, 255, .95) 50%, rgba(255, 255, 255, .35) calc(50% + 22px), transparent calc(50% + 64px));
-      transform: translateX(-90px); opacity: 0; animation: kcShine 1.1s cubic-bezier(.45, 0, .25, 1) .45s 1 both; }
-    .st-last.kc.kc-shone::after, .pf-hero.t4.kc-shone::after { animation: none; opacity: 0; }
+      --sh-core: rgba(255, 255, 255, .95); --sh-mid: rgba(255, 255, 255, .4); --sh-wide: rgba(255, 255, 255, .14);
+      background: linear-gradient(105deg, transparent calc(50% - 120px), var(--sh-wide) calc(50% - 72px), var(--sh-mid) calc(50% - 16px), var(--sh-core) 50%,
+        var(--sh-mid) calc(50% + 16px), var(--sh-wide) calc(50% + 72px), transparent calc(50% + 120px));
+      transform: translateX(-130px); opacity: 0; }
+    .st-last.kc.kc-gold::after { --sh-core: rgb(255, 255, 255); --sh-mid: rgba(255, 252, 238, .55); --sh-wide: rgba(255, 248, 224, .2); }   /* البطل الذهبي: أنصع وأحدّ */
+    .pf-hero.t4::after { --sh-core: rgba(255, 238, 196, .8); --sh-mid: rgba(255, 226, 160, .32); --sh-wide: rgba(255, 222, 150, .1); }   /* الأسطورة: عنبري، أخف في النهاري */
+    body.dark-mode .pf-hero.t4::after { --sh-core: rgba(255, 240, 200, .92); --sh-mid: rgba(255, 228, 164, .38); --sh-wide: rgba(255, 222, 150, .12); }
+    .st-last.kc.kc-tilt::after, .pf-hero.t4.kc-tilt::after { animation: kcTilt 2.6s linear 1 both; }
+    .st-last.st-last-live.kc-tilt::after { animation: none; }
     /* 2.3 — بطل الدوري المحسوم قبل نهايته: هالة ذهبية «تتنفس» خلف الدرع ثلاث دورات ثم تستقر ضوءًا خافتًا ثابتًا (حي ومستمر)،
        بدل اللمعة العابرة التي تعود عند اكتمال الدوري. transform وopacity فقط، بلا filter (سفاري). القصاصات عند اللمس. */
     .st-last.st-last-live::after { animation: none; opacity: 0; }
@@ -2006,7 +2014,15 @@
       border: 2px solid rgba(255, 250, 228, .95); opacity: 0; animation: ringOut 1.6s cubic-bezier(.2, .7, .2, 1) .5s both; }
     .st-last-live .kc-ring.r2 { border-width: 1.5px; animation-delay: .85s; }
     @media (prefers-reduced-motion: reduce) { .st-last-live .kc-halo, .st-last-live .kc-rays { animation: none; opacity: .8; } .st-last-live .kc-ring { display: none; } }
-    @keyframes kcShine { from { transform: translateX(-90px); opacity: 1; } to { transform: translateX(calc(50% + 90px)); opacity: 1; } }
+    /* العنصر بعرض ضعف البطاقة ومركز الضوء عند حافتها اليسرى، فـ 50% = عرض البطاقة: يدخل من اليسار (جهة مصدر الضوء في الدرع)،
+       يبلغ 85% من عرضها متباطئًا، ثم يعود إلى 28% ويخفت. تباطؤ عند الطرفين بلا ارتداد. */
+    @keyframes kcTilt {
+      0% { transform: translateX(-130px); opacity: 0; animation-timing-function: cubic-bezier(.3, 0, .2, 1); }
+      10% { opacity: 1; }
+      54% { transform: translateX(42.5%); animation-timing-function: cubic-bezier(.45, 0, .4, 1); }
+      68% { opacity: 1; }
+      100% { transform: translateX(14%); opacity: 0; }
+    }
     .st-last.kc .kc-t { letter-spacing: .2px; text-shadow: 0 1px 0 rgba(255, 245, 210, .6); }
     .st-last.kc .kc-n { text-shadow: 0 1px 0 rgba(255, 244, 205, .7), 0 -1px 0 rgba(90, 55, 10, .25); }
     .kc-gold .kc-emb { display: grid; place-items: center; width: 52px; height: 52px; margin: 0 auto 12px; border-radius: 50%; position: relative;
@@ -3508,8 +3524,8 @@
         radial-gradient(125% 115% at 86% 0%, #F6E3AE 0%, #E6C67D 28%, #D4AE5E 56%, #BF9446 82%, #AD833A 100%) padding-box,
         linear-gradient(150deg, #FBE6B0 0%, #94692A 24%, #EBCD86 48%, #7A561C 74%, #D7B162 100%) border-box;
       box-shadow: inset 0 0 0 1px rgba(255, 240, 200, .35), inset 0 1px 0 rgba(255, 246, 222, .85), 0 1px 2px rgba(0, 0, 0, .45), 0 16px 34px -14px rgba(0, 0, 0, .8), 0 0 34px -6px rgba(207, 169, 99, .38); }
-    /* 8.5 — لمعة الأسطورة هي لمعة بطاقة البطل نفسها (التعريف المشترك عند .st-last.kc::after): overlay فوق البطاقة كلها،
-       شريط بعرض ثابت، 1.1 ثانية، مرة واحدة لكل لاعب في الجلسة (kcShineOnce) */
+    /* 8.5 و3.5 — لمعة الأسطورة هي «لمعة الإمالة» لبطاقة البطل نفسها (التعريف المشترك عند .st-last.kc::after) بضوء عنبري،
+       ذهاب وعودة 2.6 ثانية، مرة واحدة لكل لاعب في الجلسة (kcTiltShine) */
     .pf-hero.t4 { isolation: isolate; }
     @media (prefers-reduced-motion: reduce) { .pf-hero.t4::after { display: none; } }
     /* ===== 8.7 — كبسولة المستوى داخل بطاقته: من معدن البطاقة نفسه، وتبرز عنه بالصنعة لا بلون مستوى آخر —
@@ -5914,18 +5930,49 @@ return teamName.replace('غير محدد', replacement);
       + '<circle cx="12" cy="12" r="2.9" fill="#D33A28" stroke="#5A1A10" stroke-width=".5"/><circle cx="12.35" cy="12.45" r="1.9" fill="#A5241A" opacity=".55"/><circle cx="11.1" cy="11.05" r=".9" fill="#FFD9CC" opacity=".85"/>';
     const KC_STAR_SVG = '<svg class="kc-star" viewBox="0 0 24 24" aria-hidden="true">'
       + '<g transform="translate(0 .7)" fill="rgba(255,238,190,.6)">' + KC_STAR_IN.replace(/ (fill|stroke|stroke-width|opacity)="[^"]*"/g, '') + '</g>' + KC_STAR_IN + '</svg>';
-    // 8: اللمعة مرة واحدة لكل بطل في الجلسة: إن رآها الجهاز في هذه الجلسة تُلغى لحظة بدئها (الشريط ما زال خارج البطاقة فلا يظهر شيء).
+    // 3.5: «لمعة الإمالة» مرة واحدة لكل بطل في الجلسة، وتبدأ حين تظهر البطاقة على الشاشة (نصفها على الأقل) ويستقر ما حولها:
+    // تنتظر انتهاء أي حركة محدودة على البطاقة أو أسلافها (انزلاق الورقة، دخول البطاقة، الطي) ثم تتحقق أنها ما زالت ظاهرة.
+    // المفتاح: الأسطورة باسم اللاعب · ورقة البطولة في «السجل» بالبطولة نفسها (data-shine) · بقية بطاقات البطل بعنوانها واسم البطل.
     // ذاكرة الجلسة فقط (sessionStorage) — لا تمس التخزين ولا data.json.
-    (function kcShineOnce() {
-      const KEY = '__carrom_kc_shine', seen = (() => { try { return new Set(JSON.parse(sessionStorage.getItem(KEY) || '[]')); } catch (e) { return new Set(); } })();
-      document.addEventListener('animationstart', e => {
-        if (e.animationName !== 'kcShine') return;
-        const card = e.target.closest && e.target.closest('.st-last.kc, .pf-hero.t4'); if (!card) return;
-        const id = card.classList.contains('pf-hero') ? 'pf|' + ((card.querySelector('.pf-name') || {}).textContent || '').trim()   // 8.5: الأسطورة مرة لكل لاعب
-          : [card.querySelector('.kc-t'), card.querySelector('.kc-n')].map(x => x ? x.textContent.trim() : '').join('|');
-        if (seen.has(id)) { card.classList.add('kc-shone'); return; }
+    (function kcTiltShine() {
+      const KEY = '__carrom_kc_shine', SEL = '.st-last.kc:not(.st-last-live), .pf-hero.t4';
+      const seen = (() => { try { return new Set(JSON.parse(sessionStorage.getItem(KEY) || '[]')); } catch (e) { return new Set(); } })();
+      const txt = (c, s) => ((c.querySelector(s) || {}).textContent || '').trim();
+      const idOf = c => c.dataset.shine ? 'ht|' + c.dataset.shine
+        : c.classList.contains('pf-hero') ? 'pf|' + txt(c, '.pf-name') : txt(c, '.kc-t') + '|' + txt(c, '.kc-n');
+      const settled = c => {   // الحركات المحدودة فقط (الحركة المستمرة لا تنتهي)، وبحد أقصى 1.6 ثانية
+        const waits = [];
+        for (let n = c; n && n !== document.documentElement; n = n.parentElement) {
+          if (!n.getAnimations) break;
+          for (const a of n.getAnimations()) {
+            const t = a.effect && a.effect.getComputedTiming ? a.effect.getComputedTiming() : null;
+            if (a.playState === 'running' && t && isFinite(t.endTime)) waits.push(a.finished.catch(() => {}));
+          }
+        }
+        return Promise.race([Promise.all(waits), new Promise(r => setTimeout(r, 1600))]);
+      };
+      const inView = c => { const r = c.getBoundingClientRect(); return c.isConnected && r.height > 0 && r.bottom > 0 && r.top < innerHeight && r.right > 0 && r.left < innerWidth; };
+      let io = null;
+      const watch = c => { if (!c.classList.contains('kc-tilt') && !seen.has(idOf(c))) io.observe(c); };
+      const go = c => settled(c).then(() => new Promise(r => setTimeout(r, 120))).then(() => {
+        const id = idOf(c);
+        if (seen.has(id) || !c.isConnected) return;
+        if (!inView(c)) { io.observe(c); return; }   // تحركت الورقة أو أُغلقت أثناء الانتظار: تنتظر ظهورها من جديد
         seen.add(id); try { sessionStorage.setItem(KEY, JSON.stringify([...seen])); } catch (x) {}
-      }, true);
+        c.classList.add('kc-tilt');
+      });
+      const start = () => {
+        if (!('IntersectionObserver' in window) || !document.body) return;
+        io = new IntersectionObserver(es => es.forEach(e => { if (!e.isIntersecting || e.intersectionRatio < .5) return; io.unobserve(e.target); go(e.target); }), { threshold: [.5] });
+        document.querySelectorAll(SEL).forEach(watch);
+        new MutationObserver(ms => { for (const m of ms) for (const n of m.addedNodes) {
+          if (n.nodeType !== 1) continue;
+          if (n.matches(SEL)) watch(n);
+          else { const host = n.parentElement && n.parentElement.closest(SEL); if (host) watch(host); }   // بطاقة ثابتة يُعاد ملؤها (رأس الملف)
+          if (n.firstElementChild) n.querySelectorAll(SEL).forEach(watch);
+        } }).observe(document.body, { childList: true, subtree: true });
+      };
+      if (document.body) start(); else document.addEventListener('DOMContentLoaded', start);
     })();
     // ===== 9.3 — درع بطولة الكيرم: مجسّم مصغّر مرسوم SVG متجهيًا بالكامل (بلا صور ولا فلاتر — ثابت في سفاري)
     // إطار جوز مثمّن مشطوف بحافة ذهبية ← لوح كيرم ذهبي غائر (الخطوط، الدوائر الحمراء، أسهم التصويب، نجمة المنتصف) و«المجلس» ←
@@ -14261,14 +14308,14 @@ function buildLeagueStandingsCanvas() {
         if (lg) {
           const rows = leagueTable(t), c = rows[0];
           const gd = leagueGoldenOf(t);
-          if (c) h += `<section class="st-last kc ht-card${gd ? ' kc-gold' : ''}">${champCardHTML(gd ? 'البطل الذهبي' : 'بطل الدوري', names(t, c.name), `${c.pts} ${ptsW(c.pts)}`, gd ? goldenLine(gd) : `فوز ${c.w} · تعادل ${c.d} · خسارة ${c.l}`)}</section>`;
+          if (c) h += `<section class="st-last kc ht-card${gd ? ' kc-gold' : ''}" data-shine="${H(t.id)}">${champCardHTML(gd ? 'البطل الذهبي' : 'بطل الدوري', names(t, c.name), `${c.pts} ${ptsW(c.pts)}`, gd ? goldenLine(gd) : `فوز ${c.w} · تعادل ${c.d} · خسارة ${c.l}`)}</section>`;
           h += `<div class="ht-sec"><div class="ht-sec-h">الترتيب النهائي</div><div class="ht-tbl" role="table">
             <div class="ht-tr hd" role="row"><span class="rk">#</span><span class="pn">اللاعب</span><span>لعب</span><span>ف</span><span>ت</span><span>خ</span><span>الفارق</span><span class="pt">النقاط</span></div>` +
             rows.map(r => { const df = r.f - r.a; return `<div class="ht-tr${r.rank === 1 ? ' one' : ''}" role="row"><span class="rk">${r.rank}</span><span class="pn">${names(t, r.name)}</span><span>${r.p}</span><span>${r.w}</span><span>${r.d}</span><span>${r.l}</span><span class="df ${df > 0 ? 'up' : df < 0 ? 'dn' : ''}"><bdi dir="ltr">${df > 0 ? '+' : ''}${df}</bdi></span><span class="pt">${r.pts}</span></div>`; }).join('') +
             `</div>${(t.excluded || []).length ? `<p class="ht-note">مستبعد من الدوري: ${t.excluded.map(H).join('، ')}</p>` : ''}</div>`;
         } else {
           const fs = t.finalScore || {}, hasSc = fs.winner != null && fs.loser != null;
-          h += `<section class="st-last kc ht-card">${champCardHTML(koChampLabel(t.mode || 'fixed'), names(t, t.champion), hasSc ? koFinalLine(fs.winner, fs.loser) : '')}</section>`;
+          h += `<section class="st-last kc ht-card" data-shine="${H(t.id)}">${champCardHTML(koChampLabel(t.mode || 'fixed'), names(t, t.champion), hasSc ? koFinalLine(fs.winner, fs.loser) : '')}</section>`;
           h += `<div class="ht-sec"><div class="ht-sec-h">المسار</div>` + koRounds(t).map(r => `<div class="ht-round${r.final ? ' fin' : ''}"><div class="ht-rh">${H(r.name)}</div>` +
             r.ms.map(m => { const { sa, sb } = scoreOf(m), w = m.winner;
               const noSc = !Number.isFinite(Number(sa)) || !Number.isFinite(Number(sb)) || sa == null || sb == null;
@@ -14573,7 +14620,7 @@ function buildLeagueStandingsCanvas() {
     // ===================================
     // 🧭 سلوك التطبيق: إعادة الوضع للأعلى، تعديل العنوان بالضغط المطوّل، تنبيه التحديث، رقم الإصدار
     // ===================================
-    const APP_VERSION = '3.4';   // ترقيم الاعتماد (من 4 نوفمبر 2026): 1.0 ثم 1.1 … 1.9 ثم 2.0 — ويُرفع معه رقم الإصدار في sw.js
+    const APP_VERSION = '3.5';   // ترقيم الاعتماد (من 4 نوفمبر 2026): 1.0 ثم 1.1 … 1.9 ثم 2.0 — ويُرفع معه رقم الإصدار في sw.js
     (function setupAppBehaviors() {
       const root = document.documentElement;
 
