@@ -5894,7 +5894,8 @@ return teamName.replace('غير محدد', replacement);
       document.addEventListener('animationstart', e => {
         if (e.animationName !== 'kcShine') return;
         const card = e.target.closest && e.target.closest('.st-last.kc, .pf-hero.t4'); if (!card) return;
-        const id = card.classList.contains('pf-hero') ? 'pf|' + ((card.querySelector('.pf-name') || {}).textContent || '').trim()   // 8.5: الأسطورة مرة لكل لاعب
+        const id = card.dataset.shine ? 'ht|' + card.dataset.shine   // 3.5: ورقة البطولة في «السجل» مرة لكل بطولة (عنوانها بلا رقم فكانت بطولات البطل نفسه تُعد بطاقة واحدة)
+          : card.classList.contains('pf-hero') ? 'pf|' + ((card.querySelector('.pf-name') || {}).textContent || '').trim()   // 8.5: الأسطورة مرة لكل لاعب
           : [card.querySelector('.kc-t'), card.querySelector('.kc-n')].map(x => x ? x.textContent.trim() : '').join('|');
         if (seen.has(id)) { card.classList.add('kc-shone'); return; }
         seen.add(id); try { sessionStorage.setItem(KEY, JSON.stringify([...seen])); } catch (x) {}
@@ -14234,14 +14235,14 @@ function buildLeagueStandingsCanvas() {
         if (lg) {
           const rows = leagueTable(t), c = rows[0];
           const gd = leagueGoldenOf(t);
-          if (c) h += `<section class="st-last kc ht-card${gd ? ' kc-gold' : ''}">${champCardHTML(gd ? 'البطل الذهبي' : 'بطل الدوري', names(t, c.name), `${c.pts} ${ptsW(c.pts)}`, gd ? goldenLine(gd) : `فوز ${c.w} · تعادل ${c.d} · خسارة ${c.l}`)}</section>`;
+          if (c) h += `<section class="st-last kc ht-card${gd ? ' kc-gold' : ''}" data-shine="${H(t.id)}">${champCardHTML(gd ? 'البطل الذهبي' : 'بطل الدوري', names(t, c.name), `${c.pts} ${ptsW(c.pts)}`, gd ? goldenLine(gd) : `فوز ${c.w} · تعادل ${c.d} · خسارة ${c.l}`)}</section>`;
           h += `<div class="ht-sec"><div class="ht-sec-h">الترتيب النهائي</div><div class="ht-tbl" role="table">
             <div class="ht-tr hd" role="row"><span class="rk">#</span><span class="pn">اللاعب</span><span>لعب</span><span>ف</span><span>ت</span><span>خ</span><span>الفارق</span><span class="pt">النقاط</span></div>` +
             rows.map(r => { const df = r.f - r.a; return `<div class="ht-tr${r.rank === 1 ? ' one' : ''}" role="row"><span class="rk">${r.rank}</span><span class="pn">${names(t, r.name)}</span><span>${r.p}</span><span>${r.w}</span><span>${r.d}</span><span>${r.l}</span><span class="df ${df > 0 ? 'up' : df < 0 ? 'dn' : ''}"><bdi dir="ltr">${df > 0 ? '+' : ''}${df}</bdi></span><span class="pt">${r.pts}</span></div>`; }).join('') +
             `</div>${(t.excluded || []).length ? `<p class="ht-note">مستبعد من الدوري: ${t.excluded.map(H).join('، ')}</p>` : ''}</div>`;
         } else {
           const fs = t.finalScore || {}, hasSc = fs.winner != null && fs.loser != null;
-          h += `<section class="st-last kc ht-card">${champCardHTML(koChampLabel(t.mode || 'fixed'), names(t, t.champion), hasSc ? koFinalLine(fs.winner, fs.loser) : '')}</section>`;
+          h += `<section class="st-last kc ht-card" data-shine="${H(t.id)}">${champCardHTML(koChampLabel(t.mode || 'fixed'), names(t, t.champion), hasSc ? koFinalLine(fs.winner, fs.loser) : '')}</section>`;
           h += `<div class="ht-sec"><div class="ht-sec-h">المسار</div>` + koRounds(t).map(r => `<div class="ht-round${r.final ? ' fin' : ''}"><div class="ht-rh">${H(r.name)}</div>` +
             r.ms.map(m => { const { sa, sb } = scoreOf(m), w = m.winner;
               const noSc = !Number.isFinite(Number(sa)) || !Number.isFinite(Number(sb)) || sa == null || sb == null;
@@ -14546,7 +14547,7 @@ function buildLeagueStandingsCanvas() {
     // ===================================
     // 🧭 سلوك التطبيق: إعادة الوضع للأعلى، تعديل العنوان بالضغط المطوّل، تنبيه التحديث، رقم الإصدار
     // ===================================
-    const APP_VERSION = '3.4';   // ترقيم الاعتماد (من 4 نوفمبر 2026): 1.0 ثم 1.1 … 1.9 ثم 2.0 — ويُرفع معه رقم الإصدار في sw.js
+    const APP_VERSION = '3.5';   // ترقيم الاعتماد (من 4 نوفمبر 2026): 1.0 ثم 1.1 … 1.9 ثم 2.0 — ويُرفع معه رقم الإصدار في sw.js
     (function setupAppBehaviors() {
       const root = document.documentElement;
 
