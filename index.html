@@ -9792,6 +9792,10 @@ function changeScore(inputId, amount){
           if (m && m.forfeit && m.auto) {   // نتائج الاستبعاد التلقائية من إصدارات سابقة: تُلغى (المباراة ملغاة الآن)
             Object.assign(match, { scoreA: null, scoreB: null, status: 'pending', result: null, pointsA: 0, pointsB: 0 }); delete match.forfeit;
           }
+          // 3.6: مسار المباراة (إضافة فقط): يُحفظ كما هو إن كان سليمًا (فائز كل شوط a/b، والمنسحب a/b)، ولا يمس النتيجة ولا النقاط
+          if (m && m.mp && Array.isArray(m.mp.g) && m.mp.g.length && m.mp.g.length <= 2 && m.mp.g.every(x => x && (x.w === 'a' || x.w === 'b')) && !(m.forfeit && m.auto)) {
+            match.mp = { g: m.mp.g.map(x => ({ w: x.w })) }; if (m.mp.ff === 'a' || m.mp.ff === 'b') match.mp.ff = m.mp.ff;
+          }
           return match;
         });
         const check = validateLeagueFixtures(leaguePlayers, leagueMatches);
@@ -10395,7 +10399,7 @@ function changeScore(inputId, amount){
       leagueScoreTouched = false;
 
       scoreModalEl.classList.add('league-score');
-      scoreModalSubtitleEl.innerHTML = 'أدخل نتيجة كل لاعب كما هي، بدون حد أعلى. النقاط تُحسب تلقائياً.';
+      scoreModalSubtitleEl.innerHTML = 'مباراة الدوري شوطان: 2 - 0 أو 1 - 1. النقاط تُحسب تلقائياً.';   // 3.6
       { let sk = []; if (!isLeagueMatchCompleted(m) && !isLeagueMatchAnnulled(m)) try { sk = matchStakes([m.playerA], [m.playerB], { mode: 'league', final: false, id: m.id }); } catch (e) {} setScoreStakes(sk); }
       scoreLabelA.innerHTML = `<span class="lg-role">اللاعب أ</span><span class="lg-pname">${leagueEscape(m.playerA)}</span>`;
       scoreLabelB.innerHTML = `<span class="lg-role">اللاعب ب</span><span class="lg-pname">${leagueEscape(m.playerB)}</span>`;
@@ -14823,6 +14827,10 @@ function buildLeagueStandingsCanvas() {
         const lg = currentMode === 'league' && leagueScoreMatchId !== null;
         const kind = lg ? 'lg' : 'ko', id = lg ? leagueScoreMatchId : currentScoreMatchId, m = id != null ? getM(kind, id) : null; if (!m) return;
         const a = parseInt(scoreInputA.value, 10), b = parseInt(scoreInputB.value, 10);
+        // 3.6: الدوري شوطان (2 - 0 أو 1 - 1)؛ فحص قبل الحفظ فقط — حساب النتيجة والنقاط لا يُمس، والانسحاب (2 - 0) ضمنها
+        if (lg && !leagueForfeitSel && Number.isInteger(a) && Number.isInteger(b) && a >= 0 && b >= 0 && !((a === 2 && b === 0) || (a === 0 && b === 2) || (a === 1 && b === 1))) {
+          e.stopImmediatePropagation(); e.preventDefault(); uiToast('مباراة الدوري شوطان: النتيجة 2 - 0 أو 1 - 1', 'warn'); return;
+        }
         if (!lg && !koForfeitSel && Number.isInteger(a) && Number.isInteger(b) && a !== b) {
           const bo = MP.bestOf(), n = Math.ceil(bo / 2);
           if (Math.max(a, b) !== n || Math.min(a, b) >= n) { e.stopImmediatePropagation(); e.preventDefault(); uiToast(`نظام المباراة أفضل من ${bo}: يفوز من يبلغ ${n === 3 ? '3 أشواط' : 'شوطين'} (مثل ${n} - ${n - 1})`, 'warn'); return; }
