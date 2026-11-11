@@ -3598,6 +3598,31 @@
     .mp-entry { display: flex; flex-direction: column; gap: var(--s2); margin: 0 0 var(--s3); }
     .mp-entry .btn { width: 100%; min-height: 44px; font-size: var(--fs-sm); }
     .score-btn:disabled { opacity: .35; cursor: default; }   /* 3.6.1: «+» عند سقف النظام */
+    /* 3.8 — «اختر النتيجة»: نتائج النظام الممكنة أزرارًا جاهزة تحت كل لاعب (لمسة تحدد، و«اعتماد النتيجة» يحفظ) */
+    #scoreModal.pick > .modal-content > h3, #scoreModal.pick #scoreModalSubtitle, #scoreModal.pick .score-card, #scoreModal.pick .mp-entry, #scoreModal.pick #leagueScoreHint { display: none !important; }
+    #scoreModal.pick:not(.ff-open) #leagueForfeitRow { display: none !important; }
+    #scoreModal.pick #leagueForfeitRow { margin-top: var(--s2); }
+    .pk { display: grid; grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr); column-gap: var(--s3); row-gap: var(--s2); align-items: center; }
+    .pk-nm { font-size: var(--fs-md); font-weight: 800; color: var(--text); text-align: center; line-height: 1.35; overflow-wrap: anywhere; }
+    .pk-vs { padding: 3px 12px 1px; border: 1px solid var(--line-strong); border-radius: 999px; font-size: var(--fs-xs); font-weight: 800; color: var(--text-3); }
+    .pk-sub { grid-column: 1 / -1; margin: -2px 0 var(--s2); text-align: center; font-size: var(--fs-xs); font-weight: 700; color: var(--text-3); }
+    .pk-col { display: flex; flex-direction: column; gap: var(--s2); }
+    .pk-mid { display: flex; flex-direction: column; gap: var(--s2); min-width: 0; }
+    .pk-btn { min-height: 52px; padding: 0 10px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 0;
+      border-radius: var(--r-md); border: 1px solid var(--line-strong); background: var(--surface); color: var(--text); font: inherit; cursor: pointer;
+      -webkit-tap-highlight-color: transparent; transition: transform var(--t-fast) var(--ease), background var(--t-fast) ease, border-color var(--t-fast) ease, color var(--t-fast) ease; }
+    .pk-btn:active { transform: scale(.97); }
+    .pk-btn .sc { padding-top: 2px; font-size: var(--fs-lg); font-weight: 900; line-height: 1.1; font-variant-numeric: tabular-nums; }
+    .pk-btn .lb { font-size: var(--fs-xs); font-weight: 700; color: var(--text-3); line-height: 1.3; }
+    .pk-btn.on { background: var(--ok-bg); border-color: var(--ok); color: var(--ok); box-shadow: inset 0 0 0 1px var(--ok); }
+    .pk-btn.on .lb { color: var(--ok); }
+    .pk-btn.draw.on { background: var(--surface-2); border-color: var(--text-2); color: var(--text); box-shadow: inset 0 0 0 1px var(--text-2); }
+    .pk-btn.draw.on .lb { color: var(--text-2); }
+    .pk-sum { min-height: 24px; margin-top: var(--s4); display: flex; align-items: center; justify-content: center; gap: 6px; text-align: center; font-size: var(--fs-base); font-weight: 800; color: var(--text-3); }
+    .pk-sum .ic { width: 16px; height: 16px; }
+    .pk-sum.win { color: var(--ok); } .pk-sum.draw { color: var(--text); }
+    .pk-links { display: flex; justify-content: center; gap: 0 var(--s5); margin-top: var(--s1); }
+    #scoreModal.pick .score-modal-actions { margin-top: var(--s3); }
     .mp-entry-or { display: flex; align-items: center; gap: var(--s2); color: var(--text-3); font-size: var(--fs-xs); font-weight: 700; }
     .mp-entry-or::before, .mp-entry-or::after { content: ""; flex: 1; height: 1px; background: var(--line); }
     /* نظام المباراة في بطاقة القرعة (الفردي والفرق) */
@@ -14834,11 +14859,11 @@ function buildLeagueStandingsCanvas() {
       $('mpRecBtn').addEventListener('click', () => { if (!entryFor) return; const { kind, id } = entryFor; $('cancelScoreBtn').click(); open(kind, id, 'rec'); });
       const _sw = selectWinner;
       selectWinner = function (id) { const m = bracketState[id]; if (mpRunning('ko', m)) { open('ko', id, 'rec'); return; } const r = _sw.apply(this, arguments); showEntry('ko', id);
-        if (scoreModalE.style.display === 'flex') { const bo = MP.bestOf(); scoreModalSubtitleEl.textContent = `أفضل من ${bo}: يفوز من يبلغ ${bo === 5 ? '3 أشواط' : 'شوطين'}.`; syncCap(); }   // 3.6.1: النظام في سطر النافذة
+        if (scoreModalE.style.display === 'flex') { const bo = MP.bestOf(); scoreModalSubtitleEl.textContent = `أفضل من ${bo}: يفوز من يبلغ ${bo === 5 ? '3 أشواط' : 'شوطين'}.`; syncCap(); buildPick('ko', id); }   // 3.6.1: النظام في سطر النافذة · 3.8: «اختر النتيجة»
         return r; };
       window.selectWinner = selectWinner;
       const _ol = openLeagueScoreModal;
-      openLeagueScoreModal = function (id) { const m = leagueMatches.find(x => x.id === id); if (mpRunning('lg', m)) { open('lg', id, 'rec'); return; } const r = _ol.apply(this, arguments); showEntry('lg', id); return r; };
+      openLeagueScoreModal = function (id) { const m = leagueMatches.find(x => x.id === id); if (mpRunning('lg', m)) { open('lg', id, 'rec'); return; } const r = _ol.apply(this, arguments); showEntry('lg', id); if (scoreModalE.style.display === 'flex') buildPick('lg', id); return r; };
 
       // ---------- سقف الأرقام في نافذة النتيجة (3.6.1): لا تتجاوز خانة عدد أشواط الحسم (2 في أفضل من 3 والدوري، 3 في أفضل من 5) ----------
       // زر «+» يبهت ويتعطل عند السقف، والكتابة تُقص إليه؛ والرفض يبقى للتركيبات غير الممكنة داخله فقط (2 - 2، 1 - 0)
@@ -14885,6 +14910,65 @@ function buildLeagueStandingsCanvas() {
           }
         }
       }, true);
+
+      // ---------- 3.8 — «اختر النتيجة»: بدل خانات الأرقام، نتائج النظام الممكنة أزرارًا جاهزة تحت كل لاعب ----------
+      // اللمسة تحدد النتيجة فقط (وتظهر جملة «فوز فلان · 2 - 1» للتأكد)، و«اعتماد النتيجة» يحفظها بنفس الحفظ القائم (الخانات المخفية).
+      let pick = null;   // { kind, id, A, B }
+      const pickHost = (() => { const d = document.createElement('div'); d.id = 'mpPick'; const first = scoreModalE.querySelector('.score-card'); first.before(d); return d; })();
+      function pickOptions(kind) {
+        if (kind === 'lg') return { a: [[2, 0]], mid: [[1, 1]], b: [[0, 2]] };
+        const n = Math.ceil(MP.bestOf() / 2), a = [], b = [];
+        for (let l = 0; l < n; l++) { a.push([n, l]); b.push([l, n]); }
+        return { a, mid: [], b };
+      }
+      function pickSync() {
+        if (!pick) return;
+        const a = parseInt(scoreInputA.value, 10) || 0, b = parseInt(scoreInputB.value, 10) || 0, lg = pick.kind === 'lg';
+        const ff = lg ? leagueForfeitSel : koForfeitSel, has = a + b > 0;
+        pickHost.querySelectorAll('.pk-btn').forEach(x => x.classList.toggle('on', !ff && has && Number(x.dataset.a) === a && Number(x.dataset.b) === b));
+        const sum = pickHost.querySelector('.pk-sum');
+        const name = a > b ? pick.A : pick.B, sc = `${Math.max(a, b)} - ${Math.min(a, b)}`;
+        if (!has) { sum.className = 'pk-sum'; sum.innerHTML = 'اختر النتيجة'; }
+        else if (a === b) { sum.className = 'pk-sum draw'; sum.innerHTML = `تعادل · ${sc}`; }
+        else { sum.className = 'pk-sum win'; sum.innerHTML = `<span class="ic ic-check" aria-hidden="true"></span>${ff ? `فوز ${esc(name)} بالانسحاب` : `فوز ${esc(name)}`} · ${sc}`; }
+        $('saveScoreBtn').disabled = !has;
+      }
+      function buildPick(kind, id) {
+        const m = getM(kind, id); if (!m) return;
+        const [A, B] = namesOf(kind, m), o = pickOptions(kind), lg = kind === 'lg';
+        pick = { kind, id, A, B };
+        // الرقم بالموضع كالمسار: رقم كل طرف في جهة اسمه (الأول يمينًا)، فالفائز رقمه الأكبر في جهته
+        const btn = (v, lab, cls) => `<button type="button" class="pk-btn${cls ? ' ' + cls : ''}" data-a="${v[0]}" data-b="${v[1]}"><span class="sc"><bdi dir="ltr">${v[1]} - ${v[0]}</bdi></span>${lab ? `<span class="lb">${lab}</span>` : ''}</button>`;
+        // نتيجة مسجلة خارج النظام (بطولة سابقة): تُعرض زرًا محددًا حتى لا تضيع
+        const a0 = parseInt(scoreInputA.value, 10) || 0, b0 = parseInt(scoreInputB.value, 10) || 0;
+        const known = [...o.a, ...o.mid, ...o.b].some(v => v[0] === a0 && v[1] === b0);
+        if (!known && a0 + b0 > 0) (a0 > b0 ? o.a : a0 < b0 ? o.b : o.mid).push([a0, b0]);
+        const sub = (kind === 'ko' ? cleanRound(m.roundName) : `الجولة ${m.round}`) + ' · ' + (lg ? 'شوطان' : `أفضل من ${MP.bestOf()}`);
+        pickHost.innerHTML = `<div class="pk"><div class="pk-nm">${esc(A)}</div><span class="pk-vs">ضد</span><div class="pk-nm">${esc(B)}</div><p class="pk-sub">${esc(sub)}</p>`
+          + `<div class="pk-col">${o.a.map(v => btn(v, lg ? 'فوز' : '')).join('')}</div><div class="pk-mid">${o.mid.map(v => btn(v, 'تعادل', 'draw')).join('')}</div><div class="pk-col">${o.b.map(v => btn(v, lg ? 'فوز' : '')).join('')}</div></div>`
+          + `<div class="pk-sum"></div><div class="pk-links">${isDone(kind, m) ? '' : '<button type="button" class="mp-link" data-pk="path"><span class="ic ic-flag" aria-hidden="true"></span>تسجيل المسار شوطًا بشوط</button>'}<button type="button" class="mp-link" data-pk="ff">انسحاب</button></div>`;
+        scoreModalE.classList.add('pick'); scoreModalE.classList.toggle('ff-open', !!(lg ? leagueForfeitSel : koForfeitSel));
+        pickSync();
+      }
+      pickHost.addEventListener('click', e => {
+        if (!pick) return;
+        const b = e.target.closest('.pk-btn');
+        if (b) {
+          scoreInputA.value = b.dataset.a; scoreInputB.value = b.dataset.b;
+          if (pick.kind === 'lg') { leagueForfeitSel = null; leagueScoreTouched = true; refreshLeagueScoreModalState(); } else { koForfeitSel = null; koFfSync(); }
+          scoreModalE.classList.remove('ff-open'); pickSync(); return;
+        }
+        const l = e.target.closest('[data-pk]'); if (!l) return;
+        if (l.dataset.pk === 'path') { const { kind, id } = pick; $('cancelScoreBtn').click(); open(kind, id, 'rec'); }
+        else scoreModalE.classList.toggle('ff-open');
+      });
+      document.getElementById('leagueForfeitRow').addEventListener('click', () => setTimeout(pickSync, 0));
+      new MutationObserver(() => {
+        if (scoreModalE.style.display !== 'flex') { scoreModalE.classList.remove('pick', 'ff-open'); pick = null; $('saveScoreBtn').disabled = false; return; }
+        // أي طريق يفتح النافذة (ومنه «تعديل النتيجة» من ورقة النتيجة) يأخذ «اختر النتيجة»
+        setTimeout(() => { if (pick || scoreModalE.style.display !== 'flex') return; const lg = currentMode === 'league' && leagueScoreMatchId !== null;
+          const id = lg ? leagueScoreMatchId : currentScoreMatchId; if (id != null) buildPick(lg ? 'lg' : 'ko', id); }, 0);
+      }).observe(scoreModalE, { attributes: true, attributeFilter: ['style'] });
 
       // ---------- إنشاء الجدول لأول مرة: نظام المباراة يُذكر صراحة في لحظة القرار (لا يُنسى أفضل من 5) ----------
       { const sb = document.getElementById('showBracketBtn'); let pass = false;
