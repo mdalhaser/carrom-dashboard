@@ -14557,8 +14557,12 @@ function buildLeagueStandingsCanvas() {
           close();
           if (!(await uiConfirm(msg, { title: 'تعديل نتيجة رسمية', okText: 'فتح القفل والتعديل', cancelText: 'إلغاء', danger: true }))) return;
         } else close();
-        if (kind === 'ko') _selectWinner(id); else _openLeague(id);
+        if (window.carromMpEdit && window.carromMpEdit(kind, id)) return;   // 3.10: سُجّلت بالمسار → ورقة المسار
+        openNumeric(kind, id);
       });
+      // الإدخال بالأرقام لمباراة مكتملة (دون المرور بورقة النتيجة)، ومعه زر «تسجيل المسار» للتحويل
+      function openNumeric(kind, id) { if (kind === 'ko') _selectWinner(id); else _openLeague(id); if (window.carromMpEntry) window.carromMpEntry(kind, id, true); }
+      window.carromOpenNumeric = openNumeric;
 
       // ---------- الربط: المباراة المكتملة تُعرض، وغير المكتملة تُسجَّل مباشرة كما كانت ----------
       const _selectWinner = selectWinner;
@@ -14755,13 +14759,12 @@ function buildLeagueStandingsCanvas() {
           else { leagueForfeitSel = null; scoreInputA.value = c.a; scoreInputB.value = c.b; }
           saveLeagueMatchResult();
         }
-        close();
-        setTimeout(() => { const mm = getM(kind, id); if (mm && isDone(kind, mm) && window.carromOpenResult) window.carromOpenResult(kind, id); }, 260);
+        close();   // 3.10: الورقة تُغلق فقط، وكبسولة «سُجّلت النتيجة» مع «تراجع» كالإدخال بالأرقام
       }
 
-      function open(kind, id, mode) {
+      function open(kind, id, mode, unlocked) {
         const m = getM(kind, id); if (!m) return;
-        cur = { kind, id, mode, draft: mode === 'edit' ? { g: [] } : null, ffOpen: false, pending: null };
+        cur = { kind, id, mode, unlocked: !!unlocked, draft: mode === 'edit' ? { g: [] } : null, ffOpen: false, pending: null };
         render();
         modal.style.display = 'flex';
       }
@@ -14792,7 +14795,7 @@ function buildLeagueStandingsCanvas() {
         const tools = [];
         if (MP.games(mp).length) tools.push('<button type="button" class="mp-link warn" data-act="undo"><span class="ic ic-undo" aria-hidden="true"></span>تراجع عن آخر شوط</button>');
         tools.push(`<button type="button" class="mp-link" data-act="ff" aria-expanded="${cur.ffOpen}">انسحاب</button>`);
-        if (mode === 'rec') tools.push('<button type="button" class="mp-link" data-act="num"><span class="ic ic-pencil" aria-hidden="true"></span>إدخال النتيجة بالأرقام</button>');
+        tools.push('<button type="button" class="mp-link" data-act="num"><span class="ic ic-pencil" aria-hidden="true"></span>إدخال النتيجة بالأرقام</button>');
         h += `<div class="mp-tools">${tools.join('')}</div><div class="mp-ff"${cur.ffOpen ? '' : ' hidden'}><button type="button" class="lg-ff-btn" data-ff="a">انسحب ${esc(A)}</button><button type="button" class="lg-ff-btn" data-ff="b">انسحب ${esc(B)}</button></div>`;
         body.innerHTML = h;
         acts.innerHTML = `<button type="button" class="btn" id="mpCloseBtn">${mode === 'rec' && MP.games(mp).length ? 'إغلاق · تُحفظ الأشواط' : 'إلغاء'}</button>`;
@@ -14817,6 +14820,11 @@ function buildLeagueStandingsCanvas() {
             render();
           } else if (act.dataset.act === 'ff') { cur.ffOpen = !cur.ffOpen; render(); }
           else if (act.dataset.act === 'num') {   // المباراة الجارية: الانتقال للإدخال بالأرقام (يُحذف المسار بعد تأكيد)
+            if (mode === 'edit') {   // 3.10: مباراة محسومة: المسار يبقى حتى تُعتمد النتيجة بالأرقام (الإلغاء لا يمسه)
+              const had = MP.games(m.mp).length > 0;
+              if (had && !(await uiConfirm('سيُحذف مسار الأشواط المسجّل عند اعتماد النتيجة بالأرقام.', { title: 'إدخال النتيجة بالأرقام', okText: 'متابعة', danger: true }))) return;
+              close(); setTimeout(() => { window.carromOpenNumeric(kind, id); dropMp = had ? { kind, id } : null; }, 120); return;
+            }
             if (MP.games(mp).length && !(await uiConfirm('سيُحذف مسار الأشواط المسجّل، وتُدخل النتيجة النهائية بالأرقام.', { title: 'إدخال النتيجة بالأرقام', okText: 'متابعة', danger: true }))) return;
             if (m.mp) { delete m.mp; persist(kind, 'حذف مسار المباراة'); }
             close(); setTimeout(() => { if (kind === 'ko') selectWinner(id); else openLeagueScoreModal(id); }, 120);
@@ -14836,7 +14844,7 @@ function buildLeagueStandingsCanvas() {
         if (e.target.closest('#mpBackBtn')) { cur.pending = null; render(); return; }
         if (e.target.closest('#mpCommitBtn')) {
           const { kind, id, mode } = cur, next = cur.pending;
-          if (mode === 'edit' && isLocked(kind) && !(await uiConfirm('هذه البطولة محسومة ونتائجها معلنة. اعتماد المسار الجديد قد يغيّر النتيجة والبطل. هل تريد المتابعة؟', { title: 'تعديل نتيجة رسمية', okText: 'اعتماد', danger: true }))) return;
+          if (mode === 'edit' && !cur.unlocked && isLocked(kind) && !(await uiConfirm('هذه البطولة محسومة ونتائجها معلنة. اعتماد المسار الجديد قد يغيّر النتيجة والبطل. هل تريد المتابعة؟', { title: 'تعديل نتيجة رسمية', okText: 'اعتماد', danger: true }))) return;
           commit(kind, id, next);
         }
       });
@@ -14844,20 +14852,24 @@ function buildLeagueStandingsCanvas() {
       document.addEventListener('keydown', e => { if (e.key === 'Escape' && modal.style.display === 'flex') close(); });
 
       // ---------- الربط بنافذة النتيجة: المباراة الجارية تفتح ورقة المسار، وغير الملعوبة تعرض «تسجيل المسار» فوق الأرقام ----------
-      const entry = $('mpEntry'); let entryFor = null;
+      const entry = $('mpEntry'); let entryFor = null, dropMp = null;   // dropMp: التحويل من المسار للأرقام — يُحذف المسار عند الاعتماد فقط
       const scoreModalE = document.getElementById('scoreModal');
-      new MutationObserver(() => { if (scoreModalE.style.display !== 'flex') { entry.hidden = true; entryFor = null; } }).observe(scoreModalE, { attributes: true, attributeFilter: ['style'] });
-      function showEntry(kind, id) {
+      new MutationObserver(() => { if (scoreModalE.style.display !== 'flex') { entry.hidden = true; entryFor = null; dropMp = null; } }).observe(scoreModalE, { attributes: true, attributeFilter: ['style'] });
+      // 3.10: يظهر أيضًا عند تعديل مباراة سُجّلت بالأرقام (unlocked: القفل فُتح في ورقة النتيجة)، فتُعاد بالمسار
+      function showEntry(kind, id, unlocked) {
         const m = getM(kind, id);
-        const ok = scoreModalE.style.display === 'flex' && m && !isDone(kind, m) && !(kind === 'lg' && isLeagueMatchAnnulled(m))
+        const ok = scoreModalE.style.display === 'flex' && m && !MP.games(m.mp).length && !(kind === 'lg' && isLeagueMatchAnnulled(m))
           && (kind === 'lg' || (m.team1 && m.team2 && !String(m.team1).includes('الفائز من م') && !String(m.team2).includes('الفائز من م') && !String(m.team1).includes('Bye') && !String(m.team2).includes('Bye')));
-        entry.hidden = !ok; entryFor = ok ? { kind, id } : null;
+        entry.hidden = !ok; entryFor = ok ? { kind, id, unlocked: !!unlocked } : null;
+        if (kind === 'ko' && scoreModalE.style.display === 'flex') { const bo = MP.bestOf(); scoreModalSubtitleEl.textContent = `أفضل من ${bo}: يفوز من يبلغ ${bo === 5 ? '3 أشواط' : 'شوطين'}.`; syncCap(); }   // 3.6.1: النظام في سطر النافذة
       }
-      $('mpRecBtn').addEventListener('click', () => { if (!entryFor) return; const { kind, id } = entryFor; $('cancelScoreBtn').click(); open(kind, id, 'rec'); });
+      window.carromMpEntry = showEntry;
+      // المكتملة تُعاد بمسودة (لا يتغير شيء قبل الاعتماد)، وغير الملعوبة بالتسجيل الحي
+      $('mpRecBtn').addEventListener('click', () => { if (!entryFor) return; const { kind, id, unlocked } = entryFor, m = getM(kind, id); $('cancelScoreBtn').click(); open(kind, id, m && isDone(kind, m) ? 'edit' : 'rec', unlocked); });
+      // من ورقة النتيجة: «تعديل النتيجة» يفتح الطريقة التي سُجّلت بها المباراة
+      window.carromMpEdit = function (kind, id) { const m = getM(kind, id); if (!m || !MP.games(m.mp).length) return false; open(kind, id, 'edit', true); return true; };
       const _sw = selectWinner;
-      selectWinner = function (id) { const m = bracketState[id]; if (mpRunning('ko', m)) { open('ko', id, 'rec'); return; } const r = _sw.apply(this, arguments); showEntry('ko', id);
-        if (scoreModalE.style.display === 'flex') { const bo = MP.bestOf(); scoreModalSubtitleEl.textContent = `أفضل من ${bo}: يفوز من يبلغ ${bo === 5 ? '3 أشواط' : 'شوطين'}.`; syncCap(); }   // 3.6.1: النظام في سطر النافذة
-        return r; };
+      selectWinner = function (id) { const m = bracketState[id]; if (mpRunning('ko', m)) { open('ko', id, 'rec'); return; } const r = _sw.apply(this, arguments); showEntry('ko', id); return r; };
       window.selectWinner = selectWinner;
       const _ol = openLeagueScoreModal;
       openLeagueScoreModal = function (id) { const m = leagueMatches.find(x => x.id === id); if (mpRunning('lg', m)) { open('lg', id, 'rec'); return; } const r = _ol.apply(this, arguments); showEntry('lg', id); return r; };
@@ -14913,6 +14925,7 @@ function buildLeagueStandingsCanvas() {
           const bo = MP.bestOf(), n = Math.ceil(bo / 2);
           if (Math.max(a, b) !== n || Math.min(a, b) >= n) { e.stopImmediatePropagation(); e.preventDefault(); uiToast(`نظام المباراة أفضل من ${bo}: يفوز من يبلغ ${n === 3 ? '3 أشواط' : 'شوطين'} (مثل ${n} - ${n - 1})`, 'warn'); return; }
         }
+        if (dropMp && dropMp.kind === kind && dropMp.id === id && MP.games(m.mp).length) { delete m.mp; dropMp = null; return; }   // 3.10: تأكيد الحذف سبق في ورقة المسار
         if (MP.games(m.mp).length) {
           const c = MP.count(m.mp);   // الخانة الأولى للطرف الأول دائمًا
           if (c.a !== a || c.b !== b) {
@@ -14935,19 +14948,12 @@ function buildLeagueStandingsCanvas() {
           pass = true; sb.click();
         }, true); }
 
-      // ---------- من ورقة النتيجة: المسار، و«إضافة مسار المباراة» أو «تعديل المسار» ----------
+      // ---------- من ورقة النتيجة: المسار للعرض ----------
       window.carromMpResultHook = function (kind, id, host) {
         const m = getM(kind, id); if (!m || !host) return;
         const [A, B] = namesOf(kind, m), has = MP.games(m.mp).length > 0;
         if (kind === 'lg' && isLeagueMatchAnnulled(m)) return;
-        host.innerHTML = (has ? MP.pathHTML(m.mp, A, B, { finished: true }) : '')
-          + `<div class="mp-tools"><button type="button" class="mp-link" data-mpx="edit"><span class="ic ic-flag" aria-hidden="true"></span>${has ? 'تعديل المسار' : 'إضافة مسار المباراة'}</button></div>`;
-        host.onclick = async ev => {
-          if (!ev.target.closest('[data-mpx]')) return;
-          $('resultCloseBtn').click();
-          if (isLocked(kind) && !(await uiConfirm('هذه البطولة محسومة ونتائجها معلنة. تعديل المسار قد يغيّر النتيجة والبطل ويحدّث سجل البطولات. هل تريد المتابعة؟', { title: 'تعديل نتيجة رسمية', okText: 'فتح القفل والتعديل', danger: true }))) return;
-          open(kind, id, 'edit');
-        };
+        host.innerHTML = has ? MP.pathHTML(m.mp, A, B, { finished: true }) : '';   // 3.10: عرض فقط؛ التعديل من «تعديل النتيجة» بنفس طريقة التسجيل
       };
     })();
 
@@ -15092,7 +15098,7 @@ function buildLeagueStandingsCanvas() {
     // ===================================
     // 🧭 سلوك التطبيق: إعادة الوضع للأعلى، تعديل العنوان بالضغط المطوّل، تنبيه التحديث، رقم الإصدار
     // ===================================
-    const APP_VERSION = '3.9';   // ترقيم الاعتماد (من 4 نوفمبر 2026): 1.0 ثم 1.1 … 1.9 ثم 2.0 — ويُرفع معه رقم الإصدار في sw.js
+    const APP_VERSION = '4.0';   // ترقيم الاعتماد (من 4 نوفمبر 2026): 1.0 ثم 1.1 … 1.9 ثم 2.0 — ويُرفع معه رقم الإصدار في sw.js
     (function setupAppBehaviors() {
       const root = document.documentElement;
 
