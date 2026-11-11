@@ -6773,7 +6773,9 @@ return teamName.replace('غير محدد', replacement);
         // لا يدخل السجل ولا عدادات الألقاب إلا عند اكتمال الدوري (قاعدة محمية)؛ وعند الاكتمال تعود البطاقة إلى السجل تلقائيًا.
         // ليست زرًا: الدوري ليس في السجل بعد فلا ورقة بطولة له. «البطل الذهبي» لا يُعلن قبل الاكتمال (قد يخسر فيما تبقى).
         const cl = (() => { try { return leagueClinch(); } catch (e) { return null; } })();
-        if (cl && !cl.final) {
+        // 3.9: «آخر بطل» = الأحدث بالتاريخ — بطولة اكتملت بعد لحظة الحسم تظهر هي، وبطل الدوري المحسوم يبقى في صفحة الدوري ويعود هنا عند اكتماله
+        const newerHist = (() => { if (!cl || cl.final || !lastHist || !lastHist.champion) return false; const t = Date.parse(lastHist.date), c = leagueClinchAt(); return Number.isFinite(t) && c != null && t > c; })();
+        if (cl && !cl.final && !newerHist) {
           const row = (() => { try { return calculateLeagueStandings().find(r => r.name === cl.name); } catch (e) { return null; } })();
           return `<section class="st-last kc st-last-live" aria-label="بطل الدوري: ${escHTML(cl.name)}، ${CLINCH_LINE}، ${CLINCH_WHY}">${champCardHTML(champTitle('league', liveChampRec('league')), `<bdi>${escHTML(cl.name)}</bdi>`, CLINCH_LINE, CLINCH_WHY).replace('<span class="kc-cup kc-trophy', '<span class="kc-cup kc-trophy kc-live').replace(/(<span class="kc-cup kc-trophy kc-live[^>]*>)/, '$1<span class="kc-rays" aria-hidden="true"></span><span class="kc-halo" aria-hidden="true"></span><span class="kc-ring" aria-hidden="true"></span><span class="kc-ring r2" aria-hidden="true"></span>')}</section>`;
         }
@@ -9665,6 +9667,26 @@ function changeScore(inputId, amount){
       } catch (e) { return null; }
     }
     // تغيّر المركز منذ يوم اللعب السابق: الترتيب الآن مقابل الترتيب بدون مباريات آخر يوم لعب (للتطبيق وصفحة المشاهدة والتصدير)
+    // 3.9 — لحظة حسم اللقب (للعرض فقط): وقت تسجيل المباراة التي حسمته. تُسحب أحدث المباريات الموقّتة واحدة واحدة من نسخة مؤقتة
+    // (نفس أسلوب leagueRankMoves) حتى يزول الحسم؛ المباراة التي يزول بسحبها هي الحاسمة. لا يُحفظ شيء ولا يُمس منطق الحسم.
+    // Infinity إن لم يوجد توقيت لأي مباراة (فتبقى بطاقة الحسم كما كانت).
+    function leagueClinchAt() {
+      try {
+        const cl = leagueClinch(); if (!cl || cl.final) return null;
+        const at = leagueMatchTimes(), timed = leagueMatches.filter(m => isLeagueMatchCompleted(m) && at[m.id]).sort((a, b) => at[b.id] - at[a.id]);
+        if (!timed.length) return Infinity;
+        const saved = leagueMatches, off = new Set(); let moment = at[timed[timed.length - 1].id];   // حُسم قبل أقدم مباراة موقّتة: هي الحد الأعلى
+        try {
+          for (const m of timed) {
+            off.add(m.id);
+            leagueMatches = saved.map(x => off.has(x.id) ? Object.assign({}, x, { status: 'pending', scoreA: null, scoreB: null, result: null, pointsA: 0, pointsB: 0 }) : x);
+            const c = leagueClinch();
+            if (!c || c.name !== cl.name) { moment = at[m.id]; break; }
+          }
+        } finally { leagueMatches = saved; }
+        return moment;
+      } catch (e) { return Infinity; }
+    }
     function leagueRankMoves() {
       try {
         if (!leagueStarted) return {};
@@ -15043,7 +15065,7 @@ function buildLeagueStandingsCanvas() {
     // ===================================
     // 🧭 سلوك التطبيق: إعادة الوضع للأعلى، تعديل العنوان بالضغط المطوّل، تنبيه التحديث، رقم الإصدار
     // ===================================
-    const APP_VERSION = '3.8';   // ترقيم الاعتماد (من 4 نوفمبر 2026): 1.0 ثم 1.1 … 1.9 ثم 2.0 — ويُرفع معه رقم الإصدار في sw.js
+    const APP_VERSION = '3.9';   // ترقيم الاعتماد (من 4 نوفمبر 2026): 1.0 ثم 1.1 … 1.9 ثم 2.0 — ويُرفع معه رقم الإصدار في sw.js
     (function setupAppBehaviors() {
       const root = document.documentElement;
 
