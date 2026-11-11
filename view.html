@@ -3630,6 +3630,12 @@
     .mp-ff { display: grid; grid-template-columns: 1fr 1fr; gap: var(--s2); margin-top: var(--s1); }
     .mp-ff[hidden] { display: none; }
     #mpModal .score-modal-actions { grid-template-columns: minmax(0, 1fr); }
+    #mpModal .score-modal-actions.two { grid-template-columns: 1.4fr 1fr; }
+    /* الشوط الحاسم بانتظار الاعتماد */
+    .mp-confirm { display: flex; align-items: center; justify-content: center; gap: 8px; margin-top: var(--s4); padding: 12px var(--s4); border-radius: var(--r-md);
+      background: var(--ok-bg); border: 1px solid var(--ok-line); color: var(--ok); font-size: var(--fs-md); font-weight: 800; }
+    .mp-confirm .ic { width: 18px; height: 18px; }
+    .mp-confirm.draw { background: var(--surface-2); border-color: var(--line); color: var(--text); }
     /* المسار: صف لكل شوط — الرقم ← الحدث والاسم ← النتيجة بعده بالموضع (رقم الطرف الأول يمينًا)؛ الشرطة على محور واحد */
     .mp-path { margin-top: var(--s4); }
     .mp-path-h { display: flex; align-items: center; gap: 6px; margin-bottom: var(--s2); font-size: var(--fs-xs); font-weight: 800; color: var(--text-2); }
@@ -14703,7 +14709,7 @@ function buildLeagueStandingsCanvas() {
       const titleOf = (kind, m) => kind === 'ko' ? (isFinalMatch(m) ? 'المباراة النهائية' : `مباراة ${m.matchNumber}`) : 'مباراة الدوري';
       const subOf = (kind, m) => (kind === 'ko' ? cleanRound(m.roundName) : `الجولة ${m.round}`) + ' · ' + (kind === 'lg' ? 'شوطان' : `أفضل من ${boOf(kind)}`);
       const isLocked = kind => { try { return kind === 'ko' ? !!getVerifiedTournamentChampion() : !!leagueCompleted; } catch (e) { return false; } };
-      let cur = null;   // { kind, id, mode: 'rec' (مباراة لم تُحسم: كل شوط يُحفظ فورًا) | 'edit' (مسودة لمباراة محسومة), draft, ffOpen }
+      let cur = null;   // { kind, id, mode: 'rec' (مباراة لم تُحسم: كل شوط يُحفظ فورًا) | 'edit' (مسودة لمباراة محسومة), draft, ffOpen, pending (الشوط الحاسم بانتظار الاعتماد) }
 
       function persist(kind, label) {
         offerUndo(label);
@@ -14738,7 +14744,7 @@ function buildLeagueStandingsCanvas() {
 
       function open(kind, id, mode) {
         const m = getM(kind, id); if (!m) return;
-        cur = { kind, id, mode, draft: mode === 'edit' ? { g: [] } : null, ffOpen: false };
+        cur = { kind, id, mode, draft: mode === 'edit' ? { g: [] } : null, ffOpen: false, pending: null };
         render();
         modal.style.display = 'flex';
       }
@@ -14747,12 +14753,21 @@ function buildLeagueStandingsCanvas() {
       function render() {
         if (!cur) return;
         const { kind, id, mode } = cur, m = getM(kind, id); if (!m) { close(); return; }
-        const [A, B] = namesOf(kind, m), mp = mode === 'rec' ? (m.mp || { g: [] }) : cur.draft, c = MP.count(mp), n = MP.games(mp).length + 1;
+        const [A, B] = namesOf(kind, m), pend = cur.pending, mp = pend || (mode === 'rec' ? (m.mp || { g: [] }) : cur.draft), c = MP.count(mp), n = MP.games(mp).length + 1;
         $('mpTitle').textContent = titleOf(kind, m);
         $('mpSub').textContent = subOf(kind, m);
         const lead = c.a === c.b ? '' : c.a > c.b ? 'a' : 'b';
         // اللوحة: الطرف الأول يمينًا ورقمه يمين الشرطة (كبطاقات المباريات)
         let h = `<div class="mp-board"><div class="nm">${esc(A)}</div><div class="sc" dir="ltr"><span class="${lead === 'a' ? 'lose' : ''}">${c.b}</span><span class="dash">-</span><span class="${lead === 'b' ? 'lose' : ''}">${c.a}</span></div><div class="nm">${esc(B)}</div></div>`;
+        if (pend) {   // الشوط الحاسم: لا اعتماد قبل تأكيد صريح (لمسة خاطئة لا تؤهل أحدًا)
+          const wn = c.a === c.b ? '' : (c.a > c.b ? A : B), draw = kind === 'lg' && c.a === c.b;
+          h += `<div class="mp-confirm${draw ? ' draw' : ''}"><span class="ic ic-${draw ? 'flag' : 'check'}" aria-hidden="true"></span>${draw ? 'تعادل' : `حسم ${esc(wn)}`}</div>`;
+          h += MP.pathHTML(mp, A, B, { finished: true });
+          body.innerHTML = h;
+          acts.innerHTML = '<button type="button" class="btn primary" id="mpCommitBtn" data-ic="check">اعتماد النتيجة</button><button type="button" class="btn" id="mpBackBtn" data-ic="undo">تراجع</button>';
+          acts.classList.add('two'); return;
+        }
+        acts.classList.remove('two');
         h += `<p class="mp-q">من فاز بالشوط ${n === 1 ? 'الأول' : n === 2 ? 'الثاني' : n === 3 ? 'الثالث' : n === 4 ? 'الرابع' : 'الخامس'}؟</p>`;
         h += `<div class="mp-win"><button type="button" data-w="a"><b>${esc(A)}</b></button><button type="button" data-w="b"><b>${esc(B)}</b></button></div>`;
         if (mode === 'edit') h += '<p class="mp-hint">أعد تسجيل الأشواط بالترتيب، وتُعتمد النتيجة الجديدة عند الحسم.</p>';
@@ -14760,6 +14775,7 @@ function buildLeagueStandingsCanvas() {
         const tools = [];
         if (MP.games(mp).length) tools.push('<button type="button" class="mp-link warn" data-act="undo"><span class="ic ic-undo" aria-hidden="true"></span>تراجع عن آخر شوط</button>');
         tools.push(`<button type="button" class="mp-link" data-act="ff" aria-expanded="${cur.ffOpen}">انسحاب</button>`);
+        if (mode === 'rec') tools.push('<button type="button" class="mp-link" data-act="num"><span class="ic ic-pencil" aria-hidden="true"></span>إدخال النتيجة بالأرقام</button>');
         h += `<div class="mp-tools">${tools.join('')}</div><div class="mp-ff"${cur.ffOpen ? '' : ' hidden'}><button type="button" class="lg-ff-btn" data-ff="a">انسحب ${esc(A)}</button><button type="button" class="lg-ff-btn" data-ff="b">انسحب ${esc(B)}</button></div>`;
         body.innerHTML = h;
         acts.innerHTML = `<button type="button" class="btn" id="mpCloseBtn">${mode === 'rec' && MP.games(mp).length ? 'إغلاق · تُحفظ الأشواط' : 'إلغاء'}</button>`;
@@ -14772,10 +14788,7 @@ function buildLeagueStandingsCanvas() {
         const w = e.target.closest('[data-w]');
         if (w) {
           const next = { ...mp, g: [...MP.games(mp), { w: w.dataset.w }] };
-          if (MP.decided(kind, next, boOf(kind))) {
-            if (mode === 'edit' && isLocked(kind) && !(await uiConfirm('هذه البطولة محسومة ونتائجها معلنة. اعتماد المسار الجديد قد يغيّر النتيجة والبطل. هل تريد المتابعة؟', { title: 'تعديل نتيجة رسمية', okText: 'اعتماد', danger: true }))) return;
-            commit(kind, id, next); return;
-          }
+          if (MP.decided(kind, next, boOf(kind))) { cur.pending = next; render(); return; }
           if (mode === 'rec') { m.mp = next; persist(kind, `تسجيل الشوط ${next.g.length}`); } else cur.draft = next;
           render(); return;
         }
@@ -14786,6 +14799,11 @@ function buildLeagueStandingsCanvas() {
             if (mode === 'rec') { if (g.length) m.mp = { ...m.mp, g }; else delete m.mp; persist(kind, 'تراجع عن آخر شوط'); } else cur.draft = { ...cur.draft, g };
             render();
           } else if (act.dataset.act === 'ff') { cur.ffOpen = !cur.ffOpen; render(); }
+          else if (act.dataset.act === 'num') {   // المباراة الجارية: الانتقال للإدخال بالأرقام (يُحذف المسار بعد تأكيد)
+            if (MP.games(mp).length && !(await uiConfirm('سيُحذف مسار الأشواط المسجّل، وتُدخل النتيجة النهائية بالأرقام.', { title: 'إدخال النتيجة بالأرقام', okText: 'متابعة', danger: true }))) return;
+            if (m.mp) { delete m.mp; persist(kind, 'حذف مسار المباراة'); }
+            close(); setTimeout(() => { if (kind === 'ko') selectWinner(id); else openLeagueScoreModal(id); }, 120);
+          }
           return;
         }
         const ff = e.target.closest('[data-ff]');
@@ -14795,7 +14813,16 @@ function buildLeagueStandingsCanvas() {
           commit(kind, id, { ...mp, g: [...MP.games(mp)], ff: ff.dataset.ff });
         }
       });
-      acts.addEventListener('click', e => { if (e.target.closest('#mpCloseBtn')) close(); });
+      acts.addEventListener('click', async e => {
+        if (e.target.closest('#mpCloseBtn')) { close(); return; }
+        if (!cur || !cur.pending) return;
+        if (e.target.closest('#mpBackBtn')) { cur.pending = null; render(); return; }
+        if (e.target.closest('#mpCommitBtn')) {
+          const { kind, id, mode } = cur, next = cur.pending;
+          if (mode === 'edit' && isLocked(kind) && !(await uiConfirm('هذه البطولة محسومة ونتائجها معلنة. اعتماد المسار الجديد قد يغيّر النتيجة والبطل. هل تريد المتابعة؟', { title: 'تعديل نتيجة رسمية', okText: 'اعتماد', danger: true }))) return;
+          commit(kind, id, next);
+        }
+      });
       modal.addEventListener('click', e => { if (e.target === modal) close(); });
       document.addEventListener('keydown', e => { if (e.key === 'Escape' && modal.style.display === 'flex') close(); });
 
@@ -14836,6 +14863,18 @@ function buildLeagueStandingsCanvas() {
           }
         }
       }, true);
+
+      // ---------- إنشاء الجدول لأول مرة: نظام المباراة يُذكر صراحة في لحظة القرار (لا يُنسى أفضل من 5) ----------
+      { const sb = document.getElementById('showBracketBtn'); let pass = false;
+        if (sb) sb.addEventListener('click', async e => {
+          if (pass) { pass = false; return; }
+          if (!(currentMode === 'fixed' || currentMode === 'single') || Object.keys(bracketState || {}).length) return;
+          e.stopImmediatePropagation(); e.preventDefault();
+          const bo = MP.bestOf();
+          const ok = await uiConfirm(`نظام المباراة: أفضل من ${bo}\nمن يفوز بـ${bo === 5 ? '3 أشواط' : 'شوطين'} يتأهل. «تغيير النظام» يجعله أفضل من ${bo === 5 ? 3 : 5}، ويُقفل بعد أول نتيجة.`, { title: 'إنشاء جدول المباريات', okText: 'إنشاء الجدول', cancelText: 'تغيير النظام' });
+          if (!ok) { try { localStorage.setItem(MP.fmtKey(currentMode), String(bo === 5 ? 3 : 5)); } catch (x) {} mpFormatUI(); uiToast(`نظام المباراة: أفضل من ${bo === 5 ? 3 : 5}`, 'ok'); return; }
+          pass = true; sb.click();
+        }, true); }
 
       // ---------- من ورقة النتيجة: المسار، و«إضافة مسار المباراة» أو «تعديل المسار» ----------
       window.carromMpResultHook = function (kind, id, host) {
