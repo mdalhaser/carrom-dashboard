@@ -173,7 +173,6 @@
       --ic-star: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='1.9' stroke-linejoin='round'><path d='M12 3.8l2.5 5.1 5.6.8-4.05 3.95.95 5.6L12 16.6l-5 2.65.95-5.6L3.9 9.7l5.6-.8z'/></svg>");
       --ic-rank: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='1.9' stroke-linecap='round' stroke-linejoin='round'><path d='M3.5 19.5h17M5 19.5v-7h4.5v7M9.5 19.5V4.5h5v15M14.5 19.5v-10H19v10'/></svg>");
       --ic-clock: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='1.9' stroke-linecap='round' stroke-linejoin='round'><path d='M20.5 12a8.5 8.5 0 1 1-17 0 8.5 8.5 0 0 1 17 0zM12 7.5V12l3 2'/></svg>");
-      --ic-play: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='black'><path d='M8 5.6v12.8a1 1 0 0 0 1.5.86l10.2-6.4a1 1 0 0 0 0-1.72L9.5 4.74A1 1 0 0 0 8 5.6z'/></svg>");
       --ic-quote: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='1.9' stroke-linecap='round' stroke-linejoin='round'><path d='M5 4h14a2 2 0 0 1 2 2v9a2 2 0 0 1-2 2h-6l-4.5 3.5V17H5a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2zM10.4 11.6a1.4 1.4 0 1 1-2.8 0 1.4 1.4 0 0 1 2.8 0zM7.6 11.6c0-1.9.9-3.1 2.6-3.5M16.4 11.6a1.4 1.4 0 1 1-2.8 0 1.4 1.4 0 0 1 2.8 0zM13.6 11.6c0-1.9.9-3.1 2.6-3.5'/></svg>");
       --ic-league: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='1.9' stroke-linecap='round' stroke-linejoin='round'><path d='M20.5 6a1.5 1.5 0 1 1-3 0 1.5 1.5 0 0 1 3 0zM20.5 12a1.5 1.5 0 1 1-3 0 1.5 1.5 0 0 1 3 0zM20.5 18a1.5 1.5 0 1 1-3 0 1.5 1.5 0 0 1 3 0zM14.5 6H3.5M14.5 12H6M14.5 18H8.5'/></svg>");
       --ic-flag: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='1.9' stroke-linecap='round' stroke-linejoin='round'><path d='M18.5 21V3.5M18.5 4h-12l2.6 4.25L6.5 12.5h12'/></svg>");
@@ -3582,94 +3581,73 @@
       .vlive button::before { content: ""; position: absolute; inset: -4px; }
     }
     /* ===================================================================================
-       3.6 — «مسار المباراة ومدتها»: بدء المباراة، تسجيل الأشواط شوطًا بشوط، والمسار (تقدّم ← عادل ← حسم) والوقت.
+       3.6 — «مسار المباراة»: من تقدّم ومن عادل ومن حسم، شوطًا بشوط (بلا توقيت).
        نفس لغة نوافذ النتيجة وبطاقات المباريات؛ الأخضر للحالة الحية والفوز فقط.
        =================================================================================== */
-    .ic-play { --ic: var(--ic-play); } [data-ic="play"]::before { --ic: var(--ic-play); }
-    /* البطاقة الجارية: شارة «جارية» حية + عدّاد الأشواط بجانب كل اسم + الوقت المنقضي */
+    /* البطاقة الجارية (شوط مسجّل أو أكثر قبل الحسم): شارة «جارية» حية + عدد أشواط كل طرف بجانب اسمه */
     .match-status.live { background: var(--ok-bg); color: var(--ok); }
     .match-status.live::before { content: ""; width: 7px; height: 7px; border-radius: 50%; background: currentColor; animation: mpPulse 1.6s ease-in-out infinite; }
     @keyframes mpPulse { 0%, 100% { opacity: 1; } 50% { opacity: .35; } }
     @media (prefers-reduced-motion: reduce) { .match-status.live::before { animation: none; } }
+    .tn-grid .match-status.live { display: inline-flex; }
     .match-card.mp-run { border-color: var(--ok-line); }
-    .match-card .mp-since { margin-inline-start: auto; margin-inline-end: 8px; font-size: var(--fs-xs); font-weight: 700; color: var(--text-3); font-variant-numeric: tabular-nums; }
     .match-card.vs.mp-run .match-team { justify-content: space-between; }
     .score-badge.live-badge { background: var(--surface-3); color: var(--text); border-color: transparent; }
     .score-badge.live-badge.lead { background: var(--ok-bg); color: var(--ok); }
-    .mp-start-row { display: flex; justify-content: center; margin-top: var(--s2); }
-    .mp-start-btn { width: 100%; min-height: var(--h-control-sm); font-size: var(--fs-sm); }
-    /* نافذة النتيجة: مدخل «بدء المباراة» و«تسجيل المسار» فوق الأرقام */
-    .mp-entry { display: grid; grid-template-columns: 1fr 1fr; gap: var(--s2); margin: 0 0 var(--s3); }
-    .mp-entry .btn { min-height: var(--h-control-sm); padding-inline: 10px; font-size: var(--fs-sm); white-space: nowrap; }
-    .tn-grid .match-status.live { display: inline-flex; }
-    .mp-entry-or { grid-column: 1 / -1; display: flex; align-items: center; gap: var(--s2); margin-top: 4px; color: var(--text-3); font-size: var(--fs-xs); font-weight: 700; }
+    /* نافذة النتيجة: «تسجيل مسار المباراة» فوق الأرقام */
+    .mp-entry { display: flex; flex-direction: column; gap: var(--s2); margin: 0 0 var(--s3); }
+    .mp-entry .btn { width: 100%; min-height: 44px; font-size: var(--fs-sm); }
+    .mp-entry-or { display: flex; align-items: center; gap: var(--s2); color: var(--text-3); font-size: var(--fs-xs); font-weight: 700; }
     .mp-entry-or::before, .mp-entry-or::after { content: ""; flex: 1; height: 1px; background: var(--line); }
-    .mp-fmt-note { margin: -4px 0 var(--s3); text-align: center; font-size: var(--fs-xs); font-weight: 700; color: var(--text-3); }
     /* نظام المباراة في بطاقة القرعة (الفردي والفرق) */
     .mp-fmt { display: flex; align-items: center; justify-content: space-between; gap: var(--s3); padding-top: var(--s3); margin-top: var(--s3); border-top: 1px solid var(--line); }
-    .mp-fmt .lbl { font-size: var(--fs-sm); font-weight: 800; color: var(--text); }
+    .mp-fmt .lbl { font-size: var(--fs-sm); font-weight: 800; color: var(--text); line-height: 1.4; }
     .mp-fmt .lbl small { display: block; font-size: var(--fs-xs); font-weight: 700; color: var(--text-3); }
     .mp-seg { display: inline-grid; grid-auto-flow: column; gap: 2px; padding: 3px; border-radius: var(--r-md); background: var(--surface-3); }
-    .mp-seg button { min-height: 36px; padding: 0 12px; border: 0; border-radius: 12px; background: transparent; color: var(--text-2); font: inherit; font-size: var(--fs-sm); font-weight: 800; cursor: pointer; transition: background var(--t-fast) ease, color var(--t-fast) ease; }
+    .mp-seg button { min-height: 38px; padding: 0 12px; border: 0; border-radius: 12px; background: transparent; color: var(--text-2); font: inherit; font-size: var(--fs-sm); font-weight: 800; cursor: pointer; transition: background var(--t-fast) ease, color var(--t-fast) ease; }
     .mp-seg button.on { background: var(--surface); color: var(--text); box-shadow: var(--sh-1); }
     .mp-seg button:disabled { cursor: default; }
     .mp-seg:has(button:disabled) button:not(.on) { opacity: .45; }
     .bracket-fmt { margin: -6px 0 var(--s3); font-size: var(--fs-xs); font-weight: 700; color: var(--text-3); }
-    /* ورقة المباراة الجارية */
+    /* ورقة تسجيل المسار */
     .mp-board { display: grid; grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr); align-items: center; gap: var(--s2); padding: var(--s4) var(--s3); border-radius: var(--r-md); background: var(--surface-2); }
     .mp-board .nm { font-size: var(--fs-base); font-weight: 800; text-align: center; line-height: 1.35; overflow-wrap: anywhere; color: var(--text); }
-    .mp-board .nm small { display: block; font-size: var(--fs-xs); font-weight: 700; color: var(--text-3); }
-    .mp-board .sc { display: flex; align-items: center; gap: 10px; font-size: var(--fs-2xl); font-weight: 900; line-height: 1; font-variant-numeric: tabular-nums; direction: ltr; }
+    .mp-board .sc { display: flex; align-items: center; gap: 10px; font-size: var(--fs-2xl); font-weight: 900; line-height: 1; font-variant-numeric: tabular-nums; }
     .mp-board .sc .dash { font-size: var(--fs-lg); font-weight: 700; color: var(--text-3); }
     .mp-board .sc .lose { color: var(--text-3); }
-    .mp-clock { display: flex; align-items: center; justify-content: center; gap: 6px; margin-top: var(--s3); font-size: var(--fs-sm); font-weight: 800; color: var(--text-2); font-variant-numeric: tabular-nums; }
-    .mp-clock .ic { width: 15px; height: 15px; color: var(--gold-deep); }
-    .mp-clock.live { color: var(--ok); }
-    .mp-clock .t { direction: ltr; unicode-bidi: isolate; }
+    .mp-q { margin-top: var(--s4); text-align: center; font-size: var(--fs-sm); font-weight: 800; color: var(--text-2); }
     .mp-hint { margin-top: var(--s2); text-align: center; font-size: var(--fs-xs); font-weight: 700; color: var(--text-3); }
-    .mp-win { display: grid; grid-template-columns: 1fr 1fr; gap: var(--s2); margin-top: var(--s4); }
-    .mp-win button { min-height: 72px; padding: 8px 10px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 2px;
+    .mp-win { display: grid; grid-template-columns: 1fr 1fr; gap: var(--s2); margin-top: var(--s2); }
+    .mp-win button { min-height: 64px; padding: 8px 12px; display: flex; align-items: center; justify-content: center;
       border-radius: var(--r-md); border: 1px solid var(--line-strong); background: var(--surface); color: var(--text); font: inherit; cursor: pointer;
       box-shadow: var(--sh-1); -webkit-tap-highlight-color: transparent; transition: transform var(--t-fast) var(--ease), background var(--t-fast) ease; }
     .mp-win button:active { transform: scale(.97); background: var(--surface-2); }
     .mp-win button b { font-size: var(--fs-md); font-weight: 800; line-height: 1.3; overflow-wrap: anywhere; }
-    .mp-win button span { font-size: var(--fs-xs); font-weight: 700; color: var(--text-3); }
-    .mp-done { margin-top: var(--s4); text-align: center; font-size: var(--fs-sm); font-weight: 800; color: var(--ok); }
-    .mp-done.draw { color: var(--text-2); }
-    .mp-tools { display: flex; flex-wrap: wrap; justify-content: center; gap: 4px var(--s4); margin-top: var(--s3); }
+    .mp-tools { display: flex; flex-wrap: wrap; justify-content: center; gap: 0 var(--s5); margin-top: var(--s2); }
     .mp-link { min-height: 44px; padding: 0 6px; border: 0; background: none; font: inherit; font-size: var(--fs-sm); font-weight: 800; color: var(--text-2); cursor: pointer; display: inline-flex; align-items: center; gap: 6px; }
     .mp-link.warn { color: var(--danger); }
     .mp-link .ic { width: 15px; height: 15px; }
-    .mp-ff { display: grid; grid-template-columns: 1fr 1fr; gap: var(--s2); margin-top: var(--s2); }
+    .mp-ff { display: grid; grid-template-columns: 1fr 1fr; gap: var(--s2); margin-top: var(--s1); }
     .mp-ff[hidden] { display: none; }
-    /* المسار: صف لكل شوط — الرقم ← الحدث والاسم ← النتيجة بعده ← مدته */
+    #mpModal .score-modal-actions { grid-template-columns: minmax(0, 1fr); }
+    /* المسار: صف لكل شوط — الرقم ← الحدث والاسم ← النتيجة بعده بالموضع (رقم الطرف الأول يمينًا)؛ الشرطة على محور واحد */
     .mp-path { margin-top: var(--s4); }
     .mp-path-h { display: flex; align-items: center; gap: 6px; margin-bottom: var(--s2); font-size: var(--fs-xs); font-weight: 800; color: var(--text-2); }
     .mp-path-h .ic { width: 14px; height: 14px; color: var(--gold-deep); }
     .mp-steps { border: 1px solid var(--line); border-radius: var(--r-md); overflow: hidden; }
-    .mp-step { display: grid; grid-template-columns: 28px minmax(0, 1fr) auto auto; align-items: center; gap: var(--s2); min-height: 44px; padding: 6px var(--s3); font-size: var(--fs-sm); }
+    .mp-step { display: grid; grid-template-columns: 24px minmax(0, 1fr) 72px; align-items: center; gap: var(--s3); min-height: 48px; padding: 6px var(--s3); font-size: var(--fs-sm); }
     .mp-step + .mp-step { border-top: 1px solid var(--line); }
     .mp-step .no { width: 24px; height: 24px; display: grid; place-items: center; padding-top: 2px; border-radius: 50%; background: var(--surface-3); color: var(--text-2); font-size: var(--fs-xs); font-weight: 800; font-variant-numeric: tabular-nums; }
     .mp-step .tx { font-weight: 700; color: var(--text); overflow-wrap: anywhere; line-height: 1.4; }
     .mp-step .tx b { font-weight: 800; color: var(--gold-deep); }
     .mp-step.fin .tx b { color: var(--ok); }
-    .mp-step .rs { font-weight: 800; color: var(--text); font-variant-numeric: tabular-nums; }
-    .mp-step .du { min-width: 44px; text-align: end; font-size: var(--fs-xs); font-weight: 700; color: var(--text-3); font-variant-numeric: tabular-nums; }
+    .mp-step .rs { padding-top: 3px; text-align: center; font-size: var(--fs-base); font-weight: 800; color: var(--text-3); font-variant-numeric: tabular-nums; white-space: nowrap; }   /* Tajawal يرسم الأرقام أعلى من الوسط */
+    .mp-step .rs .on { color: var(--text); }
+    .mp-step .rs .d { font-weight: 700; }
     .mp-step.ffs .tx { color: var(--text-2); }
-    .mp-fact { margin-top: var(--s2); text-align: center; font-size: var(--fs-sm); font-weight: 800; color: var(--gold-deep); }
-    .mp-time { display: flex; flex-wrap: wrap; align-items: center; justify-content: center; gap: 4px 6px; margin-top: var(--s3); font-size: var(--fs-xs); font-weight: 700; color: var(--text-3); }
-    .mp-time .ic { width: 14px; height: 14px; }
-    .mp-time b { color: var(--text); font-weight: 800; }
-    /* تعديل الأوقات: صفان بحقلي وقت أصليين (منتقي الوقت في الآيفون) */
-    .mp-times { margin-top: var(--s3); border: 1px solid var(--line); border-radius: var(--r-md); overflow: hidden; }
-    .mp-times[hidden] { display: none; }
-    .mp-times label { display: flex; align-items: center; justify-content: space-between; gap: var(--s3); min-height: 52px; padding: 4px var(--s3); font-size: var(--fs-sm); font-weight: 800; color: var(--text); }
-    .mp-times label + label { border-top: 1px solid var(--line); }
-    .mp-times input[type="time"] { min-height: 40px; min-width: 128px; padding: 0 10px; border-radius: 12px; border: 1px solid var(--line-strong); background: var(--surface-2); color: var(--text); font: inherit; font-size: 16px; font-weight: 800; direction: ltr; }
-    .mp-times .note { padding: 8px var(--s3) 10px; font-size: var(--fs-xs); font-weight: 700; color: var(--text-3); border-top: 1px solid var(--line); }
-    #mpModal .score-modal-actions { grid-template-columns: minmax(0, 1fr); }
-    #mpModal .score-modal-actions.two { grid-template-columns: 1.4fr 1fr; }
-    /* المسار المختصر في ورقة البطولة («السجل») */
+    .mp-fact { margin-top: var(--s3); text-align: center; font-size: var(--fs-sm); font-weight: 800; color: var(--gold-deep); }
+    #resultPath .mp-tools { margin-top: var(--s2); }
+    /* نسخة اللاعبين والسجل */
     .vm-out.live { color: var(--ok); }
     .ht-mp { grid-column: 1 / -1; margin-top: 2px; font-size: var(--fs-xs); font-weight: 700; color: var(--text-3); text-align: center; line-height: 1.5; }
     .ht-mp b { font-weight: 800; color: var(--text-2); }
@@ -3827,8 +3805,7 @@
         أدخل نتيجة كل فريق ثم اضغط اعتماد.
       </p>
       <div class="mp-entry" id="mpEntry" hidden>
-        <button type="button" class="btn primary" id="mpStartBtn" data-ic="play">بدء المباراة</button>
-        <button type="button" class="btn" id="mpLateBtn" data-ic="flag">تسجيل المسار</button>
+        <button type="button" class="btn" id="mpRecBtn" data-ic="flag">تسجيل مسار المباراة شوطًا بشوط</button>
         <div class="mp-entry-or">أو أدخل النتيجة مباشرة</div>
       </div>
       <div class="score-card">
@@ -11052,7 +11029,7 @@ function buildLeagueStandingsCanvas() {
       const top = M + exportBrandHeaderHeight(meta) + 40;
       const ctxRes = exportContextResolve(context), gapC = ctxRes.shown ? 50 : 8;
       const itemH = it => it.bye ? 72 : 100;
-      const pathH = P => P.steps.length * 88 + (P.fact ? 62 : 0) + (P.time ? 66 : 0) - 8;   // 3.6: قسم «مسار المباراة»
+      const pathH = P => P.steps.length * 88 + (P.fact ? 62 : 0) - 12;   // 3.6: قسم «مسار المباراة»
       const rowsH = sections.reduce((a, sec) => a + (sec.path ? pathH(sec.path) : sec.honor ? sec.honor.length * 108 + 12 + (sec.legend ? 82 : 0) : sec.matches ? sec.matches.reduce((b, it) => b + itemH(it), 0) : sec.rows.length * ROW), 0);
       const TP = EXPORT_TABLE_PAD, IM = M + TP, ICW = CW - 2 * TP;   // أقسام الصفوف داخل إطار جدول (العناوين أعلى الإطار نفسه)
       // 6.3: صفوف الجداول متصلة بلا صناديق، وارتفاعها يملأ مقاس الستوري بإطار عريض (بين 66 و84)
@@ -11099,10 +11076,10 @@ function buildLeagueStandingsCanvas() {
       canvas.__cuts = cuts; canvas.__ctxOrig = context;
       await downloadCanvasAsPng(canvas, filename);
     }
-    // 3.6 — «مسار المباراة» في صورة «نتيجة مباراة»: بطاقة لكل شوط (رقمه ← الحدث والاسم ← النتيجة بعده ← مدته)،
-    // ثم حقيقة العودة إن وُجدت، ثم سطر الوقت. الحدث بذهبي عميق والاسم بالحبري، بنفس الحجم والوزن لكل الصفوف.
+    // 3.6 — «مسار المباراة» في صورة «نتيجة مباراة»: بطاقة لكل شوط (رقمه ← الحدث والاسم ← النتيجة بعده بالموضع: رقم الطرف
+    // الأول يمينًا كما في بطاقة المباراة فوقها)، ثم حقيقة العودة إن وُجدت. الحدث بذهبي عميق («حسم» بالأخضر) والاسم بالحبري.
     function drawPathRows(ctx, P, X, y, W, cuts) {
-      const B = EXPORT_BRAND, RH = 88;
+      const B = EXPORT_BRAND, RH = 88, SX = X + 150;   // محور النتيجة: الشرطة على خط واحد في كل الصفوف
       P.steps.forEach((st, i) => {
         if (i > 0) cuts.push(y);
         exportRowCard(ctx, X, y, W, RH - 12);
@@ -11110,36 +11087,30 @@ function buildLeagueStandingsCanvas() {
         ctx.save(); ctx.beginPath(); ctx.arc(nx, cy, r, 0, Math.PI * 2); ctx.fillStyle = B.surface3; ctx.fill(); ctx.restore();
         exportText(ctx, String(st.no), nx, cy + 1, { size: 26, weight: 800, color: B.muted, dir: 'ltr', raw: true });
         const tx = nx - r - 18, vw = exportText(ctx, st.verb, tx, cy, { size: 32, weight: 800, color: st.fin ? B.ok : B.goldDeep, align: 'right' }).width;
-        exportText(ctx, st.name, tx - vw - 12, cy, { size: 32, weight: 700, color: B.ink, align: 'right', maxW: W - 26 - 2 * r - 18 - vw - 12 - 250, min: 20 });
-        exportText(ctx, st.score, X + 170, cy, { size: 32, weight: 800, color: B.ink, dir: 'ltr' });
-        if (st.dur) exportText(ctx, st.dur, X + 30, cy, { size: 26, weight: 700, color: B.faint, align: 'left' });
+        exportText(ctx, st.name, tx - vw - 12, cy, { size: 32, weight: 700, color: B.ink, align: 'right', maxW: tx - vw - 12 - (SX + 90), min: 20 });
+        if (st.a != null) {
+          exportText(ctx, String(st.a), SX + 34, cy, { size: 34, weight: 800, color: st.side === 'a' ? B.ink : B.faint, dir: 'ltr' });
+          exportText(ctx, '-', SX, cy, { size: 28, weight: 700, color: B.muted, dir: 'ltr' });
+          exportText(ctx, String(st.b), SX - 34, cy, { size: 34, weight: 800, color: st.side === 'b' ? B.ink : B.faint, dir: 'ltr' });
+        }
         y += RH;
       });
       y -= 12;
-      if (P.fact) { cuts.push(y + 6); exportText(ctx, P.fact, X + W / 2, y + 34, { size: 30, weight: 800, color: B.goldDeep, maxW: W - 40, min: 20 }); y += 62; }
-      if (P.time) {
-        cuts.push(y + 6);
-        const t = exportText(ctx, P.time, X + W / 2 - 18, y + 40, { size: 27, weight: 700, color: B.muted, maxW: W - 90, min: 18 });
-        exportIcon(ctx, 'clock', X + W / 2 + t.width / 2 + 4, y + 40, 28, B.goldDeep, 2);
-        y += 66;
-      }
+      if (P.fact) { cuts.push(y + 6); exportText(ctx, P.fact, X + W / 2, y + 36, { size: 30, weight: 800, color: B.goldDeep, maxW: W - 40, min: 20 }); y += 62; }
       return y;
     }
     // من بيانات المباراة إلى قسم الصورة (أو null إن لم يُسجَّل مسار)
     function exportPathSection(mp, A, B) {
       if (!window.MP || !mp || !MP.games(mp).length) return null;
-      const steps = MP.steps(mp, A, B, !mp.ff).map(x => ({ no: x.no, verb: x.verb, name: x.name, fin: x.fin, score: MP.sc(x.a, x.b), dur: x.dur ? `${MP.mins(x.dur)} د` : '' }));
-      if (mp.ff) steps.push({ no: '–', verb: 'انسحاب', name: mp.ff === 'a' ? A : B, score: '', dur: '' });
-      const d = MP.duration(mp), e = MP.endOf(mp);
-      const time = mp.s ? [`بدأت ${fmtTimeNum(mp.s)}`, e ? `انتهت ${fmtTimeNum(e)}` : '', d ? MP.arMin(MP.mins(d)) : ''].filter(Boolean).join(' · ') : '';
-      return { heading: 'مسار المباراة', path: { steps, fact: MP.comeback(mp, A, B), time } };
+      const steps = MP.steps(mp, A, B, !mp.ff).map(x => ({ no: x.no, verb: x.verb, name: x.name, fin: x.fin, side: x.side, a: x.a, b: x.b }));
+      if (mp.ff) steps.push({ no: '–', verb: 'انسحاب', name: mp.ff === 'a' ? A : B, a: null, b: null });
+      return { heading: 'مسار المباراة', path: { steps, fact: MP.comeback(mp, A, B) } };
     }
-    // نص المشاركة المصاحب: المسار سطرًا واحدًا والوقت
+    // نص المشاركة المصاحب: المسار سطرًا واحدًا (النتيجة بترتيب الطرفين كما في سطر المباراة)
     function exportPathCaption(mp, A, B) {
       if (!window.MP || !mp || !MP.games(mp).length) return '';
-      const st = MP.steps(mp, A, B, !mp.ff), d = MP.duration(mp);
-      return '\nالمسار: ' + st.map(x => `${x.verb} ${x.name} (${MP.sc(x.a, x.b)})`).join(' ← ') + (mp.ff ? ` ← انسحاب ${mp.ff === 'a' ? A : B}` : '')
-        + (MP.comeback(mp, A, B) ? `\n${MP.comeback(mp, A, B)}` : '') + (d ? `\nالمدة: ${MP.arMin(MP.mins(d))} (بدأت ${fmtTimeNum(mp.s)} · انتهت ${fmtTimeNum(MP.endOf(mp))})` : '');
+      const st = MP.steps(mp, A, B, !mp.ff), f = MP.comeback(mp, A, B);
+      return '\nالمسار: ' + st.map(x => `${x.verb} ${x.name} (${x.a} - ${x.b})`).join(' ← ') + (mp.ff ? ` ← انسحاب ${mp.ff === 'a' ? A : B}` : '') + (f ? `\n${f}` : '');
     }
     // ===== صور قوائم المباريات (6.3): «نتائج اليوم» · «نتائج الجولات» · «نتائج جولة» · «إعلان المباريات القادمة» =====
     // صفوف مدمجة بلا صناديق (خط رفيع وتظليل خفيف لكل صف ثانٍ)، وارتفاع صف يتكيّف مع عدد المباريات ليملأ مقاس الستوري
@@ -11235,9 +11206,7 @@ function buildLeagueStandingsCanvas() {
           exportText(ctx, '-', mid, sy, { size: Math.round(scoreSize * 0.8), weight: 700, color: B.muted, dir: 'ltr' });
           if (tag) exportText(ctx, tag, mid, cy + Math.round(rowH * 0.19) - exportOptDy(Math.max(17, Math.round(rowH * 0.26))), { size: Math.max(17, Math.round(rowH * 0.26)), weight: 800, color: B.walnut, raw: true });
           if (sub) { const ssz = Math.max(17, Math.round(rowH * 0.24)), syy = cy + Math.round(rowH * 0.21) - exportOptDy(ssz);
-            const pw = exportText(ctx, sub, mid, syy, { size: ssz, weight: 700, color: B.faint, raw: true, dir: 'ltr', maxW: colW - 220, min: 14 }).width;
-            if (it.mpDur) { exportText(ctx, '·', mid - pw / 2 - 20, syy, { size: ssz, weight: 800, color: B.lineStrong, raw: true });
-              exportText(ctx, it.mpDur, mid - pw / 2 - 36, syy, { size: ssz, weight: 700, color: B.faint, raw: true, align: 'right' }); } }   // مقاسه من ارتفاع الصف نفسه
+            exportText(ctx, sub, mid, syy, { size: ssz, weight: 700, color: B.faint, raw: true, dir: 'ltr', maxW: colW - 220, min: 14 }); }   // مقاسه من ارتفاع الصف نفسه
         } else drawVsPill(ctx, mid, cy, Math.min(1.15, rowH / 80));
       });
       if (cols > 1) { const x = IX + IW - colW - GAP / 2; ctx.save(); ctx.strokeStyle = B.lineStrong; ctx.lineWidth = 2; ctx.beginPath(); ctx.moveTo(x, y0 + 6); ctx.lineTo(x, y0 + rows * rowH - 6); ctx.stroke(); ctx.restore(); }
@@ -11622,10 +11591,9 @@ function buildLeagueStandingsCanvas() {
         { const m = lg ? leagueMatches.find(x => x.id === e.id) : bracketState[e.id];   // 3.6: مسار مختصر تحت النتيجة (نفس اتجاه أرقامها) والمدة
           const flip = m && (lg ? m.playerA !== e.a : m.team1 !== e.a);
           if (m && m.mp && MP.games(m.mp).length && !it.ff && !it.annul) {
-            const st = MP.steps(m.mp, '', '', true), d = MP.duration(m.mp);
-            it.mpLine = st.map(x => flip ? `${x.a}-${x.b}` : `${x.b}-${x.a}`).reverse().join('  ←  ');   // أرقام فقط (LTR): الشوط الأول يمينًا
-            it.mpDur = d ? `${MP.mins(d)} د` : '';   // المدة تُرسم وحدها يسار السطر (لا تختلط اتجاهاتها بالأرقام)
-            it.mpText = st.map(x => `${x.verb} ${x.side === 'a' ? (flip ? it.b : it.a) : (flip ? it.a : it.b)}`).join(' ← ') + (d ? ` · ${MP.arMin(MP.mins(d))}` : '');
+            const st = MP.steps(m.mp, '', '', true);
+            it.mpLine = st.map(x => flip ? `${x.a} - ${x.b}` : `${x.b} - ${x.a}`).reverse().join('   ←   ');   // أرقام فقط (LTR) بالموضع: رقم كل طرف في جهة اسمه، والشوط الأول يمينًا
+            it.mpText = st.map(x => `${x.verb} ${x.side === 'a' ? (flip ? it.b : it.a) : (flip ? it.a : it.b)}`).join(' ← ');
           } }
         return it; });
       // 1.4: «بلا خسارة» بنفس قاعدة البطاقة (الدوري)
@@ -14540,8 +14508,7 @@ function buildLeagueStandingsCanvas() {
         $('resultOutcome').textContent = outcome; $('resultOutcome').classList.toggle('draw', draw);
         $('resultLock').hidden = !locked;
         { let host = $('resultPath'); if (!host) { host = document.createElement('div'); host.id = 'resultPath'; $('resultOutcome').after(host); }   // 3.6: مسار المباراة ووقتها
-          host.innerHTML = ''; if (window.carromMpResultHook) try { window.carromMpResultHook(kind, id, host); } catch (e) { console.error(e); }
-          $('resultMeta').hidden = !!host.querySelector('.mp-time'); }   // وقت المباراة يغني عن «سُجّلت» (لا تكرار)
+          host.innerHTML = ''; if (window.carromMpResultHook) try { window.carromMpResultHook(kind, id, host); } catch (e) { console.error(e); } }
         const at = recordedAt(kind, id);
         $('resultMeta').innerHTML = at ? '<span class="ic ic-calendar" aria-hidden="true"></span>' : '';
         $('resultMeta').appendChild(document.createTextNode(at ? `سُجّلت ${fmtTime(at)}` : ''));
@@ -14613,11 +14580,12 @@ function buildLeagueStandingsCanvas() {
     })();
 
     // ===================================================================================
-    // 🕒 3.6 — «مسار المباراة ومدتها» (الفردي والفرق والدوري)
-    // طبقة تسجيل فوق المنطق الحالي: «بدء المباراة» ← الفائز بكل شوط بلمسة ← عند الحسم تُعتمد النتيجة (2 - 1 / 1 - 1)
+    // 🏁 3.6 — «مسار المباراة» (الفردي والفرق والدوري): من تقدّم ومن عادل ومن حسم، شوطًا بشوط. بلا توقيت (قرار المجلس:
+    // الوقت لا يكون دقيقًا مع التوقف أو التسجيل بعد المباراة). طبقة تسجيل فوق المنطق الحالي: عند الحسم تُعتمد النتيجة (2 - 1 / 1 - 1)
     // بنفس الدوال القائمة (confirmWinner للفردي والفرق، saveLeagueMatchResult للدوري)، فلا يتغير التأهل ولا النقاط ولا التقييم.
-    // البيانات إضافية على المباراة نفسها: mp = { s: وقت البدء, g: [{ w: 'a'|'b', t: وقت نهاية الشوط }], ff?: 'a'|'b' المنسحب }.
+    // البيانات إضافية على المباراة: mp = { g: [{ w: 'a'|'b' }], ff?: 'a'|'b' المنسحب }. a = الطرف الأول (يمين البطاقة) و b = الثاني.
     // نظام المباراة للفردي والفرق: matchFormat_<mode> = '3' | '5' (أفضل من 3 افتراضيًا)، والدوري شوطان ثابتان.
+    // أرقام المسار بالموضع لا «الأكبر أولًا»: رقم كل طرف في جهة اسمه دائمًا (الأول يمينًا).
     // ===================================================================================
     const MP = (function () {
       const esc = s => String(s == null ? '' : s).replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
@@ -14625,15 +14593,10 @@ function buildLeagueStandingsCanvas() {
       function bestOf(mode) { mode = mode || currentMode; if (mode === 'league') return 2; try { return localStorage.getItem(fmtKey(mode)) === '5' ? 5 : 3; } catch (e) { return 3; } }
       const games = mp => (mp && Array.isArray(mp.g) ? mp.g : []);
       function count(mp) { const c = { a: 0, b: 0 }; games(mp).forEach(x => { if (x.w === 'a') c.a++; else if (x.w === 'b') c.b++; }); return c; }
-      // الحسم: الدوري بعد شوطين، والإقصائيات حين يبلغ أحدهما نصف النظام + 1
       function decided(kind, mp, bo) { const c = count(mp); return kind === 'lg' ? c.a + c.b >= 2 : Math.max(c.a, c.b) >= Math.ceil((bo || bestOf()) / 2); }
-      const arMin = n => n === 1 ? 'دقيقة واحدة' : n === 2 ? 'دقيقتان' : n <= 10 ? `${n} دقائق` : `${n} دقيقة`;
-      const mins = ms => Math.max(1, Math.round(ms / 60000));
-      const endOf = mp => { const g = games(mp), l = g[g.length - 1]; return l && l.t ? l.t : null; };
-      function duration(mp) { const s = mp && mp.s, e = endOf(mp); return s && e && e > s ? e - s : null; }
       // الأحداث بلغة ثابتة: تقدّم · عادل · وسّع الفارق · قلّص · حسم (finished: آخر شوط حسم المباراة فعلًا)
       function steps(mp, A, B, finished) {
-        const out = [], g = games(mp); let a = 0, b = 0, prevT = mp && mp.s || null;
+        const out = [], g = games(mp); let a = 0, b = 0;
         g.forEach((x, i) => {
           const wa = x.w === 'a', meB = wa ? a : b, opB = wa ? b : a;
           if (wa) a++; else b++;
@@ -14645,75 +14608,60 @@ function buildLeagueStandingsCanvas() {
           else if (meB > opB) verb = 'وسّع الفارق';
           else if (me < op) verb = 'قلّص';
           else verb = 'تقدّم';
-          const dur = x.t && prevT && x.t > prevT ? x.t - prevT : null; prevT = x.t || null;
-          out.push({ no: i + 1, side: x.w, name: wa ? A : B, verb, a, b, dur, fin: verb === 'حسم' });
+          out.push({ no: i + 1, side: x.w, name: wa ? A : B, verb, a, b, fin: verb === 'حسم' });
         });
         return out;
       }
       // حقيقة العودة: الفائز كان متأخرًا بشوط أو شوطين
       function comeback(mp, A, B) {
-        const c = count(mp); if (c.a === c.b || mp.ff) return '';
+        const c = count(mp); if (c.a === c.b || (mp && mp.ff)) return '';
         const W = c.a > c.b ? 'a' : 'b'; let a = 0, b = 0, worst = 0;
-        games(mp).forEach(x => { if (x.w === 'a') a++; else b++; const d = W === 'a' ? a - b : b - a; worst = Math.min(worst, d); });
+        games(mp).forEach(x => { if (x.w === 'a') a++; else b++; worst = Math.min(worst, W === 'a' ? a - b : b - a); });
         if (worst >= 0) return '';
         return `${W === 'a' ? A : B} فاز بعد تأخره ${worst === -1 ? 'بشوط' : worst === -2 ? 'بشوطين' : `بـ${-worst} أشواط`}`;
       }
-      const sc = (a, b) => `${Math.max(a, b)} - ${Math.min(a, b)}`;
-      function timeLine(mp, running) {
-        const s = mp && mp.s, e = endOf(mp), d = duration(mp);
-        if (!s && !e) return '';
-        const parts = [];
-        if (s) parts.push(`بدأت ${esc(fmtTimeNum(s))}`);
-        if (e && !running) parts.push(`انتهت ${esc(fmtTimeNum(e))}`);
-        if (d && !running) parts.push(`<b>${arMin(mins(d))}</b>`);
-        return `<div class="mp-time"><span class="ic ic-clock" aria-hidden="true"></span>${parts.join(' · ')}</div>`;
-      }
-      // كتلة المسار الكاملة (ورقة النتيجة · ورقة المباراة للاعبين · الورقة الجارية)
+      // النتيجة بعد كل شوط بالموضع: رقم الطرف الأول يمينًا (bdi LTR: الثاني يسارًا ثم الأول يمينًا)
+      const posHTML = (a, b, side) => `<bdi dir="ltr"><span class="${side === 'b' ? 'on' : ''}">${b}</span> <span class="d">-</span> <span class="${side === 'a' ? 'on' : ''}">${a}</span></bdi>`;   // رقم صاحب الشوط بارز
+      // كتلة المسار (ورقة النتيجة · ورقة المباراة للاعبين · الورقة الجارية)
       function pathHTML(mp, A, B, opts) {
         opts = opts || {};
-        const g = games(mp); if (!g.length && !(mp && mp.s)) return '';
+        const g = games(mp); if (!g.length) return '';
         const st = steps(mp, A, B, !!opts.finished && !mp.ff);
         let h = `<div class="mp-path">${opts.noHead ? '' : '<div class="mp-path-h"><span class="ic ic-flag" aria-hidden="true"></span>مسار المباراة</div>'}`;
-        if (st.length) h += '<div class="mp-steps">' + st.map(x => `<div class="mp-step${x.fin ? ' fin' : ''}"><span class="no">${x.no}</span><span class="tx"><b>${x.verb}</b> ${esc(x.name)}</span><span class="rs"><bdi dir="ltr">${sc(x.a, x.b)}</bdi></span><span class="du">${x.dur ? mins(x.dur) + ' د' : ''}</span></div>`).join('')
-          + (mp.ff ? `<div class="mp-step ffs"><span class="no">–</span><span class="tx"><b>انسحاب</b> ${esc(mp.ff === 'a' ? A : B)}</span><span class="rs"></span><span class="du"></span></div>` : '') + '</div>';
+        h += '<div class="mp-steps">' + st.map(x => `<div class="mp-step${x.fin ? ' fin' : ''}"><span class="no">${x.no}</span><span class="tx"><b>${x.verb}</b> ${esc(x.name)}</span><span class="rs">${posHTML(x.a, x.b, x.side)}</span></div>`).join('')
+          + (mp.ff ? `<div class="mp-step ffs"><span class="no">–</span><span class="tx"><b>انسحاب</b> ${esc(mp.ff === 'a' ? A : B)}</span><span class="rs"></span></div>` : '') + '</div>';
         if (opts.finished) { const f = comeback(mp, A, B); if (f) h += `<p class="mp-fact">${esc(f)}</p>`; }
-        if (!opts.noTime) h += timeLine(mp, !!opts.running);
         return h + '</div>';
       }
-      // سطر مختصر لورقة البطولة في «السجل»: «تقدّم فلان ← عادل فلان ← حسم فلان · 35 د»
+      // سطر مختصر لورقة البطولة في «السجل»: «تقدّم فلان ← عادل فلان ← حسم فلان»
       function compactHTML(mp, A, B, finished) {
         const st = steps(mp, A, B, !!finished && !mp.ff); if (!st.length) return '';
-        const d = duration(mp);
-        return st.map(x => `<b>${x.verb}</b> ${esc(x.name)}`).join(' ← ') + (mp.ff ? ` ← <b>انسحاب</b> ${esc(mp.ff === 'a' ? A : B)}` : '') + (d ? ` · ${mins(d)} د` : '');
+        return st.map(x => `<b>${x.verb}</b> ${esc(x.name)}`).join(' ← ') + (mp.ff ? ` ← <b>انسحاب</b> ${esc(mp.ff === 'a' ? A : B)}` : '');
       }
-      const sinceText = s => { const n = Math.floor((Date.now() - s) / 60000); return n < 1 ? 'بدأت الآن' : `منذ ${n} د`; };
-      return { fmtKey, bestOf, games, count, decided, steps, comeback, duration, endOf, mins, arMin, timeLine, pathHTML, compactHTML, sinceText, sc, esc };
+      return { fmtKey, bestOf, games, count, decided, steps, comeback, posHTML, pathHTML, compactHTML, esc };
     })();
     window.MP = MP;
 
-    // ---------- البطاقات (النسختان): المباراة الجارية بشارة «جارية» حية، وعدد أشواط كل طرف بجانب اسمه، والوقت المنقضي ----------
-    const mpRunning = (kind, m) => !!(m && m.mp && m.mp.s && !(kind === 'ko' ? m.winner : isLeagueMatchCompleted(m) || isLeagueMatchAnnulled(m)));
+    // ---------- البطاقات (النسختان): المباراة الجارية (شوط مسجّل أو أكثر قبل الحسم) بشارة «جارية» وعدد أشواط كل طرف بجانب اسمه ----------
+    const mpRunning = (kind, m) => !!(m && MP.games(m.mp).length && !(kind === 'ko' ? m.winner : isLeagueMatchCompleted(m) || isLeagueMatchAnnulled(m)));
     function mpDecorateCard(card, kind, m) {
       if (!card || !mpRunning(kind, m)) return card;
       const c = MP.count(m.mp);
       card.classList.add('mp-run');
       const st = card.querySelector('.match-status'); if (st) { st.className = 'match-status live'; st.innerHTML = '<span class="tx">جارية</span>'; }
-      const head = card.querySelector('.match-head');
-      if (head && st && !head.querySelector('.mp-since')) st.insertAdjacentHTML('beforebegin', `<span class="mp-since" data-mp-since="${m.mp.s}">${MP.sinceText(m.mp.s)}</span>`);
       const rows = card.querySelectorAll('.match-body > .match-team');
       if (rows.length === 2) [c.a, c.b].forEach((n, i) => { if (!rows[i].querySelector('.live-badge')) rows[i].insertAdjacentHTML('beforeend', `<span class="score-badge live-badge${n > (i ? c.a : c.b) ? ' lead' : ''}"><span class="tx">${n}</span></span>`); });
-      card.title = 'المباراة جارية: اضغط لتسجيل الشوط';
+      card.title = 'المباراة جارية: اضغط لتسجيل الشوط التالي';
       return card;
     }
-    setInterval(() => document.querySelectorAll('[data-mp-since]').forEach(el => { el.textContent = MP.sinceText(Number(el.dataset.mpSince)); }), 20000);
     { const _cl = createLeagueMatchCard; createLeagueMatchCard = function (m) { return mpDecorateCard(_cl.apply(this, arguments), 'lg', m); }; }
     { const _rb = reRenderBracket; reRenderBracket = function () {
         const r = _rb.apply(this, arguments);
         try { bracketArea.querySelectorAll('.match-card[data-match-id]').forEach(card => mpDecorateCard(card, 'ko', bracketState[card.dataset.matchId])); mpFormatUI(); } catch (e) { console.error(e); }
         return r; }; }
 
-    // ---------- نظام المباراة (الفردي والفرق): أفضل من 3 أو أفضل من 5، يُقفل بعد أول نتيجة أو بدء مباراة ----------
-    function mpFormatLocked() { return Object.values(bracketState || {}).some(m => m && (m.winner || (m.mp && (m.mp.s || MP.games(m.mp).length)))); }
+    // ---------- نظام المباراة (الفردي والفرق): أفضل من 3 أو أفضل من 5، يُقفل بعد أول نتيجة أو أول شوط مسجّل ----------
+    function mpFormatLocked() { return Object.values(bracketState || {}).some(m => m && (m.winner || MP.games(m.mp).length)); }
     function mpFormatUI() {
       const ko = currentMode === 'fixed' || currentMode === 'single', bo = MP.bestOf();
       const row = document.getElementById('mpFmtRow');
@@ -14723,8 +14671,7 @@ function buildLeagueStandingsCanvas() {
         row.querySelectorAll('[data-bo]').forEach(b => { const on = Number(b.dataset.bo) === bo; b.classList.toggle('on', on); b.setAttribute('aria-pressed', String(on)); b.disabled = locked; });
         const sub = document.getElementById('mpFmtSub'); if (sub) sub.textContent = locked ? 'مقفل لهذه البطولة' : 'يُقفل بعد أول نتيجة';
       }
-      // سطر هادئ تحت عنوان الجدول (النسختان): النظام المعتمد
-      const title = document.getElementById('bracketTitle');
+      const title = document.getElementById('bracketTitle');   // سطر هادئ تحت عنوان الجدول (النسختان)
       if (title) { let n = document.getElementById('bracketFmt');
         const show = ko && Object.keys(bracketState || {}).length > 0;
         if (show && !n) { n = document.createElement('p'); n.id = 'bracketFmt'; n.className = 'bracket-fmt'; title.after(n); }
@@ -14744,7 +14691,7 @@ function buildLeagueStandingsCanvas() {
       if (_ms) updateModeStatus = function () { const r = _ms.apply(this, arguments); try { mpFormatUI(); } catch (e) {} return r; };
     })();
 
-    // ---------- الإدارة: ورقة المباراة الجارية والتسجيل والاعتماد ----------
+    // ---------- الإدارة: ورقة «تسجيل المسار» والاعتماد ----------
     (function setupMatchPath() {
       if (window.CARROM_VIEW) return;
       const modal = document.getElementById('mpModal'), body = document.getElementById('mpBody'), acts = document.getElementById('mpActions');
@@ -14756,18 +14703,14 @@ function buildLeagueStandingsCanvas() {
       const titleOf = (kind, m) => kind === 'ko' ? (isFinalMatch(m) ? 'المباراة النهائية' : `مباراة ${m.matchNumber}`) : 'مباراة الدوري';
       const subOf = (kind, m) => (kind === 'ko' ? cleanRound(m.roundName) : `الجولة ${m.round}`) + ' · ' + (kind === 'lg' ? 'شوطان' : `أفضل من ${boOf(kind)}`);
       const isLocked = kind => { try { return kind === 'ko' ? !!getVerifiedTournamentChampion() : !!leagueCompleted; } catch (e) { return false; } };
-      let cur = null, tick = null;   // { kind, id, mode: 'live'|'late'|'edit'|'times', draft, ff }
+      let cur = null;   // { kind, id, mode: 'rec' (مباراة لم تُحسم: كل شوط يُحفظ فورًا) | 'edit' (مسودة لمباراة محسومة), draft, ffOpen }
 
       function persist(kind, label) {
         offerUndo(label);
         if (kind === 'ko') { saveState(); reRenderBracket(); updateModeStatus(); }
         else { saveLeagueState(); renderLeague(); }
       }
-      // سجل البطولات يحمل نسخة من المسار: يُحدَّث عند تعديل الأوقات في بطولة مكتملة
-      function syncHistory(kind) {
-        try { if (kind === 'ko') { if (getVerifiedTournamentChampion()) recordCompletedTournament(); } else if (leagueCompleted) syncCompletedLeagueTournament(); } catch (e) { console.error(e); }
-      }
-      // الاعتماد: نفس دوال تسجيل النتيجة القائمة (الفائز والأرقام) — المسار يُرفق بالمباراة قبلها فيدخل السجل معها
+      // الاعتماد: نفس دوال تسجيل النتيجة القائمة — المسار يُرفق بالمباراة قبلها فيدخل السجل معها
       function commit(kind, id, mp) {
         const m = getM(kind, id); if (!m) return;
         const c = MP.count(mp);
@@ -14790,125 +14733,73 @@ function buildLeagueStandingsCanvas() {
           saveLeagueMatchResult();
         }
         close();
-        // ورقة النتيجة تعرض المسار والوقت بعد الاعتماد (إن لم يغطِّها احتفال)
-        setTimeout(() => { const mm = getM(kind, id); if (mm && isDone(kind, mm) && window.carromOpenResult ) window.carromOpenResult(kind, id); }, 260);
+        setTimeout(() => { const mm = getM(kind, id); if (mm && isDone(kind, mm) && window.carromOpenResult) window.carromOpenResult(kind, id); }, 260);
       }
 
       function open(kind, id, mode) {
         const m = getM(kind, id); if (!m) return;
-        const draft = mode === 'live' ? null : mode === 'times' ? JSON.parse(JSON.stringify(m.mp || { s: null, g: [] }))
-          : { s: m.mp && m.mp.s || null, g: [], keepEnd: mode === 'edit' ? MP.endOf(m.mp) : null };
-        cur = { kind, id, mode, draft, ffOpen: false };
+        cur = { kind, id, mode, draft: mode === 'edit' ? { g: [] } : null, ffOpen: false };
         render();
         modal.style.display = 'flex';
-        clearInterval(tick); tick = setInterval(() => { const el = body.querySelector('.mp-clock.live .t'); if (el && cur) { const mm = getM(cur.kind, cur.id); if (mm && mm.mp && mm.mp.s) el.textContent = clock(Date.now() - mm.mp.s); } }, 1000);
       }
-      function close() { modal.style.display = 'none'; cur = null; clearInterval(tick); }
-      const clock = ms => { const t = Math.max(0, Math.floor(ms / 1000)), h = Math.floor(t / 3600), mm = Math.floor(t % 3600 / 60), s = t % 60, p = n => String(n).padStart(2, '0'); return h ? `${h}:${p(mm)}:${p(s)}` : `${p(mm)}:${p(s)}`; };
-      const toHM = ts => { const d = new Date(ts); return `${String(d.getHours()).padStart(2, '0')}:${String(d.getMinutes()).padStart(2, '0')}`; };
+      function close() { modal.style.display = 'none'; cur = null; }
 
       function render() {
         if (!cur) return;
         const { kind, id, mode } = cur, m = getM(kind, id); if (!m) { close(); return; }
-        const [A, B] = namesOf(kind, m), mp = mode === 'live' ? (m.mp || { s: null, g: [] }) : cur.draft, c = MP.count(mp), bo = boOf(kind);
+        const [A, B] = namesOf(kind, m), mp = mode === 'rec' ? (m.mp || { g: [] }) : cur.draft, c = MP.count(mp), n = MP.games(mp).length + 1;
         $('mpTitle').textContent = titleOf(kind, m);
         $('mpSub').textContent = subOf(kind, m);
         const lead = c.a === c.b ? '' : c.a > c.b ? 'a' : 'b';
-        let h = `<div class="mp-board"><div class="nm">${esc(A)}</div><div class="sc"><span class="${lead === 'a' ? 'lose' : ''}">${c.b}</span><span class="dash">-</span><span class="${lead === 'b' ? 'lose' : ''}">${c.a}</span></div><div class="nm">${esc(B)}</div></div>`;
-        // اتجاه الأرقام: الطرف الأول يمينًا ونتيجته يمين الشرطة (كبطاقات المباريات)
-        h = h.replace('<div class="sc">', '<div class="sc" dir="ltr">');
-        if (mode === 'times') {
-          const s = mp.s, e = MP.endOf(mp), done = isDone(kind, m);
-          h += `<div class="mp-times"><label>بدأت المباراة<input type="time" id="mpTs" value="${s ? toHM(s) : ''}"></label>`
-            + (done && MP.games(mp).length ? `<label>انتهت المباراة<input type="time" id="mpTe" value="${e ? toHM(e) : ''}"></label>` : '')
-            + `<div class="note">تعديل الأوقات لا يغيّر النتيجة ولا المسار، ويُصحح مدة المباراة إن توقفت أو نُسي زر البدء.</div></div>`;
-          body.innerHTML = h;
-          acts.className = 'score-modal-actions two';
-          acts.innerHTML = '<button type="button" class="btn primary" id="mpSaveTimes" data-ic="check">حفظ الأوقات</button><button type="button" class="btn" id="mpCloseBtn">إلغاء</button>';
-          return;
-        }
-        if (mode === 'live' && mp.s) h += `<div class="mp-clock live"><span class="ic ic-clock" aria-hidden="true"></span>بدأت ${esc(fmtTimeNum(mp.s))} · <span class="t">${clock(Date.now() - mp.s)}</span></div>`;
-        else if (mode !== 'live') h += `<p class="mp-hint">${mode === 'edit' ? 'أعد تسجيل الفائز بكل شوط بالترتيب. تُعتمد النتيجة الجديدة عند الحسم.' : 'سجّل الفائز بكل شوط بالترتيب، وتُعتمد النتيجة عند الحسم.'}</p>`;
-        const n = MP.games(mp).length + 1;
-        h += `<div class="mp-win"><button type="button" data-w="a"><b>${esc(A)}</b><span>فاز بالشوط ${n}</span></button><button type="button" data-w="b"><b>${esc(B)}</b><span>فاز بالشوط ${n}</span></button></div>`;
-        if (MP.games(mp).length) h += MP.pathHTML(mp, A, B, { running: true, noTime: true });
-        // أدوات هادئة: تراجع عن آخر شوط (أو إلغاء البدء)، الانسحاب، تعديل وقت البدء
+        // اللوحة: الطرف الأول يمينًا ورقمه يمين الشرطة (كبطاقات المباريات)
+        let h = `<div class="mp-board"><div class="nm">${esc(A)}</div><div class="sc" dir="ltr"><span class="${lead === 'a' ? 'lose' : ''}">${c.b}</span><span class="dash">-</span><span class="${lead === 'b' ? 'lose' : ''}">${c.a}</span></div><div class="nm">${esc(B)}</div></div>`;
+        h += `<p class="mp-q">من فاز بالشوط ${n === 1 ? 'الأول' : n === 2 ? 'الثاني' : n === 3 ? 'الثالث' : n === 4 ? 'الرابع' : 'الخامس'}؟</p>`;
+        h += `<div class="mp-win"><button type="button" data-w="a"><b>${esc(A)}</b></button><button type="button" data-w="b"><b>${esc(B)}</b></button></div>`;
+        if (mode === 'edit') h += '<p class="mp-hint">أعد تسجيل الأشواط بالترتيب، وتُعتمد النتيجة الجديدة عند الحسم.</p>';
+        if (MP.games(mp).length) h += MP.pathHTML(mp, A, B, {});
         const tools = [];
         if (MP.games(mp).length) tools.push('<button type="button" class="mp-link warn" data-act="undo"><span class="ic ic-undo" aria-hidden="true"></span>تراجع عن آخر شوط</button>');
-        else if (mode === 'live') tools.push('<button type="button" class="mp-link warn" data-act="cancel"><span class="ic ic-x" aria-hidden="true"></span>إلغاء بدء المباراة</button>');
         tools.push(`<button type="button" class="mp-link" data-act="ff" aria-expanded="${cur.ffOpen}">انسحاب</button>`);
-        if (mode === 'live') tools.push('<button type="button" class="mp-link" data-act="time"><span class="ic ic-pencil" aria-hidden="true"></span>تعديل وقت البدء</button>');
-        h += `<div class="mp-tools">${tools.join('')}</div><div class="mp-ff" id="mpFf"${cur.ffOpen ? '' : ' hidden'}><button type="button" class="lg-ff-btn" data-ff="a">انسحب ${esc(A)}</button><button type="button" class="lg-ff-btn" data-ff="b">انسحب ${esc(B)}</button></div>`;
+        h += `<div class="mp-tools">${tools.join('')}</div><div class="mp-ff"${cur.ffOpen ? '' : ' hidden'}><button type="button" class="lg-ff-btn" data-ff="a">انسحب ${esc(A)}</button><button type="button" class="lg-ff-btn" data-ff="b">انسحب ${esc(B)}</button></div>`;
         body.innerHTML = h;
-        acts.className = 'score-modal-actions';
-        acts.innerHTML = `<button type="button" class="btn" id="mpCloseBtn">${mode === 'live' ? 'إغلاق · تبقى جارية' : 'إلغاء'}</button>`;
+        acts.innerHTML = `<button type="button" class="btn" id="mpCloseBtn">${mode === 'rec' && MP.games(mp).length ? 'إغلاق · تُحفظ الأشواط' : 'إلغاء'}</button>`;
       }
 
       body.addEventListener('click', async e => {
         if (!cur) return;
         const { kind, id, mode } = cur, m = getM(kind, id); if (!m) return;
-        const mp = mode === 'live' ? m.mp : cur.draft;
+        const mp = mode === 'rec' ? (m.mp || { g: [] }) : cur.draft;
         const w = e.target.closest('[data-w]');
         if (w) {
-          const g = { w: w.dataset.w, t: mode === 'live' ? Date.now() : null };
-          const next = { ...mp, g: [...MP.games(mp), g] };
+          const next = { ...mp, g: [...MP.games(mp), { w: w.dataset.w }] };
           if (MP.decided(kind, next, boOf(kind))) {
-            if (mode !== 'live') { if (cur.draft.keepEnd) g.t = cur.draft.keepEnd; delete next.keepEnd; }
             if (mode === 'edit' && isLocked(kind) && !(await uiConfirm('هذه البطولة محسومة ونتائجها معلنة. اعتماد المسار الجديد قد يغيّر النتيجة والبطل. هل تريد المتابعة؟', { title: 'تعديل نتيجة رسمية', okText: 'اعتماد', danger: true }))) return;
             commit(kind, id, next); return;
           }
-          if (mode === 'live') { m.mp = next; persist(kind, `تسجيل الشوط ${next.g.length}`); } else cur.draft = next;
+          if (mode === 'rec') { m.mp = next; persist(kind, `تسجيل الشوط ${next.g.length}`); } else cur.draft = next;
           render(); return;
         }
         const act = e.target.closest('[data-act]');
         if (act) {
-          const a = act.dataset.act;
-          if (a === 'undo') { const g = MP.games(mp).slice(0, -1); if (mode === 'live') { m.mp = { ...m.mp, g }; persist(kind, 'تراجع عن آخر شوط'); } else cur.draft = { ...cur.draft, g }; render(); }
-          else if (a === 'cancel') { if (await uiConfirm('سيُلغى بدء المباراة وتعود جاهزة للتسجيل.', { title: 'إلغاء بدء المباراة', okText: 'إلغاء البدء', cancelText: 'رجوع', danger: true })) { delete m.mp; persist(kind, 'إلغاء بدء المباراة'); close(); } }
-          else if (a === 'ff') { cur.ffOpen = !cur.ffOpen; render(); }
-          else if (a === 'time') { cur = { ...cur, mode: 'times', draft: JSON.parse(JSON.stringify(m.mp)), back: 'live' }; render(); }
+          if (act.dataset.act === 'undo') {
+            const g = MP.games(mp).slice(0, -1);
+            if (mode === 'rec') { if (g.length) m.mp = { ...m.mp, g }; else delete m.mp; persist(kind, 'تراجع عن آخر شوط'); } else cur.draft = { ...cur.draft, g };
+            render();
+          } else if (act.dataset.act === 'ff') { cur.ffOpen = !cur.ffOpen; render(); }
           return;
         }
         const ff = e.target.closest('[data-ff]');
         if (ff) {
           const [A, B] = namesOf(kind, m), q = ff.dataset.ff === 'a' ? A : B;
           if (!(await uiConfirm(`انسحاب ${q}: تُحفظ الأشواط الملعوبة ويُحسم الفوز لخصمه.`, { title: 'انسحاب', okText: 'تأكيد الانسحاب', danger: true }))) return;
-          const next = { ...mp, ff: ff.dataset.ff }; delete next.keepEnd;
-          commit(kind, id, next);
+          commit(kind, id, { ...mp, g: [...MP.games(mp)], ff: ff.dataset.ff });
         }
       });
-      acts.addEventListener('click', e => {
-        if (e.target.closest('#mpCloseBtn')) { if (cur && cur.back === 'live') { cur = { ...cur, mode: 'live', draft: null, back: null }; render(); } else close(); return; }
-        if (e.target.closest('#mpSaveTimes') && cur) {
-          const { kind, id } = cur, m = getM(kind, id); if (!m || !m.mp) { close(); return; }
-          const at = (hm, base) => { if (!hm) return null; const [H, Mi] = hm.split(':').map(Number); const d = new Date(base || Date.now()); d.setHours(H, Mi, 0, 0); let t = d.getTime(); if (t > Date.now() + 5 * 60000) t -= 86400000; return t; };
-          const g = MP.games(m.mp), lastT = MP.endOf(m.mp), base = m.mp.s || lastT || Date.now();
-          let s = at(($('mpTs') || {}).value, base), en = $('mpTe') ? at($('mpTe').value, lastT || base) : lastT;
-          if (s && en && en < s) en += 86400000;   // بعد منتصف الليل
-          if (s && en && en - s > 6 * 3600000) { uiToast('الوقت غير منطقي: تحقق من وقت البدء والنهاية.', 'warn'); return; }
-          const ng = g.map((x, i) => i === g.length - 1 ? { ...x, t: en || x.t } : { ...x, t: x.t && s && en && x.t > s && x.t < en ? x.t : null });
-          m.mp = { ...m.mp, s: s || null, g: ng };
-          persist(kind, 'تعديل وقت المباراة'); syncHistory(kind);
-          if (cur.back === 'live' && mpRunning(kind, m)) { cur = { ...cur, mode: 'live', draft: null, back: null }; render(); return; }
-          close(); setTimeout(() => window.carromOpenResult && window.carromOpenResult(kind, id), 200);
-        }
-      });
+      acts.addEventListener('click', e => { if (e.target.closest('#mpCloseBtn')) close(); });
       modal.addEventListener('click', e => { if (e.target === modal) close(); });
       document.addEventListener('keydown', e => { if (e.key === 'Escape' && modal.style.display === 'flex') close(); });
 
-      // ---------- «بدء المباراة» (لمسة صريحة تبدأ الوقت) ----------
-      async function start(kind, id) {
-        const m = getM(kind, id); if (!m || isDone(kind, m)) return;
-        const other = kind === 'ko' ? Object.values(bracketState).find(x => x !== m && mpRunning('ko', x)) : leagueMatches.find(x => x !== m && mpRunning('lg', x));
-        if (other) { const [oa, ob] = namesOf(kind, other);
-          if (!(await uiConfirm(`مباراة ${oa} ضد ${ob} ما زالت جارية. هل تريد بدء هذه المباراة أيضًا؟`, { title: 'مباراة جارية', okText: 'بدء المباراة' }))) return; }
-        m.mp = { s: Date.now(), g: [] };
-        persist(kind, 'بدء المباراة');
-        open(kind, id, 'live');
-      }
-      window.carromMpStart = start;
-
-      // ---------- الربط بنافذة النتيجة: المباراة الجارية تفتح ورقتها، وغير الملعوبة تعرض «بدء المباراة» و«تسجيل المسار» ----------
+      // ---------- الربط بنافذة النتيجة: المباراة الجارية تفتح ورقة المسار، وغير الملعوبة تعرض «تسجيل المسار» فوق الأرقام ----------
       const entry = $('mpEntry'); let entryFor = null;
       const scoreModalE = document.getElementById('scoreModal');
       new MutationObserver(() => { if (scoreModalE.style.display !== 'flex') { entry.hidden = true; entryFor = null; } }).observe(scoreModalE, { attributes: true, attributeFilter: ['style'] });
@@ -14918,13 +14809,12 @@ function buildLeagueStandingsCanvas() {
           && (kind === 'lg' || (m.team1 && m.team2 && !String(m.team1).includes('الفائز من م') && !String(m.team2).includes('الفائز من م') && !String(m.team1).includes('Bye') && !String(m.team2).includes('Bye')));
         entry.hidden = !ok; entryFor = ok ? { kind, id } : null;
       }
-      $('mpStartBtn').addEventListener('click', () => { if (!entryFor) return; const { kind, id } = entryFor; $('cancelScoreBtn').click(); start(kind, id); });
-      $('mpLateBtn').addEventListener('click', () => { if (!entryFor) return; const { kind, id } = entryFor; $('cancelScoreBtn').click(); open(kind, id, 'late'); });
+      $('mpRecBtn').addEventListener('click', () => { if (!entryFor) return; const { kind, id } = entryFor; $('cancelScoreBtn').click(); open(kind, id, 'rec'); });
       const _sw = selectWinner;
-      selectWinner = function (id) { const m = bracketState[id]; if (mpRunning('ko', m)) { open('ko', id, 'live'); return; } const r = _sw.apply(this, arguments); showEntry('ko', id); return r; };
+      selectWinner = function (id) { const m = bracketState[id]; if (mpRunning('ko', m)) { open('ko', id, 'rec'); return; } const r = _sw.apply(this, arguments); showEntry('ko', id); return r; };
       window.selectWinner = selectWinner;
       const _ol = openLeagueScoreModal;
-      openLeagueScoreModal = function (id) { const m = leagueMatches.find(x => x.id === id); if (mpRunning('lg', m)) { open('lg', id, 'live'); return; } const r = _ol.apply(this, arguments); showEntry('lg', id); return r; };
+      openLeagueScoreModal = function (id) { const m = leagueMatches.find(x => x.id === id); if (mpRunning('lg', m)) { open('lg', id, 'rec'); return; } const r = _ol.apply(this, arguments); showEntry('lg', id); return r; };
 
       // ---------- الإدخال السريع بالأرقام: يطابق نظام المباراة، ولا يبقى مسار يخالف النتيجة ----------
       let bypass = false;
@@ -14935,44 +14825,31 @@ function buildLeagueStandingsCanvas() {
         const a = parseInt(scoreInputA.value, 10), b = parseInt(scoreInputB.value, 10);
         if (!lg && !koForfeitSel && Number.isInteger(a) && Number.isInteger(b) && a !== b) {
           const bo = MP.bestOf(), n = Math.ceil(bo / 2);
-          if (Math.max(a, b) !== n || Math.min(a, b) >= n) { e.stopImmediatePropagation(); e.preventDefault(); uiToast(`نظام المباراة أفضل من ${bo}: الفائز بـ${n === 3 ? '3 أشواط' : 'شوطين'} (مثل ${n} - ${n - 1})`, 'warn'); return; }
+          if (Math.max(a, b) !== n || Math.min(a, b) >= n) { e.stopImmediatePropagation(); e.preventDefault(); uiToast(`نظام المباراة أفضل من ${bo}: يفوز من يبلغ ${n === 3 ? '3 أشواط' : 'شوطين'} (مثل ${n} - ${n - 1})`, 'warn'); return; }
         }
-        if (m.mp && MP.games(m.mp).length) {
-          const c = MP.count(m.mp), same = c.a === a && c.b === b;   // الخانة الأولى للطرف الأول دائمًا
-          if (!same) {
+        if (MP.games(m.mp).length) {
+          const c = MP.count(m.mp);   // الخانة الأولى للطرف الأول دائمًا
+          if (c.a !== a || c.b !== b) {
             e.stopImmediatePropagation(); e.preventDefault();
-            if (!(await uiConfirm('النتيجة الجديدة تخالف مسار المباراة المسجل، فسيُحذف المسار ويبقى الوقت.', { title: 'تعديل النتيجة', okText: 'متابعة', danger: true }))) return;
-            m.mp = m.mp.s ? { s: m.mp.s, g: [] } : undefined; if (!m.mp) delete m.mp;
-            bypass = true; $('saveScoreBtn').click();
+            if (!(await uiConfirm('النتيجة الجديدة تخالف مسار المباراة المسجل، فسيُحذف المسار.', { title: 'تعديل النتيجة', okText: 'متابعة', danger: true }))) return;
+            delete m.mp; bypass = true; $('saveScoreBtn').click();
           }
         }
       }, true);
 
-      // ---------- من ورقة النتيجة: إضافة المسار أو تعديله، وتعديل الأوقات ----------
+      // ---------- من ورقة النتيجة: المسار، و«إضافة مسار المباراة» أو «تعديل المسار» ----------
       window.carromMpResultHook = function (kind, id, host) {
         const m = getM(kind, id); if (!m || !host) return;
-        const [A, B] = namesOf(kind, m);
-        const has = MP.games(m.mp).length > 0;
-        let h = has ? MP.pathHTML(m.mp, A, B, { finished: true }) : (m.mp && m.mp.s ? MP.timeLine(m.mp, false) : '');
-        const annul = kind === 'lg' && isLeagueMatchAnnulled(m);
-        if (!annul) h += `<div class="mp-tools"><button type="button" class="mp-link" data-mpx="edit"><span class="ic ic-flag" aria-hidden="true"></span>${has ? 'تعديل المسار' : 'إضافة مسار المباراة'}</button>`
-          + (has ? `<button type="button" class="mp-link" data-mpx="times"><span class="ic ic-clock" aria-hidden="true"></span>${m.mp.s ? 'تعديل الوقت' : 'إضافة الوقت'}</button>` : '') + '</div>';
-        host.innerHTML = h;
+        const [A, B] = namesOf(kind, m), has = MP.games(m.mp).length > 0;
+        if (kind === 'lg' && isLeagueMatchAnnulled(m)) return;
+        host.innerHTML = (has ? MP.pathHTML(m.mp, A, B, { finished: true }) : '')
+          + `<div class="mp-tools"><button type="button" class="mp-link" data-mpx="edit"><span class="ic ic-flag" aria-hidden="true"></span>${has ? 'تعديل المسار' : 'إضافة مسار المباراة'}</button></div>`;
         host.onclick = async ev => {
-          const b = ev.target.closest('[data-mpx]'); if (!b) return;
+          if (!ev.target.closest('[data-mpx]')) return;
           $('resultCloseBtn').click();
-          if (b.dataset.mpx === 'times') { open(kind, id, 'times'); return; }
           if (isLocked(kind) && !(await uiConfirm('هذه البطولة محسومة ونتائجها معلنة. تعديل المسار قد يغيّر النتيجة والبطل ويحدّث سجل البطولات. هل تريد المتابعة؟', { title: 'تعديل نتيجة رسمية', okText: 'فتح القفل والتعديل', danger: true }))) return;
           open(kind, id, 'edit');
         };
-      };
-      // «الحاضرون اليوم»: زر «بدء المباراة» تحت «التالية»
-      window.carromMpNextHook = function (card, m) {
-        if (!card || !m || mpRunning('lg', m)) return;
-        const r = document.createElement('div'); r.className = 'mp-start-row';
-        r.innerHTML = '<button type="button" class="btn mp-start-btn" data-ic="play">بدء المباراة</button>';
-        r.firstChild.addEventListener('click', ev => { ev.stopPropagation(); start('lg', m.id); });
-        card.after(r);
       };
     })();
 
@@ -15479,7 +15356,7 @@ function buildLeagueStandingsCanvas() {
         box.hidden = !live; if (!live) return;
         const sel = read().filter(n => players.includes(n)), set = new Set(sel);
         let avail = sel.length >= 2 ? order(leagueMatches.filter(m => !m.auto && !isLeagueMatchSettled(m) && set.has(m.playerA) && set.has(m.playerB))) : [];
-        { const run = avail.find(m => m.mp && m.mp.s); if (run) avail = [run, ...avail.filter(m => m !== run)]; }   // 3.6: المباراة الجارية أولًا (عرض فقط)
+        { const run = avail.find(m => m.mp && Array.isArray(m.mp.g) && m.mp.g.length); if (run) avail = [run, ...avail.filter(m => m !== run)]; }   // 3.6: المباراة الجارية أولًا (عرض فقط)
         const sum = sel.length >= 2 ? `<b>${sel.length}</b> ${sel.length <= 10 ? 'حاضرين' : 'حاضرًا'} · <b>${avail.length}</b> ${avail.length === 1 || avail.length > 10 ? 'مباراة' : avail.length === 2 ? 'مباراتان' : 'مباريات'}`
           : 'لم يُحدَّد بعد';
         box.classList.toggle('open', open);
@@ -15494,8 +15371,7 @@ function buildLeagueStandingsCanvas() {
           if (t) { const bolt = t.querySelector('.mc-bolt'); t.innerHTML = `<span class="tn-n"><span class="tx">1</span></span>`; /* 3.1: ترتيبها في طابور اليوم وحده؛ لا جولة ولا «مباراة N» */ if (bolt) t.appendChild(bolt); }
           const st = c.querySelector('.match-status'); if (st) { st.className = 'match-status ready tn-next'; st.innerHTML = '<span class="tx">التالية</span>'; }
           c.classList.add('tn-first', 'lg-wide'); grid.appendChild(c);
-          if (st && m0.mp && m0.mp.s) { st.className = 'match-status live'; st.innerHTML = '<span class="tx">جارية</span>'; }
-          if (window.carromMpNextHook) window.carromMpNextHook(c, m0);   // 3.6: «بدء المباراة» تحت «التالية»
+          if (st && m0.mp && Array.isArray(m0.mp.g) && m0.mp.g.length) { st.className = 'match-status live'; st.innerHTML = '<span class="tx">جارية</span>'; }   // 3.6
           // ما بعدها: طابور بعمود واحد — رقم الدور ← الاسم ← «ضد» ← الاسم. أول 5 ظاهرة، والبقية خلف «عرض الكل» إن زادت عن 6
           const rest = avail.slice(1);
           if (rest.length) {
@@ -16013,15 +15889,14 @@ function buildLeagueStandingsCanvas() {
           h += `<div class="vm-out void">${esc(o.outcome)}</div>`;
         } else if (o.done) {
           h += `<div class="vm-score${o.void ? ' void' : ''}"><span>${o.sa}</span><span class="dash">-</span><span>${o.sb}</span></div><div class="vm-out${o.void ? ' void' : ''}">${esc(o.outcome)}</div>`;
-          const at = recordedAt(o.kind, o.id), hasPath = !!(o.mp && MP.games(o.mp).length);
-          if (hasPath) h += MP.pathHTML(o.mp, o.a, o.b, { finished: true });   // 3.6: مسار المباراة ووقتها
-          else if (o.mp && o.mp.s) h += MP.timeLine(o.mp, false);
-          if (at && !(o.mp && o.mp.s)) h += `<div class="vm-when"><span class="ic ic-calendar" aria-hidden="true"></span>سُجّلت النتيجة: ${esc(fmtDayDate(at))} · ${esc(fmtTimeNum(at))}</div>`;
-        } else if (o.mp && o.mp.s) {   // 3.6: المباراة جارية (من آخر نشر)
+          const at = recordedAt(o.kind, o.id);
+          h += MP.pathHTML(o.mp, o.a, o.b, { finished: true });   // 3.6: مسار المباراة
+          if (at) h += `<div class="vm-when"><span class="ic ic-calendar" aria-hidden="true"></span>سُجّلت النتيجة: ${esc(fmtDayDate(at))} · ${esc(fmtTimeNum(at))}</div>`;
+        } else if (MP.games(o.mp).length) {   // 3.6: المباراة جارية (من آخر نشر)
           const c = MP.count(o.mp);
-          h += `<div class="vm-score"><span>${c.a}</span><span class="dash">-</span><span>${c.b}</span></div><div class="vm-out live">جارية</div>` + MP.pathHTML(o.mp, o.a, o.b, { running: true });
+          h += `<div class="vm-score"><span>${c.a}</span><span class="dash">-</span><span>${c.b}</span></div><div class="vm-out live">جارية</div>` + MP.pathHTML(o.mp, o.a, o.b, {});
         }
-        if (!o.done && !o.void && st && !(o.mp && o.mp.s)) {
+        if (!o.done && !o.void && st && !MP.games(o.mp).length) {
           const pa = Math.round(st.pA * 100), pb = 100 - pa, tier = S => S.known ? `<span class="pf-tier t${S.tier.level}"><span class="tx">${esc(S.tier.name)}</span></span>` : '<span class="pf-tier t0"><span class="tx">أول ظهور</span></span>';
           h += `<div class="vm-rt"><div class="v"><b>${st.A.rating.toLocaleString('en-US')}</b>${tier(st.A)}</div><span class="lbl">${o.mA.length > 1 ? 'متوسط التقييم' : 'التقييم'}</span><div class="v"><b>${st.B.rating.toLocaleString('en-US')}</b>${tier(st.B)}</div></div>
             <div class="vm-box"><h4>فرص الفوز حسب التقييم</h4><div class="vm-prob"><span><bdi dir="ltr">${pa}%</bdi></span><span><bdi dir="ltr">${pb}%</bdi></span></div>
