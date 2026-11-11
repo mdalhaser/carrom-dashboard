@@ -11145,7 +11145,8 @@ function buildLeagueStandingsCanvas() {
       const over = secs.reduce((a, s) => a + (s.heading ? HEAD : 0) + 2 * TP, 0) + SG * Math.max(0, secs.length - 1) + ubH + ubGap;
       const totalRows = secs.reduce((a, s) => a + s.rows, 0);
       const TARGET = window.__dayTarget || 2150, fixed = top + gapC + over + 90;
-      const rowH = Math.max(56, Math.min(100, Math.floor((TARGET - fixed) / Math.max(1, totalRows))));   // صفوف أعلى حين تسمح المساحة (الصور القصيرة)
+      const hasSeq = secs.some(s => s.matches.some(it => it.mpSeqA && it.mpSeqA.length));   // 3.6: صف بسطري أشواط يحتاج ارتفاعًا يتسع للاسم (وسطريه في الفرق) وسطر الأرقام تحته
+      const rowH = Math.max(hasSeq ? 120 : 56, Math.min(hasSeq ? 128 : 100, Math.floor((TARGET - fixed) / Math.max(1, totalRows))));   // صفوف أعلى حين تسمح المساحة (الصور القصيرة)
       const H = Math.ceil(fixed + totalRows * rowH);
       let scale = exportScale(); while (W * scale * H * scale > 16000000 && scale > 1) scale -= 0.25;
       const canvas = document.createElement('canvas'); canvas.width = Math.ceil(W * scale); canvas.height = Math.ceil(H * scale);
@@ -11174,6 +11175,22 @@ function buildLeagueStandingsCanvas() {
       canvas.__cuts = cuts; canvas.__ctxOrig = context;
       await downloadCanvasAsPng(canvas, filename);
     }
+    // 3.6 — سطرا الأشواط في «نتائج اليوم»: تحت كل اسم رقم لكل شوط (1 فاز به، 0 خسره)، الشوط الأول أول رقم من اليمين في السطرين.
+    // الفائز باللون: 1 بالحبري و0 باهت بنفس الحجم والوزن؛ فواصل رفيعة بين الأرقام. سطر كل لاعب على محاذاة اسمه (الأول يمينًا والثاني يسارًا).
+    function drawGameSeqs(ctx, it, cx0, colW, y, rowH) {
+      const B = EXPORT_BRAND, sz = Math.max(22, Math.min(28, Math.round(rowH * 0.22))), cell = Math.round(sz * 1.25), gap = Math.round(sz * 0.55);
+      const one = (seq, edge, alignRight) => {
+        const n = seq.length, w = n * cell + (n - 1) * gap;
+        const right = alignRight ? edge : edge + w;   // نقطة البداية: الشوط الأول عند الحافة اليمنى للسطر
+        seq.forEach((v, i) => {
+          const cx = right - i * (cell + gap) - cell / 2;
+          exportText(ctx, String(v), cx, y, { size: sz, weight: 800, color: v ? B.ink : B.faint, raw: true, dir: 'ltr' });
+          if (i < n - 1) { const sx = cx - cell / 2 - gap / 2; ctx.save(); ctx.strokeStyle = B.lineStrong; ctx.lineWidth = 2; ctx.beginPath(); ctx.moveTo(sx, y - sz * 0.38); ctx.lineTo(sx, y + sz * 0.38); ctx.stroke(); ctx.restore(); }
+        });
+      };
+      one(it.mpSeqA, cx0 + colW - 20, true);
+      one(it.mpSeqB, cx0 + 20, false);
+    }
     function drawCompactRows(ctx, items, IX, y0, IW, rowH, cols, cuts) {
       const B = EXPORT_BRAND, n = items.length, rows = Math.ceil(n / cols), GAP = cols > 1 ? 14 : 0, colW = (IW - GAP) / cols;
       const CG = rowH < 72 ? 6 : 8;   // 6.5: بطاقة لكل مباراة، بفراغ أصغر من جداول اللاعبين لأن القوائم قد تطول
@@ -11200,8 +11217,8 @@ function buildLeagueStandingsCanvas() {
         const nameColor = side => voided ? B.faint : !it.done ? B.text : draw || it.win === side ? B.ink : B.faint;   // التمييز باللون فقط (التعادل: الاسمان فائزان)
         const tag = it.annul ? '' : it.ff ? (it.auto ? 'استبعاد' : 'انسحاب') : '';
         // صف فيه «انسحاب»: الاسمان والنتيجة معًا على سطر رئيسي أعلى قليلًا، والكلمة على سطر ثانوي تحته (لا يخرج أي عنصر عن سطره)
-        const sub = !tag && it.mpLine && it.done && !voided ? it.mpLine : '';   // 3.6: سطر المسار المختصر
-        const sy = tag || sub ? cy - Math.round(rowH * 0.16) : cy;
+        const seq = !tag && it.done && !voided && it.mpSeqA && it.mpSeqA.length;   // 3.6: سطرا الأشواط تحت الاسمين
+        const sy = seq ? cy - Math.round(rowH * 0.2) : tag ? cy - Math.round(rowH * 0.16) : cy;
         drawName(it.a, cx0 + colW - 20, sy, 'right', nameColor('a'));
         drawName(it.b, cx0 + 20, sy, 'left', nameColor('b'));
         if (voided) {
@@ -11215,8 +11232,7 @@ function buildLeagueStandingsCanvas() {
           exportText(ctx, String(it.sb), mid - sGap, sy, { size: scoreSize, weight: 800, color: sc('b'), dir: 'ltr', maxW: 70, min: 20 });
           exportText(ctx, '-', mid, sy, { size: Math.round(scoreSize * 0.8), weight: 700, color: B.muted, dir: 'ltr' });
           if (tag) exportText(ctx, tag, mid, cy + Math.round(rowH * 0.19) - exportOptDy(Math.max(17, Math.round(rowH * 0.26))), { size: Math.max(17, Math.round(rowH * 0.26)), weight: 800, color: B.walnut, raw: true });
-          if (sub) { const ssz = Math.max(17, Math.round(rowH * 0.24)), syy = cy + Math.round(rowH * 0.21) - exportOptDy(ssz);
-            exportText(ctx, sub, mid, syy, { size: ssz, weight: 700, color: B.faint, raw: true, dir: 'ltr', maxW: colW - 220, min: 14 }); }   // مقاسه من ارتفاع الصف نفسه
+          if (seq) drawGameSeqs(ctx, it, cx0, colW, cy + Math.round(rowH * 0.3), rowH);   // مقاسه من ارتفاع الصف نفسه
         } else drawVsPill(ctx, mid, cy, Math.min(1.15, rowH / 80));
       });
       if (cols > 1) { const x = IX + IW - colW - GAP / 2; ctx.save(); ctx.strokeStyle = B.lineStrong; ctx.lineWidth = 2; ctx.beginPath(); ctx.moveTo(x, y0 + 6); ctx.lineTo(x, y0 + rows * rowH - 6); ctx.stroke(); ctx.restore(); }
@@ -11601,8 +11617,9 @@ function buildLeagueStandingsCanvas() {
         { const m = lg ? leagueMatches.find(x => x.id === e.id) : bracketState[e.id];   // 3.6: مسار مختصر تحت النتيجة (نفس اتجاه أرقامها) والمدة
           const flip = m && (lg ? m.playerA !== e.a : m.team1 !== e.a);
           if (m && m.mp && MP.games(m.mp).length && !it.ff && !it.annul) {
-            const st = MP.steps(m.mp, '', '', true);
-            it.mpLine = st.map(x => flip ? `${x.a} - ${x.b}` : `${x.b} - ${x.a}`).reverse().join('   ←   ');   // أرقام فقط (LTR) بالموضع: رقم كل طرف في جهة اسمه، والشوط الأول يمينًا
+            const st = MP.steps(m.mp, '', '', true), sa = flip ? 'b' : 'a';   // sa: جهة صاحب الاسم الأول في الصف
+            it.mpSeqA = MP.games(m.mp).map(x => x.w === sa ? 1 : 0);   // سطر أشواط تحت كل اسم: 1 فاز بالشوط، 0 خسره (الأول يمينًا)
+            it.mpSeqB = it.mpSeqA.map(v => 1 - v);
             it.mpText = st.map(x => `${x.verb} ${x.side === 'a' ? (flip ? it.b : it.a) : (flip ? it.a : it.b)}`).join(' ← ');
           } }
         return it; });
