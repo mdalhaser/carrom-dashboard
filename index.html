@@ -3570,6 +3570,7 @@
     /* نافذة النتيجة: «تسجيل مسار المباراة» فوق الأرقام */
     .mp-entry { display: flex; flex-direction: column; gap: var(--s2); margin: 0 0 var(--s3); }
     .mp-entry .btn { width: 100%; min-height: 44px; font-size: var(--fs-sm); }
+    .score-btn:disabled { opacity: .35; cursor: default; }   /* 3.6.1: «+» عند سقف النظام */
     .mp-entry-or { display: flex; align-items: center; gap: var(--s2); color: var(--text-3); font-size: var(--fs-xs); font-weight: 700; }
     .mp-entry-or::before, .mp-entry-or::after { content: ""; flex: 1; height: 1px; background: var(--line); }
     /* نظام المباراة في بطاقة القرعة (الفردي والفرق) */
@@ -14805,10 +14806,33 @@ function buildLeagueStandingsCanvas() {
       }
       $('mpRecBtn').addEventListener('click', () => { if (!entryFor) return; const { kind, id } = entryFor; $('cancelScoreBtn').click(); open(kind, id, 'rec'); });
       const _sw = selectWinner;
-      selectWinner = function (id) { const m = bracketState[id]; if (mpRunning('ko', m)) { open('ko', id, 'rec'); return; } const r = _sw.apply(this, arguments); showEntry('ko', id); return r; };
+      selectWinner = function (id) { const m = bracketState[id]; if (mpRunning('ko', m)) { open('ko', id, 'rec'); return; } const r = _sw.apply(this, arguments); showEntry('ko', id);
+        if (scoreModalE.style.display === 'flex') { const bo = MP.bestOf(); scoreModalSubtitleEl.textContent = `أفضل من ${bo}: يفوز من يبلغ ${bo === 5 ? '3 أشواط' : 'شوطين'}.`; syncCap(); }   // 3.6.1: النظام في سطر النافذة
+        return r; };
       window.selectWinner = selectWinner;
       const _ol = openLeagueScoreModal;
       openLeagueScoreModal = function (id) { const m = leagueMatches.find(x => x.id === id); if (mpRunning('lg', m)) { open('lg', id, 'rec'); return; } const r = _ol.apply(this, arguments); showEntry('lg', id); return r; };
+
+      // ---------- سقف الأرقام في نافذة النتيجة (3.6.1): لا تتجاوز خانة عدد أشواط الحسم (2 في أفضل من 3 والدوري، 3 في أفضل من 5) ----------
+      // زر «+» يبهت ويتعطل عند السقف، والكتابة تُقص إليه؛ والرفض يبقى للتركيبات غير الممكنة داخله فقط (2 - 2، 1 - 0)
+      const isLgModal = () => currentMode === 'league' && leagueScoreMatchId !== null;
+      const capOf = () => isLgModal() ? 2 : Math.ceil(MP.bestOf() / 2);
+      const plusOf = inp => inp && inp.parentNode ? inp.parentNode.querySelector('.score-btn[aria-label="زيادة"]') : null;
+      function syncCap() {
+        if (scoreModalE.style.display !== 'flex') return;
+        const c = capOf();
+        [scoreInputA, scoreInputB].forEach(inp => { const v = parseInt(inp.value, 10); if (v > c) inp.value = c; const b = plusOf(inp); if (b) b.disabled = (parseInt(inp.value, 10) || 0) >= c; });
+      }
+      { const _chs = changeScore;
+        changeScore = function (id, amount) { const inp = document.getElementById(id); if (amount > 0 && (parseInt(inp.value, 10) || 0) >= capOf()) { syncCap(); return; } const r = _chs.apply(this, arguments); syncCap(); return r; };
+        window.changeScore = changeScore; }
+      [scoreInputA, scoreInputB].forEach(inp => inp.addEventListener('input', () => { const v = parseInt(inp.value, 10), c = capOf(); if (v > c) { inp.value = c; } syncCap(); }, true));
+      // فوز الانسحاب في الفردي والفرق = عدد أشواط الحسم في النظام (لا «أكثر نتيجة تكررت» التي تعود 2 حين لا نتائج، فتخالف أفضل من 5)
+      { const _kf = koForfeitClick;
+        koForfeitClick = function (side) { const r = _kf.apply(this, arguments);
+          if (koForfeitSel) { const winIn = koForfeitSel === 'A' ? scoreInputB : scoreInputA; winIn.value = Math.ceil(MP.bestOf() / 2); }
+          syncCap(); return r; }; }
+      new MutationObserver(() => { if (scoreModalE.style.display === 'flex') setTimeout(syncCap, 0); }).observe(scoreModalE, { attributes: true, attributeFilter: ['style'] });
 
       // ---------- الإدخال السريع بالأرقام: يطابق نظام المباراة، ولا يبقى مسار يخالف النتيجة ----------
       let bypass = false;
@@ -15004,7 +15028,7 @@ function buildLeagueStandingsCanvas() {
     // ===================================
     // 🧭 سلوك التطبيق: إعادة الوضع للأعلى، تعديل العنوان بالضغط المطوّل، تنبيه التحديث، رقم الإصدار
     // ===================================
-    const APP_VERSION = '3.6';   // ترقيم الاعتماد (من 4 نوفمبر 2026): 1.0 ثم 1.1 … 1.9 ثم 2.0 — ويُرفع معه رقم الإصدار في sw.js
+    const APP_VERSION = '3.7';   // ترقيم الاعتماد (من 4 نوفمبر 2026): 1.0 ثم 1.1 … 1.9 ثم 2.0 — ويُرفع معه رقم الإصدار في sw.js
     (function setupAppBehaviors() {
       const root = document.documentElement;
 
