@@ -14813,26 +14813,41 @@ function buildLeagueStandingsCanvas() {
       const _ol = openLeagueScoreModal;
       openLeagueScoreModal = function (id) { const m = leagueMatches.find(x => x.id === id); if (mpRunning('lg', m)) { open('lg', id, 'rec'); return; } const r = _ol.apply(this, arguments); showEntry('lg', id); return r; };
 
-      // ---------- سقف الأرقام في نافذة النتيجة (3.6.1): لا تتجاوز خانة عدد أشواط الحسم (2 في أفضل من 3 والدوري، 3 في أفضل من 5) ----------
-      // زر «+» يبهت ويتعطل عند السقف، والكتابة تُقص إليه؛ والرفض يبقى للتركيبات غير الممكنة داخله فقط (2 - 2، 1 - 0)
+      // ---------- إدخال ذكي للنتيجة (3.8): كل خانة تعرف ما في الأخرى، فلا تُدخل نتيجة غير ممكنة أصلًا ----------
+      // الدوري (شوطان): مجموع الخانتين ≤ 2 · الفردي والفرق: لا يبلغ الطرفان عدد أشواط الفوز معًا (من بلغها فالآخر أقل منها).
+      // «+» يبهت ويتعطل عند حد خانته، والكتابة تُقص إليه، و«اعتماد النتيجة» لا يتفعّل إلا عند اكتمال النتيجة، وسطر فوقه يشرح الحالة.
       const isLgModal = () => currentMode === 'league' && leagueScoreMatchId !== null;
-      const capOf = () => isLgModal() ? 2 : Math.ceil(MP.bestOf() / 2);
+      const needOf = () => Math.ceil(MP.bestOf() / 2);
+      const numOf = inp => { const v = parseInt(inp.value, 10); return Number.isInteger(v) && v > 0 ? v : 0; };
+      const otherOf = inp => inp === scoreInputA ? scoreInputB : scoreInputA;
+      const capOf = inp => { const o = numOf(otherOf(inp)); if (isLgModal()) return Math.max(0, 2 - o); const n = needOf(); return o >= n ? n - 1 : n; };
       const plusOf = inp => inp && inp.parentNode ? inp.parentNode.querySelector('.score-btn[aria-label="زيادة"]') : null;
+      const completeNow = () => { const a = numOf(scoreInputA), b = numOf(scoreInputB); if (isLgModal()) return a + b === 2; const n = needOf(); return Math.max(a, b) === n && Math.min(a, b) < n; };
+      const hintEl = document.getElementById('leagueScoreHint');
       function syncCap() {
         if (scoreModalE.style.display !== 'flex') return;
-        const c = capOf();
-        [scoreInputA, scoreInputB].forEach(inp => { const v = parseInt(inp.value, 10); if (v > c) inp.value = c; const b = plusOf(inp); if (b) b.disabled = (parseInt(inp.value, 10) || 0) >= c; });
+        [scoreInputA, scoreInputB].forEach(inp => { const b = plusOf(inp); if (b) b.disabled = numOf(inp) >= capOf(inp); });
+        const a = numOf(scoreInputA), b = numOf(scoreInputB), lg = isLgModal(), done = completeNow(), part = `${Math.max(a, b)} - ${Math.min(a, b)}`;
+        $('saveScoreBtn').disabled = !done;
+        if (!done && a + b > 0) { hintEl.style.display = 'block'; hintEl.className = 'league-score-hint'; hintEl.textContent = `النتيجة غير مكتملة: ${part}`; }
+        else if (!lg) {   // الفردي والفرق: جملة التأكيد عند الاكتمال (الدوري له سطره القائم بالنقاط)
+          const m = currentScoreMatchId != null ? bracketState[currentScoreMatchId] : null;
+          if (done && m) { hintEl.style.display = 'block'; hintEl.className = 'league-score-hint ok'; hintEl.textContent = `فوز ${getDisplayTeamName(a > b ? m.team1 : m.team2)}${koForfeitSel ? ' بالانسحاب' : ''} · ${part}`; }
+          else hintEl.style.display = 'none';
+        }
       }
+      const syncSoon = () => setTimeout(syncCap, 0);   // بعد معالجات النافذة القائمة (سطر الدوري وحالة زرّه)
       { const _chs = changeScore;
-        changeScore = function (id, amount) { const inp = document.getElementById(id); if (amount > 0 && (parseInt(inp.value, 10) || 0) >= capOf()) { syncCap(); return; } const r = _chs.apply(this, arguments); syncCap(); return r; };
+        changeScore = function (id, amount) { const inp = document.getElementById(id); if (amount > 0 && numOf(inp) >= capOf(inp)) { syncCap(); return; } const r = _chs.apply(this, arguments); syncCap(); return r; };
         window.changeScore = changeScore; }
-      [scoreInputA, scoreInputB].forEach(inp => inp.addEventListener('input', () => { const v = parseInt(inp.value, 10), c = capOf(); if (v > c) { inp.value = c; } syncCap(); }, true));
+      [scoreInputA, scoreInputB].forEach(inp => inp.addEventListener('input', () => { const c = capOf(inp); if (numOf(inp) > c) inp.value = c; syncSoon(); }, true));
+      document.getElementById('leagueForfeitRow').addEventListener('click', syncSoon);
       // فوز الانسحاب في الفردي والفرق = عدد أشواط الحسم في النظام (لا «أكثر نتيجة تكررت» التي تعود 2 حين لا نتائج، فتخالف أفضل من 5)
       { const _kf = koForfeitClick;
         koForfeitClick = function (side) { const r = _kf.apply(this, arguments);
           if (koForfeitSel) { const winIn = koForfeitSel === 'A' ? scoreInputB : scoreInputA; winIn.value = Math.ceil(MP.bestOf() / 2); }
           syncCap(); return r; }; }
-      new MutationObserver(() => { if (scoreModalE.style.display === 'flex') setTimeout(syncCap, 0); }).observe(scoreModalE, { attributes: true, attributeFilter: ['style'] });
+      new MutationObserver(() => { if (scoreModalE.style.display === 'flex') syncSoon(); else { $('saveScoreBtn').disabled = false; if (!scoreModalE.classList.contains('league-score')) hintEl.style.display = 'none'; } }).observe(scoreModalE, { attributes: true, attributeFilter: ['style'] });
 
       // ---------- الإدخال السريع بالأرقام: يطابق نظام المباراة، ولا يبقى مسار يخالف النتيجة ----------
       let bypass = false;
@@ -15028,7 +15043,7 @@ function buildLeagueStandingsCanvas() {
     // ===================================
     // 🧭 سلوك التطبيق: إعادة الوضع للأعلى، تعديل العنوان بالضغط المطوّل، تنبيه التحديث، رقم الإصدار
     // ===================================
-    const APP_VERSION = '3.7';   // ترقيم الاعتماد (من 4 نوفمبر 2026): 1.0 ثم 1.1 … 1.9 ثم 2.0 — ويُرفع معه رقم الإصدار في sw.js
+    const APP_VERSION = '3.8';   // ترقيم الاعتماد (من 4 نوفمبر 2026): 1.0 ثم 1.1 … 1.9 ثم 2.0 — ويُرفع معه رقم الإصدار في sw.js
     (function setupAppBehaviors() {
       const root = document.documentElement;
 
