@@ -2289,6 +2289,8 @@
     .lg-clinch { display: flex; align-items: center; gap: 6px; margin-top: 8px; font-size: 13px; font-weight: 700; color: var(--gold-deep); }
     .lg-clinch b { font-weight: 800; }
     .lg-clinch .ic { width: 15px; height: 15px; }
+    .lg-clinch.lg-place { margin-top: 4px; color: var(--text-2); }   /* 4.2: المركزان الثاني والثالث أهدأ من سطر اللقب */
+    .lg-clinch.lg-place b { color: var(--text); }
     html.view-mode .lg-clinch { display: none; }   /* صفحة المشاهدة تعرض بطاقة البطل بدلًا منه */
     /* بطاقة بطل الدوري (صفحة المشاهدة) */
     .vchamp-card { display: grid; grid-template-columns: auto minmax(0, 1fr) auto; align-items: center; gap: 12px; width: 100%; padding: 12px 16px; border-radius: var(--r-lg);
@@ -3187,6 +3189,11 @@
     @keyframes foldBack { from { opacity: 0; } to { opacity: 1; } }
     .tr-sum .sub b.k { color: var(--gold-deep); }
     .tr:is(.open, .fold-hold) .tr-sum .sub { grid-template-rows: 0fr; opacity: 0; }
+    .tr-done { display: flex; flex-direction: column; gap: 6px; padding: 12px 2px 14px; }   /* 4.2: المراكز المحسومة فوق سباق المركز التالي */
+    .tr-dn { display: flex; align-items: center; gap: 6px; font-size: 13px; font-weight: 700; color: var(--text-2); }
+    .tr-dn b { font-weight: 800; color: var(--text); }
+    .tr-dn .ic { width: 15px; height: 15px; color: var(--gold-deep); flex: none; }
+    .tr-dn:first-child { color: var(--gold-deep); }
     .tr-cap { display: block; padding: 7px 2px 0; font-size: 12px; font-weight: 700; color: var(--text-3); }
     .tr-cap b { font-weight: 800; color: var(--text-2); }
     .tr-sum .chev { flex: none; width: 18px; height: 18px; color: var(--text-3); transition: transform var(--t-sheet) var(--ease); }
@@ -9680,6 +9687,22 @@ function changeScore(inputId, amount){
       } catch (e) { return null; }
     }
     // تغيّر المركز منذ يوم اللعب السابق: الترتيب الآن مقابل الترتيب بدون مباريات آخر يوم لعب (للتطبيق وصفحة المشاهدة والتصدير)
+    // 4.2 — المراكز المحسومة قبل نهاية الدوري (قراءة فقط): [البطل، الثاني، الثالث] بالتتابع. يُحسم المركز حين يكون المركز
+    // الذي فوقه محسومًا ولا يبلغ أي لاعب تحته نقاطه الحالية مهما فاز (التساوي لا يُعد حسمًا، نفس قاعدة leagueClinch). لا يُحفظ شيء.
+    function leagueSecuredPlaces() {
+      try {
+        const cl = leagueClinch(); if (!cl || cl.final) return [];
+        const st = calculateLeagueStandings().filter(r => !r.excluded), left = {};
+        leagueMatches.forEach(m => { if (!isLeagueMatchSettled(m)) { left[m.playerA] = (left[m.playerA] || 0) + 1; left[m.playerB] = (left[m.playerB] || 0) + 1; } });
+        const out = [cl.name];
+        for (let i = 1; i < 3 && i < st.length; i++) {
+          const me = st[i], below = st.slice(i + 1);
+          if (!me.played || !below.length || !below.every(x => x.points + 3 * (left[x.name] || 0) < me.points)) break;
+          out.push(me.name);
+        }
+        return out;
+      } catch (e) { return []; }
+    }
     // 3.9 — لحظة حسم اللقب (للعرض فقط): وقت تسجيل المباراة التي حسمته. تُسحب أحدث المباريات الموقّتة واحدة واحدة من نسخة مؤقتة
     // (نفس أسلوب leagueRankMoves) حتى يزول الحسم؛ المباراة التي يزول بسحبها هي الحاسمة. لا يُحفظ شيء ولا يُمس منطق الحسم.
     // Infinity إن لم يوجد توقيت لأي مباراة (فتبقى بطاقة الحسم كما كانت).
@@ -10120,7 +10143,9 @@ function changeScore(inputId, amount){
         <div class="league-bar"><div style="width:${pct}%"></div></div>
         <div class="lg-prog"><span><b>${p.done}</b> من ${p.total} ${arMatchW(p.total)} مكتملة</span></div>`;   // 8.1: المعلومة مرة واحدة (الشريط يغني عن المتبقي والنسبة)
       const cl = leagueClinch();
-      if (cl && !cl.final) { const d = document.createElement('div'); d.className = 'lg-clinch'; d.innerHTML = `<span class="ic ic-trophy" aria-hidden="true"></span><span>اللقب محسوم لـ <b>${leagueEscape(cl.name)}</b></span>`; leagueProgressEl.appendChild(d); }
+      if (cl && !cl.final) { const d = document.createElement('div'); d.className = 'lg-clinch'; d.innerHTML = `<span class="ic ic-trophy" aria-hidden="true"></span><span>اللقب محسوم لـ <b>${leagueEscape(cl.name)}</b></span>`; leagueProgressEl.appendChild(d);
+        // 4.2: المركزان الثاني والثالث حين يُحسمان — حقيقة ثابتة بسطر أهدأ (الكأس للقب وحده)
+        leagueSecuredPlaces().slice(1).forEach((n, i) => { const e = document.createElement('div'); e.className = 'lg-clinch lg-place'; e.innerHTML = `<span class="ic ic-medal" aria-hidden="true"></span><span>${i ? 'المركز الثالث' : 'المركز الثاني'} محسوم لـ <b>${leagueEscape(n)}</b></span>`; leagueProgressEl.appendChild(e); }); }
     }
 
     function pointsLabel(p) {
@@ -15132,7 +15157,7 @@ function buildLeagueStandingsCanvas() {
     // ===================================
     // 🧭 سلوك التطبيق: إعادة الوضع للأعلى، تعديل العنوان بالضغط المطوّل، تنبيه التحديث، رقم الإصدار
     // ===================================
-    const APP_VERSION = '4.1';   // ترقيم الاعتماد (من 4 نوفمبر 2026): 1.0 ثم 1.1 … 1.9 ثم 2.0 — ويُرفع معه رقم الإصدار في sw.js
+    const APP_VERSION = '4.2';   // ترقيم الاعتماد (من 4 نوفمبر 2026): 1.0 ثم 1.1 … 1.9 ثم 2.0 — ويُرفع معه رقم الإصدار في sw.js
     (function setupAppBehaviors() {
       const root = document.documentElement;
 
@@ -15580,17 +15605,24 @@ function buildLeagueStandingsCanvas() {
       const nRivals = n => n === 0 ? 'بلا منافس' : n === 1 ? 'منافس واحد' : n === 2 ? 'منافسان' : n <= 10 ? `<b>${n}</b> منافسين` : `<b>${n}</b> منافسًا`;
       const nPlayers = n => n === 1 ? 'لاعب واحد' : n === 2 ? 'لاعبان' : n <= 10 ? `${n} لاعبين` : `${n} لاعبًا`;
 
+      // 4.2: بعد حسم اللقب يتحول السباق نفسه إلى المركز الثاني ثم الثالث (k = عدد المراكز المحسومة فوقه)، بنفس الحساب والعبارات
       function compute() {
         if (!leagueStarted || leagueFixtureError || leagueCompleted || !leagueMatches.length) return null;
         const st = calculateLeagueStandings().filter(r => !r.excluded);
         if (st.length < 2 || !st.some(r => r.played > 0)) return null;
+        const secured = leagueSecuredPlaces(), k = secured.length;
+        if (k >= 3 || (k && k >= st.length - 1)) return { done: secured };   // المراكز الثلاثة الأولى محسومة
+        if (k) return computeAt(st, k, secured);
+        return computeAt(st, 0, secured);
+      }
+      function computeAt(st, k, secured) {
         const left = {};
         leagueMatches.forEach(m => { if (!isLeagueMatchSettled(m)) { left[m.playerA] = (left[m.playerA] || 0) + 1; left[m.playerB] = (left[m.playerB] || 0) + 1; } });
         const rows = st.map(r => ({ name: r.name, points: r.points, left: left[r.name] || 0 }));
         rows.forEach(r => { r.max = r.points + 3 * r.left; });
-        const L = rows[0], others = rows.slice(1);
+        const L = rows[k], others = rows.slice(k + 1);
         const rivals = others.filter(r => r.max >= L.points), out = others.filter(r => r.max < L.points);
-        const cl = leagueClinch(), clinched = !!(cl && !cl.final && cl.name === L.name);
+        const cl = k ? null : leagueClinch(), clinched = !!(cl && !cl.final && cl.name === L.name);
         // أقوى منافس = صاحب أعلى رصيد ممكن (وعند التساوي الأعلى ترتيبًا)
         const best = others.reduce((a, b) => (!a || b.max > a.max) ? b : a, null);
         const need = best ? Math.max(0, best.max + 1 - L.points) : 0;   // نقاط الضمان بأي نتائج ومن أي مباريات (أسوأ حال: يأخذ نقاطه من غير منافسيه)
@@ -15623,8 +15655,12 @@ function buildLeagueStandingsCanvas() {
         const phase = clinched ? 5 : Math.max(byCount, byNeed);
         rivals.forEach(r => { r.hot = r.max - L.points <= 2; });   // أي خسارة تخرجه: أقصاه ينقص 3 فيصبح دون نقاط المتصدر
         rivals.sort((a, b) => b.max - a.max); out.sort((a, b) => b.max - a.max);   // sort ثابت: عند التساوي يبقى ترتيب الدوري
-        return { L, rivals, out, need, selfOk, phase, cl: clinched ? cl : null, direct: direct && direct.need < need ? direct : null, anyOk: need <= 3 * L.left };
+        return { k, secured, L, rivals, out, need, selfOk, phase, cl: clinched ? cl : null, direct: direct && direct.need < need ? direct : null, anyOk: need <= 3 * L.left };
       }
+      // 4.2: لغة السباق حسب المركز — «اللقب/المتصدر» للقب، و«المركز الثاني/صاحب المركز» بعده
+      const GOAL = ['اللقب', 'المركز الثاني', 'المركز الثالث'], PH_PLACE = ['', 'منافسة مفتوحة', 'المركز يتضح', 'منافسة محصورة', 'الحسم يقترب', ''];
+      const placeT = (k, str) => k ? str.replace(/«المتصدر يقترب»/g, '«الحسم يقترب»').replace(/المتصدر/g, 'صاحب المركز').replace(/اللقب/g, GOAL[k]) : str;
+      const doneHTML = (secured, k) => secured.length && k ? `<div class="tr-done">${secured.map((n, i) => `<div class="tr-dn"><span class="ic ic-${i ? 'medal' : 'trophy'}" aria-hidden="true"></span><span>${i ? `حُسم ${GOAL[i]} لـ` : 'حُسم اللقب لـ'} <b>${esc(n)}</b></span></div>`).join('')}</div>` : '';
 
       const box = document.createElement('section'); box.id = 'leagueRace'; box.className = 'tr'; box.setAttribute('aria-label', 'سباق اللقب');
       host.insertBefore(box, leagueStandingsEl);
@@ -15633,21 +15669,30 @@ function buildLeagueStandingsCanvas() {
       const PH_DESC = ['', '6 منافسين فأكثر', '4 أو 5 منافسين', 'منافسان أو 3', 'منافس واحد', 'لا أحد يلحق بالمتصدر'];
       const TERMS = [['متبقي', 'مبارياته التي لم تُلعب بعد'], ['الأقصى', 'رصيده لو فاز في كل مبارياته المتبقية'], ['منافس', 'أقصاه يبلغ نقاط المتصدر الحالية'],
         ['بلا هامش', 'أي خسارة تخرجه من السباق'], ['خرج حسابيًا', 'لا يبلغ نقاط المتصدر مهما فاز']];
-      const guideHTML = phase => `<div class="pf-guide-in"><div class="pf-ladder">${[1, 2, 3, 4, 5].map(i => `<div class="pf-lad tr-lad${i === phase ? ' on' : ''}"><span class="tr-ph p${i}">${PH[i]}</span><span class="rg">${PH_DESC[i]}</span>${i === phase ? '<span class="me">الآن</span>' : ''}</div>`).join('')}</div>
+      const guideHTML = (phase, names) => `<div class="pf-guide-in"><div class="pf-ladder">${[1, 2, 3, 4, 5].filter(i => !names || names[i]).map(i => `<div class="pf-lad tr-lad${i === phase ? ' on' : ''}"><span class="tr-ph p${i}">${(names || PH)[i]}</span><span class="rg">${PH_DESC[i]}</span>${i === phase ? '<span class="me">الآن</span>' : ''}</div>`).join('')}</div>
           <p class="tr-gnote">وتتقدّم المرحلة أيضًا كلما اقترب المتصدر من الضمان: «منافسة محصورة» إذا كفته 9 نقاط أو أقل، و«المتصدر يقترب» إذا كفته 3 نقاط أو أقل.</p>
           <dl class="tr-terms">${TERMS.map(([t, d]) => `<div><dt>${t}</dt><dd>${d}</dd></div>`).join('')}</dl>
           <p>التساوي في النقاط يُبقي اللاعب منافسًا حتى يُحسم بفارق الأشواط والمواجهات، فلا يُعلن الحسم مبكرًا. والخروج نهائي ما لم تُعدَّل نتيجة.</p></div>`;
-      const row = (r, kind) => {
+      const row = (r, kind, k) => {
         // الحالة للاستثناءات فقط: المتصدر، ومن تُخرجه أي خسارة. بقية القائمة منافسون بطبيعتها
-        const st = kind === 'lead' ? 'المتصدر' : kind === 'out' ? 'خارج السباق' : r.hot ? 'بلا هامش' : 'منافس';
-        const pill = kind === 'lead' ? '<span class="tr-st lead">المتصدر</span>' : !kind && r.hot ? '<span class="tr-st hot">بلا هامش</span>' : '<span></span>';
+        const LEAD = k ? (k === 1 ? 'الثاني الآن' : 'الثالث الآن') : 'المتصدر';   // 4.2
+        const st = kind === 'lead' ? LEAD : kind === 'out' ? 'خارج السباق' : r.hot ? 'بلا هامش' : 'منافس';
+        const pill = kind === 'lead' ? `<span class="tr-st lead">${LEAD}</span>` : !kind && r.hot ? '<span class="tr-st hot">بلا هامش</span>' : '<span></span>';
         return `<button type="button" class="tr-row${kind === 'out' ? ' out' : ''}" data-player="${esc(r.name)}" aria-label="${esc(r.name)}: ${st}، ${r.left} متبقية، أقصى رصيد ${r.max}">
           <span class="n">${esc(r.name)}</span><span class="c">${r.left}</span><span class="mx">${r.max}</span>${pill}</button>`;
       };
       function paint() {
         const R = compute();
         box.hidden = !R; if (!R) return;
-        const { L, rivals, out, need, selfOk, phase, cl, direct, anyOk } = R;
+        if (R.done) {   // 4.2: الثلاثة الأوائل محسومون: البطاقة خلاصة ثابتة
+          box.setAttribute('aria-label', 'سباق المراكز');
+          box.classList.toggle('open', open);
+          box.innerHTML = `<button type="button" class="tr-sum" aria-expanded="${open}"><span class="ic ic-flag" aria-hidden="true"></span><span class="t">سباق المراكز</span><span class="tr-ph p5">حُسمت المراكز</span>${chev}<span class="sub"><span class="in">المراكز الثلاثة الأولى محسومة قبل نهاية الدوري</span></span></button>
+            <div class="tr-body"><div class="in">${doneHTML(R.done, 1)}<p class="tr-say">لا يستطيع أي لاعب تغيير المراكز الثلاثة الأولى مهما كانت نتائج المباريات المتبقية.</p></div></div>`;
+          return;
+        }
+        const { k, secured, L, rivals, out, need, selfOk, phase, cl, direct, anyOk } = R, G = GOAL[k];
+        box.setAttribute('aria-label', k ? `سباق ${G}` : 'سباق اللقب');
         // 2.1: العبارات بالنقاط لا بالانتصارات، وبصياغة حسابية محايدة (طرق ضمان، لا توقعات)
         const ptsN = n => n === 1 ? 'نقطة\u00A0واحدة' : n === 2 ? 'نقطتين' : n <= 10 ? `${n}\u00A0نقاط` : `${n}\u00A0نقطة`;   // الرقم ووحدته لا ينفصلان على سطرين
         const leftN = n => n === 1 ? 'مباراة واحدة متبقية' : n === 2 ? 'مباراتين متبقيتين' : n <= 10 ? `${n} مباريات متبقية` : `${n} مباراة متبقية`;
@@ -15663,6 +15708,7 @@ function buildLeagueStandingsCanvas() {
               : direct
                 ? `يستطيع <b>${esc(L.name)}</b> ضمان اللقب حسابيًا بنتائجه وحدها بـ<b class="k">${ptsN(direct.need)}</b> من ${leftN(L.left)}، بشرط أن يكون منها ${direct.wins.length + direct.draws.length <= 3 ? directTxt(direct) : 'نتائج في مواجهاته المباشرة مع منافسيه'}${direct.wins.length + direct.draws.length <= 3 ? ' في المواجهات المباشرة' : ''}.`
                 : `لا يستطيع <b>${esc(L.name)}</b> ضمان اللقب بنتائجه وحدها حتى الآن؛ أقصى ما يبلغه <b>${L.max}</b> نقطة، ويعتمد الحسم على نتائجه مع تعثّر منافسيه.`;
+        const sayK = placeT(k, say);
         // تركيبات الضمان: للمطلوب «بأي نتائج» فقط (لا تعتمد على خصم بعينه)
         const ways = phase < 5 && L.left && anyOk ? getLeagueClinchScenarios(need, L.left) : [];
         const cnt = (n, one, two, few, many) => n === 1 ? one : n === 2 ? two : `${n} ${n <= 10 ? few : many}`;
@@ -15671,20 +15717,20 @@ function buildLeagueStandingsCanvas() {
           ${ways.map((x, i) => `<div class="tr-way${i >= 3 && !waysAll ? ' x' : ''}" aria-label="${wayTxt(x)}، والبقية بأي نتيجة: ${ptsN(x.pts)}"><span class="w">${wayTxt(x)}</span><span class="p">${x.pts}<small>${x.pts === 1 ? 'نقطة' : x.pts === 2 ? 'نقطتان' : x.pts <= 10 ? 'نقاط' : 'نقطة'}</small></span></div>`).join('')}
           ${ways.length > 3 ? `<button type="button" class="vm2-more tr-wmore" aria-expanded="${waysAll}">${waysAll ? 'عرض أقل' : `عرض الكل (${ways.length})`}</button>` : ''}</div>` : '';
         box.classList.toggle('open', open);
-        box.innerHTML = `<button type="button" class="tr-sum" aria-expanded="${open}"><span class="ic ic-flag" aria-hidden="true"></span><span class="t">سباق اللقب</span><span class="tr-ph p${phase}">${PH[phase]}</span>${chev}<span class="sub"><span class="in">${phase === 5 ? `<b>${esc(L.name)}</b> · ${CLINCH_LINE}` : selfOk ? (n => `<b>${esc(L.name)}</b> يحتاج <b class="k">${n}</b> ${n === 1 ? 'نقطة' : n === 2 ? 'نقطتين' : n <= 10 ? 'نقاط' : 'نقطة'} للضمان`)(anyOk ? need : direct.need) : `<b>${esc(L.name)}</b> لا يضمنه بنتائجه وحدها`}</span></span></button>
-          <div class="tr-body"><div class="in">
+        box.innerHTML = `<button type="button" class="tr-sum" aria-expanded="${open}"><span class="ic ic-flag" aria-hidden="true"></span><span class="t">${k ? `سباق ${G}` : 'سباق اللقب'}</span><span class="tr-ph p${phase}">${(k ? PH_PLACE : PH)[phase]}</span>${chev}<span class="sub"><span class="in">${phase === 5 ? `<b>${esc(L.name)}</b> · ${CLINCH_LINE}` : selfOk ? (n => `<b>${esc(L.name)}</b> يحتاج <b class="k">${n}</b> ${n === 1 ? 'نقطة' : n === 2 ? 'نقطتين' : n <= 10 ? 'نقاط' : 'نقطة'} للضمان`)(anyOk ? need : direct.need) : `<b>${esc(L.name)}</b> لا يضمنه بنتائجه وحدها`}</span></span></button>
+          <div class="tr-body"><div class="in">${doneHTML(secured, k)}
             <div class="tr-steps" aria-hidden="true">${[1, 2, 3, 4, 5].map(i => `<i${i <= phase ? ' class="on"' : ''}></i>`).join('')}</div>
-            ${phase < 5 ? `<div class="tr-cap">المتصدر و${nRivals(rivals.length)}</div>` : ''}
-            <p class="tr-say">${say}</p>
+            ${phase < 5 ? `<div class="tr-cap">${k ? 'صاحب المركز' : 'المتصدر'} و${nRivals(rivals.length)}</div>` : ''}
+            <p class="tr-say">${sayK}</p>
             ${waysHTML}
             <div class="tr-list">
               <div class="tr-head" aria-hidden="true"><span class="n">اللاعب</span><span>متبقي</span><span>الأقصى</span><span></span></div>
-              ${row(L, 'lead')}${rivals.map(r => row(r)).join('')}
+              ${row(L, 'lead', k)}${rivals.map(r => row(r)).join('')}
               ${out.length ? `<div class="tr-out${outOpen ? ' open' : ''}"><button type="button" class="tr-outsum" aria-expanded="${outOpen}">خرج من السباق حسابيًا · ${nPlayers(out.length)}${chev}</button>
                 <div class="tr-outlist"><div class="in">${out.map(r => row(r, 'out')).join('')}</div></div></div>` : ''}
             </div>
-            <div class="tr-g${gOpen ? ' open' : ''}"><button type="button" class="pf-guide-btn tr-gbtn" aria-expanded="${gOpen}">دليل سباق اللقب <span aria-hidden="true">‹</span></button>
-              <div class="tr-guide"><div class="in">${guideHTML(phase)}</div></div></div>
+            <div class="tr-g${gOpen ? ' open' : ''}"><button type="button" class="pf-guide-btn tr-gbtn" aria-expanded="${gOpen}">${k ? `دليل سباق ${G}` : 'دليل سباق اللقب'} <span aria-hidden="true">‹</span></button>
+              <div class="tr-guide"><div class="in">${k ? placeT(k, guideHTML(phase, PH_PLACE)) : guideHTML(phase)}</div></div></div>
           </div></div>`;
       }
       box.addEventListener('click', e => {
@@ -16363,6 +16409,10 @@ function buildLeagueStandingsCanvas() {
         const card = document.createElement('button'); card.type = 'button'; card.className = 'st-last kc kc-btn'; card.id = 'viewChampion';
         card.setAttribute('aria-label', `بطل الدوري: ${cl.name}، ${note}${cl.final ? '' : '، ' + CLINCH_WHY}`);
         card.innerHTML = champCardHTML(champTitle('league', liveChampRec('league')), `<bdi>${esc(cl.name)}</bdi>`, esc(note), cl.final ? '' : CLINCH_WHY);
+        // 4.2: المركزان الثاني والثالث حين يُحسمان مبكرًا: صفّان هادئان داخل البطاقة كبطاقة الدوري المكتمل، بلا نقاط متغيرة
+        if (!cl.final) { const pl = leagueSecuredPlaces().slice(1);
+          if (pl.length) { card.insertAdjacentHTML('beforeend', `<div class="kc-rest">${pl.map((n, i) => `<div class="kc-r"><span class="rk">${i + 2}</span><span class="n"><bdi>${esc(n)}</bdi></span><span class="p">محسوم</span></div>`).join('')}</div>`);
+            card.setAttribute('aria-label', card.getAttribute('aria-label') + '، ' + pl.map((n, i) => `${i ? 'المركز الثالث' : 'المركز الثاني'} محسوم لـ ${n}`).join('، ')); } }
         card.addEventListener('click', () => { try { window.carromOpenProfile(cl.name); } catch (e) {} });
         if (!cl.final) host.prepend(card);   // 6.9: الدوري المكتمل يعرض بطله في بطاقة «بطل الدوري» الموحدة (بلا تكرار)
         // شارة «البطل» بجانب اسمه في الترتيب
