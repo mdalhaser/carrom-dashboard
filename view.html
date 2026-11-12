@@ -2242,6 +2242,13 @@
     .vday-r { display: grid; grid-template-columns: 32px minmax(0, 1fr) 50px minmax(0, 1fr); align-items: center; column-gap: 6px; width: 100%; min-height: 46px; padding: 6px 4px; border: 0; border-top: 1px solid var(--line); background: none; border-radius: 0; font: inherit; color: var(--text); cursor: pointer; -webkit-tap-highlight-color: transparent; transition: background .2s ease; }
     .vday-list > .vday-r:first-child { border-top: 0; }
     /* 1.4 — «بلا خسارة»: سطر حقيقة هادئ فوق المباريات (عنوان صغير بدرع ← الأسماء أبجديًا)، بلا صندوق ولا أرقام؛ يفصله عن أول مباراة خط القائمة نفسه */
+    .vday-cl { display: flex; flex-direction: column; align-items: flex-start; gap: 6px; padding: 2px 4px 12px; }   /* 4.3: حسم اليوم */
+    .vday-cl > span { display: inline-flex; align-items: center; gap: 6px; line-height: 1.5; }
+    .vday-cl .ch { font-size: var(--fs-base); font-weight: 800; color: var(--gold-deep); }
+    .vday-cl .pl { font-size: var(--fs-sm); font-weight: 700; color: var(--text-2); }
+    .vday-cl .ic { width: 15px; height: 15px; margin: 0; flex: none; color: var(--gold-deep); }
+    .vday-cl + .vday-r { border-top: 1px solid var(--line); }
+    .vday-cl + .vday-r.latest { border-top-color: transparent; margin-top: 4px; }
     .vday-ub { display: flex; flex-direction: column; align-items: flex-start; gap: 4px; padding: 2px 4px 12px; }
     .vday-ub .lb { display: inline-flex; align-items: center; gap: 6px; font-size: var(--fs-xs); font-weight: 800; color: var(--gold-deep); }
     .vday-ub .lb .ic { width: 14px; height: 14px; margin: 0; }
@@ -9730,6 +9737,29 @@ function changeScore(inputId, amount){
         return out;
       } catch (e) { return []; }
     }
+    // 4.3 — لحظة حسم كل مركز (للعرض فقط): نفس أسلوب leagueClinchAt — تُسحب أحدث المباريات الموقّتة واحدة واحدة من نسخة مؤقتة،
+    // والمباراة التي يزول بسحبها حسم المركز هي الحاسمة. [{ place: 0|1|2, name, at }]؛ المركز المحسوم قبل أقدم مباراة موقّتة لا يُذكر (لا لحظة معروفة).
+    function leagueClinchMoments() {
+      try {
+        const sec = leagueSecuredPlaces(); if (!sec.length) return [];
+        const at = leagueMatchTimes(), timed = leagueMatches.filter(m => isLeagueMatchCompleted(m) && at[m.id]).sort((a, b) => at[b.id] - at[a.id]);
+        if (!timed.length) return [];
+        const saved = leagueMatches, off = new Set(), out = [];
+        try {
+          for (const m of timed) {
+            off.add(m.id);
+            leagueMatches = saved.map(x => off.has(x.id) ? Object.assign({}, x, { status: 'pending', scoreA: null, scoreB: null, result: null, pointsA: 0, pointsB: 0 }) : x);
+            const now = leagueSecuredPlaces();
+            sec.forEach((n, i) => { if (!out.some(o => o.place === i) && now[i] !== n) out.push({ place: i, name: n, at: at[m.id] }); });
+            if (out.length === sec.length) break;
+          }
+        } finally { leagueMatches = saved; }
+        return out.sort((a, b) => a.place - b.place);
+      } catch (e) { return []; }
+    }
+    // حسم يوم اللعب: ما حُسم في هذا اليوم (اللقب ثم المركزان) — حقيقة ثابتة لبطاقة «آخر يوم لعب / نتائج اليوم» وصورتها ونصها
+    function leagueClinchesOfDay(key) { try { return leagueClinchMoments().filter(o => nightKeyOf(o.at) === key); } catch (e) { return []; } }
+    const clinchNewsText = o => o.place ? `حُسم ${o.place === 1 ? 'المركز الثاني' : 'المركز الثالث'} لـ ${o.name}` : `حسم ${o.name} لقب الدوري`;
     // 3.9 — لحظة حسم اللقب (للعرض فقط): وقت تسجيل المباراة التي حسمته. تُسحب أحدث المباريات الموقّتة واحدة واحدة من نسخة مؤقتة
     // (نفس أسلوب leagueRankMoves) حتى يزول الحسم؛ المباراة التي يزول بسحبها هي الحاسمة. لا يُحفظ شيء ولا يُمس منطق الحسم.
     // Infinity إن لم يوجد توقيت لأي مباراة (فتبقى بطاقة الحسم كما كانت).
@@ -11203,7 +11233,10 @@ function buildLeagueStandingsCanvas() {
         ubInfo.names.forEach(n => { const t = cur ? cur + sep + n : n; if (cur && mc.measureText(t).width > maxW) { ubLines.push(cur); cur = n; } else cur = t; });
         if (cur) ubLines.push(cur); }
       const ubH = ubInfo ? UB.pad * 2 + UB.lab + UB.gap + ubLines.length * UB.line : 0, ubGap = ubInfo ? 18 : 0;
-      const over = secs.reduce((a, s) => a + (s.heading ? HEAD : 0) + 2 * TP, 0) + SG * Math.max(0, secs.length - 1) + ubH + ubGap;
+      // 4.3: لوحة حسم اليوم فوق «بلا خسارة»: اللقب سطر رئيسي بالكأس، والمركزان أسطر أهدأ بالميدالية
+      const clInfo = (secs.find(s => s.cl) || {}).cl || null, CL = { pad: 26, main: 50, sub: 42 };
+      const clH = clInfo ? CL.pad * 2 + clInfo.reduce((a, o, i) => a + (i ? CL.sub : CL.main), 0) : 0, clGap = clInfo ? 18 : 0;   // أول خبر في اليوم هو الرئيسي (اللقب، أو المركز إن حُسم وحده)
+      const over = secs.reduce((a, s) => a + (s.heading ? HEAD : 0) + 2 * TP, 0) + SG * Math.max(0, secs.length - 1) + ubH + ubGap + clH + clGap;
       const totalRows = secs.reduce((a, s) => a + s.rows, 0);
       const TARGET = window.__dayTarget || 2150, fixed = top + gapC + over + 90;
       const rowH = Math.max(56, Math.min(100, Math.floor((TARGET - fixed) / Math.max(1, totalRows))));   // صفوف أعلى حين تسمح المساحة (الصور القصيرة)
@@ -11215,6 +11248,15 @@ function buildLeagueStandingsCanvas() {
       exportBrandHeader(ctx, M, M, CW, title, subtitle, meta);
       if (ctxRes.shown) exportDrawContext(ctx, ctxRes.text, M + CW / 2, top + 6, CW, 27);
       let y = top + gapC; const cuts = [];
+      if (clInfo) {
+        drawRoundedRect(ctx, M, y, CW, clH, 22); ctx.fillStyle = B.paper; ctx.fill(); ctx.strokeStyle = B.line; ctx.lineWidth = 2; ctx.stroke();
+        const rx = M + CW - CL.pad; let ly = y + CL.pad;
+        clInfo.forEach((o, i) => { const h = i ? CL.sub : CL.main, cy = ly + h / 2, isz = i ? 26 : 32;
+          exportIcon(ctx, o.place ? 'medal' : 'trophy', rx - isz / 2, cy, isz, B.goldDeep, 2.2);
+          exportText(ctx, clinchNewsText(o), rx - isz - 12, cy, { size: i ? 27 : 33, weight: 800, color: i ? B.muted : B.ink, align: 'right', maxW: CW - CL.pad * 2 - isz - 12, min: 20 });
+          ly += h; });
+        y += clH + clGap; cuts.push(y - clGap / 2);
+      }
       if (ubInfo) {
         drawRoundedRect(ctx, M, y, CW, ubH, 22); ctx.fillStyle = B.paper; ctx.fill(); ctx.strokeStyle = B.line; ctx.lineWidth = 2; ctx.stroke();
         const rx = M + CW - UB.pad, ly = y + UB.pad + UB.lab / 2;
@@ -11661,8 +11703,9 @@ function buildLeagueStandingsCanvas() {
       const ub = lg ? unbeatenOfDay(list.map(e => leagueMatches.find(x => x.id === e.id)).filter(Boolean)) : [];
       // 2.0: الصورة ونصها يُنشران بعد انتهاء يوم اللعب غالبًا (واليوم يمتد حتى ساعة بدء اليوم التالي)، فالعنوان «بلا خسارة» دائمًا؛ «حتى الآن» للبطاقة الحية في التطبيق فقط
       const ubLabel = 'بلا خسارة';
-      setCaption(file, `نتائج يوم ${label} (${chipMatches(list.length)}):\n` + (ub.length ? `${ubLabel}: ${ub.join('، ')}\n` : '') + items.map(itemLine).join('\n'));
-      await renderMatchSheet('نتائج اليوم', `${label} · ${chipMatches(list.length)}`, [{ heading: null, matches: items, ub: ub.length ? { label: ubLabel, names: ub } : null }], file);
+      const cn = lg ? leagueClinchesOfDay(key) : [];   // 4.3: حسم اليوم: لوحة فوق «بلا خسارة» وسطر أول في النص
+      setCaption(file, (cn.length ? cn.map(o => clinchNewsText(o) + ' ' + ['🏆', '🥈', '🥉'][o.place]).join('\n') + '\n\n' : '') + `نتائج يوم ${label} (${chipMatches(list.length)}):\n` + (ub.length ? `${ubLabel}: ${ub.join('، ')}\n` : '') + items.map(itemLine).join('\n'));
+      await renderMatchSheet('نتائج اليوم', `${label} · ${chipMatches(list.length)}`, [{ heading: null, matches: items, ub: ub.length ? { label: ubLabel, names: ub } : null, cl: cn.length ? cn : null }], file);
     }
 
     function historyRecords() {
@@ -15184,7 +15227,7 @@ function buildLeagueStandingsCanvas() {
     // ===================================
     // 🧭 سلوك التطبيق: إعادة الوضع للأعلى، تعديل العنوان بالضغط المطوّل، تنبيه التحديث، رقم الإصدار
     // ===================================
-    const APP_VERSION = '4.2';   // ترقيم الاعتماد (من 4 نوفمبر 2026): 1.0 ثم 1.1 … 1.9 ثم 2.0 — ويُرفع معه رقم الإصدار في sw.js
+    const APP_VERSION = '4.3';   // ترقيم الاعتماد (من 4 نوفمبر 2026): 1.0 ثم 1.1 … 1.9 ثم 2.0 — ويُرفع معه رقم الإصدار في sw.js
     (function setupAppBehaviors() {
       const root = document.documentElement;
 
@@ -15987,8 +16030,8 @@ function buildLeagueStandingsCanvas() {
           h.querySelector('b').textContent = sel === todayKey ? 'نتائج اليوم' : sel === latest ? 'آخر يوم لعب' : 'يوم لعب';
           const sm = h.querySelector('small'); sm.textContent = sel === todayKey ? '' : nightLabel(sel); sm.hidden = sel === todayKey;
           h.querySelector('.meta').textContent = countTxt(ms.length);
-          const ub = unbeatenOfDay(ms);
-          list.innerHTML = (ub.length ? `<div class="vday-ub" role="note"><span class="lb"><span class="ic ic-shield" aria-hidden="true"></span>${sel === todayKey ? 'بلا خسارة حتى الآن' : 'بلا خسارة'}</span>`
+          const ub = unbeatenOfDay(ms), cn = leagueClinchesOfDay(sel);   // 4.3: حسم اليوم فوق «بلا خسارة»
+          list.innerHTML = (cn.length ? `<div class="vday-cl" role="note">${cn.map((o, i) => `<span class="${i ? 'pl' : 'ch'}"><span class="ic ic-${o.place ? 'medal' : 'trophy'}" aria-hidden="true"></span><span>${esc(clinchNewsText(o))}</span></span>`).join('')}</div>` : '') + (ub.length ? `<div class="vday-ub" role="note"><span class="lb"><span class="ic ic-shield" aria-hidden="true"></span>${sel === todayKey ? 'بلا خسارة حتى الآن' : 'بلا خسارة'}</span>`
             + `<span class="nms">${ub.map(n => `<bdi class="${me0 && n === me0 ? 'me' : ''}">${esc(n)}</bdi>`).join('<i aria-hidden="true">·</i>')}</span></div>` : '') + rowsHTML(ms);
           list.querySelectorAll('.vday-r').forEach(b => b.addEventListener('click', () => openLeagueScoreModal(b.dataset.id)));
           if (strip) {
