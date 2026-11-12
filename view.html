@@ -11235,7 +11235,7 @@ function buildLeagueStandingsCanvas() {
       const ubH = ubInfo ? UB.pad * 2 + UB.lab + UB.gap + ubLines.length * UB.line : 0, ubGap = ubInfo ? 18 : 0;
       // 4.3: لوحة حسم اليوم فوق «بلا خسارة»: اللقب سطر رئيسي بالكأس، والمركزان أسطر أهدأ بالميدالية
       const clInfo = (secs.find(s => s.cl) || {}).cl || null, CL = { pad: 26, main: 50, sub: 42 };
-      const clH = clInfo ? CL.pad * 2 + clInfo.reduce((a, o) => a + (o.place ? CL.sub : CL.main), 0) : 0, clGap = clInfo ? 18 : 0;
+      const clH = clInfo ? CL.pad * 2 + clInfo.reduce((a, o, i) => a + (i ? CL.sub : CL.main), 0) : 0, clGap = clInfo ? 18 : 0;   // أول خبر في اليوم هو الرئيسي (اللقب، أو المركز إن حُسم وحده)
       const over = secs.reduce((a, s) => a + (s.heading ? HEAD : 0) + 2 * TP, 0) + SG * Math.max(0, secs.length - 1) + ubH + ubGap + clH + clGap;
       const totalRows = secs.reduce((a, s) => a + s.rows, 0);
       const TARGET = window.__dayTarget || 2150, fixed = top + gapC + over + 90;
@@ -11251,9 +11251,9 @@ function buildLeagueStandingsCanvas() {
       if (clInfo) {
         drawRoundedRect(ctx, M, y, CW, clH, 22); ctx.fillStyle = B.paper; ctx.fill(); ctx.strokeStyle = B.line; ctx.lineWidth = 2; ctx.stroke();
         const rx = M + CW - CL.pad; let ly = y + CL.pad;
-        clInfo.forEach(o => { const h = o.place ? CL.sub : CL.main, cy = ly + h / 2, isz = o.place ? 26 : 32;
+        clInfo.forEach((o, i) => { const h = i ? CL.sub : CL.main, cy = ly + h / 2, isz = i ? 26 : 32;
           exportIcon(ctx, o.place ? 'medal' : 'trophy', rx - isz / 2, cy, isz, B.goldDeep, 2.2);
-          exportText(ctx, clinchNewsText(o), rx - isz - 12, cy, { size: o.place ? 27 : 33, weight: 800, color: o.place ? B.muted : B.ink, align: 'right', maxW: CW - CL.pad * 2 - isz - 12, min: 20 });
+          exportText(ctx, clinchNewsText(o), rx - isz - 12, cy, { size: i ? 27 : 33, weight: 800, color: i ? B.muted : B.ink, align: 'right', maxW: CW - CL.pad * 2 - isz - 12, min: 20 });
           ly += h; });
         y += clH + clGap; cuts.push(y - clGap / 2);
       }
@@ -11704,7 +11704,7 @@ function buildLeagueStandingsCanvas() {
       // 2.0: الصورة ونصها يُنشران بعد انتهاء يوم اللعب غالبًا (واليوم يمتد حتى ساعة بدء اليوم التالي)، فالعنوان «بلا خسارة» دائمًا؛ «حتى الآن» للبطاقة الحية في التطبيق فقط
       const ubLabel = 'بلا خسارة';
       const cn = lg ? leagueClinchesOfDay(key) : [];   // 4.3: حسم اليوم: لوحة فوق «بلا خسارة» وسطر أول في النص
-      setCaption(file, (cn.length ? cn.map((o, i) => clinchNewsText(o) + (i ? '' : ' 🏆')).join('\n') + '\n\n' : '') + `نتائج يوم ${label} (${chipMatches(list.length)}):\n` + (ub.length ? `${ubLabel}: ${ub.join('، ')}\n` : '') + items.map(itemLine).join('\n'));
+      setCaption(file, (cn.length ? cn.map(o => clinchNewsText(o) + ' ' + ['🏆', '🥈', '🥉'][o.place]).join('\n') + '\n\n' : '') + `نتائج يوم ${label} (${chipMatches(list.length)}):\n` + (ub.length ? `${ubLabel}: ${ub.join('، ')}\n` : '') + items.map(itemLine).join('\n'));
       await renderMatchSheet('نتائج اليوم', `${label} · ${chipMatches(list.length)}`, [{ heading: null, matches: items, ub: ub.length ? { label: ubLabel, names: ub } : null, cl: cn.length ? cn : null }], file);
     }
 
@@ -16031,7 +16031,7 @@ function buildLeagueStandingsCanvas() {
           const sm = h.querySelector('small'); sm.textContent = sel === todayKey ? '' : nightLabel(sel); sm.hidden = sel === todayKey;
           h.querySelector('.meta').textContent = countTxt(ms.length);
           const ub = unbeatenOfDay(ms), cn = leagueClinchesOfDay(sel);   // 4.3: حسم اليوم فوق «بلا خسارة»
-          list.innerHTML = (cn.length ? `<div class="vday-cl" role="note">${cn.map(o => `<span class="${o.place ? 'pl' : 'ch'}"><span class="ic ic-${o.place ? 'medal' : 'trophy'}" aria-hidden="true"></span><span>${esc(clinchNewsText(o))}</span></span>`).join('')}</div>` : '') + (ub.length ? `<div class="vday-ub" role="note"><span class="lb"><span class="ic ic-shield" aria-hidden="true"></span>${sel === todayKey ? 'بلا خسارة حتى الآن' : 'بلا خسارة'}</span>`
+          list.innerHTML = (cn.length ? `<div class="vday-cl" role="note">${cn.map((o, i) => `<span class="${i ? 'pl' : 'ch'}"><span class="ic ic-${o.place ? 'medal' : 'trophy'}" aria-hidden="true"></span><span>${esc(clinchNewsText(o))}</span></span>`).join('')}</div>` : '') + (ub.length ? `<div class="vday-ub" role="note"><span class="lb"><span class="ic ic-shield" aria-hidden="true"></span>${sel === todayKey ? 'بلا خسارة حتى الآن' : 'بلا خسارة'}</span>`
             + `<span class="nms">${ub.map(n => `<bdi class="${me0 && n === me0 ? 'me' : ''}">${esc(n)}</bdi>`).join('<i aria-hidden="true">·</i>')}</span></div>` : '') + rowsHTML(ms);
           list.querySelectorAll('.vday-r').forEach(b => b.addEventListener('click', () => openLeagueScoreModal(b.dataset.id)));
           if (strip) {
