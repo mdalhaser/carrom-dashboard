@@ -1303,6 +1303,18 @@
     .gh-status .spin { flex: none; width: 15px; height: 15px; margin-top: 4px; border-radius: 50%; border: 2px solid currentColor; border-top-color: transparent; animation: ghSpin .8s linear infinite; }
     @keyframes ghSpin { to { transform: rotate(360deg); } }
     #ghPublishBtn[aria-busy="true"] { opacity: .7; pointer-events: none; }
+    /* 4.1 — مفتاح «نشر تلقائي» (مفتاح تبديل بأسلوب iOS: 51×31) */
+    .gh-auto { display: flex; align-items: center; gap: var(--s3); min-height: 56px; padding: 0 var(--s4); border-radius: var(--r-md); background: var(--surface-2); border: 1px solid var(--line); cursor: pointer; -webkit-tap-highlight-color: transparent; }
+    .gh-auto .tx { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 2px; }
+    .gh-auto b { font-size: var(--fs-base); font-weight: 800; color: var(--text); }
+    .gh-auto small { font-size: var(--fs-xs); font-weight: 700; color: var(--text-3); }
+    .gh-auto .sw-in { position: absolute; opacity: 0; width: 1px; height: 1px; pointer-events: none; }
+    .gh-auto .sw { flex: none; position: relative; width: 51px; height: 31px; border-radius: 999px; background: var(--surface-3); box-shadow: inset 0 0 0 1px var(--line-strong); transition: background var(--t-base, .22s) ease, box-shadow var(--t-base, .22s) ease; }
+    .gh-auto .sw::after { content: ""; position: absolute; top: 2px; right: 2px; width: 27px; height: 27px; border-radius: 50%; background: #FAF6EE; box-shadow: 0 2px 6px rgba(0, 0, 0, .22); transition: transform var(--t-base, .22s) cubic-bezier(.2, .8, .2, 1); }
+    .gh-auto .sw-in:checked + .sw { background: var(--gold, #CFA963); box-shadow: inset 0 0 0 1px transparent; }
+    .gh-auto .sw-in:checked + .sw::after { transform: translateX(-20px); }
+    .gh-auto .sw-in:focus-visible + .sw { outline: 2px solid var(--gold, #CFA963); outline-offset: 2px; }
+    @media (prefers-reduced-motion: reduce) { .gh-auto .sw, .gh-auto .sw::after { transition: none; } }
     .gh-more { margin-top: var(--s3); border-top: 1px solid var(--line); }
     .gh-more summary { list-style: none; cursor: pointer; display: flex; align-items: center; justify-content: space-between; gap: 8px; min-height: 46px; font-size: var(--fs-sm); font-weight: 800; color: var(--text-2); -webkit-tap-highlight-color: transparent; }
     .gh-more summary::after { content: ""; flex: none; width: 8px; height: 8px; border-right: 2px solid currentColor; border-bottom: 2px solid currentColor; transform: translateY(-2px) rotate(45deg); margin-inline-end: 6px; transition: transform .25s ease; }
@@ -3945,6 +3957,7 @@
             <!-- النشر المباشر إلى GitHub بضغطة زر -->
             <div class="gh-live" id="ghLive" hidden>
               <button type="button" id="ghPublishBtn" class="cd-primary" data-ic="share">نشر النتائج الآن</button>
+              <label class="gh-auto" for="ghAutoSw"><span class="tx"><b>نشر تلقائي</b><small>بعد دقيقة من آخر نتيجة، دون ضغط</small></span><input type="checkbox" id="ghAutoSw" class="sw-in" role="switch"><span class="sw" aria-hidden="true"></span></label>
               <div id="ghStatus" class="gh-status" role="status" aria-live="polite" hidden></div>
             </div>
             <div class="cd-history-meta"><span id="cdLastPublish">آخر نشر: لم يُنشر بعد</span></div>
@@ -13309,16 +13322,17 @@ function buildLeagueStandingsCanvas() {
       function resultsSig(){const keys=['tournamentHistory','leagueMatches','leaguePlayers','bracketState','tournamentModeSnapshot_fixed','tournamentModeSnapshot_single'];let h=0;const str=keys.map(k=>{try{return localStorage.getItem(k)||''}catch(e){return ''}}).join('|');for(let i=0;i<str.length;i++)h=(h*31+str.charCodeAt(i))|0;return String(h);}
       // النشر اليدوي يجهّز الملف فقط ولا يرفعه؛ نسجّل نوع آخر نشر حتى لا يُعرض كأنه وصل للاعبين
       const PUB_KIND_KEY='__carrom_last_publish_kind_v1';
-      function markPublished(kind){try{localStorage.setItem(PUB_KEY,new Date().toISOString());localStorage.setItem(PUB_SIG_KEY,resultsSig());localStorage.setItem(PUB_KIND_KEY,kind==='manual'?'manual':'live')}catch(e){} paintPublish();}
+      function markPublished(kind){try{if(kind!=='manual'&&window.carromAutoPublish)window.carromAutoPublish.mark();}catch(e){}try{localStorage.setItem(PUB_KEY,new Date().toISOString());localStorage.setItem(PUB_SIG_KEY,resultsSig());localStorage.setItem(PUB_KIND_KEY,kind==='manual'?'manual':'live')}catch(e){} paintPublish();}
       function paintPublish(){const el=document.getElementById('cdLastPublish');if(!el)return;let v=null,sig=null,kind=null;try{v=localStorage.getItem(PUB_KEY);sig=localStorage.getItem(PUB_SIG_KEY);kind=localStorage.getItem(PUB_KIND_KEY)}catch(e){}
         const stale=!!v&&sig!==resultsSig();
         el.innerHTML='';el.append(v&&kind==='manual'?'آخر تجهيز يدوي لملف النشر: '+formatDate(v)+' (يظهر للاعبين بعد رفعه إلى GitHub)':'آخر نشر: '+(v?formatDate(v):'لم يُنشر بعد'));
         if(stale){const w=document.createElement('b');w.className='pub-stale';w.textContent=' · توجد نتائج جديدة لم تُنشر';el.appendChild(w);}
-        const ob=document.getElementById('openControlDashboard');if(ob)ob.classList.toggle('has-dot',stale);}
+        const ob=document.getElementById('openControlDashboard');if(ob)ob.classList.toggle('has-dot',stale);
+        if(window.carromAutoPublish) try{window.carromAutoPublish.changed();}catch(e){}}   // 4.1: النشر التلقائي يراقب نفس لحظة التغيير
       window.carromPaintPublish=paintPublish;
       // تحديث التنبيه تلقائيًا عند حفظ أي نتيجة (بعد لحظة، مرة واحدة لكل دفعة حفظ)
       { const watched=/^(tournamentHistory|leagueMatches|leaguePlayers|bracketState|tournamentModeSnapshot_)/; let t=null;
-        try{ const _set=Storage.prototype.setItem; Storage.prototype.setItem=function(k){ const r=_set.apply(this,arguments); if(this===window.localStorage&&watched.test(String(k))){clearTimeout(t);t=setTimeout(paintPublish,400);} return r; }; }catch(e){} }
+        try{ const _set=Storage.prototype.setItem; Storage.prototype.setItem=function(k){ const r=_set.apply(this,arguments); if(this===window.localStorage&&watched.test(String(k))){if(window.carromAutoPublish)try{window.carromAutoPublish.touch();}catch(e){}clearTimeout(t);t=setTimeout(paintPublish,400);} return r; }; }catch(e){} }
       function downloadPublish(){const b=buildPublish();const url=URL.createObjectURL(b.blob);const a=document.createElement('a');a.href=url;a.download=b.name;document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(url),1500);markPublished('manual');showFeedback('تم تجهيز data.json. ارفعه إلى GitHub ليظهر للاعبين.','ok');}
       async function sharePublish(){const b=buildPublish();let f=null;try{f=new File([b.blob],b.name,{type:'application/json'})}catch(e){}
         if(!f||!navigator.canShare||!navigator.canShare({files:[f]})){downloadPublish();return;}
@@ -13375,20 +13389,67 @@ function buildLeagueStandingsCanvas() {
             try{const res=await fetch(base+'?t='+Date.now(),{cache:'no-store'});if(res.ok){const d=await res.json();if(d&&d.publishedAt===stamp){say(st,'ظهرت النتائج الجديدة للاعبين ✓','ok');return;}}}catch(e){}
             if(Date.now()-t0>240000){say(st,'تم الرفع ✓ قد يتأخر ظهورها للاعبين دقيقة إضافية.','ok');return;}
             setTimeout(tick,8000);};setTimeout(tick,15000);}
-        async function publishNow(){const c=load();if(!c)return;
-          btn.setAttribute('aria-busy','true');btn.disabled=true;say(st,'جارٍ نشر النتائج…','',true);
+        async function publishNow(opts){opts=opts&&opts.auto?opts:{};const c=load();if(!c)return false;
+          if(pubBusy)return false; pubBusy=true;
+          btn.setAttribute('aria-busy','true');btn.disabled=true;say(st,opts.auto?'نشر تلقائي للنتائج…':'جارٍ نشر النتائج…','',true);
           const payload={format:'carrom-view-data',version:1,publishedAt:new Date().toISOString(),dayStartHour:Number(exportSettings.dayStartHour),app:'إدارة القرعة',entries:(()=>{const en=allAppEntries();['exportCenterSettings','exportCenterTemplates','theme'].forEach(k=>delete en[k]);return en;})()};
           const content=b64(JSON.stringify(payload)), path='/contents/data.json';
-          const getSha=async()=>{const r=await api(c,path+'?ref='+encodeURIComponent(c.branch));if(r.status===404)return {sha:null};if(!r.ok)throw r;const j=await r.json();return {sha:j.sha};};
+          const getSha=async()=>{const r=await api(c,path+'?ref='+encodeURIComponent(c.branch));if(r.status===404)return {sha:null};if(!r.ok)throw r;const j=await r.json();
+            let at=null; if(opts.auto&&j.content){try{const bin=atob(String(j.content).replace(/\s/g,''));const by=new Uint8Array(bin.length);for(let i=0;i<bin.length;i++)by[i]=bin.charCodeAt(i);at=JSON.parse(new TextDecoder().decode(by)).publishedAt||null;}catch(e){}}
+            return {sha:j.sha,at};};
+          // 4.1: النشر التلقائي لا يكتب فوق نشرٍ أحدث من جهاز آخر (جهاز ببيانات قديمة لا يمسح نتائج أحدث)
+          const newerElsewhere=at=>{if(!at)return false;let mine=null;try{mine=localStorage.getItem(PUB_KEY);}catch(e){}return !mine||new Date(at).getTime()>new Date(mine).getTime()+1000;};
           const put=sha=>api(c,path,{method:'PUT',headers:{'Content-Type':'application/json'},body:JSON.stringify(Object.assign({message:'تحديث النتائج — '+fmtDayDate(payload.publishedAt)+' '+fmtTimeNum(payload.publishedAt),content,branch:c.branch},sha?{sha}:{}))});
-          let res=null;
-          try{let {sha}=await getSha();res=await put(sha);
-            if(res.status===409||res.status===422){({sha}=await getSha());res=await put(sha);}   // تغيّر الملف في GitHub بين القراءة والكتابة: نعيد مرة واحدة
+          let res=null,blocked=false;
+          try{let {sha,at}=await getSha();
+            if(opts.auto&&newerElsewhere(at)){blocked=true;}
+            else{res=await put(sha);
+              if(res.status===409||res.status===422){({sha}=await getSha());res=await put(sha);}}   // تغيّر الملف في GitHub بين القراءة والكتابة: نعيد مرة واحدة
           }catch(err){res=err instanceof Response?err:null;}
-          btn.removeAttribute('aria-busy');btn.disabled=false;
-          if(res&&res.ok){markPublished('live');say(st,'تم النشر ✓ تظهر للاعبين خلال دقيقة تقريبًا…','ok',true);watchLive(c,payload.publishedAt);}
-          else say(st,why(res,'put'),'err');}
-        btn.addEventListener('click',publishNow);
+          btn.removeAttribute('aria-busy');btn.disabled=false;pubBusy=false;
+          if(blocked){say(st,'لم يُنشر تلقائيًا: في صفحة اللاعبين نتائج نُشرت من جهاز آخر بعد آخر نشر من هذا الجهاز. تأكد أن بيانات هذا الجهاز هي الأحدث، ثم اضغط «نشر النتائج الآن».','err');if(opts.auto)uiToast('لم تُنشر النتائج تلقائيًا: نُشرت نتائج أحدث من جهاز آخر. افتح لوحة التحكم.','warn',6000);return 'blocked';}
+          if(res&&res.ok){markPublished('live');say(st,opts.auto?'نُشرت تلقائيًا ✓ تظهر للاعبين خلال دقيقة تقريبًا…':'تم النشر ✓ تظهر للاعبين خلال دقيقة تقريبًا…','ok',true);watchLive(c,payload.publishedAt);return true;}
+          say(st,why(res,'put'),'err');return res?'http:'+res.status:'net';}
+        let pubBusy=false;
+        btn.addEventListener('click',()=>publishNow());
+        // ===== 4.1 — النشر التلقائي: بعد دقيقة من آخر تغيير في النتائج، نشرة واحدة لما يتقارب =====
+        // البصمة تتجاهل أشواط المباراة الجارية (لا نشرة لكل شوط؛ تصل مع النشرة التالية). مفاتيح داخلية __carrom_ خارج النسخ والنشر.
+        // لا يعمل إلا لتغيير حدث على هذا الجهاز (علامة «معلّق» تبقى إن أُغلق التطبيق قبل الدقيقة)، فلا ينشر جهاز ببيانات قديمة عند فتحه.
+        (function setupAutoPublish(){
+          const ON_KEY='__carrom_auto_publish_v1', SIG_KEY='__carrom_auto_sig_v1', PEND_KEY='__carrom_auto_pending_v1', WAIT=60000, sw=$('ghAutoSw');
+          const isOn=()=>{try{return localStorage.getItem(ON_KEY)!=='0';}catch(e){return true;}};   // مفعّل افتراضيًا متى رُبط المفتاح
+          const get=k=>{try{return localStorage.getItem(k);}catch(e){return null;}}, set=(k,v)=>{try{v==null?localStorage.removeItem(k):localStorage.setItem(k,v);}catch(e){}};
+          function sig(){const keys=['tournamentHistory','leagueMatches','leaguePlayers','bracketState','tournamentModeSnapshot_fixed','tournamentModeSnapshot_single'];
+            const str=keys.map(k=>{let v=get(k)||'';
+              if(k==='leagueMatches'||k==='bracketState'){try{const o=JSON.parse(v);const strip=m=>{if(m&&m.mp&&!(k==='bracketState'?m.winner:m.status==='completed')){const x=Object.assign({},m);delete x.mp;return x;}return m;};
+                v=JSON.stringify(Array.isArray(o)?o.map(strip):o&&typeof o==='object'?Object.fromEntries(Object.entries(o).map(([i,m])=>[i,strip(m)])):o);}catch(e){}}
+              return v;}).join('|');let h=0;for(let i=0;i<str.length;i++)h=(h*31+str.charCodeAt(i))|0;return String(h);}
+          let timer=null,retry=null,fails=0;
+          const ready=()=>isOn()&&!!load();
+          function schedule(ms){clearTimeout(timer);timer=setTimeout(run,ms==null?WAIT:ms);}
+          async function run(){timer=null;if(!ready()||!get(PEND_KEY))return;
+            if(sig()===get(SIG_KEY)){set(PEND_KEY,null);return;}
+            if(navigator.onLine===false){return;}   // يُعاد عند عودة الاتصال
+            const r=await publishNow({auto:true});
+            if(r===true){fails=0;uiToast('نُشرت النتائج للاعبين','ok',2400);return;}
+            if(r===false){schedule(15000);return;}   // نشر آخر جارٍ الآن
+            if(r==='blocked'){set(PEND_KEY,null);return;}
+            fails++;
+            if(fails===1)uiToast('تعذّر النشر التلقائي، وسيُعاد تلقائيًا. التفاصيل في لوحة التحكم.','warn',5000);
+            if(r==='net'||r==='http:409'||r==='http:422'||r==='http:429'||/^http:5/.test(r)){clearTimeout(retry);retry=setTimeout(()=>schedule(0),Math.min(10,fails*2)*60000);}   // 2، 4، … حتى 10 دقائق
+          }
+          window.carromAutoPublish={
+            touch(){if(!window.CARROM_VIEW&&ready()&&!get(PEND_KEY))set(PEND_KEY,String(Date.now()));},   // لحظة الحفظ نفسها (تبقى بعد إعادة التحميل، كالتراجع)
+            changed(){if(window.CARROM_VIEW||!ready()||!get(PEND_KEY))return;if(sig()===get(SIG_KEY)){set(PEND_KEY,null);clearTimeout(timer);timer=null;return;}schedule();},
+            mark(){set(SIG_KEY,sig());set(PEND_KEY,null);clearTimeout(timer);timer=null;}
+          };
+          const paintSw=()=>{if(sw)sw.checked=isOn();};
+          if(sw)sw.addEventListener('change',()=>{set(ON_KEY,sw.checked?'1':'0');if(sw.checked&&sig()!==get(SIG_KEY)){set(PEND_KEY,String(Date.now()));window.carromAutoPublish.changed();}else{clearTimeout(timer);set(PEND_KEY,null);}});
+          paintSw();
+          if(!get(SIG_KEY)&&get(PUB_KEY)&&get(PUB_SIG_KEY)===resultsSig())set(SIG_KEY,sig());   // أول تشغيل بعد التحديث: آخر نشر مطابق للبيانات
+          window.addEventListener('online',()=>{if(get(PEND_KEY))schedule(3000);});
+          if(ready()&&get(PEND_KEY))schedule(8000);   // أُغلق التطبيق قبل انتهاء الدقيقة
+        })();
         fill(); paint();
       })();
       function markBackupDone(b){
@@ -15098,7 +15159,7 @@ function buildLeagueStandingsCanvas() {
     // ===================================
     // 🧭 سلوك التطبيق: إعادة الوضع للأعلى، تعديل العنوان بالضغط المطوّل، تنبيه التحديث، رقم الإصدار
     // ===================================
-    const APP_VERSION = '4.0';   // ترقيم الاعتماد (من 4 نوفمبر 2026): 1.0 ثم 1.1 … 1.9 ثم 2.0 — ويُرفع معه رقم الإصدار في sw.js
+    const APP_VERSION = '4.1';   // ترقيم الاعتماد (من 4 نوفمبر 2026): 1.0 ثم 1.1 … 1.9 ثم 2.0 — ويُرفع معه رقم الإصدار في sw.js
     (function setupAppBehaviors() {
       const root = document.documentElement;
 
