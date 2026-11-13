@@ -886,7 +886,6 @@
     }
     /* ألوان المراكز الثلاثة تأتي من متغيرات --rank-N-* المولّدة من RANK_IDENTITY في السكربت */
     .league-legend { margin-top: var(--s3); color: var(--text-2); font-size: var(--fs-xs); line-height: 1.7; text-align: center; }
-    .league-legend .tie, .lgc-legend .tie { display: block; margin-top: 4px; font-weight: 800; color: var(--text-2); }   /* 4.4: قاعدة التساوي (قرار المجلس) */
     .rank-number { color: var(--gold-deep); font-weight: 800; width: 42px; }
 
     /* اكتمال الدوري والمنصة */
@@ -10423,7 +10422,7 @@ function changeScore(inputId, amount){
             <tbody>${body}</tbody>
           </table>
         </div>
-        <div class="league-legend">ف = فوز · ت = تعادل · خ = خسارة · له/عليه = الأشواط · الفارق = فارق الأشواط · اضغط على اللاعب لعرض سجل مباريات<span class="tie">عند تساوي النقاط: المواجهات المباشرة ثم الانتصارات</span></div>`;
+        <div class="league-legend">ف = فوز · ت = تعادل · خ = خسارة · له/عليه = الأشواط · الفارق = فارق الأشواط · اضغط على اللاعب لعرض سجل مباريات</div>`;
 
       el.querySelectorAll('tbody tr').forEach(tr => {
         const open = () => openLeaguePlayerHistory(tr.dataset.player);
@@ -10688,10 +10687,10 @@ function buildLeagueStandingsCanvas() {
   const bannerY = y;
   if (champRow) y += bannerH + 30;
   const tableY = y;
-  { const s0 = exportPartsRead('lgStandings'), lg0 = s0.legend ? ((s0.wdl || s0.sets || s0.diff) ? 126 : 84) : 20;
+  { const s0 = exportPartsRead('lgStandings'), lg0 = s0.legend && (s0.wdl || s0.sets || s0.diff) ? 84 : 20;
     rowH = Math.max(92, Math.min(116, Math.floor((2150 - (tableY + headH + 2 * EXPORT_TABLE_PAD + 30 + lg0 + 40)) / Math.max(1, standings.length)))); }
   const TP = EXPORT_TABLE_PAD, tableH = headH + TP + standings.length * rowH + Math.max(0, standings.length - 1) * rowGap + TP;
-  const sh0 = exportPartsRead('lgStandings'), legendH = sh0.legend ? ((sh0.wdl || sh0.sets || sh0.diff) ? 126 : 84) : 20;   // 4.4: سطر قاعدة التساوي
+  const sh0 = exportPartsRead('lgStandings'), legendH = sh0.legend && (sh0.wdl || sh0.sets || sh0.diff) ? 84 : 20;
   const H = Math.ceil(tableY + tableH + 30 + legendH + 40);
 
   let scale = exportScale();
@@ -10766,7 +10765,6 @@ function buildLeagueStandingsCanvas() {
 
   const legend = [show.wdl && 'ف = فوز  |  ت = تعادل  |  خ = خسارة', show.sets && 'له/عليه = الأشواط', show.diff && 'الفارق = فارق الأشواط'].filter(Boolean).join('  |  ');
   if (show.legend && legend) exportText(ctx, legend, W / 2, tableY + tableH + 38, { size: 25, weight: 600, color: B.muted, maxW: CW, min: 16 });
-  if (show.legend) exportText(ctx, 'عند تساوي النقاط: المواجهات المباشرة ثم الانتصارات', W / 2, tableY + tableH + (legend ? 80 : 38), { size: 25, weight: 800, color: B.muted, maxW: CW, min: 16 });   // 4.4
   exportFooterDivider(ctx, M, H - 46, CW);
   canvas.__cuts = cuts; canvas.__ctxOrig = ctxOrig || undefined;
   return canvas;
@@ -15495,7 +15493,7 @@ function buildLeagueStandingsCanvas() {
               <span class="n"><b>${leagueEscape(x.name)}${pill}</b>${leagueFormHTML(leagueFormOf(x.name, formAt))}<small>ف ${x.wins}\u2009·\u2009ت ${x.draws}\u2009·\u2009خ ${x.losses} <i class="sep"></i> له ${x.setsFor}\u2009·\u2009عليه ${x.setsAgainst}</small></span>
               <span class="c">${x.played}</span><span class="c sd ${sd > 0 ? 'up' : sd < 0 ? 'down' : ''}"><bdi dir="ltr">${sd > 0 ? '+' + sd : sd}</bdi></span><span class="pts">${x.points}</span></button>`; }).join('');
         box.addEventListener('click', e => { const b = e.target.closest('.lgc-row'); if (b) openLeaguePlayerHistory(b.dataset.player); });
-        const legend = document.createElement('div'); legend.className = 'lgc-legend'; legend.innerHTML = '<span class="key">ف = فوز · ت = تعادل · خ = خسارة</span><span class="key">له/عليه = الأشواط · الفارق = فارق الأشواط</span><span class="key tie">عند تساوي النقاط: المواجهات المباشرة ثم الانتصارات</span><span class="hint">اضغط على اللاعب لعرض سجله</span>';
+        const legend = document.createElement('div'); legend.className = 'lgc-legend'; legend.innerHTML = '<span class="key">ف = فوز · ت = تعادل · خ = خسارة</span><span class="key">له/عليه = الأشواط · الفارق = فارق الأشواط</span><span class="hint">اضغط على اللاعب لعرض سجله</span>';
         const title = el.querySelector('.league-section-title'); (title ? title.after(box) : el.prepend(box)); box.after(legend);
         return r;
       };
