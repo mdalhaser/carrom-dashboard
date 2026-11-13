@@ -6831,7 +6831,7 @@ return teamName.replace('غير محدد', replacement);
         const newerHist = (() => { if (!cl || cl.final || !lastHist || !lastHist.champion) return false; const t = Date.parse(lastHist.date), c = leagueClinchAt(); return Number.isFinite(t) && c != null && t > c; })();
         if (cl && !cl.final && !newerHist) {
           const row = (() => { try { return calculateLeagueStandings().find(r => r.name === cl.name); } catch (e) { return null; } })();
-          return `<section class="st-last kc st-last-live" aria-label="بطل الدوري: ${escHTML(cl.name)}، ${CLINCH_LINE}، ${CLINCH_WHY}">${champCardHTML(champTitle('league', liveChampRec('league')), `<bdi>${escHTML(cl.name)}</bdi>`, CLINCH_LINE, CLINCH_WHY).replace('<span class="kc-cup kc-trophy', '<span class="kc-cup kc-trophy kc-live').replace(/(<span class="kc-cup kc-trophy kc-live[^>]*>)/, '$1<span class="kc-rays" aria-hidden="true"></span><span class="kc-halo" aria-hidden="true"></span><span class="kc-ring" aria-hidden="true"></span><span class="kc-ring r2" aria-hidden="true"></span>')}</section>`;
+          return `<section class="st-last kc st-last-live" aria-label="بطل الدوري: ${escHTML(cl.name)}، ${CLINCH_LINE}، ${clinchWhy(cl)}">${champCardHTML(champTitle('league', liveChampRec('league')), `<bdi>${escHTML(cl.name)}</bdi>`, CLINCH_LINE, clinchWhy(cl)).replace('<span class="kc-cup kc-trophy', '<span class="kc-cup kc-trophy kc-live').replace(/(<span class="kc-cup kc-trophy kc-live[^>]*>)/, '$1<span class="kc-rays" aria-hidden="true"></span><span class="kc-halo" aria-hidden="true"></span><span class="kc-ring" aria-hidden="true"></span><span class="kc-ring r2" aria-hidden="true"></span>')}</section>`;
         }
         if (!lastHist || !lastHist.champion) return '';
         const t = lastHist, fs = t.finalScore || {}, hasSc = fs.winner != null && fs.loser != null;
@@ -9706,6 +9706,20 @@ function changeScore(inputId, amount){
       }
       return out.sort((a, b) => a.over - b.over || a.w - b.w || b.d - a.d);
     }
+    // 4.6 — هل يبقى me فوق كل لاعب في others مهما كانت النتائج المتبقية؟ (st: الترتيب الحالي، left: المباريات المتبقية لكل لاعب)
+    // 'clear': لا يبلغ أحد نقاطه · 'done': من يستطيع مساواته قد أنهى مبارياته كلها، وme أنهى مبارياته ويتقدم عليه في الترتيب،
+    // فلا شيء يمكن أن يتغير بينهما (النقاط وفارق الأشواط والمجموع والمواجهات ثابتة) · false: غير محسوم.
+    function leagueSafeAbove(me, others, left, st) {
+      let tie = false;
+      for (const x of others) {
+        if (x.excluded) continue;
+        const mx = x.points + 3 * (left[x.name] || 0);
+        if (mx < me.points) continue;
+        if (mx > me.points || (left[x.name] || 0) || (left[me.name] || 0) || st.indexOf(x) < st.indexOf(me)) return false;
+        tie = true;
+      }
+      return tie ? 'done' : 'clear';
+    }
     function leagueClinch() {
       try {
         if (!leagueStarted || leagueFixtureError || !leagueMatches.length) return null;
@@ -9715,9 +9729,10 @@ function changeScore(inputId, amount){
         const left = {}; leagueMatches.forEach(m => { if (!isLeagueMatchSettled(m)) { left[m.playerA] = (left[m.playerA] || 0) + 1; left[m.playerB] = (left[m.playerB] || 0) + 1; } });
         const top = st[0];
         if (top.excluded) return null;
-        if (!st.slice(1).filter(x => !x.excluded).every(x => x.points + 3 * (left[x.name] || 0) < top.points)) return null;
+        const safe = leagueSafeAbove(top, st.slice(1), left, st);   // 4.6: والتساوي بعد انتهاء مباريات المتساوين حسمٌ أيضًا (ترتيبهم نهائي)
+        if (!safe) return null;
         const roundsLeft = new Set(leagueMatches.filter(m => !isLeagueMatchSettled(m)).map(m => m.round)).size;
-        return { name: top.name, points: top.points, roundsLeft, matchesLeft: p.remaining, final: false };
+        return { name: top.name, points: top.points, roundsLeft, matchesLeft: p.remaining, final: false, tie: safe === 'done' };
       } catch (e) { return null; }
     }
     // تغيّر المركز منذ يوم اللعب السابق: الترتيب الآن مقابل الترتيب بدون مباريات آخر يوم لعب (للتطبيق وصفحة المشاهدة والتصدير)
@@ -9731,7 +9746,7 @@ function changeScore(inputId, amount){
         const out = [cl.name];
         for (let i = 1; i < 3 && i < st.length; i++) {
           const me = st[i], below = st.slice(i + 1);
-          if (!me.played || !below.length || !below.every(x => x.points + 3 * (left[x.name] || 0) < me.points)) break;
+          if (!me.played || !below.length || !leagueSafeAbove(me, below, left, st)) break;   // 4.6: نفس قاعدة حسم اللقب
           out.push(me.name);
         }
         return out;
@@ -10865,6 +10880,9 @@ function buildLeagueStandingsCanvas() {
     }
     // 2.4: الحسم المبكر بعبارة واحدة ثابتة في كل مكان — بلا أرقام تتغير (نقاط حالية، جولات متبقية) فلا تثير أسئلة بين اللاعبين
     const CLINCH_LINE = 'حسم اللقب قبل نهاية الدوري', CLINCH_WHY = 'لا يستطيع أي لاعب في المجلس بلوغ نقاطه';
+    // 4.6: الحسم بعد انتهاء مباريات المتساويين في النقاط: منافس بلغ نقاطه فعلًا، فالسبب الثابت بعبارة صحيحة لهذه الحالة
+    const CLINCH_WHY_TIE = 'انتهت مبارياته، ولا يستطيع أي لاعب تجاوزه';
+    function clinchWhy(cl) { try { cl = cl || leagueClinch(); } catch (e) { cl = null; } return cl && cl.tie ? CLINCH_WHY_TIE : CLINCH_WHY; }
     function celebClinchNote(cl) { return cl && !cl.final ? CLINCH_LINE : ''; }
 
     function getCurrentFinalistData() {
@@ -12917,7 +12935,7 @@ function buildLeagueStandingsCanvas() {
       const title = tournamentName.textContent.trim() || 'بطولة المجلس للكيرم';
       const subtitle = kind === 'champion' ? 'بطل الدوري' : kind === 'runnerUp' ? 'وصيف الدوري' : (kind === 'top5' ? 'أفضل 5 مراكز' : 'أفضل 3 مراكز');
       const leagueDone = !!(isFinal && (getExportCenterSnapshot().completed || clinched));
-      const earlyLine = clinched && !clinched.final ? CLINCH_WHY : null;
+      const earlyLine = clinched && !clinched.final ? clinchWhy(clinched) : null;
       const gold = kind === 'champion' && leagueDone ? leagueGoldenOf() : null;
       if (kind === 'champion' && leagueDone) {   // 8.5: بطل الدوري ببطاقة التطبيق نفسها (renderLeagueFinal): النقاط ← السجل ← المركزان الثاني والثالث
         const ptsW = n => `${n} ${n === 1 ? 'نقطة' : n === 2 ? 'نقطتان' : n >= 3 && n <= 10 ? 'نقاط' : 'نقطة'}`;
@@ -14004,7 +14022,7 @@ function buildLeagueStandingsCanvas() {
         const subEl = card.querySelector('.celeb-sub');
         if (Array.isArray(sub) && sub.length) { subEl.className = 'celeb-stats'; subEl.innerHTML = sub.map(([v, l]) => { const x = escHTML(String(v)); const xv = /\d/.test(String(v)) ? x : String(v).split(/\s*\+\s*/).map(z => `<span class="nw">${escHTML(z)}</span>`).join('<span class="pl"> + </span>');
             return `<span${/\d/.test(String(v)) ? '' : ' class="tx"'}><b>${/^[+\-−]\d/.test(String(v)) ? `<bdi dir="ltr">${x}</bdi>` : xv}</b><i>${escHTML(l)}</i></span>`; }).join(''); }
-        else if (opts.clinch || opts.lines) { const ln = opts.lines || [CLINCH_LINE, CLINCH_WHY]; subEl.className = 'celeb-sub celeb-clinch'; subEl.innerHTML = `<b>${escHTML(ln[0])}</b>${ln[1] ? `<span>${escHTML(ln[1])}</span>` : ''}`; }   // 2.8: والفردي والفرق: «فوز في النهائي · 2 - 1» ← يوم البطولة   // 2.5: اسم الدوري ← الدرع ← «بطل الدوري» ← الاسم ← الحقيقة ← سببها
+        else if (opts.clinch || opts.lines) { const ln = opts.lines || [CLINCH_LINE, clinchWhy()]; subEl.className = 'celeb-sub celeb-clinch'; subEl.innerHTML = `<b>${escHTML(ln[0])}</b>${ln[1] ? `<span>${escHTML(ln[1])}</span>` : ''}`; }   // 2.8: والفردي والفرق: «فوز في النهائي · 2 - 1» ← يوم البطولة   // 2.5: اسم الدوري ← الدرع ← «بطل الدوري» ← الاسم ← الحقيقة ← سببها
         else if (sub) subEl.textContent = sub; else subEl.remove();
         if (opts.clinch) opts.note = null;   // 2.5: اسم الدوري سطرًا علويًا، والحسم تحت الاسم لا فوق العنوان
         if (opts.top) { const tp = document.createElement('div'); tp.className = 'celeb-top'; tp.textContent = opts.top; card.prepend(tp); }
@@ -15227,7 +15245,7 @@ function buildLeagueStandingsCanvas() {
     // ===================================
     // 🧭 سلوك التطبيق: إعادة الوضع للأعلى، تعديل العنوان بالضغط المطوّل، تنبيه التحديث، رقم الإصدار
     // ===================================
-    const APP_VERSION = '4.5';   // ترقيم الاعتماد (من 4 نوفمبر 2026): 1.0 ثم 1.1 … 1.9 ثم 2.0 — ويُرفع معه رقم الإصدار في sw.js
+    const APP_VERSION = '4.6';   // ترقيم الاعتماد (من 4 نوفمبر 2026): 1.0 ثم 1.1 … 1.9 ثم 2.0 — ويُرفع معه رقم الإصدار في sw.js
     (function setupAppBehaviors() {
       const root = document.documentElement;
 
@@ -15691,7 +15709,9 @@ function buildLeagueStandingsCanvas() {
         const rows = st.map(r => ({ name: r.name, points: r.points, left: left[r.name] || 0 }));
         rows.forEach(r => { r.max = r.points + 3 * r.left; });
         const L = rows[k], others = rows.slice(k + 1);
-        const rivals = others.filter(r => r.max >= L.points), out = others.filter(r => r.max < L.points);
+        // 4.6: من يساوي صاحب المركز وقد انتهت مباريات الاثنين وهو خلفه في الترتيب خارج السباق (ترتيبهما نهائي)
+        const fixedBehind = r => r.max === L.points && !r.left && !L.left;
+        const rivals = others.filter(r => r.max >= L.points && !fixedBehind(r)), out = others.filter(r => r.max < L.points || fixedBehind(r));
         const cl = k ? null : leagueClinch(), clinched = !!(cl && !cl.final && cl.name === L.name);
         // أقوى منافس = صاحب أعلى رصيد ممكن (وعند التساوي الأعلى ترتيبًا)
         const best = others.reduce((a, b) => (!a || b.max > a.max) ? b : a, null);
@@ -16477,8 +16497,8 @@ function buildLeagueStandingsCanvas() {
         const totalRounds = (() => { try { return getLeagueProgress().totalRounds; } catch (e) { return 0; } })();
         const note = cl.final ? `${exportPointsLabel(cl.points)} · ${arRounds(totalRounds)}` : CLINCH_LINE;   // الأهم (النقاط) أولًا · 2.4: الحسم المبكر بعبارته الثابتة
         const card = document.createElement('button'); card.type = 'button'; card.className = 'st-last kc kc-btn'; card.id = 'viewChampion';
-        card.setAttribute('aria-label', `بطل الدوري: ${cl.name}، ${note}${cl.final ? '' : '، ' + CLINCH_WHY}`);
-        card.innerHTML = champCardHTML(champTitle('league', liveChampRec('league')), `<bdi>${esc(cl.name)}</bdi>`, esc(note), cl.final ? '' : CLINCH_WHY);
+        card.setAttribute('aria-label', `بطل الدوري: ${cl.name}، ${note}${cl.final ? '' : '، ' + clinchWhy(cl)}`);
+        card.innerHTML = champCardHTML(champTitle('league', liveChampRec('league')), `<bdi>${esc(cl.name)}</bdi>`, esc(note), cl.final ? '' : clinchWhy(cl));
         // 4.2: المركزان الثاني والثالث حين يُحسمان مبكرًا: صفّان هادئان داخل البطاقة كبطاقة الدوري المكتمل، بلا نقاط متغيرة
         if (!cl.final) { const pl = leagueSecuredPlaces().slice(1);
           if (pl.length) { card.insertAdjacentHTML('beforeend', `<div class="kc-rest">${pl.map((n, i) => `<div class="kc-r"><span class="rk">${i + 2}</span><span class="n"><bdi>${esc(n)}</bdi></span><span class="p">محسوم</span></div>`).join('')}</div>`);
@@ -16497,7 +16517,7 @@ function buildLeagueStandingsCanvas() {
           const mine = me1 && me1 === cl.name;
           const gd = cl.final ? leagueGoldenOf() : null;   // البطل الذهبي: نفس الاحتفال الذهبي للجميع، وصاحبه يرى «مبروك! أنت البطل الذهبي»
           const lgT = champTitle('league', liveChampRec('league'), !!gd), label = mine ? 'مبروك! أنت ' + lgT : lgT;   // 2.5: العنوان نفسه للحسم المبكر والاكتمال؛ الحسم يُقال تحت الاسم
-          const sub = cl.final ? exportPointsLabel(cl.points) : CLINCH_WHY;
+          const sub = cl.final ? exportPointsLabel(cl.points) : clinchWhy(cl);
           const gopts = gd ? { golden: true, note: goldenLine(gd) } : cl.final ? undefined : { clinch: true };
           setTimeout(() => { try { if (currentMode === 'league' && window.carromCelebrate) window.carromCelebrate(label, cl.name, sub, gopts); else { const b = document.getElementById('modeLeagueBtn'); const once = () => { b.removeEventListener('click', once); setTimeout(() => window.carromCelebrate && window.carromCelebrate(label, cl.name, sub, gopts), 450); }; if (b) b.addEventListener('click', once); } } catch (e) {} }, 700);
         }
