@@ -3244,6 +3244,7 @@
     .tr-list > .tr-row:last-of-type, .tr-outlist .tr-row:last-child { border-bottom: 0; }
     .tr-row .n { font-size: 15px; font-weight: 800; overflow-wrap: anywhere; }
     .tr-row .c { font-size: 15px; font-weight: 700; color: var(--text-2); font-variant-numeric: tabular-nums; }
+    .tr-say b { white-space: nowrap; }   /* 4.7: الاسم لا ينكسر على سطرين */
     .tr-row .nd { grid-column: 1 / -1; text-align: start; margin-top: 2px; font-size: var(--fs-xs); font-weight: 700; line-height: 1.6; color: var(--text-2); }   /* 4.7: ماذا يحتاج المنافس */
     .tr-row:has(.nd) { padding-top: 8px; padding-bottom: 8px; }
     .tr-row .mx { font-size: 17px; font-weight: 800; color: var(--text); font-variant-numeric: tabular-nums; }
@@ -15782,13 +15783,12 @@ function buildLeagueStandingsCanvas() {
         const fromN = n => n === 1 ? 'في مباراته الأخيرة' : n === 2 ? 'من مباراتيه المتبقيتين' : `من ${n}\u00A0مباريات متبقية`;
         const reqTxt = c => c.ways.map(x => cntW(x.w, x.d)).join(' أو ') + ' ' + fromN(c.ways[0].n);
         const stumbleTxt = c => [c.l && (c.l === 1 ? 'خسارة' : c.l === 2 ? 'خسارتين' : `${c.l}\u00A0خسارات`), c.d && (c.d === 1 ? 'تعادل' : c.d === 2 ? 'تعادلين' : `${c.d}\u00A0تعادلات`)].filter(Boolean).join(' أو ');
+        // سطر قصير لمن يستطيع التجاوز فقط؛ من أقصاه المساواة يكفيه عمود «الأقصى» وشارة «بلا هامش»
         const chaseLine = r => { const c = r.chase; if (!c) return '';
-          const lead = esc(L.name), hh = c.h ? '، وبينهما مواجهة مباشرة متبقية' : '';
-          if (c.kind === 'exact') return `يحتاج إلى ${reqTxt(c)} ${c.ways.every(x => x.tie) ? 'ليتقدم بفارق الأشواط' : 'ليتجاوزه'}`;
-          if (c.kind === 'none') return 'لا يستطيع تجاوزه حتى لو فاز في كل مبارياته';
-          if (c.kind === 'own') return `مصيره بيده: يتجاوزه إن فاز في كل مبارياته${hh}`;
-          if (c.kind === 'stumble') return `إن فاز في كل مبارياته يحتاج تعثّر ${lead}: ${stumbleTxt(c)}${hh}`;
-          return `أقصى ما يبلغه مساواته في النقاط، فيُحسم بفارق الأشواط${hh}`; };
+          if (c.kind === 'exact') return `يحتاج ${reqTxt(c)}`;
+          if (c.kind === 'own') return 'يتجاوزه إن فاز في كل مبارياته';
+          if (c.kind === 'stumble') return `يحتاج تعثّر المتصدر: ${stumbleTxt(c)}`;
+          return ''; };
         const finishedLead = !L.left && phase < 5, solo = finishedLead && rivals.length === 1 && rivals[0].chase && rivals[0].chase.kind === 'exact' ? rivals[0] : null;
         const PH_FIN = 'الحسم بيد المنافسين';
         box.setAttribute('aria-label', k ? `سباق ${G}` : 'سباق اللقب');
@@ -15800,7 +15800,7 @@ function buildLeagueStandingsCanvas() {
         const say = phase === 5
           ? `حُسم لقب الدوري حسابيًا لصالح <b>${esc(L.name)}</b> قبل نهاية الدوري، ولم يعد بإمكان أي منافس اللحاق به.`
           : !L.left
-            ? (solo ? `انتهت مباريات <b>${esc(L.name)}</b>. يحتاج <b>${esc(solo.name)}</b> إلى <b class="k">${reqTxt(solo.chase)}</b> ${solo.chase.ways.every(x => x.tie) ? 'ليتقدم بفارق الأشواط' : 'ليتجاوزه'}، وأي نتيجة أقل تحسم اللقب لـ <b>${esc(L.name)}</b>.`
+            ? (solo ? `انتهت مباريات <b>${esc(L.name)}</b>. يحتاج <b>${esc(solo.name)}</b> إلى <b class="k">${reqTxt(solo.chase)}</b> ليتصدر، وغير ذلك يحسم اللقب لـ <b>${esc(L.name)}</b>.`
               : `انتهت مباريات <b>${esc(L.name)}</b>، ويبقى اللقب له ما لم يبلغ أحد منافسيه ما يحتاجه أدناه.`)
             : anyOk
               ? `يحتاج <b>${esc(L.name)}</b> إلى <b class="k">${ptsN(need)}</b> من ${leftN(L.left)} لضمان اللقب حسابيًا، دون الاعتماد على نتائج المنافسين.`
@@ -15825,7 +15825,7 @@ function buildLeagueStandingsCanvas() {
             ${waysHTML}
             <div class="tr-list">
               <div class="tr-head" aria-hidden="true"><span class="n">اللاعب</span><span>متبقي</span><span>الأقصى</span><span></span></div>
-              ${row(L, 'lead', k)}${rivals.map(r => row(r, '', 0, chaseRows ? placeT(k, chaseLine(r)) : '')).join('')}
+              ${row(L, 'lead', k)}${rivals.map(r => row(r, '', 0, chaseRows && !solo ? placeT(k, chaseLine(r)) : '')).join('')}
               ${out.length ? `<div class="tr-out${outOpen ? ' open' : ''}"><button type="button" class="tr-outsum" aria-expanded="${outOpen}">خرج من السباق حسابيًا · ${nPlayers(out.length)}${chev}</button>
                 <div class="tr-outlist"><div class="in">${out.map(r => row(r, 'out')).join('')}</div></div></div>` : ''}
             </div>
