@@ -15752,12 +15752,17 @@ function buildLeagueStandingsCanvas() {
         // انتهت مباريات صاحب المركز: بحث في كل تركيبات نتائج المنافس (فوز 2 - 0 · تعادل 1 - 1 · خسارة 0 - 2) بالنقاط ثم فارق الأشواط ثم المجموع،
         // والحدود الدنيا فقط. ما زال يلعب: إن فاز المنافس في كل مبارياته (ومنها مواجهاتهما المباشرة)، ما أقل تعثّر لصاحب المركز يكفي ليتجاوزه بالنقاط.
         const h2hLeft = r => leagueMatches.filter(m => !isLeagueMatchSettled(m) && ((m.playerA === L.name && m.playerB === r.name) || (m.playerA === r.name && m.playerB === L.name))).length;
+        // التساوي التام (النقاط والفارق والمجموع): المواجهات المباشرة ثم الاسم، كما في الترتيب (مباريات صاحب المركز منتهية، فمواجهاتهما منتهية)
+        const fullTieWin = r => { let pr = 0, pl = 0;
+          leagueMatches.forEach(m => { if (!isLeagueMatchCompleted(m) || isLeagueMatchAnnulled(m)) return; const d = deriveLeagueResult(m.scoreA, m.scoreB);
+            if (m.playerA === r.name && m.playerB === L.name) { pr += d.pointsA; pl += d.pointsB; } else if (m.playerA === L.name && m.playerB === r.name) { pl += d.pointsA; pr += d.pointsB; } });
+          return pr !== pl ? pr > pl : leagueFallbackCompare({ name: r.name, order: leaguePlayers.indexOf(r.name) }, { name: L.name, order: leaguePlayers.indexOf(L.name) }) < 0; };
         rivals.forEach(r => {
           if (!L.left) {
-            const n = r.left, ways = [];
+            const n = r.left, ways = [], tw = fullTieWin(r);
             for (let w = 0; w <= n; w++) for (let d = 0; w + d <= n; d++) {
               const l = n - w - d, pts = r.points + 3 * w + d, gd = r.gd + 2 * w - 2 * l, sf = r.sf + 2 * w + d;
-              const above = pts > L.points || (pts === L.points && (gd > L.gd || (gd === L.gd && sf > L.sf)));
+              const above = pts > L.points || (pts === L.points && (gd > L.gd || (gd === L.gd && (sf > L.sf || (sf === L.sf && tw)))));
               if (above && !ways.some(x => x.w <= w && x.w + x.d <= w + d)) ways.push({ w, d, n, tie: pts === L.points });
             }
             r.chase = ways.length ? { kind: 'exact', ways: ways.slice(0, 2) } : { kind: 'none' };
@@ -15814,7 +15819,7 @@ function buildLeagueStandingsCanvas() {
         const chaseLine = r => { const c = r.chase; if (!c) return '';
           if (c.kind === 'exact') return `يحتاج ${reqTxt(c)}`;
           if (c.kind === 'own') return 'يتجاوزه إن فاز في كل مبارياته';
-          if (c.kind === 'stumble') return `يحتاج تعثّر المتصدر: ${stumbleTxt(c)}`;
+          if (c.kind === 'stumble') return `حتى لو فاز في الكل، يحتاج تعثّر المتصدر: ${stumbleTxt(c)}`;   // أقل ما يحتاجه، لا شرط كافٍ
           return ''; };
         const finishedLead = !L.left && phase < 5, solo = finishedLead && rivals.length === 1 && rivals[0].chase && rivals[0].chase.kind === 'exact' ? rivals[0] : null;
         const PH_FIN = 'الحسم بيد المنافسين';
