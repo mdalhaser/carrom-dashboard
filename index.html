@@ -9615,12 +9615,11 @@ function changeScore(inputId, amount){
       });
       rows.forEach(r => { r.setDifference = r.setsFor - r.setsAgainst; });
 
-      // 1) النقاط  2) فارق الأشواط  3) الأشواط له
-      const primary = (a, b) =>
-        (b.points - a.points) || (b.setDifference - a.setDifference) || (b.setsFor - a.setsFor);
-      rows.sort((a, b) => primary(a, b) || leagueFallbackCompare(a, b));
-
-      // 4) المواجهات المباشرة بين المتساوين تماماً (دوري مصغّر بينهم)، ثم ترتيب ثابت بالاسم
+      // 4.4 — كسر التعادل بقرار المجلس: 1) النقاط  2) المواجهات المباشرة بين المتساوين في النقاط (دوري مصغّر بينهم)
+      // 3) عدد الانتصارات  4) فارق الأشواط  5) الأشواط له  6) ترتيب ثابت بالاسم.
+      // (كان: النقاط ← فارق الأشواط ← الأشواط له ← المواجهات. في نظام الشوطين الفارق = (الانتصارات − الخسارات) × 2، فيكافئ الأقل انتصارًا عند التساوي)
+      const primary = (a, b) => b.points - a.points;
+      rows.sort((a, b) => primary(a, b) || (b.wins - a.wins) || (b.setDifference - a.setDifference) || (b.setsFor - a.setsFor) || leagueFallbackCompare(a, b));
       const ordered = [];
       let i = 0;
       while (i < rows.length) {
@@ -9636,7 +9635,7 @@ function changeScore(inputId, amount){
             mini.set(m.playerA, mini.get(m.playerA) + d.pointsA);
             mini.set(m.playerB, mini.get(m.playerB) + d.pointsB);
           });
-          group.sort((a, b) => (mini.get(b.name) - mini.get(a.name)) || leagueFallbackCompare(a, b));
+          group.sort((a, b) => (mini.get(b.name) - mini.get(a.name)) || (b.wins - a.wins) || (b.setDifference - a.setDifference) || (b.setsFor - a.setsFor) || leagueFallbackCompare(a, b));
         }
         ordered.push(...group);
         i = j;
@@ -15200,7 +15199,7 @@ function buildLeagueStandingsCanvas() {
     // ===================================
     // 🧭 سلوك التطبيق: إعادة الوضع للأعلى، تعديل العنوان بالضغط المطوّل، تنبيه التحديث، رقم الإصدار
     // ===================================
-    const APP_VERSION = '4.3';   // ترقيم الاعتماد (من 4 نوفمبر 2026): 1.0 ثم 1.1 … 1.9 ثم 2.0 — ويُرفع معه رقم الإصدار في sw.js
+    const APP_VERSION = '4.4';   // ترقيم الاعتماد (من 4 نوفمبر 2026): 1.0 ثم 1.1 … 1.9 ثم 2.0 — ويُرفع معه رقم الإصدار في sw.js
     (function setupAppBehaviors() {
       const root = document.documentElement;
 
@@ -15715,7 +15714,7 @@ function buildLeagueStandingsCanvas() {
       const guideHTML = (phase, names) => `<div class="pf-guide-in"><div class="pf-ladder">${[1, 2, 3, 4, 5].filter(i => !names || names[i]).map(i => `<div class="pf-lad tr-lad${i === phase ? ' on' : ''}"><span class="tr-ph p${i}">${(names || PH)[i]}</span><span class="rg">${PH_DESC[i]}</span>${i === phase ? '<span class="me">الآن</span>' : ''}</div>`).join('')}</div>
           <p class="tr-gnote">وتتقدّم المرحلة أيضًا كلما اقترب المتصدر من الضمان: «منافسة محصورة» إذا كفته 9 نقاط أو أقل، و«المتصدر يقترب» إذا كفته 3 نقاط أو أقل.</p>
           <dl class="tr-terms">${TERMS.map(([t, d]) => `<div><dt>${t}</dt><dd>${d}</dd></div>`).join('')}</dl>
-          <p>التساوي في النقاط يُبقي اللاعب منافسًا حتى يُحسم بفارق الأشواط والمواجهات، فلا يُعلن الحسم مبكرًا. والخروج نهائي ما لم تُعدَّل نتيجة.</p></div>`;
+          <p>التساوي في النقاط يُبقي اللاعب منافسًا حتى يُحسم بالمواجهات المباشرة ثم عدد الانتصارات، فلا يُعلن الحسم مبكرًا. والخروج نهائي ما لم تُعدَّل نتيجة.</p></div>`;
       const row = (r, kind, k) => {
         // الحالة للاستثناءات فقط: المتصدر، ومن تُخرجه أي خسارة. بقية القائمة منافسون بطبيعتها
         const LEAD = k ? (k === 1 ? 'الثاني الآن' : 'الثالث الآن') : 'المتصدر';   // 4.2
