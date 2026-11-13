@@ -3271,6 +3271,9 @@
     .tr-list > .tr-row:last-of-type, .tr-outlist .tr-row:last-child { border-bottom: 0; }
     .tr-row .n { font-size: 15px; font-weight: 800; overflow-wrap: anywhere; }
     .tr-row .c { font-size: 15px; font-weight: 700; color: var(--text-2); font-variant-numeric: tabular-nums; }
+    .tr-say b { white-space: nowrap; }   /* 4.7: الاسم لا ينكسر على سطرين */
+    .tr-row .nd { grid-column: 1 / -1; text-align: start; margin-top: 2px; font-size: var(--fs-xs); font-weight: 700; line-height: 1.6; color: var(--text-2); }   /* 4.7: ماذا يحتاج المنافس */
+    .tr-row:has(.nd) { padding-top: 8px; padding-bottom: 8px; }
     .tr-row .mx { font-size: 17px; font-weight: 800; color: var(--text); font-variant-numeric: tabular-nums; }
     .tr-st { justify-self: center; display: inline-flex; align-items: center; justify-content: center; min-width: 72px; min-height: 24px; padding: 0 8px; border-radius: 999px; font-size: 12px; font-weight: 800; line-height: 1; white-space: nowrap; background: var(--surface-3); color: var(--text-2); }
     .tr-st.lead { background: var(--warn-bg); color: var(--gold-deep); }
@@ -15245,7 +15248,7 @@ function buildLeagueStandingsCanvas() {
     // ===================================
     // 🧭 سلوك التطبيق: إعادة الوضع للأعلى، تعديل العنوان بالضغط المطوّل، تنبيه التحديث، رقم الإصدار
     // ===================================
-    const APP_VERSION = '4.6';   // ترقيم الاعتماد (من 4 نوفمبر 2026): 1.0 ثم 1.1 … 1.9 ثم 2.0 — ويُرفع معه رقم الإصدار في sw.js
+    const APP_VERSION = '4.7';   // ترقيم الاعتماد (من 4 نوفمبر 2026): 1.0 ثم 1.1 … 1.9 ثم 2.0 — ويُرفع معه رقم الإصدار في sw.js
     (function setupAppBehaviors() {
       const root = document.documentElement;
 
@@ -15706,7 +15709,7 @@ function buildLeagueStandingsCanvas() {
       function computeAt(st, k, secured) {
         const left = {};
         leagueMatches.forEach(m => { if (!isLeagueMatchSettled(m)) { left[m.playerA] = (left[m.playerA] || 0) + 1; left[m.playerB] = (left[m.playerB] || 0) + 1; } });
-        const rows = st.map(r => ({ name: r.name, points: r.points, left: left[r.name] || 0 }));
+        const rows = st.map(r => ({ name: r.name, points: r.points, left: left[r.name] || 0, gd: r.setDifference, sf: r.setsFor }));
         rows.forEach(r => { r.max = r.points + 3 * r.left; });
         const L = rows[k], others = rows.slice(k + 1);
         // 4.6: من يساوي صاحب المركز وقد انتهت مباريات الاثنين وهو خلفه في الترتيب خارج السباق (ترتيبهما نهائي)
@@ -15745,7 +15748,32 @@ function buildLeagueStandingsCanvas() {
         const phase = clinched ? 5 : Math.max(byCount, byNeed);
         rivals.forEach(r => { r.hot = r.max - L.points <= 2; });   // أي خسارة تخرجه: أقصاه ينقص 3 فيصبح دون نقاط المتصدر
         rivals.sort((a, b) => b.max - a.max); out.sort((a, b) => b.max - a.max);   // sort ثابت: عند التساوي يبقى ترتيب الدوري
-        return { k, secured, L, rivals, out, need, selfOk, phase, cl: clinched ? cl : null, direct: direct && direct.need < need ? direct : null, anyOk: need <= 3 * L.left };
+        // 4.7 — سباق اللقب من جهة المنافس: ماذا يحتاج كل منافس ليتجاوز صاحب المركز (قراءة فقط، بقاعدة الترتيب نفسها)
+        // انتهت مباريات صاحب المركز: بحث في كل تركيبات نتائج المنافس (فوز 2 - 0 · تعادل 1 - 1 · خسارة 0 - 2) بالنقاط ثم فارق الأشواط ثم المجموع،
+        // والحدود الدنيا فقط. ما زال يلعب: إن فاز المنافس في كل مبارياته (ومنها مواجهاتهما المباشرة)، ما أقل تعثّر لصاحب المركز يكفي ليتجاوزه بالنقاط.
+        const h2hLeft = r => leagueMatches.filter(m => !isLeagueMatchSettled(m) && ((m.playerA === L.name && m.playerB === r.name) || (m.playerA === r.name && m.playerB === L.name))).length;
+        // التساوي التام (النقاط والفارق والمجموع): المواجهات المباشرة ثم الاسم، كما في الترتيب (مباريات صاحب المركز منتهية، فمواجهاتهما منتهية)
+        const fullTieWin = r => { let pr = 0, pl = 0;
+          leagueMatches.forEach(m => { if (!isLeagueMatchCompleted(m) || isLeagueMatchAnnulled(m)) return; const d = deriveLeagueResult(m.scoreA, m.scoreB);
+            if (m.playerA === r.name && m.playerB === L.name) { pr += d.pointsA; pl += d.pointsB; } else if (m.playerA === L.name && m.playerB === r.name) { pl += d.pointsA; pr += d.pointsB; } });
+          return pr !== pl ? pr > pl : leagueFallbackCompare({ name: r.name, order: leaguePlayers.indexOf(r.name) }, { name: L.name, order: leaguePlayers.indexOf(L.name) }) < 0; };
+        rivals.forEach(r => {
+          if (!L.left) {
+            const n = r.left, ways = [], tw = fullTieWin(r);
+            for (let w = 0; w <= n; w++) for (let d = 0; w + d <= n; d++) {
+              const l = n - w - d, pts = r.points + 3 * w + d, gd = r.gd + 2 * w - 2 * l, sf = r.sf + 2 * w + d;
+              const above = pts > L.points || (pts === L.points && (gd > L.gd || (gd === L.gd && (sf > L.sf || (sf === L.sf && tw)))));
+              if (above && !ways.some(x => x.w <= w && x.w + x.d <= w + d)) ways.push({ w, d, n, tie: pts === L.points });
+            }
+            r.chase = ways.length ? { kind: 'exact', ways: ways.slice(0, 2) } : { kind: 'none' };
+          } else {
+            const h = h2hLeft(r), mOwn = L.left - h, lBest = L.points + 3 * mOwn;
+            if (r.max > lBest) r.chase = { kind: 'own', h };
+            else { const drop = lBest - r.max + 1; r.chase = drop <= 3 * mOwn ? { kind: 'stumble', l: Math.ceil(drop / 3), d: Math.ceil(drop / 2) <= mOwn ? Math.ceil(drop / 2) : 0, h } : { kind: 'tieOnly', h }; }
+          }
+        });
+        const chaseRows = !L.left || rivals.length <= 3;   // سطور «ماذا يحتاج» في المراحل الأخيرة فقط (أو حين ينتهي صاحب المركز)
+        return { k, secured, L, rivals, out, need, selfOk, phase, cl: clinched ? cl : null, direct: direct && direct.need < need ? direct : null, anyOk: need <= 3 * L.left, chaseRows };
       }
       // 4.2: لغة السباق حسب المركز — «اللقب/المتصدر» للقب، و«المركز الثاني/صاحب المركز» بعده
       const GOAL = ['اللقب', 'المركز الثاني', 'المركز الثالث'], PH_PLACE = ['', 'منافسة مفتوحة', 'المركز يتضح', 'منافسة محصورة', 'الحسم يقترب', ''];
@@ -15763,13 +15791,13 @@ function buildLeagueStandingsCanvas() {
           <p class="tr-gnote">وتتقدّم المرحلة أيضًا كلما اقترب المتصدر من الضمان: «منافسة محصورة» إذا كفته 9 نقاط أو أقل، و«المتصدر يقترب» إذا كفته 3 نقاط أو أقل.</p>
           <dl class="tr-terms">${TERMS.map(([t, d]) => `<div><dt>${t}</dt><dd>${d}</dd></div>`).join('')}</dl>
           <p>التساوي في النقاط يُبقي اللاعب منافسًا حتى يُحسم بفارق الأشواط والمواجهات، فلا يُعلن الحسم مبكرًا. والخروج نهائي ما لم تُعدَّل نتيجة.</p></div>`;
-      const row = (r, kind, k) => {
+      const row = (r, kind, k, need) => {
         // الحالة للاستثناءات فقط: المتصدر، ومن تُخرجه أي خسارة. بقية القائمة منافسون بطبيعتها
         const LEAD = k ? (k === 1 ? 'الثاني الآن' : 'الثالث الآن') : 'المتصدر';   // 4.2
         const st = kind === 'lead' ? LEAD : kind === 'out' ? 'خارج السباق' : r.hot ? 'بلا هامش' : 'منافس';
         const pill = kind === 'lead' ? `<span class="tr-st lead">${LEAD}</span>` : !kind && r.hot ? '<span class="tr-st hot">بلا هامش</span>' : '<span></span>';
         return `<button type="button" class="tr-row${kind === 'out' ? ' out' : ''}" data-player="${esc(r.name)}" aria-label="${esc(r.name)}: ${st}، ${r.left} متبقية، أقصى رصيد ${r.max}">
-          <span class="n">${esc(r.name)}</span><span class="c">${r.left}</span><span class="mx">${r.max}</span>${pill}</button>`;
+          <span class="n">${esc(r.name)}</span><span class="c">${r.left}</span><span class="mx">${r.max}</span>${pill}${need ? `<span class="nd">${need}</span>` : ''}</button>`;
       };
       function paint() {
         const R = compute();
@@ -15781,7 +15809,20 @@ function buildLeagueStandingsCanvas() {
             <div class="tr-body"><div class="in">${doneHTML(R.done, 1)}<p class="tr-say">لا يستطيع أي لاعب تغيير المراكز الثلاثة الأولى مهما كانت نتائج المباريات المتبقية.</p></div></div>`;
           return;
         }
-        const { k, secured, L, rivals, out, need, selfOk, phase, cl, direct, anyOk } = R, G = GOAL[k];
+        const { k, secured, L, rivals, out, need, selfOk, phase, cl, direct, anyOk, chaseRows } = R, G = GOAL[k];
+        // 4.7: عبارات ما يحتاجه المنافس
+        const cntW = (w, d) => [w && (w === 1 ? 'فوز' : w === 2 ? 'فوزين' : `${w}\u00A0انتصارات`), d && (d === 1 ? 'تعادل' : d === 2 ? 'تعادلين' : `${d}\u00A0تعادلات`)].filter(Boolean).join(' و');   // الرقم ووحدته لا ينفصلان
+        const fromN = n => n === 1 ? 'في مباراته الأخيرة' : n === 2 ? 'من مباراتيه المتبقيتين' : `من ${n}\u00A0مباريات متبقية`;
+        const reqTxt = c => c.ways.map(x => cntW(x.w, x.d)).join(' أو ') + ' ' + fromN(c.ways[0].n);
+        const stumbleTxt = c => [c.l && (c.l === 1 ? 'خسارة' : c.l === 2 ? 'خسارتين' : `${c.l}\u00A0خسارات`), c.d && (c.d === 1 ? 'تعادل' : c.d === 2 ? 'تعادلين' : `${c.d}\u00A0تعادلات`)].filter(Boolean).join(' أو ');
+        // سطر قصير لمن يستطيع التجاوز فقط؛ من أقصاه المساواة يكفيه عمود «الأقصى» وشارة «بلا هامش»
+        const chaseLine = r => { const c = r.chase; if (!c) return '';
+          if (c.kind === 'exact') return `يحتاج ${reqTxt(c)}`;
+          if (c.kind === 'own') return 'يتجاوزه إن فاز في كل مبارياته';
+          if (c.kind === 'stumble') return `حتى لو فاز في الكل، يحتاج تعثّر المتصدر: ${stumbleTxt(c)}`;   // أقل ما يحتاجه، لا شرط كافٍ
+          return ''; };
+        const finishedLead = !L.left && phase < 5, solo = finishedLead && rivals.length === 1 && rivals[0].chase && rivals[0].chase.kind === 'exact' ? rivals[0] : null;
+        const PH_FIN = 'الحسم بيد المنافسين';
         box.setAttribute('aria-label', k ? `سباق ${G}` : 'سباق اللقب');
         // 2.1: العبارات بالنقاط لا بالانتصارات، وبصياغة حسابية محايدة (طرق ضمان، لا توقعات)
         const ptsN = n => n === 1 ? 'نقطة\u00A0واحدة' : n === 2 ? 'نقطتين' : n <= 10 ? `${n}\u00A0نقاط` : `${n}\u00A0نقطة`;   // الرقم ووحدته لا ينفصلان على سطرين
@@ -15791,7 +15832,8 @@ function buildLeagueStandingsCanvas() {
         const say = phase === 5
           ? `حُسم لقب الدوري حسابيًا لصالح <b>${esc(L.name)}</b> قبل نهاية الدوري، ولم يعد بإمكان أي منافس اللحاق به.`
           : !L.left
-            ? `انتهت مباريات <b>${esc(L.name)}</b>، وأصبح حسم اللقب مرتبطًا بنتائج المنافسين المتبقية.`
+            ? (solo ? `انتهت مباريات <b>${esc(L.name)}</b>. يحتاج <b>${esc(solo.name)}</b> إلى <b class="k">${reqTxt(solo.chase)}</b> ليتصدر، وغير ذلك يحسم اللقب لـ <b>${esc(L.name)}</b>.`
+              : `انتهت مباريات <b>${esc(L.name)}</b>، ويبقى اللقب له ما لم يبلغ أحد منافسيه ما يحتاجه أدناه.`)
             : anyOk
               ? `يحتاج <b>${esc(L.name)}</b> إلى <b class="k">${ptsN(need)}</b> من ${leftN(L.left)} لضمان اللقب حسابيًا، دون الاعتماد على نتائج المنافسين.`
                 + (direct && direct.wins.length + direct.draws.length <= 2 ? ` وتكفيه <b class="k">${ptsN(direct.need)}</b> إن كان منها ${directTxt(direct)} في ${direct.wins.length + direct.draws.length === 1 ? 'مواجهتهما' : 'المواجهات'} المباشرة.` : '')
@@ -15807,7 +15849,7 @@ function buildLeagueStandingsCanvas() {
           ${ways.map((x, i) => `<div class="tr-way${i >= 3 && !waysAll ? ' x' : ''}" aria-label="${wayTxt(x)}، والبقية بأي نتيجة: ${ptsN(x.pts)}"><span class="w">${wayTxt(x)}</span><span class="p">${x.pts}<small>${x.pts === 1 ? 'نقطة' : x.pts === 2 ? 'نقطتان' : x.pts <= 10 ? 'نقاط' : 'نقطة'}</small></span></div>`).join('')}
           ${ways.length > 3 ? `<button type="button" class="vm2-more tr-wmore" aria-expanded="${waysAll}">${waysAll ? 'عرض أقل' : `عرض الكل (${ways.length})`}</button>` : ''}</div>` : '';
         box.classList.toggle('open', open);
-        box.innerHTML = `<button type="button" class="tr-sum" aria-expanded="${open}"><span class="ic ic-flag" aria-hidden="true"></span><span class="t">${k ? `سباق ${G}` : 'سباق اللقب'}</span><span class="tr-ph p${phase}">${(k ? PH_PLACE : PH)[phase]}</span>${chev}<span class="sub"><span class="in">${phase === 5 ? `<b>${esc(L.name)}</b> · ${CLINCH_LINE}` : selfOk ? (n => `<b>${esc(L.name)}</b> يحتاج <b class="k">${n}</b> ${n === 1 ? 'نقطة' : n === 2 ? 'نقطتين' : n <= 10 ? 'نقاط' : 'نقطة'} للضمان`)(anyOk ? need : direct.need) : `<b>${esc(L.name)}</b> لا يضمنه بنتائجه وحدها`}</span></span></button>
+        box.innerHTML = `<button type="button" class="tr-sum" aria-expanded="${open}"><span class="ic ic-flag" aria-hidden="true"></span><span class="t">${k ? `سباق ${G}` : 'سباق اللقب'}</span><span class="tr-ph p${phase}">${finishedLead ? PH_FIN : (k ? PH_PLACE : PH)[phase]}</span>${chev}<span class="sub"><span class="in">${phase === 5 ? `<b>${esc(L.name)}</b> · ${CLINCH_LINE}` : finishedLead ? (solo ? `<b>${esc(solo.name)}</b> يحتاج إلى <b class="k">${cntW(solo.chase.ways[0].w, solo.chase.ways[0].d)}</b> ${fromN(solo.chase.ways[0].n)}` : `انتهت مباريات <b>${esc(L.name)}</b> · ${PH_FIN}`) : selfOk ? (n => `<b>${esc(L.name)}</b> يحتاج ${n === 1 ? '<b class="k">نقطة واحدة</b>' : n === 2 ? '<b class="k">نقطتين</b>' : `<b class="k">${n}</b> ${n <= 10 ? 'نقاط' : 'نقطة'}`} للضمان`)(anyOk ? need : direct.need) : `<b>${esc(L.name)}</b> لا يضمنه بنتائجه وحدها`}</span></span></button>
           <div class="tr-body"><div class="in">${doneHTML(secured, k)}
             <div class="tr-steps" aria-hidden="true">${[1, 2, 3, 4, 5].map(i => `<i${i <= phase ? ' class="on"' : ''}></i>`).join('')}</div>
             ${phase < 5 ? `<div class="tr-cap">${k ? 'صاحب المركز' : 'المتصدر'} و${nRivals(rivals.length)}</div>` : ''}
@@ -15815,7 +15857,7 @@ function buildLeagueStandingsCanvas() {
             ${waysHTML}
             <div class="tr-list">
               <div class="tr-head" aria-hidden="true"><span class="n">اللاعب</span><span>متبقي</span><span>الأقصى</span><span></span></div>
-              ${row(L, 'lead', k)}${rivals.map(r => row(r)).join('')}
+              ${row(L, 'lead', k)}${rivals.map(r => row(r, '', 0, chaseRows && !solo ? placeT(k, chaseLine(r)) : '')).join('')}
               ${out.length ? `<div class="tr-out${outOpen ? ' open' : ''}"><button type="button" class="tr-outsum" aria-expanded="${outOpen}">خرج من السباق حسابيًا · ${nPlayers(out.length)}${chev}</button>
                 <div class="tr-outlist"><div class="in">${out.map(r => row(r, 'out')).join('')}</div></div></div>` : ''}
             </div>
