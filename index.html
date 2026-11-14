@@ -11394,10 +11394,10 @@ function buildLeagueStandingsCanvas() {
       const P = {}, ps = n => P[n] || (P[n] = { run: 0, unb: 0, bw: 0, bu: 0, clean: 0, days: 0 });
       let sets = 0, draws = 0, ff = 0, clean = 0;
       ms.forEach(m => { const a = Number(m.scoreA), b = Number(m.scoreB); sets += a + b; if (a === b) draws++; if (m.forfeit) ff++;
-        const isClean = !m.forfeit && Math.max(a, b) >= 2 && Math.min(a, b) === 0; if (isClean) clean++;
+        if (a !== b) clean++;   // 4.9.1: في الدوري كل فوز 2 - 0، فالحصاد يقول «الانتصارات» (ويشمل فوز الانسحاب) لا «نظيفة»
         [[m.playerA, a, b], [m.playerB, b, a]].forEach(([n, me, op]) => { const p = ps(n);
           p.run = me > op ? p.run + 1 : 0; p.unb = me < op ? 0 : p.unb + 1; p.bw = Math.max(p.bw, p.run); p.bu = Math.max(p.bu, p.unb);
-          if (me > op && isClean) p.clean++; }); });
+          if (me > op) p.clean++; }); });
       // أيام اللعب من وقت التسجيل؛ «بلا خسارة» لكل يوم بنفس دالة البطاقة
       const timed = ms.filter(m => at[m.id]), days = new Map();
       timed.forEach(m => { const k = nightKeyOf(at[m.id]); if (!days.has(k)) days.set(k, []); days.get(k).push(m); });
@@ -11419,7 +11419,7 @@ function buildLeagueStandingsCanvas() {
       const add = (k, title, b, fmt) => { if (b) R.push({ k, title, raw: b.v, v: fmt(b.v), who: b.who }); };
       add('win', 'أطول سلسلة انتصارات', best(n => (P[n] || {}).bw || 0, 2), hvWins);
       add('unb', 'أطول سلسلة بلا هزيمة', best(n => (P[n] || {}).bu || 0, 2), hvMatches);
-      add('clean', 'أكثر انتصارات نظيفة', best(n => (P[n] || {}).clean || 0, 1), hvWins);
+      add('clean', 'أكثر الانتصارات', best(n => (P[n] || {}).clean || 0, 1), hvWins);
       if (done) add('def', 'أقل أشواط عليه', lowest(n => rows[n].setsAgainst), hvSets);
       add('rise', 'أكبر ارتفاع في التقييم', best(n => rise[n] != null ? rise[n] : null, 1), v => '‎+' + v);
       add('days', 'أكثر أيام «بلا خسارة»', best(n => (P[n] || {}).days || 0, 1), hvDays);
@@ -11451,7 +11451,7 @@ function buildLeagueStandingsCanvas() {
         catch (e) { mo = null; } finally { leagueMatches = saved; }
         if (mo && timedDesc.length && mo < at[timedDesc[0].id]) clinchDay = `حُسم اللقب يوم ${nightLabel(nightKeyOf(mo))}`; }
       return { done, champ, num: champTitle('league', rec).replace(/^بطل /, ''),
-        numbers: [['المباريات', ms.length], ...(allTimed ? [['أيام اللعب', allKeys.length]] : []), ['الأشواط', sets], ['انتصارات نظيفة', clean], ['التعادلات', draws], ['الانسحابات', ff]],
+        numbers: [['المباريات', ms.length], ...(allTimed ? [['أيام اللعب', allKeys.length]] : []), ['الأشواط', sets], ['الانتصارات', clean], ['التعادلات', draws], ['الانسحابات', ff]],
         period: allTimed && allKeys.length > 1 ? `من ${nightLabel(allKeys[0])} إلى ${nightLabel(allKeys[allKeys.length - 1])}` : '',
         span: allTimed && allKeys.length > 1 ? hvSpan(allKeys[0], allKeys[allKeys.length - 1]) : '',
         records: R, council, clinchDay };
@@ -15442,7 +15442,7 @@ function buildLeagueStandingsCanvas() {
     // ===================================
     // 🧭 سلوك التطبيق: إعادة الوضع للأعلى، تعديل العنوان بالضغط المطوّل، تنبيه التحديث، رقم الإصدار
     // ===================================
-    const APP_VERSION = '4.9';   // ترقيم الاعتماد (من 4 نوفمبر 2026): 1.0 ثم 1.1 … 1.9 ثم 2.0 — ويُرفع معه رقم الإصدار في sw.js
+    const APP_VERSION = '5.0';   // ترقيم الاعتماد (من 4 نوفمبر 2026): 1.0 ثم 1.1 … 1.9 ثم 2.0 — ويُرفع معه رقم الإصدار في sw.js
     (function setupAppBehaviors() {
       const root = document.documentElement;
 
