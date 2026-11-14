@@ -11375,6 +11375,17 @@ function buildLeagueStandingsCanvas() {
     const hvMatches = n => hvN(n, 'مباراة واحدة', 'مباراتان', 'مباريات', 'مباراة');
     const hvSets = n => hvN(n, 'شوط واحد', 'شوطان', 'أشواط', 'شوطًا');
     const hvDays = n => hvN(n, 'يوم واحد', 'يومان', 'أيام', 'يومًا');
+    // مدة الدوري بلغة الناس (4.9): أشهر تقويمية كاملة ثم ما بقي بالأسابيع — «شهر وأسبوع» · «شهران و3 أسابيع» · «5 أسابيع»
+    function hvSpan(k0, k1) {
+      const d = k => { const [y, m, dd] = k.split('-').map(Number); return new Date(y, m - 1, dd); }, a = d(k0), b = d(k1);
+      let m = 0; while (true) { const n = new Date(a.getFullYear(), a.getMonth() + m + 1, a.getDate()); if (n <= b) m++; else break; }
+      const rest = Math.round((b - new Date(a.getFullYear(), a.getMonth() + m, a.getDate())) / 86400000);
+      let w = Math.round(rest / 7); if (w >= 4 && m) { m++; w = 0; }
+      const M = m === 1 ? 'شهر' : m === 2 ? 'شهران' : m ? `${m} ${m <= 10 ? 'أشهر' : 'شهرًا'}` : '';
+      const Wk = w === 1 ? 'أسبوع' : w === 2 ? 'أسبوعان' : w ? `${w} ${w <= 10 ? 'أسابيع' : 'أسبوعًا'}` : '';
+      if (M && Wk) return `${M} و${Wk}`;
+      return M || Wk || hvDays(rest + 1);
+    }
     function leagueHarvestData() {
       if (!leagueStarted || leagueFixtureError) return null;
       const st = calculateLeagueStandings(), pr = getLeagueProgress(), done = !!pr.completed, at = leagueMatchTimes();
@@ -11432,6 +11443,7 @@ function buildLeagueStandingsCanvas() {
       return { done, champ, num: champTitle('league', rec).replace(/^بطل /, ''),
         numbers: [['المباريات', ms.length], ...(allTimed ? [['أيام اللعب', allKeys.length]] : []), ['الأشواط', sets], ['انتصارات نظيفة', clean], ['التعادلات', draws], ['الانسحابات', ff]],
         period: allTimed && allKeys.length > 1 ? `من ${nightLabel(allKeys[0])} إلى ${nightLabel(allKeys[allKeys.length - 1])}` : '',
+        span: allTimed && allKeys.length > 1 ? hvSpan(allKeys[0], allKeys[allKeys.length - 1]) : '',
         records: R, council };
     }
     async function exportLeagueHarvest() {
@@ -11456,7 +11468,7 @@ function buildLeagueStandingsCanvas() {
         }
         // (2) أرقام الدوري: شبكة بثلاثة أعمدة (الرقم بارزًا ← اسمه)، والفترة تحتها
         if (show.numbers) {
-          const L = D.numbers, C = 3, G = 10, TH = 132, rows = Math.ceil(L.length / C), PH = D.period ? 62 : 0, bodyH = rows * TH + (rows - 1) * G + PH;
+          const L = D.numbers, C = 3, G = 10, TH = 132, rows = Math.ceil(L.length / C), PH = D.period ? 96 : 0, bodyH = rows * TH + (rows - 1) * G + PH;
           cuts.push(y - GAPS / 2); y += exportSectionBar(ctx, M, y, CW, 'أرقام الدوري', 'chart', null, bodyH) + TP;
           const tw = (RW - (C - 1) * G) / C;
           L.forEach(([label, v], i) => { const r = Math.floor(i / C), k = i % C, inRow = Math.min(C, L.length - r * C), rowW = inRow * tw + (inRow - 1) * G;
@@ -11464,7 +11476,9 @@ function buildLeagueStandingsCanvas() {
             drawRoundedRect(ctx, x0, y0, tw, TH, 18); ctx.fillStyle = B.paper; ctx.fill(); ctx.strokeStyle = B.line; ctx.lineWidth = 1.2; ctx.stroke();
             T(ctx, Number(v).toLocaleString('en-US'), cx, y0 + 44, { size: 52, weight: 900, color: B.ink, dir: 'ltr', maxW: tw - 24 });
             T(ctx, label, cx, y0 + 92, { size: 24, weight: 700, color: B.muted, maxW: tw - 24, min: 16 }); });
-          if (D.period) T(ctx, D.period, RX + RW / 2, y + rows * TH + (rows - 1) * G + 31, { size: 24, weight: 700, color: B.faint, maxW: RW - 40, min: 16 });
+          if (D.period) { const yp = y + rows * TH + (rows - 1) * G;   // المدة بارزة ← التاريخان مرجعًا هادئًا تحتها
+            T(ctx, `المدة: ${D.span}`, RX + RW / 2, yp + 36, { size: 28, weight: 800, color: B.ink, maxW: RW - 40, min: 18 });
+            T(ctx, D.period, RX + RW / 2, yp + 74, { size: 22, weight: 700, color: B.faint, maxW: RW - 40, min: 15 }); }
           y += bodyH + TP + GAPS;
         }
         // (3) أبطال الأرقام: بطاقات «سطور ثابتة» (اسم الرقم ← القيمة ← صاحبه)، عمودان، والوحيدة في صفها بالعرض كاملًا
@@ -11513,6 +11527,7 @@ function buildLeagueStandingsCanvas() {
       lines.push(D.done ? `حصاد ${D.num}` : `حصاد ${D.num} حتى الآن`);
       if (D.champ) lines.push(`🏆 ${D.champ.title}: ${D.champ.name}${D.done ? ` (${D.champ.line})` : ` · ${CLINCH_LINE}`}`);
       lines.push(D.numbers.map(([l, v]) => `${l} ${v}`).join(' · '));
+      if (D.span) lines.push(`المدة: ${D.span} (${D.period})`);
       D.records.forEach(x => lines.push(`${x.title}: ${x.v.replace('‎', '')} · ${x.who.join('، ')}${x.council ? ' (رقم قياسي جديد للمجلس)' : ''}`));
       D.council.forEach(r => lines.push(`رقم قياسي جديد للمجلس · ${r.label}: ${r.txt.replace('‎', '')} · ${r.holders.join('، ')}`));
       setCaption(fn, lines.join('\n'));
