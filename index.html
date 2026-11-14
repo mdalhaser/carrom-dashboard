@@ -11437,17 +11437,24 @@ function buildLeagueStandingsCanvas() {
       if (done) { const c = st.find(r => !r.excluded && r.rank === 1); if (c) { const gd = leagueGoldenOf();
         const rec2 = [hvWins(c.wins), c.draws ? hvN(c.draws, 'تعادل واحد', 'تعادلان', 'تعادلات', 'تعادلًا') : '', c.losses ? hvN(c.losses, 'خسارة واحدة', 'خسارتان', 'خسارات', 'خسارة') : 'بلا خسارة'].filter(Boolean).join(' · ');
         champ = { title: champTitle('league', rec, !!gd), name: c.name, golden: !!gd, line: `${exportPointsLabel(c.points)} · ${rec2}`,
-          // نفس بطاقة صورة «بطل الدوري» حرفيًا: النقاط ← «فوز · تعادل · خسارة» (أو سطر البطل الذهبي) ← المركزان الثاني والثالث
-          card: { title: champTitle('league', rec, !!gd), golden: !!gd, parts: [c.name], meta: exportPointsLabel(c.points),
-            sub: gd ? goldenLine(gd) : `فوز ${c.wins} · تعادل ${c.draws} · خسارة ${c.losses}`,
-            rest: gd ? [] : st.filter(r => !r.excluded).slice(1, 3).map(r => [r.rank, r.name, exportPointsLabel(r.points)]) } }; } }
+          // بطاقة البطل الموحدة بمحتوى مختصر (كلافتة صورة الترتيب): المراكز في «منصة التتويج» و«الترتيب»، والحصاد للأرقام
+          card: { title: champTitle('league', rec, !!gd), golden: !!gd, parts: [c.name], meta: exportPointsLabel(c.points), sub: gd ? goldenLine(gd) : '', rest: [] } }; } }
       else if (cl) champ = { title: champTitle('league', null), name: cl.name, line: CLINCH_LINE,
-        card: { title: champTitle('league', null), golden: false, parts: [cl.name], meta: CLINCH_LINE, sub: clinchWhy(cl), rest: [] } };
+        card: { title: champTitle('league', null), golden: false, parts: [cl.name], meta: CLINCH_LINE, sub: '', rest: [] } };
+      // لحظة حسم اللقب: يومها، فقط إن حُسم قبل آخر مباراة مسجلة (الحسم بآخر مباراة ليس حسمًا مبكرًا)
+      let clinchDay = '';
+      // نفس أسلوب leagueClinchAt (للعرض فقط): تُسحب أحدث المباريات الموقّتة من نسخة مؤقتة حتى يزول حسم البطل؛ المسحوبة آخرًا هي الحاسمة
+      if (champ) { const saved = leagueMatches, timedDesc = timed.slice().sort((x, y) => at[y.id] - at[x.id]), off = new Set(); let mo = null;
+        try { for (const m of timedDesc) { off.add(m.id);
+            leagueMatches = saved.map(x => off.has(x.id) ? Object.assign({}, x, { status: 'pending', scoreA: null, scoreB: null, result: null, pointsA: 0, pointsB: 0 }) : x);
+            const c2 = leagueClinch(); if (!c2 || c2.name !== champ.name) { mo = at[m.id]; break; } } }
+        catch (e) { mo = null; } finally { leagueMatches = saved; }
+        if (mo && timedDesc.length && mo < at[timedDesc[0].id]) clinchDay = `حُسم اللقب يوم ${nightLabel(nightKeyOf(mo))}`; }
       return { done, champ, num: champTitle('league', rec).replace(/^بطل /, ''),
         numbers: [['المباريات', ms.length], ...(allTimed ? [['أيام اللعب', allKeys.length]] : []), ['الأشواط', sets], ['انتصارات نظيفة', clean], ['التعادلات', draws], ['الانسحابات', ff]],
         period: allTimed && allKeys.length > 1 ? `من ${nightLabel(allKeys[0])} إلى ${nightLabel(allKeys[allKeys.length - 1])}` : '',
         span: allTimed && allKeys.length > 1 ? hvSpan(allKeys[0], allKeys[allKeys.length - 1]) : '',
-        records: R, council };
+        records: R, council, clinchDay };
     }
     async function exportLeagueHarvest() {
       exportChipCtx('lg-harvest');
@@ -11471,7 +11478,7 @@ function buildLeagueStandingsCanvas() {
         }
         // (2) أرقام الدوري: شبكة بثلاثة أعمدة (الرقم بارزًا ← اسمه)، والفترة تحتها
         if (show.numbers) {
-          const L = D.numbers, C = 3, G = 10, TH = 132, rows = Math.ceil(L.length / C), PH = D.period ? 96 : 0, bodyH = rows * TH + (rows - 1) * G + PH;
+          const L = D.numbers, C = 3, G = 10, TH = 132, rows = Math.ceil(L.length / C), PH = (D.period ? 96 : 0) + (D.clinchDay ? (D.period ? 48 : 76) : 0), bodyH = rows * TH + (rows - 1) * G + PH;
           cuts.push(y - GAPS / 2); y += exportSectionBar(ctx, M, y, CW, 'أرقام الدوري', 'chart', null, bodyH) + TP;
           const tw = (RW - (C - 1) * G) / C;
           L.forEach(([label, v], i) => { const r = Math.floor(i / C), k = i % C, inRow = Math.min(C, L.length - r * C), rowW = inRow * tw + (inRow - 1) * G;
@@ -11482,6 +11489,7 @@ function buildLeagueStandingsCanvas() {
           if (D.period) { const yp = y + rows * TH + (rows - 1) * G;   // المدة بارزة ← التاريخان مرجعًا هادئًا تحتها
             T(ctx, `المدة: ${D.span}`, RX + RW / 2, yp + 36, { size: 28, weight: 800, color: B.ink, maxW: RW - 40, min: 18 });
             T(ctx, D.period, RX + RW / 2, yp + 74, { size: 22, weight: 700, color: B.faint, maxW: RW - 40, min: 15 }); }
+          if (D.clinchDay) T(ctx, D.clinchDay, RX + RW / 2, y + rows * TH + (rows - 1) * G + (D.period ? 122 : 38), { size: 24, weight: 800, color: B.goldDeep, maxW: RW - 40, min: 16 });   // لحظة الحسم: حقيقة ثابتة بذهبي هادئ
           y += bodyH + TP + GAPS;
         }
         // (3) أبطال الأرقام: بطاقات «سطور ثابتة» (اسم الرقم ← القيمة ← صاحبه)، عمودان، والوحيدة في صفها بالعرض كاملًا
@@ -11531,6 +11539,7 @@ function buildLeagueStandingsCanvas() {
       if (D.champ) lines.push(`🏆 ${D.champ.title}: ${D.champ.name}${D.done ? ` (${D.champ.line})` : ` · ${CLINCH_LINE}`}`);
       lines.push(D.numbers.map(([l, v]) => `${l} ${v}`).join(' · '));
       if (D.span) lines.push(`المدة: ${D.span} (${D.period})`);
+      if (D.clinchDay) lines.push(D.clinchDay);
       D.records.forEach(x => lines.push(`${x.title}: ${x.v.replace('‎', '')} · ${x.who.join('، ')}${x.council ? ' (رقم قياسي جديد للمجلس)' : ''}`));
       D.council.forEach(r => lines.push(`رقم قياسي جديد للمجلس · ${r.label}: ${r.txt.replace('‎', '')} · ${r.holders.join('، ')}`));
       setCaption(fn, lines.join('\n'));
