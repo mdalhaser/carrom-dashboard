@@ -11446,12 +11446,16 @@ function buildLeagueStandingsCanvas() {
       // رقم الدوري الذي صار رقمًا قياسيًا للمجلس يُعلَّم في بطاقته («رقم قياسي جديد للمجلس») ولا يتكرر في قائمة المجلس
       const SAME = { win: 'win', unb: 'unb', rise: 'jump' };
       R.forEach(x => { const c = council.find(r => r.k === SAME[x.k] && r.v === x.raw && x.who.every(n => r.holders.includes(n))); if (c) { x.council = true; council = council.filter(r => r !== c); } });
+      // البطاقات ذات سطر المجلس تتجاور في صف واحد (أو تكون الوحيدة بعرض كامل في آخر صف) حتى لا تبقى بطاقة بفراغ تحت صاحبها
+      { const mk = R.filter(x => x.council), pl = R.filter(x => !x.council); R.length = 0; R.push(...(mk.length % 2 ? pl.concat(mk) : mk.concat(pl))); }
       // البطل: عند الاكتمال، أو الحسم المبكر
       let champ = null; const cl = done ? null : leagueClinch();
       if (done) { const c = st.find(r => !r.excluded && r.rank === 1); if (c) { const gd = leagueGoldenOf();
-        champ = { title: champTitle('league', rec, !!gd), name: c.name, golden: !!gd,
-          line: [exportPointsLabel(c.points), hvWins(c.wins), c.draws ? hvN(c.draws, 'تعادل واحد', 'تعادلان', 'تعادلات', 'تعادلًا') : '', c.losses ? hvN(c.losses, 'خسارة واحدة', 'خسارتان', 'خسارات', 'خسارة') : 'بلا خسارة'].filter(Boolean).join(' · ') }; } }
-      else if (cl) champ = { title: champTitle('league', null), name: cl.name, line: CLINCH_LINE };
+        const rec2 = [hvWins(c.wins), c.draws ? hvN(c.draws, 'تعادل واحد', 'تعادلان', 'تعادلات', 'تعادلًا') : '', c.losses ? hvN(c.losses, 'خسارة واحدة', 'خسارتان', 'خسارات', 'خسارة') : 'بلا خسارة'].filter(Boolean).join(' · ');
+        champ = { title: champTitle('league', rec, !!gd), name: c.name, golden: !!gd, line: `${exportPointsLabel(c.points)} · ${rec2}`,
+          card: { title: champTitle('league', rec, !!gd), golden: !!gd, parts: [c.name], meta: exportPointsLabel(c.points), sub: rec2, rest: [] } }; } }
+      else if (cl) champ = { title: champTitle('league', null), name: cl.name, line: CLINCH_LINE,
+        card: { title: champTitle('league', null), golden: false, parts: [cl.name], meta: CLINCH_LINE, sub: clinchWhy(cl), rest: [] } };
       return { done, champ, num: champTitle('league', rec).replace(/^بطل /, ''),
         numbers: [['المباريات', ms.length], ...(allTimed ? [['أيام اللعب', allKeys.length]] : []), ['الأشواط', sets], ['انتصارات نظيفة', clean], ['التعادلات', draws], ['الانسحابات', ff]],
         period: allTimed && allKeys.length > 1 ? `من ${nightLabel(allKeys[0])} إلى ${nightLabel(allKeys[allKeys.length - 1])}` : '',
@@ -11464,6 +11468,7 @@ function buildLeagueStandingsCanvas() {
       const B = EXPORT_BRAND, W = 1080, M = 56, CW = W - M * 2, GAPS = 26, TP = EXPORT_TABLE_PAD, RX = M + TP, RW = CW - 2 * TP;
       const meta = [{ icon: 'calendar', label: exportTodayLabel() }], top = M + exportBrandHeaderHeight(meta) + 34;
       const show = exportParts('harvest');
+      const champImg = D.champ ? await trophyExportImage(D.champ.golden) : null;
       const T = (ctx, s, x, cy, o) => exportText(ctx, s, x, cy - exportOptDy(o.size), o);
       const names = who => who.length <= 3 ? who.join(' · ') : `${who.length} لاعبين`;
       const sub = D.done ? `حصاد ${D.num}` : `حصاد ${D.num} حتى الآن`;
@@ -11471,16 +11476,10 @@ function buildLeagueStandingsCanvas() {
         const cuts = []; let y = top;
         exportBrandHeader(ctx, M, M, CW, tournamentName.textContent.trim() || 'دوري المجلس للكيرم', sub, meta);
         exportReadable = true;
-        // (1) البطل: لوحة جوز بالتسلسل نفسه لبطاقة البطل (العنوان الذهبي ← الاسم ← سطر النقاط أو الحسم)
-        if (show.champ && D.champ) {
-          const H = 252, cx = M + CW / 2;
-          exportWoodPanel(ctx, M, y, CW, H, 30);
-          if (D.champ.golden) { ctx.save(); drawRoundedRect(ctx, M + 6, y + 6, CW - 12, H - 12, 25); ctx.strokeStyle = 'rgba(227,204,160,0.5)'; ctx.lineWidth = 1.5; ctx.stroke(); ctx.restore(); }
-          exportIcon(ctx, 'trophy', cx, y + 46, 40, B.gold, 2.2);
-          T(ctx, D.champ.title, cx, y + 94, { size: 28, weight: 800, color: B.goldSoft, maxW: CW - 80, min: 20 });
-          T(ctx, D.champ.name, cx, y + 150, { size: 60, weight: 900, color: '#FBF6EC', maxW: CW - 80, min: 32 });
-          T(ctx, D.champ.line, cx, y + 210, { size: 26, weight: 700, color: 'rgba(245,238,227,0.78)', maxW: CW - 80, min: 18 });
-          y += H + GAPS;
+        // (1) البطل
+        if (show.champ && D.champ) {   // بطاقة البطل الموحدة نفسها (الذهب والدرع والتسلسل) كما في كل صور البطل
+          drawChampCard(ctx, M, y, CW, D.champ.card, champImg);
+          y += champCardLayout(D.champ.card).h + GAPS + 14;   // + مساحة ظل البطاقة
         }
         // (2) أرقام الدوري: شبكة بثلاثة أعمدة (الرقم بارزًا ← اسمه)، والفترة تحتها
         if (show.numbers) {
@@ -11490,9 +11489,9 @@ function buildLeagueStandingsCanvas() {
           L.forEach(([label, v], i) => { const r = Math.floor(i / C), k = i % C, inRow = Math.min(C, L.length - r * C), rowW = inRow * tw + (inRow - 1) * G;
             const x0 = RX + (RW - rowW) / 2 + rowW - (k + 1) * tw - k * G, y0 = y + r * (TH + G), cx = x0 + tw / 2;   // صف ناقص يتوسط
             drawRoundedRect(ctx, x0, y0, tw, TH, 18); ctx.fillStyle = B.paper; ctx.fill(); ctx.strokeStyle = B.line; ctx.lineWidth = 1.2; ctx.stroke();
-            T(ctx, Number(v).toLocaleString('en-US'), cx, y0 + 54, { size: 52, weight: 900, color: B.ink, dir: 'ltr', maxW: tw - 24 });
-            T(ctx, label, cx, y0 + 102, { size: 24, weight: 700, color: B.muted, maxW: tw - 24, min: 16 }); });
-          if (D.period) T(ctx, D.period, RX + RW / 2, y + rows * TH + (rows - 1) * G + 34, { size: 24, weight: 700, color: B.faint, maxW: RW - 40, min: 16 });
+            T(ctx, Number(v).toLocaleString('en-US'), cx, y0 + 44, { size: 52, weight: 900, color: B.ink, dir: 'ltr', maxW: tw - 24 });
+            T(ctx, label, cx, y0 + 92, { size: 24, weight: 700, color: B.muted, maxW: tw - 24, min: 16 }); });
+          if (D.period) T(ctx, D.period, RX + RW / 2, y + rows * TH + (rows - 1) * G + 31, { size: 24, weight: 700, color: B.faint, maxW: RW - 40, min: 16 });
           y += bodyH + TP + GAPS;
         }
         // (3) أبطال الأرقام: بطاقات «سطور ثابتة» (اسم الرقم ← القيمة ← صاحبه)، عمودان، والوحيدة في صفها بالعرض كاملًا
