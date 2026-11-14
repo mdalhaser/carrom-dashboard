@@ -11437,7 +11437,10 @@ function buildLeagueStandingsCanvas() {
       if (done) { const c = st.find(r => !r.excluded && r.rank === 1); if (c) { const gd = leagueGoldenOf();
         const rec2 = [hvWins(c.wins), c.draws ? hvN(c.draws, 'تعادل واحد', 'تعادلان', 'تعادلات', 'تعادلًا') : '', c.losses ? hvN(c.losses, 'خسارة واحدة', 'خسارتان', 'خسارات', 'خسارة') : 'بلا خسارة'].filter(Boolean).join(' · ');
         champ = { title: champTitle('league', rec, !!gd), name: c.name, golden: !!gd, line: `${exportPointsLabel(c.points)} · ${rec2}`,
-          card: { title: champTitle('league', rec, !!gd), golden: !!gd, parts: [c.name], meta: exportPointsLabel(c.points), sub: rec2, rest: [] } }; } }
+          // نفس بطاقة صورة «بطل الدوري» حرفيًا: النقاط ← «فوز · تعادل · خسارة» (أو سطر البطل الذهبي) ← المركزان الثاني والثالث
+          card: { title: champTitle('league', rec, !!gd), golden: !!gd, parts: [c.name], meta: exportPointsLabel(c.points),
+            sub: gd ? goldenLine(gd) : `فوز ${c.wins} · تعادل ${c.draws} · خسارة ${c.losses}`,
+            rest: gd ? [] : st.filter(r => !r.excluded).slice(1, 3).map(r => [r.rank, r.name, exportPointsLabel(r.points)]) } }; } }
       else if (cl) champ = { title: champTitle('league', null), name: cl.name, line: CLINCH_LINE,
         card: { title: champTitle('league', null), golden: false, parts: [cl.name], meta: CLINCH_LINE, sub: clinchWhy(cl), rest: [] } };
       return { done, champ, num: champTitle('league', rec).replace(/^بطل /, ''),
