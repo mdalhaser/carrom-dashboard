@@ -3606,11 +3606,13 @@
     .mp-fmt { display: flex; align-items: center; justify-content: space-between; gap: var(--s3); padding-top: var(--s3); margin-top: var(--s3); border-top: 1px solid var(--line); }
     .mp-fmt .lbl { font-size: var(--fs-sm); font-weight: 800; color: var(--text); line-height: 1.4; }
     .mp-fmt .lbl small { display: block; font-size: var(--fs-xs); font-weight: 700; color: var(--text-3); }
-    .mp-seg { display: inline-grid; grid-auto-flow: column; gap: 2px; padding: 3px; border-radius: var(--r-md); background: var(--surface-3); }
-    .mp-seg button { min-height: 38px; padding: 0 12px; border: 0; border-radius: 12px; background: transparent; color: var(--text-2); font: inherit; font-size: var(--fs-sm); font-weight: 800; cursor: pointer; transition: background var(--t-fast) ease, color var(--t-fast) ease; }
-    .mp-seg button.on { background: var(--surface); color: var(--text); box-shadow: var(--sh-1); }
-    .mp-seg button:disabled { cursor: default; }
-    .mp-seg:has(button:disabled) button:not(.on) { opacity: .45; }
+    .mp-step-ctl { display: inline-flex; align-items: center; gap: var(--s1); padding: 3px; border-radius: var(--r-md); background: var(--surface-3); flex-shrink: 0; }   /* 4.8: أشواط الفوز */
+    .mp-step-ctl b { min-width: 92px; text-align: center; font-size: var(--fs-sm); font-weight: 800; color: var(--text); padding-top: 2px; font-variant-numeric: tabular-nums; }
+    .mp-sb { width: 38px; height: 38px; display: inline-flex; align-items: center; justify-content: center; border: 0; border-radius: 12px; background: var(--surface); color: var(--text); box-shadow: var(--sh-1); font: inherit; font-size: var(--fs-lg); font-weight: 700; line-height: 1; padding: 0; cursor: pointer; touch-action: manipulation; -webkit-user-select: none; user-select: none; transition: transform var(--t-fast) var(--ease), opacity var(--t-fast) ease; }
+    .mp-sb:active { transform: scale(.92); }
+    .mp-sb:disabled { opacity: .35; cursor: default; transform: none; }
+    .mp-step-ctl:has(.mp-sb:disabled + b + .mp-sb:disabled) b { color: var(--text-2); }
+    @media (pointer: coarse) { .mp-sb { position: relative; } .mp-sb::after { content: ''; position: absolute; inset: -3px; } }
     .bracket-fmt { margin: -6px 0 var(--s3); font-size: var(--fs-xs); font-weight: 700; color: var(--text-3); }
     /* ورقة تسجيل المسار */
     .mp-board { display: grid; grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr); align-items: center; gap: var(--s2); padding: var(--s4) var(--s3); border-radius: var(--r-md); background: var(--surface-2); }
@@ -3717,8 +3719,8 @@
             <button id="showBracketBtn" class="btn neutral" data-ic="bracket" style="display:none;">إنشاء جدول المباريات</button>
           </div>
           <div class="mp-fmt" id="mpFmtRow" hidden>
-            <div class="lbl">نظام المباراة<small id="mpFmtSub">يُقفل بعد أول نتيجة</small></div>
-            <div class="mp-seg" role="group" aria-label="نظام المباراة"><button type="button" data-bo="3">أفضل من 3</button><button type="button" data-bo="5">أفضل من 5</button></div>
+            <div class="lbl">أشواط الفوز<small id="mpFmtSub">يُقفل بعد أول نتيجة</small></div>
+            <div class="mp-step-ctl" role="group" aria-label="أشواط الفوز"><button type="button" class="mp-sb" data-d="1" aria-label="شوط أكثر">+</button><b id="mpFmtVal" aria-live="polite"></b><button type="button" class="mp-sb" data-d="-1" aria-label="شوط أقل">−</button></div>
           </div>
           <div id="newTournamentWrap" style="display:none;">
             <button id="newTournamentBtn" class="btn new-tournament-btn" data-ic="plus">منافسة جديدة بنفس اللاعبين</button>
@@ -12154,13 +12156,13 @@ function buildLeagueStandingsCanvas() {
       const best = titles.length ? null : done.find(x => x.res[0] === 'ru') || done.find(x => x.res[0] === 'sf') || null;
       const peak = p.points.reduce((m, x) => x.r > (m ? m.r : -Infinity) ? x : m, null);
       // أفضل أرقامه (بنفس تعريفات سجل الأرقام): بلا هزيمة = فوز أو تعادل حتى أول خسارة · الألقاب المتتالية عبر كل الأنواع بترتيب التاريخ (في البطولات التي شارك فيها)
-      // · أكبر قفزة تقييم في بطولة مكتملة · الفوز النظيف = فوز لم يسجل فيه الخصم شوطًا (من المباريات المسجلة بنتيجة فقط)
+      // · أكبر قفزة تقييم في بطولة مكتملة · الفوز النظيف = فوز بشوطين فأكثر لم يسجل فيه الخصم شوطًا (4.8: لا يُحتسب فوز الشوط الواحد 1 - 0؛ من المباريات المسجلة بنتيجة فقط)
       let unb = 0, run = 0; p.seq.forEach(r => { run = r === 'l' ? 0 : run + 1; unb = Math.max(unb, run); });
       let titleRun = 0, tr = 0; statsSourceRecords().filter(t => t && !t.live && inT(t)).slice().sort((a, b) => new Date(a.date) - new Date(b.date)).forEach(t => { tr = has(t, t.champion) ? tr + 1 : 0; titleRun = Math.max(titleRun, tr); });   // البطولات التي لم يشارك فيها لا تقطع السلسلة
       const jump = done.filter(x => x.dl != null && x.dl > 0).reduce((m, x) => !m || x.dl > m.dl ? x : m, null);
       let clean = 0; statsSourceRecords().forEach(t => (t.matches || []).forEach(m => {
         if (m.forfeit || !has(t, m.winner)) return; const ws = Number(m.winnerScore), ls = m.loserScore;
-        if (ls !== null && ls !== undefined && ls !== '' && Number(ls) === 0 && ws > 0) clean++; }));
+        if (ls !== null && ls !== undefined && ls !== '' && Number(ls) === 0 && ws >= 2) clean++; }));
       return { career, done, titles, best, peak, unb, titleRun, jump, clean };
     }
     // 8.4 — لحظة كل رقم (قراءة فقط، للعرض): البطولة والتاريخ اللذان بلغ فيهما اللاعب قيمته القصوى أول مرة.
@@ -12173,7 +12175,7 @@ function buildLeagueStandingsCanvas() {
       let bt = 0, rt = 0, mt = null; (C.done || []).slice().reverse().forEach(x => { rt = x.res[0] === 'ch' ? rt + 1 : 0; if (rt > bt) { bt = rt; mt = x.t; } });
       let nc = 0, lc = null; statsSourceRecords().filter(Boolean).slice().sort((a, b) => new Date(a.date) - new Date(b.date)).forEach(t => (t.matches || []).forEach(m => {
         if (m.forfeit || !has(t, m.winner)) return; const ws = Number(m.winnerScore), ls = m.loserScore;
-        if (ls !== null && ls !== undefined && ls !== '' && Number(ls) === 0 && ws > 0) { nc++; lc = t; } }));
+        if (ls !== null && ls !== undefined && ls !== '' && Number(ls) === 0 && ws >= 2) { nc++; lc = t; } }));
       return {
         win: mw && bw === p.bestWin ? at(mw.t, mw.live) : null,
         unb: mu && bu === C.unb ? at(mu.t, mu.live) : null,
@@ -14734,13 +14736,31 @@ function buildLeagueStandingsCanvas() {
     // الوقت لا يكون دقيقًا مع التوقف أو التسجيل بعد المباراة). طبقة تسجيل فوق المنطق الحالي: عند الحسم تُعتمد النتيجة (2 - 1 / 1 - 1)
     // بنفس الدوال القائمة (confirmWinner للفردي والفرق، saveLeagueMatchResult للدوري)، فلا يتغير التأهل ولا النقاط ولا التقييم.
     // البيانات إضافية على المباراة: mp = { g: [{ w: 'a'|'b' }], ff?: 'a'|'b' المنسحب }. a = الطرف الأول (يمين البطاقة) و b = الثاني.
-    // نظام المباراة للفردي والفرق: matchFormat_<mode> = '3' | '5' (أفضل من 3 افتراضيًا)، والدوري شوطان ثابتان.
+    // نظام المباراة للفردي والفرق: matchFormat_<mode> = 'wN' (4.8): الفوز بـ N أشواط (1–99، شوطان افتراضيًا)؛ والقيم القديمة '3' = شوطان و'5' = 3 أشواط، والدوري شوطان ثابتان.
     // أرقام المسار بالموضع لا «الأكبر أولًا»: رقم كل طرف في جهة اسمه دائمًا (الأول يمينًا).
     // ===================================================================================
     const MP = (function () {
       const esc = s => String(s == null ? '' : s).replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
       const fmtKey = mode => 'matchFormat_' + mode;
-      function bestOf(mode) { mode = mode || currentMode; if (mode === 'league') return 2; try { return localStorage.getItem(fmtKey(mode)) === '5' ? 5 : 3; } catch (e) { return 3; } }
+      const WINS_MAX = 99;
+      function winsOf(mode) { mode = mode || currentMode; if (mode === 'league') return 1;
+        let v = ''; try { v = String(localStorage.getItem(fmtKey(mode)) || ''); } catch (e) {}
+        const m = /^w(\d{1,2})$/.exec(v); if (m && +m[1] >= 1) return +m[1];
+        return v === '5' ? 3 : 2; }
+      function bestOf(mode) { mode = mode || currentMode; return mode === 'league' ? 2 : 2 * winsOf(mode) - 1; }
+      // لغة النظام الوحيدة (4.8): عدد أشواط الفوز، بلا «أفضل من». العدد والمعدود: شوط واحد · شوطان · 3–10 أشواط · 11 شوطًا فأكثر
+      const winsName = n => n === 1 ? 'شوط واحد' : n === 2 ? 'شوطان' : n <= 10 ? `${n} أشواط` : `${n} شوطًا`;
+      const winsTxt = n => n === 1 ? 'شوطًا واحدًا' : n === 2 ? 'شوطين' : n <= 10 ? `${n} أشواط` : `${n} شوطًا`;
+      const biWins = n => n === 2 ? 'بشوطين' : `بـ${winsTxt(n)}`;
+      function fmt(mode) {
+        const n = winsOf(mode), bo = 2 * n - 1;
+        const rule = n === 1 ? 'يفوز من يكسب الشوط' : `يفوز من يبلغ ${winsTxt(n)}`;
+        const label = n === 1 ? 'شوط واحد' : `الفوز ${biWins(n)}`;
+        const qualify = n === 1 ? 'الفائز بالشوط يتأهل' : `من يفوز ${biWins(n)} يتأهل`;
+        return { bo, n, label, rule, qualify, name: winsName(n),
+          line: n === 1 ? `شوط واحد · ${qualify}` : qualify,   // سطر تحت عنوان الجدول
+          modal: `${rule}.` };                                   // سطر نافذة النتيجة
+      }
       const games = mp => (mp && Array.isArray(mp.g) ? mp.g : []);
       function count(mp) { const c = { a: 0, b: 0 }; games(mp).forEach(x => { if (x.w === 'a') c.a++; else if (x.w === 'b') c.b++; }); return c; }
       function decided(kind, mp, bo) { const c = count(mp); return kind === 'lg' ? c.a + c.b >= 2 : Math.max(c.a, c.b) >= Math.ceil((bo || bestOf()) / 2); }
@@ -14752,9 +14772,9 @@ function buildLeagueStandingsCanvas() {
           if (wa) a++; else b++;
           const me = wa ? a : b, op = wa ? b : a, last = i === g.length - 1;
           let verb;
-          if (i === 0) verb = 'تقدّم';
+          if (last && finished && me > op) verb = 'حسم';   // قبل «تقدّم» حتى يُقرأ شوط واحد حاسم «حسم»
+          else if (i === 0) verb = 'تقدّم';
           else if (me === op) verb = 'عادل';
-          else if (last && finished && me > op) verb = 'حسم';
           else if (meB > opB) verb = 'وسّع الفارق';
           else if (me < op) verb = 'قلّص';
           else verb = 'تقدّم';
@@ -14788,7 +14808,7 @@ function buildLeagueStandingsCanvas() {
         const st = steps(mp, A, B, !!finished && !mp.ff); if (!st.length) return '';
         return st.map(x => `<b>${x.verb}</b> ${esc(x.name)}`).join(' ← ') + (mp.ff ? ` ← <b>انسحاب</b> ${esc(mp.ff === 'a' ? A : B)}` : '');
       }
-      return { fmtKey, bestOf, games, count, decided, steps, comeback, posHTML, pathHTML, compactHTML, esc };
+      return { fmtKey, WINS_MAX, winsOf, bestOf, fmt, winsTxt, winsName, games, count, decided, steps, comeback, posHTML, pathHTML, compactHTML, esc };
     })();
     window.MP = MP;
 
@@ -14810,31 +14830,48 @@ function buildLeagueStandingsCanvas() {
         try { bracketArea.querySelectorAll('.match-card[data-match-id]').forEach(card => mpDecorateCard(card, 'ko', bracketState[card.dataset.matchId])); mpFormatUI(); } catch (e) { console.error(e); }
         return r; }; }
 
-    // ---------- نظام المباراة (الفردي والفرق): أفضل من 3 أو أفضل من 5، يُقفل بعد أول نتيجة أو أول شوط مسجّل ----------
+    // ---------- نظام المباراة (الفردي والفرق): أفضل من 3 أو أفضل من 5 أو مخصص (4.8)، يُقفل بعد أول نتيجة أو أول شوط مسجّل ----------
     function mpFormatLocked() { return Object.values(bracketState || {}).some(m => m && (m.winner || MP.games(m.mp).length)); }
     function mpFormatUI() {
-      const ko = currentMode === 'fixed' || currentMode === 'single', bo = MP.bestOf();
+      const ko = currentMode === 'fixed' || currentMode === 'single', F = MP.fmt();
       const row = document.getElementById('mpFmtRow');
       if (row && !window.CARROM_VIEW) {
         row.hidden = !ko;
         const locked = mpFormatLocked();
-        row.querySelectorAll('[data-bo]').forEach(b => { const on = Number(b.dataset.bo) === bo; b.classList.toggle('on', on); b.setAttribute('aria-pressed', String(on)); b.disabled = locked; });
         const sub = document.getElementById('mpFmtSub'); if (sub) sub.textContent = locked ? 'مقفل لهذه البطولة' : 'يُقفل بعد أول نتيجة';
+        document.getElementById('mpFmtVal').textContent = F.name;
+        row.querySelectorAll('.mp-sb').forEach(b => { const v = F.n + Number(b.dataset.d); b.disabled = locked || v < 1 || v > MP.WINS_MAX; });
       }
       const title = document.getElementById('bracketTitle');   // سطر هادئ تحت عنوان الجدول (النسختان)
       if (title) { let n = document.getElementById('bracketFmt');
         const show = ko && Object.keys(bracketState || {}).length > 0;
         if (show && !n) { n = document.createElement('p'); n.id = 'bracketFmt'; n.className = 'bracket-fmt'; title.after(n); }
-        if (n) { n.hidden = !show; n.textContent = `أفضل من ${bo} · من يفوز بـ${bo === 5 ? '3 أشواط' : 'شوطين'} يتأهل`; } }
+        if (n) { n.hidden = !show; n.textContent = F.line; } }
     }
     (function () {
       const row = document.getElementById('mpFmtRow'); if (!row) return;
+      // لمسة = شوط واحد، والضغط المطوّل يتسارع (للأرقام الكبيرة)؛ التراجع خطوة واحدة لكل ضغطة
+      const step = (d, merge) => {
+        if (mpFormatLocked()) { uiToast('أشواط الفوز مقفلة بعد تسجيل أول نتيجة.', 'warn'); return false; }
+        const v = MP.winsOf() + d; if (v < 1 || v > MP.WINS_MAX) return false;
+        offerUndo('تغيير أشواط الفوز', merge);
+        try { localStorage.setItem(MP.fmtKey(currentMode), 'w' + v); } catch (x) {}
+        mpFormatUI(); return true;
+      };
+      let hold = null, held = false;
+      const stop = () => { if (hold) { clearTimeout(hold); hold = null; } };
+      row.addEventListener('pointerdown', e => {
+        const b = e.target.closest('.mp-sb'); if (!b || b.disabled) return;
+        held = false; const d = Number(b.dataset.d); let k = 0;
+        const tick = () => { if (b.disabled || !step(d, true)) { stop(); return; } held = true; k++; hold = setTimeout(tick, k < 6 ? 140 : 70); };
+        stop(); hold = setTimeout(() => { if (step(d)) { held = true; hold = setTimeout(tick, 140); } }, 450);
+      });
+      ['pointerup', 'pointercancel', 'pointerleave'].forEach(t => row.addEventListener(t, stop));
       row.addEventListener('click', e => {
-        const b = e.target.closest('[data-bo]'); if (!b || b.disabled) return;
-        if (mpFormatLocked()) { uiToast('نظام المباراة مقفل بعد تسجيل أول نتيجة.', 'warn'); return; }
-        offerUndo('تغيير نظام المباراة');
-        try { localStorage.setItem(MP.fmtKey(currentMode), b.dataset.bo); } catch (x) {}
-        mpFormatUI();
+        const b = e.target.closest('.mp-sb'); if (!b) return;
+        if (held) { held = false; return; }   // الضغط المطوّل طبّق خطواته
+        if (!b.disabled) step(Number(b.dataset.d));
+        else if (mpFormatLocked()) uiToast('أشواط الفوز مقفلة بعد تسجيل أول نتيجة.', 'warn');
       });
       try { mpFormatUI(); } catch (e) {}
       const _ms = typeof updateModeStatus === 'function' ? updateModeStatus : null;
@@ -14851,7 +14888,7 @@ function buildLeagueStandingsCanvas() {
       const isDone = (kind, m) => kind === 'ko' ? !!m.winner : isLeagueMatchCompleted(m);
       const boOf = kind => kind === 'lg' ? 2 : MP.bestOf();
       const titleOf = (kind, m) => kind === 'ko' ? (isFinalMatch(m) ? 'المباراة النهائية' : `مباراة ${m.matchNumber}`) : 'مباراة الدوري';
-      const subOf = (kind, m) => (kind === 'ko' ? cleanRound(m.roundName) : `الجولة ${m.round}`) + ' · ' + (kind === 'lg' ? 'شوطان' : `أفضل من ${boOf(kind)}`);
+      const subOf = (kind, m) => (kind === 'ko' ? cleanRound(m.roundName) : `الجولة ${m.round}`) + ' · ' + (kind === 'lg' ? 'شوطان' : MP.fmt().label);
       const isLocked = kind => { try { return kind === 'ko' ? !!getVerifiedTournamentChampion() : !!leagueCompleted; } catch (e) { return false; } };
       let cur = null;   // { kind, id, mode: 'rec' (مباراة لم تُحسم: كل شوط يُحفظ فورًا) | 'edit' (مسودة لمباراة محسومة), draft, ffOpen, pending (الشوط الحاسم بانتظار الاعتماد) }
 
@@ -14984,7 +15021,7 @@ function buildLeagueStandingsCanvas() {
         const ok = scoreModalE.style.display === 'flex' && m && !MP.games(m.mp).length && !(kind === 'lg' && isLeagueMatchAnnulled(m))
           && (kind === 'lg' || (m.team1 && m.team2 && !String(m.team1).includes('الفائز من م') && !String(m.team2).includes('الفائز من م') && !String(m.team1).includes('Bye') && !String(m.team2).includes('Bye')));
         entry.hidden = !ok; entryFor = ok ? { kind, id, unlocked: !!unlocked } : null;
-        if (kind === 'ko' && scoreModalE.style.display === 'flex') { const bo = MP.bestOf(); scoreModalSubtitleEl.textContent = `أفضل من ${bo}: يفوز من يبلغ ${bo === 5 ? '3 أشواط' : 'شوطين'}.`; syncCap(); }   // 3.6.1: النظام في سطر النافذة
+        if (kind === 'ko' && scoreModalE.style.display === 'flex') { scoreModalSubtitleEl.textContent = MP.fmt().modal; syncCap(); }   // 3.6.1: النظام في سطر النافذة
       }
       window.carromMpEntry = showEntry;
       // المكتملة تُعاد بمسودة (لا يتغير شيء قبل الاعتماد)، وغير الملعوبة بالتسجيل الحي
@@ -15046,7 +15083,7 @@ function buildLeagueStandingsCanvas() {
         }
         if (!lg && !koForfeitSel && Number.isInteger(a) && Number.isInteger(b) && a !== b) {
           const bo = MP.bestOf(), n = Math.ceil(bo / 2);
-          if (Math.max(a, b) !== n || Math.min(a, b) >= n) { e.stopImmediatePropagation(); e.preventDefault(); uiToast(`نظام المباراة أفضل من ${bo}: يفوز من يبلغ ${n === 3 ? '3 أشواط' : 'شوطين'} (مثل ${n} - ${n - 1})`, 'warn'); return; }
+          if (Math.max(a, b) !== n || Math.min(a, b) >= n) { e.stopImmediatePropagation(); e.preventDefault(); uiToast(`${MP.fmt().modal.slice(0, -1)} (${n === 1 ? '1 - 0' : `مثل ${n} - ${n - 1}`})`, 'warn'); return; }
         }
         if (dropMp && dropMp.kind === kind && dropMp.id === id && MP.games(m.mp).length) { delete m.mp; dropMp = null; return; }   // 3.10: تأكيد الحذف سبق في ورقة المسار
         if (MP.games(m.mp).length) {
@@ -15065,9 +15102,11 @@ function buildLeagueStandingsCanvas() {
           if (pass) { pass = false; return; }
           if (!(currentMode === 'fixed' || currentMode === 'single') || Object.keys(bracketState || {}).length) return;
           e.stopImmediatePropagation(); e.preventDefault();
-          const bo = MP.bestOf();
-          const ok = await uiConfirm(`نظام المباراة: أفضل من ${bo}\nمن يفوز بـ${bo === 5 ? '3 أشواط' : 'شوطين'} يتأهل. «تغيير النظام» يجعله أفضل من ${bo === 5 ? 3 : 5}، ويُقفل بعد أول نتيجة.`, { title: 'إنشاء جدول المباريات', okText: 'إنشاء الجدول', cancelText: 'تغيير النظام' });
-          if (!ok) { try { localStorage.setItem(MP.fmtKey(currentMode), String(bo === 5 ? 3 : 5)); } catch (x) {} mpFormatUI(); uiToast(`نظام المباراة: أفضل من ${bo === 5 ? 3 : 5}`, 'ok'); return; }
+          const F = MP.fmt(); const ok = await uiConfirm(`أشواط الفوز: ${F.name}\n${F.n === 1 ? F.qualify : 'من يبلغها أولًا يتأهل'}. يُقفل النظام بعد أول نتيجة.`, { title: 'إنشاء جدول المباريات', okText: 'إنشاء الجدول', cancelText: 'تغيير النظام' });
+          if (!ok) {   // 4.8: الاختيار من بطاقة القرعة نفسها (3 · 5 · مخصص) بدل التبديل بين نظامين
+            const row = document.getElementById('mpFmtRow');
+            if (row && !row.hidden) { row.scrollIntoView({ behavior: foldReduced() ? 'auto' : 'smooth', block: 'center' }); const on = row.querySelector('.mp-sb:not(:disabled)'); setTimeout(() => { try { on.focus({ preventScroll: true }); } catch (x) {} }, 350); }
+            return; }
           pass = true; sb.click();
         }, true); }
 
@@ -15221,7 +15260,7 @@ function buildLeagueStandingsCanvas() {
     // ===================================
     // 🧭 سلوك التطبيق: إعادة الوضع للأعلى، تعديل العنوان بالضغط المطوّل، تنبيه التحديث، رقم الإصدار
     // ===================================
-    const APP_VERSION = '4.7';   // ترقيم الاعتماد (من 4 نوفمبر 2026): 1.0 ثم 1.1 … 1.9 ثم 2.0 — ويُرفع معه رقم الإصدار في sw.js
+    const APP_VERSION = '4.8';   // ترقيم الاعتماد (من 4 نوفمبر 2026): 1.0 ثم 1.1 … 1.9 ثم 2.0 — ويُرفع معه رقم الإصدار في sw.js
     (function setupAppBehaviors() {
       const root = document.documentElement;
 
