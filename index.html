@@ -7667,6 +7667,7 @@ currentScoreWinnerName = null;
       lgCard: [['sets', 'صفوف الأشواط'], ['last', 'آخر النتائج'], ['ach', 'الإنجازات']],
       lgCompare: [['wdl', 'فوز / تعادل / خسارة'], ['sets', 'صفوف الأشواط'], ['h2h', 'المواجهات المباشرة']],
       lgReport: [['summary', 'ملخص الدوري'], ['leaders', 'الأوائل']],
+      harvest: [['champ', 'البطل'], ['numbers', 'أرقام الدوري'], ['records', 'أبطال الأرقام'], ['council', 'أرقام قياسية جديدة للمجلس']],
       history: [['name', 'اسم البطولة', 'auto'], ['date', 'اليوم والتاريخ'], ['type', 'نوع البطولة'], ['ru', 'الوصيف']],
       honor: [['by', 'الألقاب حسب النوع'], ['ru', 'الوصافة'], ['top5', 'أفضل 5 فقط', false]],
       koFinal: [['path', 'مسار الوصول إلى النهائي']]
@@ -7837,6 +7838,7 @@ currentScoreWinnerName = null;
           const h2h = leagueMatches.filter(m => isLeagueMatchCompleted(m) && !isLeagueMatchAnnulled(m) && ((m.playerA === a.a && m.playerB === a.b) || (m.playerA === a.b && m.playerB === a.a)));
           add('ch2h', 'المواجهات المباشرة', 'users', h2h.length ? `تواجها ${chipN(h2h.length, 'مرة واحدة', 'مرتين', 'مرات', 'مرة')} هذا الدوري` : 'لم يتواجها بعد');
           dflt = ['date']; break; }   // 1.8: المركزان والنقاط والمواجهات كلها داخل المقارنة
+        case 'lg-harvest': lgRoundChips(); leaderChips(); dflt = ['date']; break;   // 4.9: البطل والأرقام كلها داخل الصورة
         case 'lg-report': lgRoundChips(); leaderChips(); add('lplayers', 'عدد اللاعبين', 'users', lgSt.length ? chipN(lgSt.length, 'لاعب واحد', 'لاعبان', 'لاعبين', 'لاعبًا') : '');
           if (lgP) add('lpct', 'نسبة الإنجاز', 'chart', `إنجاز ${Math.round(lgP.done / Math.max(1, lgP.total) * 100)}%`); dflt = ['date']; break;   // 1.8: كل الأرقام في «ملخص الدوري» نفسه
         case 'lg-match': { const m = safe(() => leagueMatches.find(x => x.id === a.id)); if (m) { add('mround', 'الجولة', 'flag', `الجولة ${m.round}`); const at = safe(() => leagueMatchTimes()[m.id]); if (at) add('mwhen', 'وقت تسجيل النتيجة', 'clock', `${fmtDayDate(at)} · ${fmtTimeNum(at)}`); }
@@ -7869,7 +7871,7 @@ currentScoreWinnerName = null;
       }
       dflt = dflt.filter(id => defs[id] || ['date', 'count', 'time'].includes(id));
       // 1.7: الملف والمواجهة كل بطاقاتهما مكررة داخل الصورة (المركز، التقييم، الجولة، فرص الفوز …) فلا تُكمَّل؛ تبقى متاحة في «تخصيص»
-      if (!(k === 'lg-champion' && !(lgP && lgP.completed)) && !['profile', 'lg-versus', 'ko-versus', 'lg-rounds', 'lg-upcoming', 'lg-report', 'lg-card', 'lg-compare', 'lg-today', 'ko-today', 'history', 'honor', 'rating', 'stats', 'lg-standings'].includes(k)) for (const id of Object.keys(defs)) { if (dflt.length >= 3) break; if (!dflt.includes(id)) dflt.push(id); }   // نقص بطاقة افتراضية (لا بيانات لها): تكمّلها بطاقة أخرى من بيانات الصورة
+      if (!(k === 'lg-champion' && !(lgP && lgP.completed)) && !['profile', 'lg-versus', 'ko-versus', 'lg-rounds', 'lg-upcoming', 'lg-report', 'lg-harvest', 'lg-card', 'lg-compare', 'lg-today', 'ko-today', 'history', 'honor', 'rating', 'stats', 'lg-standings'].includes(k)) for (const id of Object.keys(defs)) { if (dflt.length >= 3) break; if (!dflt.includes(id)) dflt.push(id); }   // نقص بطاقة افتراضية (لا بيانات لها): تكمّلها بطاقة أخرى من بيانات الصورة
       exportChipCtxCache = { kind: k, defs, dflt };
       return exportChipCtxCache;
     }
@@ -8893,7 +8895,7 @@ currentScoreWinnerName = null;
       const captions = () => state.items.filter(it => it.caption).map(it => it.caption);
       const captionText = () => { const tail = state && state.items.length === 1 && typeof state.items[0].captionTailOverride === 'string' ? state.items[0].captionTailOverride : exportSettings.captionTail; return captions().join('\n\n———\n\n') + (String(tail || '').trim() ? '\n\n' + String(tail).trim() : ''); };
       const shortNameOf = n => exportTypeToken(n) || String(n);
-      const AR_TYPES = [[/^League-Standings/, 'ترتيب الدوري'], [/^League-Report/, 'إحصائيات الدوري'], [/^League-Round/, 'نتائج الجولات'], [/^League-Upcoming/, 'المباريات القادمة'], [/^Day-Results/, 'نتائج اليوم'], [/^Night-Summary/, 'نتائج اليوم'], [/^Tournament-History/, 'سجل البطولات'], [/^Honor-Board/, 'لوحة الشرف'], [/^Honor-Rating/, 'ترتيب التقييم'], [/^Honor-Profile/, 'ملف لاعب'], [/^Tournament-Summary/, 'ملخص البطولة'], [/^Tournament-Upcoming/, 'المباريات القادمة'], [/^Tournament-ChampionAndRunnerUp/, 'البطل والوصيف'], [/^Tournament-Champion/, 'بطل البطولة'], [/^Tournament-RunnerUp/, 'الوصيف'], [/^Tournament-Round/, 'نتائج جولة'], [/^Tournament-Match/, 'نتيجة مباراة'], [/^League-Player/, 'بطاقة لاعب'], [/^League-Match/, 'نتيجة مباراة'],
+      const AR_TYPES = [[/^League-Standings/, 'ترتيب الدوري'], [/^League-Report/, 'إحصائيات الدوري'], [/^League-Harvest/, 'حصاد الدوري'], [/^League-Round/, 'نتائج الجولات'], [/^League-Upcoming/, 'المباريات القادمة'], [/^Day-Results/, 'نتائج اليوم'], [/^Night-Summary/, 'نتائج اليوم'], [/^Tournament-History/, 'سجل البطولات'], [/^Honor-Board/, 'لوحة الشرف'], [/^Honor-Rating/, 'ترتيب التقييم'], [/^Honor-Profile/, 'ملف لاعب'], [/^Tournament-Summary/, 'ملخص البطولة'], [/^Tournament-Upcoming/, 'المباريات القادمة'], [/^Tournament-ChampionAndRunnerUp/, 'البطل والوصيف'], [/^Tournament-Champion/, 'بطل البطولة'], [/^Tournament-RunnerUp/, 'الوصيف'], [/^Tournament-Round/, 'نتائج جولة'], [/^Tournament-Match/, 'نتيجة مباراة'], [/^League-Player/, 'بطاقة لاعب'], [/^League-Match/, 'نتيجة مباراة'],
         [/^League-champion/, 'بطل الدوري'], [/^League-runnerUp/, 'وصيف الدوري'], [/^League-top3-Final/, 'أول 3 مراكز'], [/^League-top5-Final/, 'أول 5 مراكز'], [/^League-top3/, 'أفضل 3 حاليًا'], [/^League-top5/, 'أفضل 5 حاليًا'], [/^League-Compare/, 'مقارنة لاعبين'], [/^League-Log/, 'سجل مباريات لاعب'], [/^Tournament-Player/, 'بطاقة مشارك'], [/^Tournament-Log/, 'سجل مباريات مشارك'], [/^Tournament-Statistics/, 'إحصائيات اللاعبين'], [/^Tournament$/, 'جدول البطولة'], [/-Podium/, 'منصة التتويج'], [/-Versus/, 'مواجهة قادمة']];
       const arType = n => { const t = shortNameOf(n); const m = AR_TYPES.find(([re]) => re.test(t)); return m ? m[1] : t; };
       function render() {
@@ -10938,7 +10940,8 @@ function buildLeagueStandingsCanvas() {
           I({ id: 'lg-card', cat: 'players', title: 'بطاقة لاعب', desc: 'المركز والنقاط وآخر النتائج والإنجازات', icon: 'users', ok: st, why: 'ابدأ الدوري أولًا', ctl: [{ t: 'player', key: 'a', label: 'اللاعب' }], run: () => exportLeaguePlayerCard(exportCenterSel.a) }),
           I({ id: 'lg-log', cat: 'players', title: 'سجل مباريات لاعب', desc: 'كل مباريات اللاعب المكتملة والمتبقية', icon: 'table', ok: st, why: 'ابدأ الدوري أولًا', ctl: [{ t: 'player', key: 'a', label: 'اللاعب' }], run: () => exportLeaguePlayerLog(exportCenterSel.a) }),
           I({ id: 'lg-compare', cat: 'players', title: 'مقارنة لاعبين', desc: 'إحصائيات متقابلة والمواجهات المباشرة', icon: 'chart', ok: st && many, why: 'يحتاج لاعبين اثنين على الأقل', ctl: [{ t: 'player', key: 'a', label: 'اللاعب الأول' }, { t: 'player', key: 'b', label: 'اللاعب الثاني' }], run: () => exportLeagueCompare(exportCenterSel.a, exportCenterSel.b) }),
-          I({ id: 'lg-report', cat: 'honors', title: 'إحصائيات الدوري الشاملة', desc: 'ملخص الدوري والأوائل ونسبة الإنجاز', icon: 'chart', ok: st && done, why: 'يظهر بعد أول نتيجة', run: exportLeagueReport }),
+          I({ id: 'lg-harvest', cat: 'honors', title: snap.completed ? 'حصاد الدوري' : 'حصاد الدوري حتى الآن', desc: 'البطل وأرقام الدوري وأبطال الأرقام', icon: 'star', ok: st && done, why: 'يظهر بعد أول نتيجة', run: exportLeagueHarvest }),
+          ...(snap.completed ? [] : [I({ id: 'lg-report', cat: 'honors', title: 'إحصائيات الدوري الشاملة', desc: 'ملخص الدوري والأوائل ونسبة الإنجاز', icon: 'chart', ok: st && done, why: 'يظهر بعد أول نتيجة', run: exportLeagueReport })]),   // 4.9: عند الاكتمال يحل «حصاد الدوري» محلها
           I({ id: 'lg-champion', cat: 'honors', title: 'بطل الدوري', desc: 'بطاقة البطل النهائي', icon: 'trophy', final: true, ok: (snap.completed || !!leagueClinch()) && snap.standings.length > 0, why: 'تظهر بعد حسم اللقب أو اكتمال جميع المباريات', run: () => exportLeagueAchievementImage('champion', snap.standings, true) }),
           I({ id: 'lg-runner', cat: 'honors', title: 'الوصيف', desc: 'بطاقة وصيف الدوري', icon: 'medal', final: true, ok: snap.completed && many, why: 'تظهر بعد اكتمال جميع المباريات', run: () => exportLeagueAchievementImage('runnerUp', snap.standings, true) }),
           I({ id: 'lg-final3', cat: 'honors', title: 'أول 3 مراكز', desc: 'المراكز النهائية الثلاثة', icon: 'rank', final: true, ok: snap.completed && snap.standings.length > 0, why: 'تظهر بعد اكتمال جميع المباريات', run: () => exportLeagueAchievementImage('top3', snap.standings, true) }),
@@ -11362,6 +11365,156 @@ function buildLeagueStandingsCanvas() {
       const show = exportParts('lgReport');
       const picked = secs.filter((sec, i) => i === 0 ? show.summary : show.leaders);
       await renderLeagueSheet('إحصائيات الدوري', leagueCtx(), 1, picked.length ? picked : secs.slice(0, 1), 'League-Report.png');
+    }
+
+    // ===== 4.9 — «حصاد الدوري»: قصة الدوري في صورة واحدة (البطل · أرقام الدوري · أبطال الأرقام · أرقام المجلس الجديدة) =====
+    // حقائق محسوبة من مباريات الدوري نفسه فقط (قراءة فقط، لا تغيّر شيئًا). عند التساوي تُذكر الأسماء معًا بلا تفضيل.
+    // أثناء الدوري: «حصاد الدوري حتى الآن» بلا بطل ما لم يُحسم اللقب، وبلا «أقل أشواط عليه» (عدد المباريات غير متساوٍ بعد).
+    const hvN = (n, one, two, few, many) => n === 1 ? one : n === 2 ? two : `${n} ${n >= 3 && n <= 10 ? few : many}`;
+    const hvWins = n => hvN(n, 'فوز واحد', 'فوزان', 'انتصارات', 'انتصارًا');
+    const hvMatches = n => hvN(n, 'مباراة واحدة', 'مباراتان', 'مباريات', 'مباراة');
+    const hvSets = n => hvN(n, 'شوط واحد', 'شوطان', 'أشواط', 'شوطًا');
+    const hvDays = n => hvN(n, 'يوم واحد', 'يومان', 'أيام', 'يومًا');
+    function leagueHarvestData() {
+      if (!leagueStarted || leagueFixtureError) return null;
+      const st = calculateLeagueStandings(), pr = getLeagueProgress(), done = !!pr.completed, at = leagueMatchTimes();
+      const ms = sortByPlayedTime(leagueMatches.filter(m => isLeagueMatchCompleted(m) && !isLeagueMatchAnnulled(m) && !m.auto), m => at[m.id]);
+      if (!ms.length) return null;
+      const P = {}, ps = n => P[n] || (P[n] = { run: 0, unb: 0, bw: 0, bu: 0, clean: 0, days: 0 });
+      let sets = 0, draws = 0, ff = 0, clean = 0;
+      ms.forEach(m => { const a = Number(m.scoreA), b = Number(m.scoreB); sets += a + b; if (a === b) draws++; if (m.forfeit) ff++;
+        const isClean = !m.forfeit && Math.max(a, b) >= 2 && Math.min(a, b) === 0; if (isClean) clean++;
+        [[m.playerA, a, b], [m.playerB, b, a]].forEach(([n, me, op]) => { const p = ps(n);
+          p.run = me > op ? p.run + 1 : 0; p.unb = me < op ? 0 : p.unb + 1; p.bw = Math.max(p.bw, p.run); p.bu = Math.max(p.bu, p.unb);
+          if (me > op && isClean) p.clean++; }); });
+      // أيام اللعب من وقت التسجيل؛ «بلا خسارة» لكل يوم بنفس دالة البطاقة
+      const timed = ms.filter(m => at[m.id]), days = new Map();
+      timed.forEach(m => { const k = nightKeyOf(at[m.id]); if (!days.has(k)) days.set(k, []); days.get(k).push(m); });
+      days.forEach(list => unbeatenOfDay(list).forEach(n => { ps(n).days++; }));
+      const allTimed = timed.length === ms.length && days.size > 0;
+      const keys = [...days.keys()].sort();
+      // ارتفاع التقييم خلال الدوري: آخر نقطة للدوري في منحنى اللاعب مقابل ما قبلها
+      const rec = done ? liveChampRec('league') : null, rise = {};
+      try { computePlayerRatings().ranked.forEach(p => { const i = p.points.map(x => rec ? (x.name === rec.name && x.date === rec.date) : x.name === 'الدوري الجاري').lastIndexOf(true);
+        if (i < 0) return; const from = i ? p.points[i - 1].r : ELO_START; rise[p.name] = p.points[i].r - from; }); } catch (e) {}
+      const active = st.filter(r => !r.excluded).map(r => r.name);
+      const best = (val, min) => { let v = -Infinity, who = []; active.forEach(n => { const x = val(n); if (x == null) return; if (x > v) { v = x; who = [n]; } else if (x === v) who.push(n); }); return v >= min ? { v, who } : null; };
+      const lowest = val => { let v = Infinity, who = []; active.forEach(n => { const x = val(n); if (x < v) { v = x; who = [n]; } else if (x === v) who.push(n); }); return who.length ? { v, who } : null; };
+      const rows = Object.fromEntries(st.map(r => [r.name, r]));
+      const R = [];
+      const add = (k, title, b, fmt) => { if (b) R.push({ k, title, raw: b.v, v: fmt(b.v), who: b.who }); };
+      add('win', 'أطول سلسلة انتصارات', best(n => (P[n] || {}).bw || 0, 2), hvWins);
+      add('unb', 'أطول سلسلة بلا هزيمة', best(n => (P[n] || {}).bu || 0, 2), hvMatches);
+      add('clean', 'أكثر انتصارات نظيفة', best(n => (P[n] || {}).clean || 0, 1), hvWins);
+      if (done) add('def', 'أقل أشواط عليه', lowest(n => rows[n].setsAgainst), hvSets);
+      add('rise', 'أكبر ارتفاع في التقييم', best(n => rise[n] != null ? rise[n] : null, 1), v => '‎+' + v);
+      add('days', 'أكثر أيام «بلا خسارة»', best(n => (P[n] || {}).days || 0, 1), hvDays);
+      // أرقام المجلس القياسية التي تحققت في هذا الدوري (بلا المجاميع التراكمية: أكثر الألقاب والانتصارات والنظيفة ترتفع مع كل فوز لصاحبها)
+      let council = [];
+      try { const koLive = liveTournamentRecords().some(t => t.mode !== 'league');
+        council = councilRecords().filter(r => !['ttot', 'wtot', 'clean'].includes(r.k)).filter(r => done ? (rec && r.date && r.date === rec.date) : (r.live && !koLive)); } catch (e) {}
+      // رقم الدوري الذي صار رقمًا قياسيًا للمجلس يُعلَّم في بطاقته («رقم قياسي جديد للمجلس») ولا يتكرر في قائمة المجلس
+      const SAME = { win: 'win', unb: 'unb', rise: 'jump' };
+      R.forEach(x => { const c = council.find(r => r.k === SAME[x.k] && r.v === x.raw && x.who.every(n => r.holders.includes(n))); if (c) { x.council = true; council = council.filter(r => r !== c); } });
+      // البطل: عند الاكتمال، أو الحسم المبكر
+      let champ = null; const cl = done ? null : leagueClinch();
+      if (done) { const c = st.find(r => !r.excluded && r.rank === 1); if (c) { const gd = leagueGoldenOf();
+        champ = { title: champTitle('league', rec, !!gd), name: c.name, golden: !!gd,
+          line: [exportPointsLabel(c.points), hvWins(c.wins), c.draws ? hvN(c.draws, 'تعادل واحد', 'تعادلان', 'تعادلات', 'تعادلًا') : '', c.losses ? hvN(c.losses, 'خسارة واحدة', 'خسارتان', 'خسارات', 'خسارة') : 'بلا خسارة'].filter(Boolean).join(' · ') }; } }
+      else if (cl) champ = { title: champTitle('league', null), name: cl.name, line: CLINCH_LINE };
+      return { done, champ, num: champTitle('league', rec).replace(/^بطل /, ''),
+        numbers: [['المباريات', ms.length], ...(allTimed ? [['أيام اللعب', days.size]] : []), ['الأشواط', sets], ['انتصارات نظيفة', clean], ['التعادلات', draws], ['الانسحابات', ff]],
+        period: allTimed && keys.length > 1 ? `من ${nightLabel(keys[0])} إلى ${nightLabel(keys[keys.length - 1])}` : '',
+        records: R, council };
+    }
+    async function exportLeagueHarvest() {
+      exportChipCtx('lg-harvest');
+      const D = leagueHarvestData(); if (!D) { alert('لا توجد نتائج مكتملة بعد.'); return; }
+      await exportLoadFonts();
+      const B = EXPORT_BRAND, W = 1080, M = 56, CW = W - M * 2, GAPS = 26, TP = EXPORT_TABLE_PAD, RX = M + TP, RW = CW - 2 * TP;
+      const meta = [{ icon: 'calendar', label: exportTodayLabel() }], top = M + exportBrandHeaderHeight(meta) + 34;
+      const show = exportParts('harvest');
+      const T = (ctx, s, x, cy, o) => exportText(ctx, s, x, cy - exportOptDy(o.size), o);
+      const names = who => who.length <= 3 ? who.join(' · ') : `${who.length} لاعبين`;
+      const sub = D.done ? `حصاد ${D.num}` : `حصاد ${D.num} حتى الآن`;
+      function draw(ctx) {
+        const cuts = []; let y = top;
+        exportBrandHeader(ctx, M, M, CW, tournamentName.textContent.trim() || 'دوري المجلس للكيرم', sub, meta);
+        exportReadable = true;
+        // (1) البطل: لوحة جوز بالتسلسل نفسه لبطاقة البطل (العنوان الذهبي ← الاسم ← سطر النقاط أو الحسم)
+        if (show.champ && D.champ) {
+          const H = 252, cx = M + CW / 2;
+          exportWoodPanel(ctx, M, y, CW, H, 30);
+          if (D.champ.golden) { ctx.save(); drawRoundedRect(ctx, M + 6, y + 6, CW - 12, H - 12, 25); ctx.strokeStyle = 'rgba(227,204,160,0.5)'; ctx.lineWidth = 1.5; ctx.stroke(); ctx.restore(); }
+          exportIcon(ctx, 'trophy', cx, y + 46, 40, B.gold, 2.2);
+          T(ctx, D.champ.title, cx, y + 94, { size: 28, weight: 800, color: B.goldSoft, maxW: CW - 80, min: 20 });
+          T(ctx, D.champ.name, cx, y + 150, { size: 60, weight: 900, color: '#FBF6EC', maxW: CW - 80, min: 32 });
+          T(ctx, D.champ.line, cx, y + 210, { size: 26, weight: 700, color: 'rgba(245,238,227,0.78)', maxW: CW - 80, min: 18 });
+          y += H + GAPS;
+        }
+        // (2) أرقام الدوري: شبكة بثلاثة أعمدة (الرقم بارزًا ← اسمه)، والفترة تحتها
+        if (show.numbers) {
+          const L = D.numbers, C = 3, G = 10, TH = 132, rows = Math.ceil(L.length / C), PH = D.period ? 62 : 0, bodyH = rows * TH + (rows - 1) * G + PH;
+          cuts.push(y - GAPS / 2); y += exportSectionBar(ctx, M, y, CW, 'أرقام الدوري', 'chart', null, bodyH) + TP;
+          const tw = (RW - (C - 1) * G) / C;
+          L.forEach(([label, v], i) => { const r = Math.floor(i / C), k = i % C, inRow = Math.min(C, L.length - r * C), rowW = inRow * tw + (inRow - 1) * G;
+            const x0 = RX + (RW - rowW) / 2 + rowW - (k + 1) * tw - k * G, y0 = y + r * (TH + G), cx = x0 + tw / 2;   // صف ناقص يتوسط
+            drawRoundedRect(ctx, x0, y0, tw, TH, 18); ctx.fillStyle = B.paper; ctx.fill(); ctx.strokeStyle = B.line; ctx.lineWidth = 1.2; ctx.stroke();
+            T(ctx, Number(v).toLocaleString('en-US'), cx, y0 + 54, { size: 52, weight: 900, color: B.ink, dir: 'ltr', maxW: tw - 24 });
+            T(ctx, label, cx, y0 + 102, { size: 24, weight: 700, color: B.muted, maxW: tw - 24, min: 16 }); });
+          if (D.period) T(ctx, D.period, RX + RW / 2, y + rows * TH + (rows - 1) * G + 34, { size: 24, weight: 700, color: B.faint, maxW: RW - 40, min: 16 });
+          y += bodyH + TP + GAPS;
+        }
+        // (3) أبطال الأرقام: بطاقات «سطور ثابتة» (اسم الرقم ← القيمة ← صاحبه)، عمودان، والوحيدة في صفها بالعرض كاملًا
+        if (show.records && D.records.length) {
+          const L = D.records, PT = 22, LT = 32, GV = 12, LV = 58, GL = 10, LN = 40, LC = 38, PB = 22, RH0 = PT + LT + GV + LV + GL + LN + PB;
+          const rows = Math.ceil(L.length / 2), G = 10;
+          // ارتفاع كل صف: سطر «رقم قياسي جديد للمجلس» يزيد صفه وحده، فتبقى سطور الصف الواحد على خط واحد
+          const rowH = [...Array(rows)].map((_, r) => RH0 + (L.slice(r * 2, r * 2 + 2).some(x => x.council) ? LC : 0));
+          const rowY = rowH.map((_, r) => rowH.slice(0, r).reduce((a, h) => a + h + G, 0)), bodyH = rowH.reduce((a, h) => a + h, 0) + (rows - 1) * G;
+          cuts.push(y - GAPS / 2); y += exportSectionBar(ctx, M, y, CW, 'أبطال الأرقام', 'star', null, bodyH) + TP;
+          const cw = (RW - G) / 2;
+          L.forEach((x, i) => { const r = Math.floor(i / 2), k = i % 2, solo = i === L.length - 1 && k === 0;
+            const w = solo ? RW : cw, x0 = solo ? RX : RX + RW - (k + 1) * cw - k * G, y0 = y + rowY[r], RH = rowH[r], cx = x0 + w / 2, mw = cw - 40;
+            if (k === 0 && r > 0) cuts.push(y0 - G / 2);
+            drawRoundedRect(ctx, x0, y0, w, RH, 18); ctx.fillStyle = B.paper; ctx.fill(); ctx.strokeStyle = B.line; ctx.lineWidth = 1.2; ctx.stroke();
+            const yT = y0 + PT + LT / 2, yV = yT + LT / 2 + GV + LV / 2, yN = yV + LV / 2 + GL + LN / 2;
+            T(ctx, x.title, cx, yT, { size: 24, weight: 800, color: B.goldDeep, maxW: mw, min: 16 });
+            T(ctx, x.v, cx, yV, { size: 50, weight: 900, color: B.ink, maxW: mw, min: 24, dir: /^[\u200E+]/.test(x.v) ? 'ltr' : 'rtl' });   // «+73» لا تنقلب
+            T(ctx, names(x.who), cx, yN, { size: 28, weight: 800, color: B.text, maxW: mw, min: 18 });
+            if (x.council) { const yc = yN + LN / 2 + LC / 2 - 2, tw2 = exportText(ctx, 'رقم قياسي جديد للمجلس', cx - 16, yc - exportOptDy(22), { size: 22, weight: 800, color: B.goldDeep, maxW: mw - 40, min: 15 }).width;
+              exportIcon(ctx, 'crown', cx + tw2 / 2 + 2, yc, 24, B.gold, 2); } });
+          y += bodyH + TP + GAPS;
+        }
+        // (4) أرقام المجلس القياسية الجديدة في هذا الدوري
+        if (show.council && D.council.length) {
+          const L = D.council, RH = 104, bodyH = L.length * RH - 10;
+          cuts.push(y - GAPS / 2); y += exportSectionBar(ctx, M, y, CW, 'أرقام قياسية جديدة للمجلس', 'crown', null, bodyH) + TP;
+          L.forEach((r, i) => { if (i) cuts.push(y - 5);
+            drawRoundedRect(ctx, RX, y, RW, RH - 10, 16); ctx.fillStyle = B.paper; ctx.fill(); ctx.strokeStyle = B.line; ctx.lineWidth = 1.2; ctx.stroke();
+            const cy = y + (RH - 10) / 2;
+            const vw = exportText(ctx, r.txt, RX + 28, cy - exportOptDy(34), { size: 34, weight: 900, color: B.goldDeep, align: 'left', maxW: RW * 0.34, min: 20, dir: /^[\u200E+]/.test(r.txt) ? 'ltr' : 'rtl' }).width;
+            T(ctx, r.label, RX + RW - 26, cy - 18, { size: 28, weight: 800, color: B.ink, align: 'right', maxW: RW - vw - 90, min: 18 });
+            T(ctx, names(r.holders), RX + RW - 26, cy + 22, { size: 23, weight: 700, color: B.muted, align: 'right', maxW: RW - vw - 90, min: 15 });
+            y += RH; });
+          y += TP - 10 + GAPS;
+        }
+        exportReadable = false;
+        return { y, cuts };
+      }
+      let H, canvas, ctx, cuts;
+      try { H = Math.ceil(draw(exportNewCanvas(W, 4).ctx).y - GAPS + 70);
+        ({ canvas, ctx } = exportNewCanvas(W, H)); ({ cuts } = draw(ctx)); } finally { exportReadable = false; }
+      exportFooterDivider(ctx, M, H - 40, CW);
+      canvas.__cuts = cuts; canvas.__autoSplit = true;
+      const fn = 'League-Harvest.png', lines = [];
+      lines.push(D.done ? `حصاد ${D.num}` : `حصاد ${D.num} حتى الآن`);
+      if (D.champ) lines.push(`🏆 ${D.champ.title}: ${D.champ.name}${D.done ? ` (${D.champ.line})` : ` · ${CLINCH_LINE}`}`);
+      lines.push(D.numbers.map(([l, v]) => `${l} ${v}`).join(' · '));
+      D.records.forEach(x => lines.push(`${x.title}: ${x.v.replace('‎', '')} · ${x.who.join('، ')}${x.council ? ' (رقم قياسي جديد للمجلس)' : ''}`));
+      D.council.forEach(r => lines.push(`رقم قياسي جديد للمجلس · ${r.label}: ${r.txt.replace('‎', '')} · ${r.holders.join('، ')}`));
+      setCaption(fn, lines.join('\n'));
+      await downloadCanvasAsPng(canvas, fn);
     }
 
 
@@ -15260,7 +15413,7 @@ function buildLeagueStandingsCanvas() {
     // ===================================
     // 🧭 سلوك التطبيق: إعادة الوضع للأعلى، تعديل العنوان بالضغط المطوّل، تنبيه التحديث، رقم الإصدار
     // ===================================
-    const APP_VERSION = '4.8';   // ترقيم الاعتماد (من 4 نوفمبر 2026): 1.0 ثم 1.1 … 1.9 ثم 2.0 — ويُرفع معه رقم الإصدار في sw.js
+    const APP_VERSION = '4.9';   // ترقيم الاعتماد (من 4 نوفمبر 2026): 1.0 ثم 1.1 … 1.9 ثم 2.0 — ويُرفع معه رقم الإصدار في sw.js
     (function setupAppBehaviors() {
       const root = document.documentElement;
 
