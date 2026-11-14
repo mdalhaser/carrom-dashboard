@@ -12183,13 +12183,13 @@ function buildLeagueStandingsCanvas() {
       const best = titles.length ? null : done.find(x => x.res[0] === 'ru') || done.find(x => x.res[0] === 'sf') || null;
       const peak = p.points.reduce((m, x) => x.r > (m ? m.r : -Infinity) ? x : m, null);
       // أفضل أرقامه (بنفس تعريفات سجل الأرقام): بلا هزيمة = فوز أو تعادل حتى أول خسارة · الألقاب المتتالية عبر كل الأنواع بترتيب التاريخ (في البطولات التي شارك فيها)
-      // · أكبر قفزة تقييم في بطولة مكتملة · الفوز النظيف = فوز لم يسجل فيه الخصم شوطًا (من المباريات المسجلة بنتيجة فقط)
+      // · أكبر قفزة تقييم في بطولة مكتملة · الفوز النظيف = فوز بشوطين فأكثر لم يسجل فيه الخصم شوطًا (4.8: لا يُحتسب فوز الشوط الواحد 1 - 0؛ من المباريات المسجلة بنتيجة فقط)
       let unb = 0, run = 0; p.seq.forEach(r => { run = r === 'l' ? 0 : run + 1; unb = Math.max(unb, run); });
       let titleRun = 0, tr = 0; statsSourceRecords().filter(t => t && !t.live && inT(t)).slice().sort((a, b) => new Date(a.date) - new Date(b.date)).forEach(t => { tr = has(t, t.champion) ? tr + 1 : 0; titleRun = Math.max(titleRun, tr); });   // البطولات التي لم يشارك فيها لا تقطع السلسلة
       const jump = done.filter(x => x.dl != null && x.dl > 0).reduce((m, x) => !m || x.dl > m.dl ? x : m, null);
       let clean = 0; statsSourceRecords().forEach(t => (t.matches || []).forEach(m => {
         if (m.forfeit || !has(t, m.winner)) return; const ws = Number(m.winnerScore), ls = m.loserScore;
-        if (ls !== null && ls !== undefined && ls !== '' && Number(ls) === 0 && ws > 0) clean++; }));
+        if (ls !== null && ls !== undefined && ls !== '' && Number(ls) === 0 && ws >= 2) clean++; }));
       return { career, done, titles, best, peak, unb, titleRun, jump, clean };
     }
     // 8.4 — لحظة كل رقم (قراءة فقط، للعرض): البطولة والتاريخ اللذان بلغ فيهما اللاعب قيمته القصوى أول مرة.
@@ -12202,7 +12202,7 @@ function buildLeagueStandingsCanvas() {
       let bt = 0, rt = 0, mt = null; (C.done || []).slice().reverse().forEach(x => { rt = x.res[0] === 'ch' ? rt + 1 : 0; if (rt > bt) { bt = rt; mt = x.t; } });
       let nc = 0, lc = null; statsSourceRecords().filter(Boolean).slice().sort((a, b) => new Date(a.date) - new Date(b.date)).forEach(t => (t.matches || []).forEach(m => {
         if (m.forfeit || !has(t, m.winner)) return; const ws = Number(m.winnerScore), ls = m.loserScore;
-        if (ls !== null && ls !== undefined && ls !== '' && Number(ls) === 0 && ws > 0) { nc++; lc = t; } }));
+        if (ls !== null && ls !== undefined && ls !== '' && Number(ls) === 0 && ws >= 2) { nc++; lc = t; } }));
       return {
         win: mw && bw === p.bestWin ? at(mw.t, mw.live) : null,
         unb: mu && bu === C.unb ? at(mu.t, mu.live) : null,
