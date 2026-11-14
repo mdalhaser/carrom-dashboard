@@ -11418,8 +11418,11 @@ function buildLeagueStandingsCanvas() {
       const timed = ms.filter(m => at[m.id]), days = new Map();
       timed.forEach(m => { const k = nightKeyOf(at[m.id]); if (!days.has(k)) days.set(k, []); days.get(k).push(m); });
       days.forEach(list => unbeatenOfDay(list).forEach(n => { ps(n).days++; }));
-      const allTimed = timed.length === ms.length && days.size > 0;
       const keys = [...days.keys()].sort();
+      // الدوري 1 بدأ قبل تسجيل وقت المباريات (من 23.10.2026): يوما اللعب الأولان أكدهما صاحب المشروع (كل جمعة).
+      // تُضاف لعدد الأيام والفترة فقط، ولا يُنسب لهما «بلا خسارة» (لا يُعرف من لعب ماذا فيهما). الدوريات التالية كلها موقّتة.
+      const PRE_DAYS = { '2026-10-23': ['2026-10-09', '2026-10-16'] }, pre = timed.length < ms.length && PRE_DAYS[keys[0]] || [];
+      const allTimed = (timed.length === ms.length || pre.length > 0) && days.size > 0, allKeys = pre.concat(keys);
       // ارتفاع التقييم خلال الدوري: آخر نقطة للدوري في منحنى اللاعب مقابل ما قبلها
       const rec = done ? liveChampRec('league') : null, rise = {};
       try { computePlayerRatings().ranked.forEach(p => { const i = p.points.map(x => rec ? (x.name === rec.name && x.date === rec.date) : x.name === 'الدوري الجاري').lastIndexOf(true);
@@ -11450,8 +11453,8 @@ function buildLeagueStandingsCanvas() {
           line: [exportPointsLabel(c.points), hvWins(c.wins), c.draws ? hvN(c.draws, 'تعادل واحد', 'تعادلان', 'تعادلات', 'تعادلًا') : '', c.losses ? hvN(c.losses, 'خسارة واحدة', 'خسارتان', 'خسارات', 'خسارة') : 'بلا خسارة'].filter(Boolean).join(' · ') }; } }
       else if (cl) champ = { title: champTitle('league', null), name: cl.name, line: CLINCH_LINE };
       return { done, champ, num: champTitle('league', rec).replace(/^بطل /, ''),
-        numbers: [['المباريات', ms.length], ...(allTimed ? [['أيام اللعب', days.size]] : []), ['الأشواط', sets], ['انتصارات نظيفة', clean], ['التعادلات', draws], ['الانسحابات', ff]],
-        period: allTimed && keys.length > 1 ? `من ${nightLabel(keys[0])} إلى ${nightLabel(keys[keys.length - 1])}` : '',
+        numbers: [['المباريات', ms.length], ...(allTimed ? [['أيام اللعب', allKeys.length]] : []), ['الأشواط', sets], ['انتصارات نظيفة', clean], ['التعادلات', draws], ['الانسحابات', ff]],
+        period: allTimed && allKeys.length > 1 ? `من ${nightLabel(allKeys[0])} إلى ${nightLabel(allKeys[allKeys.length - 1])}` : '',
         records: R, council };
     }
     async function exportLeagueHarvest() {
