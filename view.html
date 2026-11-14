@@ -3759,8 +3759,8 @@
             <div class="mp-seg" role="group" aria-label="نظام المباراة"><button type="button" data-bo="3">أفضل من 3</button><button type="button" data-bo="5">أفضل من 5</button><button type="button" data-bo="c">مخصص</button></div>
           </div>
           <div class="mp-cust" id="mpCustRow" hidden>
-            <div class="lbl">النظام المخصص<small id="mpCustSub"></small></div>
-            <div class="mp-step-ctl" role="group" aria-label="النظام المخصص"><button type="button" class="mp-sb" data-d="1" aria-label="أشواط أكثر">+</button><b id="mpCustVal" aria-live="polite"></b><button type="button" class="mp-sb" data-d="-1" aria-label="أشواط أقل">−</button></div>
+            <div class="lbl">عدد أشواط الفوز<small id="mpCustSub"></small></div>
+            <div class="mp-step-ctl" role="group" aria-label="عدد أشواط الفوز"><button type="button" class="mp-sb" data-d="1" aria-label="أشواط أكثر">+</button><b id="mpCustVal" aria-live="polite"></b><button type="button" class="mp-sb" data-d="-1" aria-label="أشواط أقل">−</button></div>
           </div>
           <div id="newTournamentWrap" style="display:none;">
             <button id="newTournamentBtn" class="btn new-tournament-btn" data-ic="plus">منافسة جديدة بنفس اللاعبين</button>
@@ -14776,19 +14776,27 @@ function buildLeagueStandingsCanvas() {
     // الوقت لا يكون دقيقًا مع التوقف أو التسجيل بعد المباراة). طبقة تسجيل فوق المنطق الحالي: عند الحسم تُعتمد النتيجة (2 - 1 / 1 - 1)
     // بنفس الدوال القائمة (confirmWinner للفردي والفرق، saveLeagueMatchResult للدوري)، فلا يتغير التأهل ولا النقاط ولا التقييم.
     // البيانات إضافية على المباراة: mp = { g: [{ w: 'a'|'b' }], ff?: 'a'|'b' المنسحب }. a = الطرف الأول (يمين البطاقة) و b = الثاني.
-    // نظام المباراة للفردي والفرق: matchFormat_<mode> = عدد فردي من 1 إلى 13 ('3' افتراضيًا، '5'، أو مخصص 4.8)، والدوري شوطان ثابتان.
+    // نظام المباراة للفردي والفرق: matchFormat_<mode> = '3' (افتراضي) | '5' | 'cN' مخصص 4.8: الفوز بـ N أشواط (1–7)، والدوري شوطان ثابتان.
     // أرقام المسار بالموضع لا «الأكبر أولًا»: رقم كل طرف في جهة اسمه دائمًا (الأول يمينًا).
     // ===================================================================================
     const MP = (function () {
       const esc = s => String(s == null ? '' : s).replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
       const fmtKey = mode => 'matchFormat_' + mode;
-      function bestOf(mode) { mode = mode || currentMode; if (mode === 'league') return 2; try { const v = parseInt(localStorage.getItem(fmtKey(mode)), 10); return v >= 1 && v <= 13 && v % 2 ? v : 3; } catch (e) { return 3; } }
-      // لغة النظام الموحدة (4.8): «شوط واحد» · «أفضل من 7» · أشواط الفوز «شوطين» · «4 أشواط»
-      const winsOf = bo => Math.ceil(bo / 2);
-      const fmtName = bo => bo === 1 ? 'شوط واحد' : `أفضل من ${bo}`;
+      const rawFmt = mode => { try { return String(localStorage.getItem(fmtKey(mode)) || ''); } catch (e) { return ''; } };
+      const custN = mode => { const m = /^c([1-7])$/.exec(rawFmt(mode)); return m ? +m[1] : 0; };
+      function bestOf(mode) { mode = mode || currentMode; if (mode === 'league') return 2; const n = custN(mode); return n ? 2 * n - 1 : rawFmt(mode) === '5' ? 5 : 3; }
+      // لغة النظام (4.8): «أفضل من 3/5» للنظامين الجاهزين، والمخصص بعدد أشواط الفوز فقط («شوط واحد» · «الفوز بـ4 أشواط»)
       const winsTxt = n => n === 1 ? 'شوطًا واحدًا' : n === 2 ? 'شوطين' : `${n} أشواط`;
-      const fmtRule = bo => bo === 1 ? 'يفوز من يكسب الشوط' : `يفوز من يبلغ ${winsTxt(winsOf(bo))}`;
-      const fmtQualify = bo => bo === 1 ? 'الفائز بالشوط يتأهل' : `من يفوز بـ${winsTxt(winsOf(bo))} يتأهل`;
+      const winsName = n => n === 1 ? 'شوط واحد' : n === 2 ? 'شوطان' : `${n} أشواط`;
+      function fmt(mode) {
+        mode = mode || currentMode; const bo = bestOf(mode), n = Math.ceil(bo / 2), custom = !!custN(mode);
+        const rule = n === 1 ? 'يفوز من يكسب الشوط' : `يفوز من يبلغ ${winsTxt(n)}`;
+        const label = !custom ? `أفضل من ${bo}` : n === 1 ? 'شوط واحد' : n === 2 ? 'الفوز بشوطين' : `الفوز بـ${n} أشواط`;
+        const qualify = n === 1 ? 'الفائز بالشوط يتأهل' : `من يفوز بـ${winsTxt(n)} يتأهل`;
+        return { bo, n, custom, label, rule, qualify,
+          line: custom && n > 1 ? qualify : `${label} · ${qualify}`,          // سطر تحت عنوان الجدول
+          modal: custom ? `${rule}.` : `${label}: ${rule}.` };                 // سطر نافذة النتيجة
+      }
       const games = mp => (mp && Array.isArray(mp.g) ? mp.g : []);
       function count(mp) { const c = { a: 0, b: 0 }; games(mp).forEach(x => { if (x.w === 'a') c.a++; else if (x.w === 'b') c.b++; }); return c; }
       function decided(kind, mp, bo) { const c = count(mp); return kind === 'lg' ? c.a + c.b >= 2 : Math.max(c.a, c.b) >= Math.ceil((bo || bestOf()) / 2); }
@@ -14836,7 +14844,7 @@ function buildLeagueStandingsCanvas() {
         const st = steps(mp, A, B, !!finished && !mp.ff); if (!st.length) return '';
         return st.map(x => `<b>${x.verb}</b> ${esc(x.name)}`).join(' ← ') + (mp.ff ? ` ← <b>انسحاب</b> ${esc(mp.ff === 'a' ? A : B)}` : '');
       }
-      return { fmtKey, bestOf, winsOf, fmtName, winsTxt, fmtRule, fmtQualify, games, count, decided, steps, comeback, posHTML, pathHTML, compactHTML, esc };
+      return { fmtKey, bestOf, custN, fmt, winsTxt, winsName, games, count, decided, steps, comeback, posHTML, pathHTML, compactHTML, esc };
     })();
     window.MP = MP;
 
@@ -14859,38 +14867,37 @@ function buildLeagueStandingsCanvas() {
         return r; }; }
 
     // ---------- نظام المباراة (الفردي والفرق): أفضل من 3 أو أفضل من 5 أو مخصص (4.8)، يُقفل بعد أول نتيجة أو أول شوط مسجّل ----------
-    const CUST = [1, 7, 9, 11, 13];   // المخصص: شوط واحد أو أطول من أفضل من 5 (3 و5 لهما زرّاهما)
+    const CUST_MAX = 7;   // المخصص: عدد أشواط الفوز من 1 إلى 7
     function mpFormatLocked() { return Object.values(bracketState || {}).some(m => m && (m.winner || MP.games(m.mp).length)); }
     function mpFormatUI() {
-      const ko = currentMode === 'fixed' || currentMode === 'single', bo = MP.bestOf();
+      const ko = currentMode === 'fixed' || currentMode === 'single', F = MP.fmt(), bo = F.bo;
       const row = document.getElementById('mpFmtRow');
       if (row && !window.CARROM_VIEW) {
         row.hidden = !ko;
         const locked = mpFormatLocked();
-        const cust = bo !== 3 && bo !== 5;
-        row.querySelectorAll('[data-bo]').forEach(b => { const on = b.dataset.bo === 'c' ? cust : Number(b.dataset.bo) === bo; b.classList.toggle('on', on); b.setAttribute('aria-pressed', String(on)); b.disabled = locked; });
+        const cust = F.custom;
+        row.querySelectorAll('[data-bo]').forEach(b => { const on = b.dataset.bo === 'c' ? cust : !cust && Number(b.dataset.bo) === bo; b.classList.toggle('on', on); b.setAttribute('aria-pressed', String(on)); b.disabled = locked; });
         const sub = document.getElementById('mpFmtSub'); if (sub) sub.textContent = locked ? 'مقفل لهذه البطولة' : 'يُقفل بعد أول نتيجة';
         const cr = document.getElementById('mpCustRow');
         if (cr) { const show = ko && cust;
           if (show !== !cr.hidden) { if (row.hidden || !row.isConnected || !row.offsetParent) cr.hidden = !show; else revealMotion(cr, show); }
-          document.getElementById('mpCustVal').textContent = MP.fmtName(bo);
-          document.getElementById('mpCustSub').textContent = MP.fmtRule(bo);
-          const i = CUST.indexOf(bo);
-          cr.querySelectorAll('.mp-sb').forEach(b => { const d = Number(b.dataset.d); b.disabled = locked || i < 0 || !CUST[i + d]; }); }
+          document.getElementById('mpCustVal').textContent = MP.winsName(F.n);
+          document.getElementById('mpCustSub').textContent = F.n === 1 ? 'من يكسب الشوط يفوز' : 'من يبلغها أولًا يفوز';
+          cr.querySelectorAll('.mp-sb').forEach(b => { const v = F.n + Number(b.dataset.d); b.disabled = locked || v < 1 || v > CUST_MAX; }); }
       }
       const title = document.getElementById('bracketTitle');   // سطر هادئ تحت عنوان الجدول (النسختان)
       if (title) { let n = document.getElementById('bracketFmt');
         const show = ko && Object.keys(bracketState || {}).length > 0;
         if (show && !n) { n = document.createElement('p'); n.id = 'bracketFmt'; n.className = 'bracket-fmt'; title.after(n); }
-        if (n) { n.hidden = !show; n.textContent = `${MP.fmtName(bo)} · ${MP.fmtQualify(bo)}`; } }
+        if (n) { n.hidden = !show; n.textContent = F.line; } }
     }
     (function () {
       const row = document.getElementById('mpFmtRow'); if (!row) return;
       row.addEventListener('click', e => {
         const b = e.target.closest('[data-bo]'); if (!b || b.disabled) return;
         if (mpFormatLocked()) { uiToast('نظام المباراة مقفل بعد تسجيل أول نتيجة.', 'warn'); return; }
-        const cur = MP.bestOf(), v = b.dataset.bo === 'c' ? (CUST.includes(cur) ? cur : CUST[0]) : Number(b.dataset.bo);
-        if (v === cur) return;
+        const F = MP.fmt(), v = b.dataset.bo === 'c' ? (F.custom ? null : 'c' + F.n) : (!F.custom && F.bo === Number(b.dataset.bo) ? null : b.dataset.bo);   // «مخصص» يبدأ بنفس عدد أشواط النظام الحالي
+        if (!v) return;
         offerUndo('تغيير نظام المباراة');
         try { localStorage.setItem(MP.fmtKey(currentMode), String(v)); } catch (x) {}
         mpFormatUI();
@@ -14899,9 +14906,9 @@ function buildLeagueStandingsCanvas() {
       if (cr) cr.addEventListener('click', e => {
         const b = e.target.closest('.mp-sb'); if (!b || b.disabled) return;
         if (mpFormatLocked()) { uiToast('نظام المباراة مقفل بعد تسجيل أول نتيجة.', 'warn'); return; }
-        const v = CUST[CUST.indexOf(MP.bestOf()) + Number(b.dataset.d)]; if (!v) return;
+        const F = MP.fmt(), v = F.n + Number(b.dataset.d); if (!F.custom || v < 1 || v > CUST_MAX) return;
         offerUndo('تغيير نظام المباراة');
-        try { localStorage.setItem(MP.fmtKey(currentMode), String(v)); } catch (x) {}
+        try { localStorage.setItem(MP.fmtKey(currentMode), 'c' + v); } catch (x) {}
         mpFormatUI();
       });
       try { mpFormatUI(); } catch (e) {}
@@ -14919,7 +14926,7 @@ function buildLeagueStandingsCanvas() {
       const isDone = (kind, m) => kind === 'ko' ? !!m.winner : isLeagueMatchCompleted(m);
       const boOf = kind => kind === 'lg' ? 2 : MP.bestOf();
       const titleOf = (kind, m) => kind === 'ko' ? (isFinalMatch(m) ? 'المباراة النهائية' : `مباراة ${m.matchNumber}`) : 'مباراة الدوري';
-      const subOf = (kind, m) => (kind === 'ko' ? cleanRound(m.roundName) : `الجولة ${m.round}`) + ' · ' + (kind === 'lg' ? 'شوطان' : MP.fmtName(boOf(kind)));
+      const subOf = (kind, m) => (kind === 'ko' ? cleanRound(m.roundName) : `الجولة ${m.round}`) + ' · ' + (kind === 'lg' ? 'شوطان' : MP.fmt().label);
       const isLocked = kind => { try { return kind === 'ko' ? !!getVerifiedTournamentChampion() : !!leagueCompleted; } catch (e) { return false; } };
       let cur = null;   // { kind, id, mode: 'rec' (مباراة لم تُحسم: كل شوط يُحفظ فورًا) | 'edit' (مسودة لمباراة محسومة), draft, ffOpen, pending (الشوط الحاسم بانتظار الاعتماد) }
 
@@ -15052,7 +15059,7 @@ function buildLeagueStandingsCanvas() {
         const ok = scoreModalE.style.display === 'flex' && m && !MP.games(m.mp).length && !(kind === 'lg' && isLeagueMatchAnnulled(m))
           && (kind === 'lg' || (m.team1 && m.team2 && !String(m.team1).includes('الفائز من م') && !String(m.team2).includes('الفائز من م') && !String(m.team1).includes('Bye') && !String(m.team2).includes('Bye')));
         entry.hidden = !ok; entryFor = ok ? { kind, id, unlocked: !!unlocked } : null;
-        if (kind === 'ko' && scoreModalE.style.display === 'flex') { const bo = MP.bestOf(); scoreModalSubtitleEl.textContent = `${MP.fmtName(bo)}: ${MP.fmtRule(bo)}.`; syncCap(); }   // 3.6.1: النظام في سطر النافذة
+        if (kind === 'ko' && scoreModalE.style.display === 'flex') { scoreModalSubtitleEl.textContent = MP.fmt().modal; syncCap(); }   // 3.6.1: النظام في سطر النافذة
       }
       window.carromMpEntry = showEntry;
       // المكتملة تُعاد بمسودة (لا يتغير شيء قبل الاعتماد)، وغير الملعوبة بالتسجيل الحي
@@ -15114,7 +15121,7 @@ function buildLeagueStandingsCanvas() {
         }
         if (!lg && !koForfeitSel && Number.isInteger(a) && Number.isInteger(b) && a !== b) {
           const bo = MP.bestOf(), n = Math.ceil(bo / 2);
-          if (Math.max(a, b) !== n || Math.min(a, b) >= n) { e.stopImmediatePropagation(); e.preventDefault(); uiToast(`نظام المباراة ${MP.fmtName(bo)}: ${MP.fmtRule(bo)} (${n === 1 ? '1 - 0' : `مثل ${n} - ${n - 1}`})`, 'warn'); return; }
+          if (Math.max(a, b) !== n || Math.min(a, b) >= n) { e.stopImmediatePropagation(); e.preventDefault(); uiToast(`${MP.fmt().modal.slice(0, -1)} (${n === 1 ? '1 - 0' : `مثل ${n} - ${n - 1}`})`, 'warn'); return; }
         }
         if (dropMp && dropMp.kind === kind && dropMp.id === id && MP.games(m.mp).length) { delete m.mp; dropMp = null; return; }   // 3.10: تأكيد الحذف سبق في ورقة المسار
         if (MP.games(m.mp).length) {
@@ -15133,8 +15140,7 @@ function buildLeagueStandingsCanvas() {
           if (pass) { pass = false; return; }
           if (!(currentMode === 'fixed' || currentMode === 'single') || Object.keys(bracketState || {}).length) return;
           e.stopImmediatePropagation(); e.preventDefault();
-          const bo = MP.bestOf();
-          const ok = await uiConfirm(`نظام المباراة: ${MP.fmtName(bo)}\n${MP.fmtQualify(bo)}. يُقفل النظام بعد أول نتيجة.`, { title: 'إنشاء جدول المباريات', okText: 'إنشاء الجدول', cancelText: 'تغيير النظام' });
+          const F = MP.fmt(); const ok = await uiConfirm(`نظام المباراة: ${F.label}\n${F.custom && F.n > 1 ? 'من يبلغها أولًا يتأهل' : F.qualify}. يُقفل النظام بعد أول نتيجة.`, { title: 'إنشاء جدول المباريات', okText: 'إنشاء الجدول', cancelText: 'تغيير النظام' });
           if (!ok) {   // 4.8: الاختيار من بطاقة القرعة نفسها (3 · 5 · مخصص) بدل التبديل بين نظامين
             const row = document.getElementById('mpFmtRow');
             if (row && !row.hidden) { row.scrollIntoView({ behavior: foldReduced() ? 'auto' : 'smooth', block: 'center' }); const on = row.querySelector('.mp-seg .on') || row.querySelector('.mp-seg button'); setTimeout(() => { try { on.focus({ preventScroll: true }); } catch (x) {} }, 350); }
