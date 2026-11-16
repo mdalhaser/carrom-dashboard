@@ -3662,6 +3662,22 @@
     .vm-out.live { color: var(--ok); }
     .ht-mp { grid-column: 1 / -1; margin-top: 2px; font-size: var(--fs-xs); font-weight: 700; color: var(--text-3); text-align: center; line-height: 1.5; }
     .ht-mp b { font-weight: 800; color: var(--text-2); }
+    /* ===== 5.1 — «زجاج صلب» (مستوحى من Solid Glass، بألواننا الدافئة): الحافة تُبنى بالضوء لا بالخط =====
+       خط ضوء رفيع في أعلى السطح من الداخل (حافة زجاج سميك) + الإطار الرفيع القائم + ظل تلامس ناعم تحته.
+       ثلاث سماكات: الأشرطة المثبتة (الزجاج الرقيق القائم) · البطاقات (--sh-1) · الأوراق والنوافذ (--sh-sheet، أثقل).
+       الأزرار الرئيسية «تنزل» في السطح عند الضغط (يختفي ظلها). بطاقات البطل والمستويات والأوسمة بخاماتها كما هي. CSS فقط. */
+    :root {
+      --sh-1: inset 0 1px 0 #FFFDF8, inset 0 -1px 0 rgba(48, 37, 31, .05), 0 1px 2px rgba(48, 37, 31, .07), 0 12px 26px -16px rgba(48, 37, 31, .34);
+      --sh-sheet: inset 0 1px 0 rgba(255, 253, 247, 1), 0 -12px 48px rgba(25, 18, 12, .28);
+    }
+    body.dark-mode {
+      --sh-1: inset 0 1px 0 rgba(255, 244, 228, .12), inset 0 0 0 1px rgba(255, 244, 228, .025), 0 1px 2px rgba(0, 0, 0, .45), 0 14px 30px -14px rgba(0, 0, 0, .8);
+      --sh-sheet: inset 0 1px 0 rgba(255, 244, 228, .1), 0 -12px 48px rgba(0, 0, 0, .55);
+    }
+    .btn.primary { box-shadow: inset 0 1px 0 rgba(255, 236, 205, .18), 0 4px 14px -4px rgba(48, 37, 31, .5); }
+    .btn.primary:active:not(:disabled) { box-shadow: inset 0 1px 0 rgba(255, 236, 205, .1), 0 1px 2px rgba(48, 37, 31, .3); }
+    body.dark-mode .btn.primary { box-shadow: inset 0 1px 0 rgba(255, 250, 232, .5), 0 6px 16px -8px rgba(0, 0, 0, .7); }
+    body.dark-mode .btn.primary:active:not(:disabled) { box-shadow: inset 0 1px 0 rgba(255, 250, 232, .3), 0 1px 2px rgba(0, 0, 0, .5); }
   </style>
 </head>
 <body>
@@ -15442,7 +15458,7 @@ function buildLeagueStandingsCanvas() {
     // ===================================
     // 🧭 سلوك التطبيق: إعادة الوضع للأعلى، تعديل العنوان بالضغط المطوّل، تنبيه التحديث، رقم الإصدار
     // ===================================
-    const APP_VERSION = '5.0';   // ترقيم الاعتماد (من 4 نوفمبر 2026): 1.0 ثم 1.1 … 1.9 ثم 2.0 — ويُرفع معه رقم الإصدار في sw.js
+    const APP_VERSION = '5.1';   // ترقيم الاعتماد (من 4 نوفمبر 2026): 1.0 ثم 1.1 … 1.9 ثم 2.0 — ويُرفع معه رقم الإصدار في sw.js
     (function setupAppBehaviors() {
       const root = document.documentElement;
 
