@@ -3090,6 +3090,7 @@
     .cr-c:last-child:nth-child(odd), .pf-rc:last-child:nth-child(odd) { grid-column: 1 / -1; }
     .toast.record { border-color: rgba(227, 191, 110, .55); } .toast.record .ic { color: #E9C77A; }
     /* ===== بطاقة الإنجاز (6.2): مادة التنبيهات (خشب داكن بحافة ذهبية) تحت شريط الأوضاع — الأرقام القياسية والترقيات والأوسمة ===== */
+    .ach-fx { position: fixed; inset: 0; width: 100%; height: 100%; z-index: 96; pointer-events: none; }
     .ach-host { position: fixed; z-index: 97; left: 0; right: 0; top: calc(var(--nav-bottom, 120px) + 8px); display: flex; flex-direction: column; align-items: center; padding: 0 12px; pointer-events: none; }
     .ach { pointer-events: auto; width: fit-content; min-width: min(250px, 100%); max-width: min(440px, 100%); box-sizing: border-box; padding: 8px 16px 8px; border-radius: 16px; direction: rtl;
       background: var(--wood); color: var(--on-wood); border: 1px solid rgba(207, 169, 99, .5); box-shadow: 0 14px 34px -12px rgba(0, 0, 0, .6);
@@ -12603,6 +12604,10 @@ function buildLeagueStandingsCanvas() {
       { const duo = {}; (C.titles || []).forEach(x => { const t = x.t; if (!t || t.mode === 'single' || t.mode === 'league') return; historyMembers(t, t.champion).forEach(m => { if (m !== p.name) duo[m] = (duo[m] || 0) + 1; }); });
         const best = Object.entries(duo).sort((a, b) => b[1] - a[1])[0];
         if (best && best[1] === 1) { add('duo', D.duo.name, 'وسام', 1, 2, () => 'لقب', 5, `مع ${best[0]}`); G[G.length - 1].partner = best[0]; } }
+      // 5.5: الأوسمة النادرة — بنفس قاعدة «من المنتصف» للسلاسل، وسيد المجلس ضمن 100 نقطة (لا هدف بعيد يُحبط)
+      if ((C.unb || 0) < 30 && half(curU, 30)) add('fort', D.fort.name, 'وسام نادر', curU, 30, arMatchesW, 1.1, 'بلا خسارة');
+      if ((C.titleRun || 0) < 8 && curT >= 1 && half(curT, 8)) add('reign', D.reign.name, 'وسام نادر', curT, 8, arTitlesW, 6, 'متتالية');
+      if (!(C.peak && C.peak.r >= 1300) && 1300 - p.rating <= 100) add('master', D.master.name, 'وسام نادر', p.rating, 1300, arPtsW, 1 / 12);
       // الأرقام القياسية (لا يملكها): الحالي ← القيمة التي تكسرها
       const R = Object.fromEntries((recs || []).map(r => [r.k, r]));
       // الشريك في الرقم يطارده أيضًا (تجاوزه بواحد يجعله صاحبه وحده)؛ صاحبه الوحيد لا يُعرض
@@ -12627,7 +12632,7 @@ function buildLeagueStandingsCanvas() {
       return goalCandidates(p, stats, C, recs, personal).filter(g => g.est <= 20).sort((a, b) => a.est - b.est || b.pct - a.pct).slice(0, 3);
     }
     // ===== 1.5 — «على المحك» و«أرقام مهددة» (قراءة فقط): محسوبة مرة لكل تغيّر في النتائج، ومنها تقرأ البطاقات والأوراق والجدول =====
-    const TITLE_GOALS = new Set(['club20', 'treble', 'all', 'duo', 'king', 'r-ttot', 'r-titles']);
+    const TITLE_GOALS = new Set(['club20', 'treble', 'reign', 'all', 'duo', 'king', 'r-ttot', 'r-titles']);
     let __stakesMemo = null;
     function stakesData() {
       let sig = ''; try { sig = (leagueMatches || []).map(m => isLeagueMatchCompleted(m) ? m.scoreA + '-' + m.scoreB : '.').join('') + '|' + Object.values(bracketState || {}).map(m => m.winner ? m.winner + m.winnerScore + m.loserScore : '.').join('') + '|' + statsSourceRecords().length; } catch (e) {}
@@ -12656,7 +12661,7 @@ function buildLeagueStandingsCanvas() {
           if (g.k === 'all' && g.missKind !== ctx.mode) return;
           if (g.k === 'duo' && !mates.includes(g.partner)) return;
         }
-        const how = TITLE_GOALS.has(g.k) ? 'التتويج باللقب' : g.k === 'r-clean' ? 'فوز نظيف' : g.k === 'r-unb' && lg ? 'فوز أو تعادل' : 'فوز';
+        const how = TITLE_GOALS.has(g.k) ? 'التتويج باللقب' : g.k === 'r-clean' ? 'فوز نظيف' : (g.k === 'r-unb' || g.k === 'fort') && lg ? 'فوز أو تعادل' : 'فوز';
         out.push({ who: n, t: g.t, rec: !!g.recK, recTxt: g.recTxt, how });
       }));
       side(mA, mA); side(mB, mB);
@@ -14229,8 +14234,8 @@ function buildLeagueStandingsCanvas() {
         const dpr = Math.min(2, window.devicePixelRatio || 1);
         const W = canvas.clientWidth, H = canvas.clientHeight;
         if (canvas.width !== Math.round(W * dpr) || canvas.height !== Math.round(H * dpr)) { canvas.width = Math.round(W * dpr); canvas.height = Math.round(H * dpr); }
-        const golds = ['#CFA963', '#E3CCA0', '#F3DFAE', '#A67C32', '#FFF4D6'];
-        const coins = canvas.__gold ? ['g', 'g', 'g', 'g', 'g'] : ['w', 'b', 'w', 'b', 'q'];   // 2.3: قطع المجلس الحقيقية (خشب طبيعي · أسود · ملكة حمراء)؛ البطل الذهبي: كلها ذهبية
+        const golds = canvas.__ruby ? ['#A8102E', '#E23A57', '#F7DE9C', '#CFA963', '#6E0619'] : ['#CFA963', '#E3CCA0', '#F3DFAE', '#A67C32', '#FFF4D6'];   // 5.5: الوسام النادر ياقوتي وذهبي
+        const coins = canvas.__gold ? ['g', 'g', 'g', 'g', 'g'] : canvas.__ruby ? ['q', 'g', 'q', 'q', 'g'] : ['w', 'b', 'w', 'b', 'q'];   // 2.3: قطع المجلس الحقيقية (خشب طبيعي · أسود · ملكة حمراء)؛ البطل الذهبي: كلها ذهبية
         const R = (a, b) => a + Math.random() * (b - a), now = performance.now();
         const ps = canvas.__ps || (canvas.__ps = []);
         const ox = at ? at.x : W / 2, oy = at ? at.y : H * 0.42, tap = !!at;
@@ -15573,7 +15578,7 @@ function buildLeagueStandingsCanvas() {
     // ===================================
     // 🧭 سلوك التطبيق: إعادة الوضع للأعلى، تعديل العنوان بالضغط المطوّل، تنبيه التحديث، رقم الإصدار
     // ===================================
-    const APP_VERSION = '5.4';   // ترقيم الاعتماد (من 4 نوفمبر 2026): 1.0 ثم 1.1 … 1.9 ثم 2.0 — ويُرفع معه رقم الإصدار في sw.js
+    const APP_VERSION = '5.5';   // ترقيم الاعتماد (من 4 نوفمبر 2026): 1.0 ثم 1.1 … 1.9 ثم 2.0 — ويُرفع معه رقم الإصدار في sw.js
     (function setupAppBehaviors() {
       const root = document.documentElement;
 
@@ -16300,6 +16305,10 @@ function buildLeagueStandingsCanvas() {
         if (VIEW && mine) { scrim = document.createElement('div'); scrim.className = 'ach-scrim'; scrim.setAttribute('aria-hidden', 'true'); document.body.appendChild(scrim); scrim.addEventListener('click', () => close()); }
         host.appendChild(card);
         requestAnimationFrame(() => { card.classList.add('in'); if (scrim) scrim.classList.add('in'); });
+        // 5.5: الوسام النادر يُعلَن باحتفال قصير: قصاصات ياقوتية وذهبية وقطع الملكة الحمراء من وسط الشاشة، مرة واحدة خلف البطاقة
+        if (list.some(x => x.rare) && !reduce() && typeof window.carromConfetti === 'function') {
+          const fx = document.createElement('canvas'); fx.className = 'ach-fx'; fx.setAttribute('aria-hidden', 'true'); fx.__ruby = true; document.body.appendChild(fx);
+          requestAnimationFrame(() => { try { window.carromConfetti(fx); } catch (e) {} }); setTimeout(() => fx.remove(), 4600); }
         // المدة بقدر المحتوى للقراءة المتأنية: 6 ث + 3 ث لكل إنجاز (9/12/15)، والممدَّد 4 ث + 2 ث لكل إنجاز (6/8/10)؛ وتتوقف ما دام الإصبع أو المؤشر عليها
         let left = soft ? 4000 + 2000 * shown.length : 6000 + 3000 * shown.length, t0 = Date.now(), timer = setTimeout(close, left), held = false;
         const pause = () => { if (held) return; held = true; clearTimeout(timer); left -= Date.now() - t0; };
