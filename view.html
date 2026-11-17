@@ -13157,7 +13157,7 @@ function buildLeagueStandingsCanvas() {
         const top = (standings || []).filter(r => !r.excluded).slice(0, 3), c = top[0], full = getExportCenterSnapshot().completed;
         await renderAchievementCanvas([{ rank: 1, name: c.name, cup: true, final: true, champ: { title: champTitle('league', liveChampRec('league'), !!gold), golden: !!gold, parts: [c.name], meta: !full && earlyLine ? CLINCH_LINE : ptsW(c.points),
           sub: gold ? goldenLine(gold) : (!full && earlyLine) ? earlyLine : `فوز ${c.wins} · تعادل ${c.draws} · خسارة ${c.losses}`,
-          rest: gold || !full ? [] : top.slice(1).map(r => [r.rank, r.name, ptsW(r.points)]) } }], 'الدوري', '', title, `League-${kind}-Final.png`);
+          rest: [] } }], 'الدوري', '', title, `League-${kind}-Final.png`);   // 5.2: صورة البطل للبطل وحده (المركزان في «منصة التتويج» و«حصاد الدوري»)
         return;
       }
       await renderAchievementCanvas(selected.map(r => ({ rank:r.rank, name:r.name, detail:exportPointsLabel(r.points), points:exportPointsLabel(r.points), medal:r.rank, final: leagueDone, cup: leagueDone && r.rank === 1, golden: !!gold && r.rank === 1 })), gold ? 'البطل الذهبي' : subtitle, (gold ? `دوري كامل · فوز ${gold.w}${gold.d ? ` · تعادل ${gold.d}` : ''}` : null) || earlyLine || `${isFinal ? 'الترتيب النهائي' : 'الترتيب الحالي'} للدوري`, title,
@@ -15497,7 +15497,7 @@ function buildLeagueStandingsCanvas() {
     // ===================================
     // 🧭 سلوك التطبيق: إعادة الوضع للأعلى، تعديل العنوان بالضغط المطوّل، تنبيه التحديث، رقم الإصدار
     // ===================================
-    const APP_VERSION = '5.1';   // ترقيم الاعتماد (من 4 نوفمبر 2026): 1.0 ثم 1.1 … 1.9 ثم 2.0 — ويُرفع معه رقم الإصدار في sw.js
+    const APP_VERSION = '5.2';   // ترقيم الاعتماد (من 4 نوفمبر 2026): 1.0 ثم 1.1 … 1.9 ثم 2.0 — ويُرفع معه رقم الإصدار في sw.js
     (function setupAppBehaviors() {
       const root = document.documentElement;
 
