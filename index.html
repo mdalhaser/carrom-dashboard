@@ -2936,7 +2936,7 @@
     .hn:not(.x) .md::before { content: ""; position: absolute; left: 15%; right: 19%; top: 6%; height: 44%; border-radius: 50% 50% 45% 45%; background: linear-gradient(180deg, rgba(255, 255, 255, .6), rgba(255, 255, 255, 0)); pointer-events: none; }
     .hn .md .ic, .hn .md .num { position: relative; z-index: 1; filter: drop-shadow(0 1px 0 rgba(255, 238, 190, .7)); }
     /* النهاري: ذهب أعمق وحافة داكنة رفيعة حتى لا يبهت على الأرضية العاجية */
-    body:not(.dark-mode) .hn:not(.x):not(.s):not(.h):not(.k) .md { color: #3A2304; background: radial-gradient(circle at 32% 24%, #FDEBB0 0%, #EDC25A 20%, #CF942A 50%, #9C6716 76%, #6A420B 100%);
+    body:not(.dark-mode) .hn:not(.x):not(.s):not(.h):not(.k):not(.r) .md { color: #3A2304; background: radial-gradient(circle at 32% 24%, #FDEBB0 0%, #EDC25A 20%, #CF942A 50%, #9C6716 76%, #6A420B 100%);
       box-shadow: 0 0 0 1px rgba(105, 66, 12, .55), inset 0 0 0 1.5px rgba(255, 230, 160, .8), inset 0 -4px 6px rgba(80, 46, 6, .5), inset 0 3px 3px rgba(255, 255, 255, .5), 0 5px 12px -4px rgba(110, 70, 14, .75); }
     body:not(.dark-mode) .hn.k .md { color: #3A2304; box-shadow: 0 0 0 1px rgba(60, 70, 80, .45), inset 0 0 0 1.5px rgba(255, 255, 255, .9), inset 0 -4px 6px rgba(40, 50, 60, .3), 0 5px 12px -4px rgba(80, 70, 50, .65); background: radial-gradient(circle at 50% 50%, rgba(0, 0, 0, 0) 0 61%, #EEF1F3 62.5%, #BCC4CA 78%, #7E878F 100%), radial-gradient(circle at 32% 24%, #FDEBB0 0%, #EDC25A 18%, #CF942A 44%, #9C6716 70%, #6A420B 100%); }
     body:not(.dark-mode) .hn.s .md { box-shadow: 0 0 0 1px rgba(60, 70, 80, .45), inset 0 0 0 1.5px rgba(255, 255, 255, .9), inset 0 -4px 6px rgba(40, 50, 60, .4), inset 0 3px 3px rgba(255, 255, 255, .7), 0 5px 12px -4px rgba(40, 50, 60, .6); }
@@ -3032,10 +3032,30 @@
     @keyframes hnsGlint { from { transform: translateX(-51px) skewX(-18deg); opacity: 1; } to { transform: translateX(137px) skewX(-18deg); opacity: 1; } }
     @keyframes hnsShine { from { transform: translateX(-72px) skewX(-18deg); opacity: var(--hns-o, .9); } to { transform: translateX(116px) skewX(-18deg); opacity: var(--hns-o, .9); } }
     @media (prefers-reduced-motion: reduce) { .hns .hns-shine { display: none; } }
+    /* 5.5 — الوسام النادر: ميدالية مثمّنة (SVG واحد) بلا قرص CSS، وضوء ياقوتي خافت خلفها، وفي بطاقة المعنى لمعة ثم وميض الياقوتات بالتتابع ثم سكون */
+    .hn.r .md, body:not(.dark-mode) .hn.r .md { width: 64px; height: 64px; margin-bottom: 8px; background: none; box-shadow: none; border-radius: 0; overflow: visible; }
+    .pf-rare:is([data-n="2"], [data-n="4"]) > * { flex-basis: calc((100% - 8px) / 2); }   /* 2 أو 4: صفّان متوازنان بدل 3 + 1 */
+    .hn.r .md::before, .hn.r .md::after { display: none; }
+    .hn.r .md .rmd-svg { display: block; width: 100%; height: 100%; overflow: visible; }
+    .hn.r .md .rmd-svg .rmi { overflow: visible; }
+    .pf-honors .hn.r { background: radial-gradient(70px 56px at 50% 44px, rgba(196, 26, 59, .14), transparent 72%), color-mix(in srgb, var(--surface-2) 55%, var(--surface)); border-color: color-mix(in srgb, #A8102E 26%, var(--line)); }
+    body.dark-mode .pf-honors .hn.r { background: radial-gradient(70px 56px at 50% 44px, rgba(226, 58, 87, .2), transparent 72%), color-mix(in srgb, var(--surface-2) 55%, var(--surface)); border-color: color-mix(in srgb, #E23A57 30%, var(--line)); }
+    .hns .hn.hns-hero.r .md { width: 96px; height: 96px; margin: 4px 0 2px; }
+    .hns .hn.r .hns-shine { inset: 3% 4% 6%; border-radius: 0; clip-path: polygon(29.3% 0, 70.7% 0, 100% 29.3%, 100% 70.7%, 70.7% 100%, 29.3% 100%, 0 70.7%, 0 29.3%); }
+    .hns .hn.r .hns-shine::before { --hns-o: .85; }
+    .hns .hn.r .gm .gl { transform-box: fill-box; transform-origin: center; animation: rmGlint .62s cubic-bezier(.3, 0, .3, 1) calc(1.05s + var(--i) * .09s) 1 both; }
+    @keyframes rmGlint { 0% { opacity: 0; transform: scale(.4); } 40% { opacity: 1; transform: scale(1.35); } 100% { opacity: 0; transform: scale(.7); } }
+    .hns-rare { display: inline-flex; align-items: center; height: 24px; padding: 2px 10px 0; margin: 0 auto 6px; border-radius: 999px; font-size: 12px; font-weight: 800; letter-spacing: .2px;
+      color: #F7DE9C; background: linear-gradient(180deg, #A5122F, #5E0418); box-shadow: inset 0 0 0 1px rgba(247, 222, 156, .55), inset 0 1px 0 rgba(255, 200, 210, .35); }
+    .hns .ui-dialog:has(.hns-rare) { display: flex; flex-direction: column; align-items: center; }
+    .hns .ui-dialog:has(.hns-rare) > * { align-self: stretch; }
+    .hns .ui-dialog:has(.hns-rare) > .hns-rare { align-self: center; }
+    @media (prefers-reduced-motion: reduce) { .hns .hn.r .gm .gl { animation: none; } }
     .hns h3 { margin: 0 0 6px; }
     .hns .ui-dialog-actions { grid-template-columns: 1fr; margin-top: var(--s4); }   /* زر واحد بعرض النافذة، ثانوي هادئ: الإغلاق باللمس خارجها أيضًا */
     .hns .ui-dialog-actions .btn { min-height: 42px; height: 42px; }
     .hns .hns-how { margin: 0 0 12px; font-size: 13px; font-weight: 700; line-height: 1.7; color: var(--text-2); }
+    .hns .hns-first.hns-cnt { margin-top: 0; }
     .hns .hns-first { margin: 8px 0 0; font-size: 12px; font-weight: 700; color: var(--text-3); }
     @media (prefers-reduced-motion: reduce) { button.hn, .hns.out { transition: none; animation: none; } }
     /* ===== 8.2 — أرقام المجلس القياسية و«أفضل أرقامه»: بطاقات شبكة بعمودين، كلها بمقاس واحد، والمحتوى في الوسط بتسلسل:
@@ -5967,7 +5987,14 @@ return teamName.replace('غير محدد', replacement);
       tornado: { body: ['M3.65 3.20H19.55A1.35 1.35 0 0 1 19.55 5.90H3.65A1.35 1.35 0 0 1 3.65 3.20Z', 'M7.05 7.00H18.95A1.35 1.35 0 0 1 18.95 9.70H7.05A1.35 1.35 0 0 1 7.05 7.00Z', 'M7.35 10.80H15.65A1.35 1.35 0 0 1 15.65 13.50H7.35A1.35 1.35 0 0 1 7.35 10.80Z', 'M10.65 14.60H15.55A1.35 1.35 0 0 1 15.55 17.30H10.65A1.35 1.35 0 0 1 10.65 14.60Z', 'M11.35 18.40H13.05A1.35 1.35 0 0 1 13.05 21.10H11.35A1.35 1.35 0 0 1 11.35 18.40Z'],
         shade: ['M14.95 3.20H19.55A1.35 1.35 0 0 1 19.55 5.90H14.95Z', 'M15.63 7.00H18.95A1.35 1.35 0 0 1 18.95 9.70H15.63Z', 'M13.48 10.80H15.65A1.35 1.35 0 0 1 15.65 13.50H13.48Z', 'M14.47 14.60H15.55A1.35 1.35 0 0 1 15.55 17.30H14.47Z', 'M12.99 18.40H13.05A1.35 1.35 0 0 1 13.05 21.10H12.99Z'],
         spec: ['M3.65 3.65H13.83V4.15H3.65Z', 'M7.05 7.45H14.75V7.95H7.05Z', 'M7.35 11.25H12.82V11.75H7.35Z', 'M10.65 15.05H14.01V15.55H10.65Z'] },
-      trophy3: { group: [['trophy', 'translate(6 1.6) scale(.5)'], ['trophy', 'translate(-.4 6.4) scale(.5)'], ['trophy', 'translate(12.4 6.4) scale(.5)']] }
+      trophy3: { group: [['trophy', 'translate(6 1.6) scale(.5)'], ['trophy', 'translate(-.4 6.4) scale(.5)'], ['trophy', 'translate(12.4 6.4) scale(.5)']] },
+      // 5.5 — شعارات الأوسمة النادرة: نجمة منتصف اللوح الثمانية · حصن بشُرفات وبوابة · جبل (لسيد المجلس، يعلوه تاج)
+      star8: { body: ['M12 1.4L13.88 7.47L19.5 4.5L16.53 10.12L22.6 12L16.53 13.88L19.5 19.5L13.88 16.53L12 22.6L10.12 16.53L4.5 19.5L7.47 13.88L1.4 12L7.47 10.12L4.5 4.5L10.12 7.47Z'], shade: ['M12 12L12 1.4L13.88 7.47ZM12 12L19.5 4.5L16.53 10.12ZM12 12L22.6 12L16.53 13.88ZM12 12L19.5 19.5L13.88 16.53ZM12 12L12 22.6L10.12 16.53ZM12 12L4.5 19.5L7.47 13.88ZM12 12L1.4 12L7.47 10.12ZM12 12L4.5 4.5L10.12 7.47Z'], spec: ['M12 1.9l.5 5.2-.5 1.2Z'] },
+      fort: { body: ['M3.4 21.2V8.6h3.1V6.2h2.3v2.4h2V6.2h2.4v2.4h2V6.2h2.3v2.4h3.1v12.6h-6.2v-4.1a2.4 2.4 0 0 0-4.8 0v4.1Z'],
+        shade: ['M12 6.2h1.2v2.4h2V6.2h2.3v2.4h3.1v12.6h-6.2v-4.1A2.4 2.4 0 0 0 12 14.7Z'], spec: ['M4.2 20.4V9.4h.7v11Z', 'M4.2 9.4h5.6v.6H4.2Z'] },
+      mount: { body: ['M2.4 20.6L9.3 9.4l3.5 5.6 2.4-3.6 6.4 9.2Z'], shade: ['M9.3 9.4l3.5 5.6-1.9 2.9 2.1 2.7H9.3Z', 'M15.2 11.4l6.4 9.2h-3.6Z'], spec: ['M3.7 19.8l5.6-9 .55.9-5.1 8.1Z'] },
+      crownpeak: { group: [['crown', 'translate(6.6 -.4) scale(.45)'], ['mount', 'translate(0 1.4) scale(1)']] },
+      crowncup: { group: [['crown', 'translate(6.6 -.6) scale(.45)'], ['trophy', 'translate(2.6 5.6) scale(.78)']] }
     };
     const RELIEF_ALIAS = { crowntri: 'crown', crownk: 'crown' };
     const reliefOf = n => { const k = RELIEF_ALIAS[n] || n, R = RELIEF[k]; if (!R) return null;
@@ -5984,6 +6011,38 @@ return teamName.replace('غير محدد', replacement);
         + `<path fill="${lv === 's' ? 'rgba(40,48,56,.18)' : 'rgba(90,55,10,.2)'}" d="${P.shade.join('')}"/><path fill="#FFFFFF" opacity=".75" d="${P.spec.join('')}"/>`;
       const inner = R.group ? R.group.map(([n, t]) => `<g transform="${t}">${one(reliefOf(n))}</g>`).join('') : one(R);
       return `<svg class="rlf" viewBox="0 0 24 24" aria-hidden="true"><defs><linearGradient id="${id}" x1="0" y1="0" x2=".35" y2="1">${m.map((c, i) => `<stop offset="${[0, .35, .72, 1][i]}" stop-color="${c}"/>`).join('')}</linearGradient></defs>${inner}</svg>`;
+    }
+    // ===== 5.5 — ميدالية الوسام النادر: مثمّن من عائلة درع البطولة، مينا ياقوتية بنقش «غيوشيه» تحت طبقة لامعة، إطار ذهب مصقول مشطوف،
+    // وثماني ياقوتات على زواياه (دوائر لوح الكيرم الحمراء الثماني)، والشعار نقش ذهبي بارز في المركز. SVG واحد للملف وبطاقة المعنى
+    // والإشعار وصورة التصدير (يُرسم كصورة)، بلا فلاتر (سفاري): الظل والعمق تدرجات ونسخ مزاحة داخل الرسم.
+    let rareSeq = 0;
+    function rareMedalSVG(ic) {
+      const u = 'rm' + (++rareSeq), C = 50;
+      const oct = (r, dy) => { let d = ''; for (let i = 0; i < 8; i++) { const a = (22.5 + i * 45) * Math.PI / 180; d += (i ? 'L' : 'M') + (C + r * Math.cos(a)).toFixed(2) + ' ' + (C + (dy || 0) + r * Math.sin(a)).toFixed(2); } return d + 'Z'; };
+      let rays = ''; for (let i = 0; i < 96; i++) { const a = i * Math.PI / 48, r0 = 7, r1 = 44; rays += `M${(C + r0 * Math.cos(a)).toFixed(2)} ${(C + r0 * Math.sin(a)).toFixed(2)}L${(C + r1 * Math.cos(a)).toFixed(2)} ${(C + r1 * Math.sin(a)).toFixed(2)}`; }
+      const gems = Array.from({ length: 8 }, (_, i) => { const a = (22.5 + i * 45) * Math.PI / 180, x = (C + 45.6 * Math.cos(a)).toFixed(2), y = (C + 45.6 * Math.sin(a)).toFixed(2);
+        return `<g class="gm" style="--i:${(i + 6) % 8}"><circle cx="${x}" cy="${+y + .7}" r="3.2" fill="rgba(60,30,4,.55)"/><circle cx="${x}" cy="${y}" r="3.1" fill="url(#${u}b)"/><circle cx="${x}" cy="${y}" r="2.25" fill="url(#${u}j)"/>`
+          + `<circle cx="${(+x - .7).toFixed(2)}" cy="${(+y - .8).toFixed(2)}" r=".7" fill="#FFF3F5" opacity=".95"/><circle class="gl" cx="${x}" cy="${y}" r="3.4" fill="url(#${u}s)" opacity="0"/></g>`; }).join('');
+      const em = reliefOf(ic) ? reliefSVG(ic, 'g').replace('<svg class="rlf" ', '<svg class="rmi" x="22" y="21" width="56" height="56" ') : '';
+      return `<svg class="rmd-svg" xmlns="http://www.w3.org/2000/svg" viewBox="-2 -2 104 106" aria-hidden="true"><defs>`
+        + `<linearGradient id="${u}f" x1="0" y1="0" x2=".32" y2="1"><stop offset="0" stop-color="#FFF6D6"/><stop offset=".18" stop-color="#F3D486"/><stop offset=".42" stop-color="#C9963B"/><stop offset=".6" stop-color="#8E601C"/><stop offset=".8" stop-color="#EBC872"/><stop offset="1" stop-color="#7A4F12"/></linearGradient>`
+        + `<linearGradient id="${u}c" x1="0" y1="1" x2=".25" y2="0"><stop offset="0" stop-color="#FCE7A8"/><stop offset=".45" stop-color="#B8842F"/><stop offset="1" stop-color="#6E460E"/></linearGradient>`
+        + `<radialGradient id="${u}e" cx=".42" cy=".3" r=".78"><stop offset="0" stop-color="#E23A57"/><stop offset=".3" stop-color="#AE1232"/><stop offset=".68" stop-color="#6E0619"/><stop offset="1" stop-color="#36020B"/></radialGradient>`
+        + `<linearGradient id="${u}g" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#FFFFFF" stop-opacity=".42"/><stop offset=".55" stop-color="#FFFFFF" stop-opacity=".06"/><stop offset="1" stop-color="#FFFFFF" stop-opacity="0"/></linearGradient>`
+        + `<radialGradient id="${u}j" cx=".38" cy=".32" r=".8"><stop offset="0" stop-color="#FF9AAA"/><stop offset=".45" stop-color="#D0183A"/><stop offset="1" stop-color="#5C0414"/></radialGradient>`
+        + `<linearGradient id="${u}b" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#FFF1C4"/><stop offset=".5" stop-color="#C99A44"/><stop offset="1" stop-color="#6E460E"/></linearGradient>`
+        + `<radialGradient id="${u}s"><stop offset="0" stop-color="#FFFFFF"/><stop offset=".35" stop-color="#FFE9EE" stop-opacity=".8"/><stop offset="1" stop-color="#FFFFFF" stop-opacity="0"/></radialGradient>`
+        + `<clipPath id="${u}k"><path d="${oct(38.6)}"/></clipPath></defs>`
+        + `<path d="${oct(48.2, 3)}" fill="rgba(40,8,10,.18)"/><path d="${oct(48, 1.6)}" fill="rgba(40,8,10,.32)"/>`   // الظل داخل الرسم
+        + `<path d="${oct(48)}" fill="url(#${u}f)"/><path d="${oct(48)}" fill="none" stroke="rgba(90,56,10,.7)" stroke-width=".8"/>`
+        + `<path d="${oct(43.4)}" fill="url(#${u}c)"/>`   // شطفة الإطار: نفس الذهب معكوس الضوء
+        + `<path d="${oct(40.4)}" fill="url(#${u}f)"/><path d="${oct(46.9)}" fill="none" stroke="rgba(255,248,222,.75)" stroke-width=".7"/>`
+        + `<path d="${oct(38.6)}" fill="url(#${u}e)"/>`
+        + `<g clip-path="url(#${u}k)"><path d="${rays}" stroke="rgba(255,150,170,.24)" stroke-width=".55"/>`
+        + [33, 27, 21].map(r => `<path d="${oct(r)}" fill="none" stroke="rgba(40,0,8,.22)" stroke-width=".5"/>`).join('')
+        + `<ellipse cx="50" cy="30" rx="34" ry="21" fill="url(#${u}g)"/><path d="${oct(38.6)}" fill="none" stroke="rgba(30,0,6,.55)" stroke-width="2.4"/></g>`
+        + `<path d="${oct(38.6)}" fill="none" stroke="#F7DE9C" stroke-width=".9"/>`
+        + gems + em + `</svg>`;
     }
     // نفس النقش على اللوحة (صورة تصدير الملف): size بالبكسل
     function drawRelief(ctx, name, lv, cx, cy, size) {
@@ -12466,6 +12525,11 @@ function buildLeagueStandingsCanvas() {
     // ===== أوسمة الشرف (5.5): إنجازات نادرة بلا أرقام، لا تظهر في أي مكان آخر من الملف فلا تتعارض مع أرقامه =====
     // لكل وسام شكل «ميدالية» خاص لا يُستخدم لغيره: ذهبي (إنجاز دائم) · فضي (بلغ النخبة) · إسبريسو (حامل رقم: لقب يُدافَع عنه وينتقل لمن يكسره)
     const HONOR_DEFS = [
+      // 5.5 — الأوسمة النادرة (lv 'r'): ميدالية مثمّنة بمينا ياقوتية، وصف خاص أعلى الأوسمة. العتبات فوق أعلى ما بلغه أي لاعب في المجلس.
+      { k: 'perfect', ic: 'star8', name: 'الدوري المثالي', how: 'الفوز بالدوري بكل مبارياته، دون أي خسارة أو تعادل.', lv: 'r', rare: true },
+      { k: 'fort', ic: 'fort', name: 'الحصن', how: 'خوض 30 مباراة متتالية دون أي خسارة.', lv: 'r', rare: true },
+      { k: 'reign', ic: 'crowncup', name: 'الهيمنة', how: 'تحقيق 8 ألقاب متتالية في بطولات المجلس.', lv: 'r', rare: true },
+      { k: 'master', ic: 'crownpeak', name: 'سيد المجلس', how: 'الوصول إلى تقييم 1,300 في تصنيف لاعبي المجلس.', lv: 'r', rare: true },
       { k: 'golden', ic: 'cupx', name: 'البطل الذهبي', how: 'الفوز بالدوري دون أي خسارة طوال البطولة.', lv: 'x' },
       { k: 'king', ic: 'crownk', name: 'الملك المتوّج', how: 'الفوز بلقب الدوري 5 مرات أو أكثر.', lv: 'k' },
       { k: 'club20', ic: 'trophy', num: '20', name: 'جامع العشرين', how: 'تحقيق 20 لقبًا في بطولات المجلس، سواء في الفردي أو الفرق أو الدوري.', lv: 'g' },
@@ -12484,6 +12548,12 @@ function buildLeagueStandingsCanvas() {
     function playerHonors(p, stats, C, recs) {
       const by = stats.titlesBy || {}, H = [], D = HONOR_DEF;
       const add = (k, t, s) => H.push({ k, ic: D[k].ic, num: D[k].num || '', t: t || D[k].name, s: s || '', lv: D[k].lv });
+      // 5.5: النادرة أولًا
+      const perfs = (C.titles || []).map(x => x.t && x.t.mode === 'league' ? leagueGoldenOf(x.t) : null).filter(g => g && !g.d);
+      if (perfs.length) add('perfect', '', perfs.length === 1 ? `فوز ${perfs[0].w} من ${perfs[0].w}` : perfs.length === 2 ? 'مرتان' : `${perfs.length} مرات`);
+      if ((C.unb || 0) >= 30) add('fort', '', `${C.unb} ${arMatchesW(C.unb)} بلا خسارة`);
+      if ((C.titleRun || 0) >= 8) add('reign', '', `${C.titleRun} ${arTitlesW(C.titleRun)} متتالية`);
+      if (C.peak && C.peak.r >= 1300) add('master', '', `أعلى تقييم ${C.peak.r.toLocaleString('en-US')}`);
       const golds = (C.titles || []).filter(x => x.t && x.t.mode === 'league' && leagueGoldenOf(x.t)).length;
       if (golds) add('golden', '', golds === 1 ? 'دوري بلا خسارة' : golds === 2 ? 'مرتان بلا خسارة' : `${golds} ${golds <= 10 ? 'مرات' : 'مرة'} بلا خسارة`);
       if ((by.league || 0) >= 5) add('king', '', `${by.league} ${by.league <= 10 ? 'ألقاب دوري' : 'لقب دوري'}`);
@@ -12648,7 +12718,7 @@ function buildLeagueStandingsCanvas() {
       ctx.restore();
     }
     // 7.5: الميدالية — أيقونة محفورة، أو أيقونة ورقم تحتها (جامع العشرين · الإعصار)، أو رقم وحده (مئوية الانتصارات)
-    const honorMedalHTML = x => `<span class="md${x.num ? (x.ic ? ' nm' : ' nm solo') : ''}" aria-hidden="true">${x.lv === 'x' ? laurelSVG() : ''}<span class="rd"></span>${x.ic === 'cupx' ? `<span class="enm"></span>${goldCupSVG()}` : reliefOf(x.ic) ? reliefSVG(x.ic, x.lv) : x.ic ? `<span class="ic ic-${x.ic}"></span>` : ''}${x.num ? `<b class="num">${x.num}</b>` : ''}</span>`;
+    const honorMedalHTML = x => x.lv === 'r' ? `<span class="md rmd" aria-hidden="true">${rareMedalSVG(x.ic)}</span>` : `<span class="md${x.num ? (x.ic ? ' nm' : ' nm solo') : ''}" aria-hidden="true">${x.lv === 'x' ? laurelSVG() : ''}<span class="rd"></span>${x.ic === 'cupx' ? `<span class="enm"></span>${goldCupSVG()}` : reliefOf(x.ic) ? reliefSVG(x.ic, x.lv) : x.ic ? `<span class="ic ic-${x.ic}"></span>` : ''}${x.num ? `<b class="num">${x.num}</b>` : ''}</span>`;
     // الوسام زر: لمسه يفتح معناه (لا دليل)
     const honorTileHTML = (x, esc, pn) => `<button type="button" class="hn ${x.lv}" data-hk="${x.k}"${pn ? ` data-pn="${esc(pn)}"` : ''} aria-label="${esc(x.t)}: عرض معنى الوسام">${honorMedalHTML(x)}<b class="t">${esc(x.t)}</b><span class="s">${x.s ? esc(x.s) : ''}</span></button>`;
     // تاريخ نيل اللاعب للوسام (قراءة فقط؛ بترتيب اللعب الفعلي). صاحب الرقم ينتقل فلا تاريخ له.
@@ -12677,9 +12747,17 @@ function buildLeagueStandingsCanvas() {
       if (k === 'treble') { let r = 0; for (const x of asc) { r = x.res[0] === 'ch' ? r + 1 : 0; if (r === 3) return x.t.date; } return null; }
       if (k === 'all') { const s = new Set(); for (const x of T) { s.add(x.t.mode === 'single' ? 's' : x.t.mode === 'league' ? 'l' : 't'); if (s.size === 3) return x.t.date; } return null; }
       if (k === 'duo') { const c = {}; for (const x of T) { if (x.t.mode === 'single' || x.t.mode === 'league') continue; for (const m of historyMembers(x.t, x.t.champion)) { if (m === p.name) continue; c[m] = (c[m] || 0) + 1; if (c[m] === 2) return x.t.date; } } return null; }
+      if (k === 'perfect') { const x = LG.find(x => (g => g && !g.d)(leagueGoldenOf(x.t))); return x ? x.t.date : null; }
+      if (k === 'reign') { let r = 0; for (const x of asc) { r = x.res[0] === 'ch' ? r + 1 : 0; if (r === 8) return x.t.date; } return null; }
+      if (k === 'master') { const x = (p.points || []).find(x => x.r >= 1300); return x ? x.date : null; }
+      if (k === 'fort') { let run = 0; for (const e of honorSeqDated(p.name)) { run = e.r === 'l' ? 0 : run + 1; if (run === 30) return e.date; } return null; }
       if (k === 'legend' || k === 'elite') { const x = (p.points || []).find(x => x.r >= (k === 'legend' ? 1200 : 1120)); return x ? x.date : null; }
       if (k === 'century' || k === 'storm') { let w = 0, run = 0; for (const e of honorSeqDated(p.name)) { if (e.r === 'w') { w++; run++; } else run = 0; if (k === 'century' ? w === 100 : run === 20) return e.date; } return null; }
       return null;   // hold
+    }
+    function rareHolders(k) {   // 5.5: عدد من نال الوسام النادر (عدد فقط، بلا أسماء)
+      try { let recs = []; try { recs = councilRecords(); } catch (e) {} const S = getStatsData().players || {};
+        return computePlayerRatings().ranked.filter(p => p.games && playerHonors(p, S[p.name] || {}, playerCareer(p.name, p), recs).some(x => x.k === k)).length; } catch (e) { return 0; }
     }
     // نافذة معنى الوسام (من ملف اللاعب): الميدالية ← الاسم ← المعنى ← تاريخ نيله سطرًا مرجعيًا. لا أسماء لاعبين آخرين.
     function openHonorSheet(k, pn) {
@@ -12688,7 +12766,7 @@ function buildLeagueStandingsCanvas() {
       if (pn && k !== 'hold') { try { const p = computePlayerRatings().ranked.find(x => x.name === pn); if (p) at = honorDateOf(k, p, playerCareer(pn, p)); } catch (e) {} }
       const bd = document.createElement('div'); bd.className = 'ui-backdrop open hns'; bd.setAttribute('role', 'presentation');
       bd.innerHTML = `<div class="ui-dialog" role="dialog" aria-modal="true" aria-labelledby="hnsT"><div class="hn hns-hero ${d.lv}">${honorMedalHTML({ ic: d.ic, num: d.num || '', lv: d.lv }).replace(/<\/span>$/, '<span class="hns-shine" aria-hidden="true"></span><span class="hns-shine hns-glint" aria-hidden="true"></span></span>')}</div>
-        <h3 id="hnsT">${H(d.name)}</h3><p class="hns-how">${H(d.how)}</p>${at ? `<p class="hns-first">ناله في ${H(fmtDateNum(at))}</p>` : ''}
+        ${d.rare ? '<span class="hns-rare">وسام نادر</span>' : ''}<h3 id="hnsT">${H(d.name)}</h3><p class="hns-how">${H(d.how)}</p>${at ? `<p class="hns-first">ناله ${H(fmtDayDate(at))}</p>` : ''}${d.rare ? (n => n ? `<p class="hns-first hns-cnt">${n === 1 ? 'ناله لاعب واحد في المجلس' : n === 2 ? 'ناله لاعبان في المجلس' : `ناله ${n} ${n <= 10 ? 'لاعبين' : 'لاعبًا'} في المجلس`}</p>` : '')(rareHolders(k)) : ''}
         <div class="ui-dialog-actions"><button type="button" class="btn" data-act="ok">تم</button></div></div>`;
       const close = () => { if (bd.classList.contains('out')) return; bd.classList.add('out'); document.removeEventListener('keydown', onKey, true); setTimeout(() => bd.remove(), 160); };
       const onKey = e => { if (e.key === 'Escape') { e.preventDefault(); e.stopPropagation(); close(); } };
@@ -12825,6 +12903,7 @@ function buildLeagueStandingsCanvas() {
       const meta = [{ icon: 'calendar', label: exportTodayLabel() }];
       const top = M + exportBrandHeaderHeight(meta) + 34;
       const show = exportParts('profile');
+      const RARE_IMG = {}; for (const x of HONOR_DEFS.filter(d => d.rare)) RARE_IMG[x.ic] = await exportSvgImage(rareMedalSVG(x.ic), 312, 318);   // 5.5
       const ranked = elo.ranked.filter(x => x.games), EXC = playerExclusions(name);
       const pts = [{ r: ELO_START }].concat(p.points), hasChart = show.chart && pts.length >= 3;
       const lv = p.tier.level, prog = tierProgress(p.rating);
@@ -12995,13 +13074,13 @@ function buildLeagueStandingsCanvas() {
         // (3ب) الأوسمة: نفس «ميداليات» الملف — بطاقات متجاورة، في كل منها ميدالية بأيقونة محفورة ثم الاسم وتفصيله
         if (show.badges) {
           let recsAll = []; try { recsAll = councilRecords(); } catch (e) {}
-          const hn = playerHonors(p, stats, C, recsAll);
-          if (hn.length) {
-            const COLS = 3, G = 14,   /* 1.7: عرض البطاقة ثابت (3 أعمدة) والصف الناقص يتوسط — لا وسام وحيد بعرض كامل */
+          const hnAll = playerHonors(p, stats, C, recsAll);   // 5.5: النادرة بطاقة خاصة أولًا، ثم بقية الأوسمة
+          for (const [hn, hTitle] of [[hnAll.filter(x => x.lv === 'r'), 'أوسمة نادرة'], [hnAll.filter(x => x.lv !== 'r'), 'أوسمته']]) if (hn.length) {
+            const COLS = hTitle !== 'أوسمته' && (hn.length === 2 || hn.length === 4) ? 2 : 3, G = 14,   /* 1.7: عرض البطاقة ثابت (3 أعمدة) والصف الناقص يتوسط — لا وسام وحيد بعرض كامل */
             TWd = (CW - 56 - G * (COLS - 1)) / COLS, TH = 206, rows = Math.ceil(hn.length / COLS);
             const BH = 78 + rows * TH + (rows - 1) * G + 28;
             cuts.push(y - GAPS / 2); card(BH);
-            T(ctx, 'أوسمته', M + CW - 28, y + 44, { size: 28, weight: 800, color: B.text, align: 'right' });
+            T(ctx, hTitle, M + CW - 28, y + 44, { size: 28, weight: 800, color: B.text, align: 'right' });
             T(ctx, hn.length === 1 ? 'وسام واحد' : `${hn.length} ${hn.length === 2 ? 'وسامان' : hn.length <= 10 ? 'أوسمة' : 'وسامًا'}`, M + 28, y + 44, { size: 21, weight: 700, color: B.faint, align: 'left' });
             const MED = { x: [['#FFFBEA', '#F2D488', '#E5BC62', '#A06D20', '#8A5B18'], '#3A2508', 'rgba(255,244,205,.8)'], g: [['#FDEBB0', '#EDC25A', '#CF942A', '#9C6716', '#6A420B'], '#3A2304', 'rgba(255,230,160,.8)'], k: [['#FDEBB0', '#EDC25A', '#CF942A', '#9C6716', '#6A420B'], '#3A2304', 'rgba(255,255,255,.9)'],
               s: [['#FFFFFF', '#EEF1F3', '#C6CDD3', '#949DA5', '#69737C'], '#2C343B', 'rgba(255,255,255,.9)'], h: [['#8A6A50', '#6B5240', '#4A3526', '#36271B', '#2A1D13'], '#F1CF7E', 'rgba(240,205,130,.85)'] };   // 7.5: ذهب غني مصقول (نفس ميدالية الملف)
@@ -13011,9 +13090,15 @@ function buildLeagueStandingsCanvas() {
                 ctx.save(); ctx.clip(); const ox = x0 + TWd / 2, oy = y0 + 24 + 38; ctx.fillStyle = 'rgba(255,255,255,.2)'; for (let a = 0; a < 360; a += 12) { const r1 = a * Math.PI / 180, r2 = (a + 5) * Math.PI / 180; ctx.beginPath(); ctx.moveTo(ox, oy); ctx.lineTo(ox + 400 * Math.cos(r1), oy + 400 * Math.sin(r1)); ctx.lineTo(ox + 400 * Math.cos(r2), oy + 400 * Math.sin(r2)); ctx.closePath(); ctx.fill(); }
                 const gl = ctx.createRadialGradient(ox, oy, 0, ox, oy, TWd * .55); gl.addColorStop(0, 'rgba(255,249,225,.9)'); gl.addColorStop(1, 'rgba(255,249,225,0)'); ctx.fillStyle = gl; ctx.fillRect(x0, y0, TWd, TH); ctx.restore();
                 drawRoundedRect(ctx, x0, y0, TWd, TH, 22); ctx.strokeStyle = 'rgba(140,95,25,.65)'; }
+              else if (x.lv === 'r') { ctx.fillStyle = B.surface2; ctx.fill(); ctx.save(); ctx.clip(); const rg = ctx.createRadialGradient(x0 + TWd / 2, y0 + 62, 0, x0 + TWd / 2, y0 + 62, TWd * .62); rg.addColorStop(0, 'rgba(196,26,59,.1)'); rg.addColorStop(1, 'rgba(196,26,59,0)'); ctx.fillStyle = rg; ctx.fillRect(x0, y0, TWd, TH); ctx.restore();
+                drawRoundedRect(ctx, x0, y0, TWd, TH, 22); ctx.strokeStyle = 'rgba(168,16,46,.32)'; }
               else { ctx.fillStyle = B.surface2; ctx.fill(); ctx.strokeStyle = B.line; }
               ctx.lineWidth = 1.4; ctx.stroke();
               const R = 38, my = y0 + 24 + R;
+              if (x.lv === 'r') {   // 5.5: الميدالية المثمّنة نفسها (SVG التطبيق مرسومًا كصورة)، أكبر من الدائرية كما في الملف
+                const im = RARE_IMG[x.ic], S = 104; if (im) ctx.drawImage(im, cx - S / 2, y0 + 10, S, S * 106 / 104);
+                T(ctx, x.t, cx, y0 + 24 + R * 2 + 32, { size: 23, weight: 800, color: B.ink, maxW: TWd - 20, min: 15 });
+                if (x.s) T(ctx, x.s, cx, y0 + 24 + R * 2 + 70, { size: 19, weight: 700, color: B.faint, maxW: TWd - 20, min: 13 }); return; }
               if (x.lv === 'x') drawLaurel(ctx, cx, my, R * 1.34 / 32);   // 8: إكليل غار حقيقي بنفس هندسة الوسام
               ctx.save(); ctx.beginPath(); ctx.arc(cx, my, R, 0, Math.PI * 2);
               const g2 = ctx.createRadialGradient(cx - R * .36, my - R * .52, 1, cx - R * .1, my - R * .1, R * 1.2); [0, .2, .5, .76, 1].forEach((o, q) => g2.addColorStop(o, m[0][q])); ctx.fillStyle = g2; ctx.fill();
@@ -14612,8 +14697,10 @@ function buildLeagueStandingsCanvas() {
           { let ng = []; try { ng = playerNextGoals(p, stats, C0, recsAll, false); } catch (e) {}
             if (ng.length) html += sec('أهدافه القادمة', '', nextGoalsHTML(ng, H), 'ngs'); }
           const hn = playerHonors(p, stats, C0, recsAll);   // القسم يختفي تمامًا لمن لا يملك وسامًا
-          if (hn.length) html += sec('أوسمته', hn.length === 1 ? 'وسام واحد' : `${hn.length} ${hn.length === 2 ? 'وسامان' : hn.length <= 10 ? 'أوسمة' : 'وسامًا'}`,
-            `<div class="pf-honors">${hn.map(x => honorTileHTML(x, H, name)).join('')}</div>`, 'bdg'); }   // 7.5: لا دليل — لمس الوسام يكشف معناه
+          const hr = hn.filter(x => x.lv === 'r'), hc = hn.filter(x => x.lv !== 'r'), cntW = n => n === 1 ? 'وسام واحد' : `${n} ${n === 2 ? 'وسامان' : n <= 10 ? 'أوسمة' : 'وسامًا'}`;
+          if (hr.length) html += sec('أوسمة نادرة', cntW(hr.length), `<div class="pf-honors pf-rare" data-n="${hr.length}">${hr.map(x => honorTileHTML(x, H, name)).join('')}</div>`, 'bdg rare');   // 5.5: صف خاص أعلى الأوسمة
+          if (hc.length) html += sec('أوسمته', cntW(hc.length),
+            `<div class="pf-honors">${hc.map(x => honorTileHTML(x, H, name)).join('')}</div>`, 'bdg'); }   // 7.5: لا دليل — لمس الوسام يكشف معناه
         html += sec('أفضل أرقامه', '', `<div class="pf-recs">${recs.join('')}</div>`);
         if (career.length) {
           const row = (x, i) => `<div class="pf-tr${i >= 5 ? ' x' : ''}"><span class="pf-res ${x.res[0]}">${x.res[1]}</span><span class="nm"><b>${H(histTitle(x.t))}</b><small>${fmtDateNum(x.t.date)}${histCustomName(x.t) ? ` · ${kindOf(x.t)}` : ''}</small></span>${x.dl == null ? '' : `<span class="dl ${x.dl > 0 ? 'up' : x.dl < 0 ? 'down' : ''}"><bdi dir="ltr">${x.dl > 0 ? '+' : x.dl < 0 ? '−' : ''}${Math.abs(x.dl)}</bdi></span>`}</div>`;
@@ -16127,7 +16214,7 @@ function buildLeagueStandingsCanvas() {
     (function setupAchievements() {
       const VIEW = !!window.CARROM_VIEW;
       const H = x => String(x == null ? '' : x).replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
-      const HON = { golden: 1, king: 1, club20: 1, storm: 1, century: 1, treble: 1, all: 1, duo: 1 };
+      const HON = { perfect: 1, fort: 1, reign: 1, master: 1, golden: 1, king: 1, club20: 1, storm: 1, century: 1, treble: 1, all: 1, duo: 1 };
       const tierOf = r => ELO_TIERS.find(t => r >= t[0]);
       function snap() {
         const o = { rec: {}, tier: {}, hon: {} };
@@ -16162,7 +16249,7 @@ function buildLeagueStandingsCanvas() {
           const t = ELO_TIERS.find(x => x[2] === b.tier[n].l);
           out.push({ kind: 'tier', name: n, names: [n], label: 'مستوى جديد', lvl: t[2], val: t[1], note: `تقييمه ${b.tier[n].r.toLocaleString('en-US')}` }); });
         Object.keys(b.hon).forEach(n => { const had = new Set(((a.hon && a.hon[n]) || []).map(x => x.k)); if (!a.hon || !a.hon[n]) return;
-          b.hon[n].filter(x => !had.has(x.k)).forEach(x => out.push({ kind: 'hon', k: x.k, name: n, names: [n], label: 'وسام شرف', val: x.t, note: x.s || '' })); });
+          b.hon[n].filter(x => !had.has(x.k)).forEach(x => out.push({ kind: 'hon', k: x.k, name: n, names: [n], label: HONOR_DEF[x.k] && HONOR_DEF[x.k].rare ? 'وسام نادر' : 'وسام شرف', rare: !!(HONOR_DEF[x.k] && HONOR_DEF[x.k].rare), val: x.t, note: x.s || '' })); });
         const rank = { rec: 0, tier: 1, hon: 2, tie: 3, ext: 4 };
         return out.sort((x, y) => rank[x.kind] - rank[y.kind]);
       }
@@ -16179,6 +16266,7 @@ function buildLeagueStandingsCanvas() {
         const n = list.length, only = [...k][0];
         if (only === 'rec') return n === 1 ? 'رقم قياسي جديد' : n === 2 ? 'رقمان قياسيان جديدان' : 'أرقام قياسية جديدة';
         if (only === 'tier') return n === 1 ? (mine ? 'مبروك! مستوى جديد' : 'مستوى جديد') : 'مستويات جديدة';
+        if (list.some(x => x.rare)) return n === 1 ? (mine ? 'مبروك! وسام نادر' : 'وسام نادر') : 'أوسمة نادرة جديدة';   // 5.5
         return n === 1 ? (mine ? 'مبروك! وسام شرف جديد' : 'وسام شرف جديد') : 'أوسمة شرف جديدة';
       }
       // التسلسل: العنوان ← اسم اللاعب (مرة واحدة لمجموعته) ← سطر الإنجاز (اسم الرقم وقيمته بجانبه) ← الملاحظة سطرًا أصغر تحته. عرض البطاقة بقدر محتواها.
