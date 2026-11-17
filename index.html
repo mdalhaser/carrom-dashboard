@@ -11480,24 +11480,20 @@ function buildLeagueStandingsCanvas() {
           drawChampCard(ctx, M, y, CW, D.champ.card, champImg);
           y += champCardLayout(D.champ.card).h + GAPS + 14;   // + مساحة ظل البطاقة
         }
-        // (1.5) المركزان الثاني والثالث: نفس بطاقة «أبطال الأرقام» بسطورها الثابتة المتمركزة (هوية المشروع، بلا ميداليات ملونة؛ أيقونة الميدالية الخطية بطلب صاحب المشروع):
-        //      «المركز الثاني» بذهبي هادئ ← الاسم ← النقاط ← «فوز · تعادل · خسارة». عاجية بلا ذهب ولا عنوان قسم، فتكمل المنصة ولا تنافس البطل.
+        // (1.5) المركزان الثاني والثالث: قسم بإطار وعنوان خشبي كبقية أقسام الصورة (أيقونة الميدالية الخطية في الشريط)، وبطاقتاه
+        //      بسطور «أبطال الأرقام» الثابتة: «المركز الثاني» بذهبي هادئ ← الاسم ← النقاط ← «فوز · تعادل · خسارة». بطاقة البطل وحدها بلا إطار.
         if (show.places && D.places.length) {
-          const L = D.places, G = 12, wdl = L.some(x => x.wdl), PT = 22, LT = 32, G1 = 8, LN = 46, G2 = 6, LP = 36, G3 = 4, LW = wdl ? 32 : 0, PB = 22;
-          const H = PT + LT + G1 + LN + G2 + LP + (wdl ? G3 + LW : 0) + PB, cw = (CW - G) / 2;
-          L.forEach((x, i) => { const solo = L.length === 1, w = solo ? CW : cw, x0 = solo ? M : M + CW - (i + 1) * cw - i * G, cx = x0 + w / 2, mw = cw - 48;
+          const L = D.places, G = 10, one = L.length === 1, wdl = L.some(x => x.wdl), PT = 22, LT = one ? 0 : 32, G1 = one ? 0 : 8, LN = 46, G2 = 6, LP = 36, G3 = 4, LW = wdl ? 32 : 0, PB = 22;
+          const H = PT + LT + G1 + LN + G2 + LP + (wdl ? G3 + LW : 0) + PB, cw = (RW - G) / 2;
+          cuts.push(y - GAPS / 2); y += exportSectionBar(ctx, M, y, CW, one ? (L[0].rk === 2 ? 'المركز الثاني' : 'المركز الثالث') : 'المركزان الثاني والثالث', 'medal', null, H) + TP;   // مركز واحد محسوم: العنوان يسمّيه ولا يتكرر داخل البطاقة
+          L.forEach((x, i) => { const solo = L.length === 1, w = solo ? RW : cw, x0 = solo ? RX : RX + RW - (i + 1) * cw - i * G, cx = x0 + w / 2, mw = cw - 40;
             drawRoundedRect(ctx, x0, y, w, H, 18); ctx.fillStyle = B.paper; ctx.fill(); ctx.strokeStyle = B.line; ctx.lineWidth = 1.2; ctx.stroke();
             const yT = y + PT + LT / 2, yN = yT + LT / 2 + G1 + LN / 2, yP = yN + LN / 2 + G2 + LP / 2;
-            {   // العنوان بأيقونة الميدالية الخطية (نفس أيقونة «المركز محسوم» في الدوري)، والمجموعة في منتصف البطاقة
-              const t = x.rk === 2 ? 'المركز الثاني' : 'المركز الثالث', IS = 30, IG = 10;
-              ctx.save(); ctx.font = `800 ${exportRS(24)}px ${EXPORT_FONT}`; const tw = ctx.measureText(t).width; ctx.restore();
-              const xr = cx + (IS + IG + tw) / 2;
-              exportIcon(ctx, 'medal', xr - IS / 2, yT, IS, B.goldDeep, 2.2);
-              T(ctx, t, xr - IS - IG, yT, { size: 24, weight: 800, color: B.goldDeep, align: 'right', maxW: mw - IS - IG, min: 16 }); }
+            if (!one) T(ctx, x.rk === 2 ? 'المركز الثاني' : 'المركز الثالث', cx, yT, { size: 24, weight: 800, color: B.goldDeep, maxW: mw, min: 16 });
             T(ctx, x.name, cx, yN, { size: 36, weight: 800, color: B.ink, maxW: mw, min: 20 });
             T(ctx, x.sub, cx, yP, x.wdl ? { size: 28, weight: 800, color: B.text, maxW: mw, min: 18 } : { size: 26, weight: 800, color: B.muted, maxW: mw, min: 16 });   // «محسوم» كلمة هادئة
             if (x.wdl) T(ctx, x.wdl, cx, yP + LP / 2 + G3 + LW / 2, { size: 22, weight: 700, color: B.muted, maxW: mw, min: 15 }); });
-          y += H + GAPS;
+          y += H + TP + GAPS;
         }
         // (2) أرقام الدوري: شبكة بثلاثة أعمدة (الرقم بارزًا ← اسمه)، والفترة تحتها
         if (show.numbers) {
