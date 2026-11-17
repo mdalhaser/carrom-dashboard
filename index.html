@@ -8572,12 +8572,12 @@ currentScoreWinnerName = null;
       auto:   { label: 'الأصلي', tag: '' },
       portrait34: { label: 'عمودي 3:4', tag: 'Portrait-3x4', W:1080, H:1440, pad:22, top:40, bottom:52 },
       portrait57: { label: 'عمودي 5:7', tag: 'Portrait-5x7', W:1080, H:1512, pad:22, top:44, bottom:56 },
-      story:  { label: 'ستوري 9:16', tag: 'Story', W: 1080, H: 1920, pad: 22, top: 96, bottom: 110, trim: 28, minFit: 0.85 },   // أعلى وأسفل: مساحة آمنة لعناصر واجهة الستوري · 5.1: trim يقص الهامش العاجي المكرر جانبيًا، وminFit حد التصغير قبل التقسيم التلقائي
+      story:  { label: 'ستوري 9:16', tag: 'Story', W: 1080, H: 1920, pad: 12, top: 40, bottom: 44, trim: 34, trimTop: 26, trimBottom: 14 },   // أعلى وأسفل: مساحة آمنة لعناصر واجهة الستوري · 5.1: trim يقص الهامش العاجي المكرر جانبيًا، وminFit حد التصغير قبل التقسيم التلقائي
       square: { label: 'مربع 1:1', tag: 'Square', W: 1080, H: 1080, pad: 22, top: 26, bottom: 30 }
     };
     // 5.1: الارتفاع المنطقي (بعرض 1080) الذي يملأ بطاقة الستوري بالعرض الكامل تمامًا — الصور ذات الصفوف المتكيفة تستهدفه
     // (كان 2150 ثابتًا أطول من مساحة الستوري الفعلية، فتتصغر الصورة وتظهر الفراغات على الجانبين)
-    const EXPORT_STORY_H = (() => { const F = EXPORT_FORMATS.story; return Math.floor((F.H - F.top - F.bottom - 20) / ((F.W - F.pad * 2 - 20) / (1080 - 2 * F.trim))); })();
+    const EXPORT_STORY_H = (() => { const F = EXPORT_FORMATS.story; return Math.floor((F.H - F.top - F.bottom - 20) / ((F.W - F.pad * 2 - 20) / (1080 - 2 * F.trim)) + (F.trimTop || 0) + (F.trimBottom || 0)); })();
     function composeFormat(src, fmtKey, split) {
       const F = EXPORT_FORMATS[fmtKey]; if (!F || !F.W) return [src];
       const B = EXPORT_BRAND, ks = src.width / 1080, srcH = src.height / ks;           // وحدات منطقية (عرض = 1080)
@@ -8585,6 +8585,7 @@ currentScoreWinnerName = null;
       const BZ = 10, PILL = 54;                                     // إطار البطاقة الأبيض، ومساحة كبسولة رقم الصفحة
       const lw = Number(src.__lw) > 0 ? Number(src.__lw) : 1080, cutK = 1080 / lw;
       const TR = F.trim || 0, SW = 1080 - 2 * TR;                                        // 5.1: الستوري يقص جزءًا من الهامش العاجي الجانبي (الإطار البيج يكفي هامشًا)
+      const VT = F.trimTop || 0, VB = F.trimBottom || 0;                                  // 5.1: والهامش العاجي العلوي والسفلي المكرر (الصفحة الواحدة)
       const f = (F.W - F.pad * 2 - BZ * 2) / SW;                                         // مقياس ملاءمة العرض (نفسه في كل الصفحات)
       const availFor = paged => F.H - F.top - F.bottom - BZ * 2 - (paged ? PILL : 0);
       const frames = (src.__frames || []).map(r => ({ y: r.y * cutK, h: r.h * cutK, headH: r.headH * cutK, x: r.x * cutK, w: r.w * cutK, r: r.r * cutK }));
@@ -8597,8 +8598,8 @@ currentScoreWinnerName = null;
         return inF.filter(x => x < c).length + 1 >= 3 && inF.filter(x => x > c).length + 1 >= 3; };
       // ارتفاع صفحة المحتوى [a, b] بعد إضافة: الهيدر المختصر (للمتابعة) + صف عناوين الإطار + حافة الإطار السفلية
       const pageCost = (a, b) => { let h = b - a; if (a > 0) { h += MINI; const fa = frameAt(a); if (fa) h += fa.headH + TP - GAPH; } const fb = frameAt(b); if (b < srcH && fb) h += TP - GAPH; if (b < srcH) h += 36; return h; };   // 36: هامش سفلي داخل البطاقة قبل حافتها
-      const fitsOne = srcH * f <= availFor(false) / (F.minFit || 0.87);   // يتسع بتصغير بسيط: صفحة واحدة (الستوري حتى 85% من العرض)
-      let ranges = [[0, srcH]];
+      const fitsOne = (srcH - VT - VB) * f <= availFor(false) * 1.15;   // يتسع بتصغير بسيط (حتى 15%): صفحة واحدة
+      let ranges = [[0 + VT, srcH - VB]];
       if (split && !fitsOne && cuts.length) {
         const cap = availFor(true) / f;
         // عدد الصفحات الأدنى (أخذ أبعد حد آمن في كل صفحة)، ثم توزيع متوازن على هذا العدد
@@ -8763,12 +8764,8 @@ currentScoreWinnerName = null;
       function closeSheet() { $('xsSide').classList.remove('open'); $('xsScrim').hidden = true; }
       const closeMenu = () => { $('xsMenu').hidden = true; $('xsMore').setAttribute('aria-expanded', 'false'); };
       // 6.3: الصور الطويلة جدًا (سجل البطولات، ملف اللاعب) تُقسَّم تلقائيًا في الستوري؛ وزر التقسيم يوقفه لهذه المرة
-      // 5.1: في الستوري تُقسَّم تلقائيًا كل صورة كانت ستتصغر تحت حد الملاءمة (لا الصور الطويلة جدًا وحدها)، و«صفحة واحدة» يبقى اختيارًا
-      function storyNeedsSplit(src) { const F = EXPORT_FORMATS.story; if (!src || !src.width) return false;
-        const f = (F.W - F.pad * 2 - 20) / (1080 - 2 * (F.trim || 0)), h = src.height / (src.width / 1080), avail = F.H - F.top - F.bottom - 20;
-        if (!(h * f > avail / (F.minFit || 0.87)) || (src.__cuts || []).length < 8) return false;   // صور القوائم والجداول فقط؛ صور التتويج (أفضل 3/5، المنصة) تبقى صورة واحدة
-        const pg = avail - 54, n = Math.ceil(h * f / pg); return h * f / (n * pg) >= 0.6; }   // يُقسَّم فقط إن امتلأت الصفحات (لا صفحتان نصفهما فراغ)
-      function splitOn(it) { return !!exportSettings.split || (!!state && state.format === 'story' && !state.noAutoSplit && !!(it && it.src) && (!!it.src.__autoSplit || storyNeedsSplit(it.src))); }
+      // 5.1: لا تقسيم تلقائي (صاحب المشروع ينشر صورة واحدة دائمًا)؛ التقسيم يدوي فقط من زره في المعاينة
+      function splitOn(it) { return !!exportSettings.split; }
       function build() {
         if (root) return;
         const st = document.createElement('style'); st.textContent = css; document.head.appendChild(st);
