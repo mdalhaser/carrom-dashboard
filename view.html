@@ -11507,23 +11507,18 @@ function buildLeagueStandingsCanvas() {
           drawChampCard(ctx, M, y, CW, D.champ.card, champImg);
           y += champCardLayout(D.champ.card).h + GAPS + 14;   // + مساحة ظل البطاقة
         }
-        // (1.5) المركزان الثاني والثالث: بطاقتان عاجيتان بسطور ثابتة متمركزة (كبطاقات «أبطال الأرقام»):
-        //      الميدالية والاسم في سطر واحد ← النقاط ← «فوز · تعادل · خسارة». بلا ذهب ولا عنوان قسم، فتكمل المنصة ولا تنافس البطل.
+        // (1.5) المركزان الثاني والثالث: نفس بطاقة «أبطال الأرقام» بسطورها الثابتة المتمركزة (هوية المشروع، بلا ميداليات ملونة):
+        //      «المركز الثاني» بذهبي هادئ ← الاسم ← النقاط ← «فوز · تعادل · خسارة». عاجية بلا ذهب ولا عنوان قسم، فتكمل المنصة ولا تنافس البطل.
         if (show.places && D.places.length) {
-          const L = D.places, G = 12, R = 21, wdl = L.some(x => x.wdl), PT = 22, L1 = 44, G1 = 10, L2 = 36, G2 = 4, L3 = wdl ? 32 : 0, PB = 22, H = PT + L1 + G1 + L2 + (wdl ? G2 + L3 : 0) + PB, cw = (CW - G) / 2;
-          const MED = { 2: { g: ['#F1F3F5', '#AAB2BA'], fg: '#2F353B', rim: '#8E98A1' }, 3: { g: ['#EFD2B6', '#B7794A'], fg: '#4A2B12', rim: '#8E5A33' } };
-          const measure = (str, size, wt) => { ctx.save(); ctx.font = `${wt} ${exportRS(size)}px ${EXPORT_FONT}`; const w = ctx.measureText(str).width; ctx.restore(); return w; };
-          L.forEach((x, i) => { const solo = L.length === 1, w = solo ? CW : cw, x0 = solo ? M : M + CW - (i + 1) * cw - i * G, cx = x0 + w / 2, mw = cw - 48, md = MED[x.rk];
+          const L = D.places, G = 12, wdl = L.some(x => x.wdl), PT = 22, LT = 32, G1 = 8, LN = 46, G2 = 6, LP = 36, G3 = 4, LW = wdl ? 32 : 0, PB = 22;
+          const H = PT + LT + G1 + LN + G2 + LP + (wdl ? G3 + LW : 0) + PB, cw = (CW - G) / 2;
+          L.forEach((x, i) => { const solo = L.length === 1, w = solo ? CW : cw, x0 = solo ? M : M + CW - (i + 1) * cw - i * G, cx = x0 + w / 2, mw = cw - 48;
             drawRoundedRect(ctx, x0, y, w, H, 18); ctx.fillStyle = B.paper; ctx.fill(); ctx.strokeStyle = B.line; ctx.lineWidth = 1.2; ctx.stroke();
-            // السطر الأول: الميدالية يمين الاسم، والمجموعة كلها في منتصف البطاقة
-            const y1 = y + PT + L1 / 2, nw = Math.min(measure(x.name, 30, 800), mw - 2 * R - 12), gw = 2 * R + 12 + nw, gr0 = cx + gw / 2, dcx = gr0 - R;
-            ctx.save(); ctx.beginPath(); ctx.arc(dcx, y1, R, 0, Math.PI * 2); const gr = ctx.createLinearGradient(dcx - R, y1 - R, dcx + R, y1 + R); gr.addColorStop(0, md.g[0]); gr.addColorStop(1, md.g[1]);
-            ctx.fillStyle = gr; ctx.fill(); ctx.strokeStyle = md.rim; ctx.lineWidth = 1.5; ctx.stroke(); ctx.restore();
-            exportText(ctx, String(x.rk), dcx, y1 + 1, { size: 24, weight: 900, color: md.fg, dir: 'ltr', raw: true });
-            T(ctx, x.name, dcx - R - 12, y1, { size: 30, weight: 800, color: B.ink, align: 'right', maxW: nw, min: 18 });
-            const y2 = y + PT + L1 + G1 + L2 / 2;
-            T(ctx, x.sub, cx, y2, x.wdl ? { size: 30, weight: 900, color: B.ink, maxW: mw, min: 18 } : { size: 26, weight: 800, color: B.muted, maxW: mw, min: 16 });   // «محسوم» كلمة هادئة لا رقم بارز
-            if (x.wdl) T(ctx, x.wdl, cx, y2 + L2 / 2 + G2 + L3 / 2, { size: 22, weight: 700, color: B.muted, maxW: mw, min: 15 }); });
+            const yT = y + PT + LT / 2, yN = yT + LT / 2 + G1 + LN / 2, yP = yN + LN / 2 + G2 + LP / 2;
+            T(ctx, x.rk === 2 ? 'المركز الثاني' : 'المركز الثالث', cx, yT, { size: 24, weight: 800, color: B.goldDeep, maxW: mw, min: 16 });
+            T(ctx, x.name, cx, yN, { size: 36, weight: 800, color: B.ink, maxW: mw, min: 20 });
+            T(ctx, x.sub, cx, yP, x.wdl ? { size: 28, weight: 800, color: B.text, maxW: mw, min: 18 } : { size: 26, weight: 800, color: B.muted, maxW: mw, min: 16 });   // «محسوم» كلمة هادئة
+            if (x.wdl) T(ctx, x.wdl, cx, yP + LP / 2 + G3 + LW / 2, { size: 22, weight: 700, color: B.muted, maxW: mw, min: 15 }); });
           y += H + GAPS;
         }
         // (2) أرقام الدوري: شبكة بثلاثة أعمدة (الرقم بارزًا ← اسمه)، والفترة تحتها
