@@ -7694,7 +7694,7 @@ currentScoreWinnerName = null;
       lgCard: [['sets', 'صفوف الأشواط'], ['last', 'آخر النتائج'], ['ach', 'الإنجازات']],
       lgCompare: [['wdl', 'فوز / تعادل / خسارة'], ['sets', 'صفوف الأشواط'], ['h2h', 'المواجهات المباشرة']],
       lgReport: [['summary', 'ملخص الدوري'], ['leaders', 'الأوائل']],
-      harvest: [['champ', 'البطل'], ['numbers', 'أرقام الدوري'], ['records', 'أبطال الأرقام'], ['council', 'أرقام قياسية جديدة للمجلس']],
+      harvest: [['champ', 'البطل'], ['places', 'المركزان الثاني والثالث'], ['numbers', 'أرقام الدوري'], ['records', 'أبطال الأرقام'], ['council', 'أرقام قياسية جديدة للمجلس']],
       history: [['name', 'اسم البطولة', 'auto'], ['date', 'اليوم والتاريخ'], ['type', 'نوع البطولة'], ['ru', 'الوصيف']],
       honor: [['by', 'الألقاب حسب النوع'], ['ru', 'الوصافة'], ['top5', 'أفضل 5 فقط', false]],
       koFinal: [['path', 'مسار الوصول إلى النهائي']]
@@ -8425,8 +8425,8 @@ currentScoreWinnerName = null;
       if (!CHAMP_CUP_IMG_P) CHAMP_CUP_IMG_P = trophyExportImage().then(im => (CHAMP_CUP_IMG = im));
       return CHAMP_CUP_IMG_P;
     }
-    function exportChampionBlock(name, theme) {
-      const card = { title: 'البطل', parts: String(getDisplayTeamName(name)).split(' + '), meta: '', sub: '', rest: [] };
+    function exportChampionBlock(name, theme, emK) {
+      const card = { title: 'البطل', parts: String(getDisplayTeamName(name)).split(' + '), meta: '', sub: '', rest: [], emK };
       return {
         type: 'champion',
         height: champCardLayout(card).h,
@@ -8599,16 +8599,21 @@ currentScoreWinnerName = null;
       auto:   { label: 'الأصلي', tag: '' },
       portrait34: { label: 'عمودي 3:4', tag: 'Portrait-3x4', W:1080, H:1440, pad:22, top:40, bottom:52 },
       portrait57: { label: 'عمودي 5:7', tag: 'Portrait-5x7', W:1080, H:1512, pad:22, top:44, bottom:56 },
-      story:  { label: 'ستوري 9:16', tag: 'Story', W: 1080, H: 1920, pad: 22, top: 96, bottom: 110 },   // أعلى وأسفل: مساحة آمنة لعناصر واجهة الستوري
+      story:  { label: 'ستوري 9:16', tag: 'Story', W: 1080, H: 1920, pad: 12, top: 40, bottom: 44, trim: 34, trimTop: 26, trimBottom: 14 },   // أعلى وأسفل: مساحة آمنة لعناصر واجهة الستوري · 5.1: trim يقص الهامش العاجي المكرر جانبيًا، وminFit حد التصغير قبل التقسيم التلقائي
       square: { label: 'مربع 1:1', tag: 'Square', W: 1080, H: 1080, pad: 22, top: 26, bottom: 30 }
     };
+    // 5.1: الارتفاع المنطقي (بعرض 1080) الذي يملأ بطاقة الستوري بالعرض الكامل تمامًا — الصور ذات الصفوف المتكيفة تستهدفه
+    // (كان 2150 ثابتًا أطول من مساحة الستوري الفعلية، فتتصغر الصورة وتظهر الفراغات على الجانبين)
+    const EXPORT_STORY_H = (() => { const F = EXPORT_FORMATS.story; return Math.floor((F.H - F.top - F.bottom - 20) / ((F.W - F.pad * 2 - 20) / (1080 - 2 * F.trim)) + (F.trimTop || 0) + (F.trimBottom || 0)); })();
     function composeFormat(src, fmtKey, split) {
       const F = EXPORT_FORMATS[fmtKey]; if (!F || !F.W) return [src];
       const B = EXPORT_BRAND, ks = src.width / 1080, srcH = src.height / ks;           // وحدات منطقية (عرض = 1080)
       const kk = Math.min(ks, Math.sqrt(16000000 / (F.W * F.H)));   // كل المقاسات بدقة الجودة المختارة مع سقف ذاكرة للصفحة
       const BZ = 10, PILL = 54;                                     // إطار البطاقة الأبيض، ومساحة كبسولة رقم الصفحة
       const lw = Number(src.__lw) > 0 ? Number(src.__lw) : 1080, cutK = 1080 / lw;
-      const f = (F.W - F.pad * 2 - BZ * 2) / 1080;                                       // مقياس ملاءمة العرض (نفسه في كل الصفحات)
+      const TR = F.trim || 0, SW = 1080 - 2 * TR;                                        // 5.1: الستوري يقص جزءًا من الهامش العاجي الجانبي (الإطار البيج يكفي هامشًا)
+      const VT = F.trimTop || 0, VB = F.trimBottom || 0;                                  // 5.1: والهامش العاجي العلوي والسفلي المكرر (الصفحة الواحدة)
+      const f = (F.W - F.pad * 2 - BZ * 2) / SW;                                         // مقياس ملاءمة العرض (نفسه في كل الصفحات)
       const availFor = paged => F.H - F.top - F.bottom - BZ * 2 - (paged ? PILL : 0);
       const frames = (src.__frames || []).map(r => ({ y: r.y * cutK, h: r.h * cutK, headH: r.headH * cutK, x: r.x * cutK, w: r.w * cutK, r: r.r * cutK }));
       // حدود القطع: بين الصفوف (من الصورة) + قبل بداية كل جدول (فيبدأ الجدول كاملًا في صفحة جديدة بدل صف واحد معزول)
@@ -8620,8 +8625,8 @@ currentScoreWinnerName = null;
         return inF.filter(x => x < c).length + 1 >= 3 && inF.filter(x => x > c).length + 1 >= 3; };
       // ارتفاع صفحة المحتوى [a, b] بعد إضافة: الهيدر المختصر (للمتابعة) + صف عناوين الإطار + حافة الإطار السفلية
       const pageCost = (a, b) => { let h = b - a; if (a > 0) { h += MINI; const fa = frameAt(a); if (fa) h += fa.headH + TP - GAPH; } const fb = frameAt(b); if (b < srcH && fb) h += TP - GAPH; if (b < srcH) h += 36; return h; };   // 36: هامش سفلي داخل البطاقة قبل حافتها
-      const fitsOne = srcH * f <= availFor(false) * 1.15;   // يتسع بتصغير بسيط (حتى 15%): صفحة واحدة
-      let ranges = [[0, srcH]];
+      const fitsOne = (srcH - VT - VB) * f <= availFor(false) * 1.15;   // يتسع بتصغير بسيط (حتى 15%): صفحة واحدة
+      let ranges = [[0 + VT, srcH - VB]];
       if (split && !fitsOne && cuts.length) {
         const cap = availFor(true) / f;
         // عدد الصفحات الأدنى (أخذ أبعد حد آمن في كل صفحة)، ثم توزيع متوازن على هذا العدد
@@ -8662,7 +8667,7 @@ currentScoreWinnerName = null;
         let ff = f, contentH = (single ? (b - a) : pageCost(a, b)) * f;
         if (contentH > avail) { ff = f * avail / contentH; contentH = avail; }        // صفحة واحدة بتصغير بسيط، أو صورة بلا حدود قطع
         if (!single) contentH = Math.max(contentH, uniH);
-        const cardW = 1080 * ff, cardX = (F.W - cardW) / 2, cardY = F.top + BZ + (avail - contentH) / 2;
+        const cardW = SW * ff, cardX = (F.W - cardW) / 2, cardY = F.top + BZ + (avail - contentH) / 2;
         const ox = cardX - BZ, oy = cardY - BZ, ow = cardW + BZ * 2, oh = contentH + BZ * 2, OR = 40, IR = 28;
         ctx.save(); ctx.shadowColor = 'rgba(70,42,20,0.30)'; ctx.shadowBlur = 100; ctx.shadowOffsetY = 56;
         drawRoundedRect(ctx, ox + 30, oy + 30, ow - 60, oh - 40, OR); ctx.fillStyle = '#FFFDF9'; ctx.fill(); ctx.restore();
@@ -8672,15 +8677,15 @@ currentScoreWinnerName = null;
         ctx.save(); drawRoundedRect(ctx, cardX, cardY, cardW, contentH, IR); ctx.clip();
         ctx.fillStyle = B.ivory; ctx.fillRect(cardX, cardY, cardW, contentH);
         let y = cardY;
-        const put = (y0, y1) => { if (y1 <= y0) return; const h = (y1 - y0) * ff; ctx.drawImage(src, 0, y0 * ks, src.width, (y1 - y0) * ks, cardX, y, cardW, h); y += h; };   // y بوحدات منطقية (عرض 1080)
+        const put = (y0, y1) => { if (y1 <= y0) return; const h = (y1 - y0) * ff; ctx.drawImage(src, TR * ks, y0 * ks, src.width - 2 * TR * ks, (y1 - y0) * ks, cardX, y, cardW, h); y += h; };   // y بوحدات منطقية (عرض 1080)
         if (single) put(a, b);
         else {
           if (a > 0) {   // صفحة متابعة: هيدر مختصر بخشب الهيدر + اسم البطولة ونوع الصورة
-            const M = 56 * ff, hx = cardX + M, hw = cardW - 2 * M, hy = y + 26 * ff, hh = 70 * ff;
+            const M = (56 - TR) * ff, hx = cardX + M, hw = cardW - 2 * M, hy = y + 26 * ff, hh = 70 * ff;
             ctx.save(); ctx.shadowColor = 'rgba(58,35,20,0.25)'; ctx.shadowBlur = 18 * ff; ctx.shadowOffsetY = 8 * ff; drawRoundedRect(ctx, hx, hy, hw, hh, 22 * ff); ctx.fillStyle = B.wood; ctx.fill(); ctx.restore();
             ctx.save(); drawRoundedRect(ctx, hx, hy, hw, hh, 22 * ff); ctx.clip(); exportWalnut(ctx, hx, hy, hw, hh); ctx.restore();
             ctx.save(); drawRoundedRect(ctx, hx, hy, hw, hh, 22 * ff); ctx.strokeStyle = 'rgba(207,169,99,0.55)'; ctx.lineWidth = 1.6; ctx.stroke(); ctx.restore();
-            const t1 = (hdr && hdr.title) || '', t2 = (hdr && hdr.subtitle) || '';
+            const t1 = (hdr && hdr.title) || (tournamentName.textContent || '').trim() || 'المجلس', t2 = (hdr && hdr.subtitle) || '';   // 5.1: لا شريط خشبي فارغ في صفحات المتابعة
             exportText(ctx, t1, hx + hw - 26 * ff, hy + hh / 2 - exportOptDy(30 * ff), { size: 30 * ff, weight: 800, color: '#F7EAD3', align: 'right', maxW: hw * 0.6, min: 14 });
             if (t2) exportText(ctx, `${t2} · تابع`, hx + 26 * ff, hy + hh / 2 - exportOptDy(24 * ff), { size: 24 * ff, weight: 700, color: 'rgba(247,234,211,0.75)', align: 'left', maxW: hw * 0.36, min: 12 });
             y += MINI * ff;
@@ -8689,7 +8694,7 @@ currentScoreWinnerName = null;
           put(a, b);
           const fb = frameAt(b);
           if (b < srcH && fb) {   // إغلاق الإطار من الأسفل: حافة سفلية بزوايا دائرية مثل نهاية الجدول الأصلية
-            const X = cardX + fb.x * ff, W = fb.w * ff, R = Math.min(fb.r, 26) * ff, top = y - GAPH * ff, bot = y + (TP - GAPH) * ff;
+            const X = cardX + (fb.x - TR) * ff, W = fb.w * ff, R = Math.min(fb.r, 26) * ff, top = y - GAPH * ff, bot = y + (TP - GAPH) * ff;
             ctx.save(); ctx.beginPath(); ctx.moveTo(X, top); ctx.lineTo(X, bot - R); ctx.arcTo(X, bot, X + R, bot, R); ctx.lineTo(X + W - R, bot); ctx.arcTo(X + W, bot, X + W, bot - R, R); ctx.lineTo(X + W, top); ctx.closePath();
             ctx.fillStyle = B.surface2; ctx.fill(); ctx.restore();
             ctx.save(); ctx.beginPath(); ctx.moveTo(X + 1, top); ctx.lineTo(X + 1, bot - R); ctx.arcTo(X + 1, bot - 1, X + R, bot - 1, R - 1); ctx.lineTo(X + W - R, bot - 1); ctx.arcTo(X + W - 1, bot - 1, X + W - 1, bot - R, R - 1); ctx.lineTo(X + W - 1, top);
@@ -8786,7 +8791,8 @@ currentScoreWinnerName = null;
       function closeSheet() { $('xsSide').classList.remove('open'); $('xsScrim').hidden = true; }
       const closeMenu = () => { $('xsMenu').hidden = true; $('xsMore').setAttribute('aria-expanded', 'false'); };
       // 6.3: الصور الطويلة جدًا (سجل البطولات، ملف اللاعب) تُقسَّم تلقائيًا في الستوري؛ وزر التقسيم يوقفه لهذه المرة
-      function splitOn(it) { return !!exportSettings.split || (!!(it && it.src && it.src.__autoSplit) && !!state && state.format === 'story' && !state.noAutoSplit); }
+      // 5.1: لا تقسيم تلقائي (صاحب المشروع ينشر صورة واحدة دائمًا)؛ التقسيم يدوي فقط من زره في المعاينة
+      function splitOn(it) { return !!exportSettings.split; }
       function build() {
         if (root) return;
         const st = document.createElement('style'); st.textContent = css; document.head.appendChild(st);
@@ -10726,7 +10732,7 @@ function buildLeagueStandingsCanvas() {
   const clinch = !leagueCompleted ? (() => { try { return leagueClinch(); } catch (e) { return null; } })() : null;
   const champRow = leagueCompleted ? standings.find(r => !r.excluded && r.rank === 1 && r.played > 0)
     : (clinch ? standings.find(r => r.name === clinch.name) || null : null);
-  const champBlock = champRow ? exportChampionBlock(champRow.name) : null;   // نفس بطاقة البطل المعتمدة
+  const champBlock = champRow ? exportChampionBlock(champRow.name, null, 0.62) : null;   // نفس بطاقة البطل المعتمدة (5.1: بدرع أصغر حتى يتسع الجدول للستوري)
   const bannerH = champRow ? champBlock.height : 0;
   const headH = 70, rowGap = 0; let rowH = 92;   // 6.3: صفوف متصلة بلا صناديق، وارتفاعها يملأ مقاس الستوري بإطار عريض
   // سطر الشرح تحت الهيدر (مثل بقية الصور): «اكتمل الدوري · 6 جولات · 12 مباراة» — يُعدَّل أو يُخفى من «تخصيص»
@@ -10738,7 +10744,7 @@ function buildLeagueStandingsCanvas() {
   if (champRow) y += bannerH + 30;
   const tableY = y;
   { const s0 = exportPartsRead('lgStandings'), lg0 = s0.legend && (s0.wdl || s0.sets || s0.diff) ? 84 : 20;
-    rowH = Math.max(92, Math.min(116, Math.floor((2150 - (tableY + headH + 2 * EXPORT_TABLE_PAD + 30 + lg0 + 40)) / Math.max(1, standings.length)))); }
+    rowH = Math.max(champRow ? 76 : 92, Math.min(116, Math.floor((EXPORT_STORY_H - (tableY + headH + 2 * EXPORT_TABLE_PAD + 30 + lg0 + 40)) / Math.max(1, standings.length)))); }
   const TP = EXPORT_TABLE_PAD, tableH = headH + TP + standings.length * rowH + Math.max(0, standings.length - 1) * rowGap + TP;
   const sh0 = exportPartsRead('lgStandings'), legendH = sh0.legend && (sh0.wdl || sh0.sets || sh0.diff) ? 84 : 20;
   const H = Math.ceil(tableY + tableH + 30 + legendH + 40);
@@ -11163,7 +11169,7 @@ function buildLeagueStandingsCanvas() {
       const nRows = sections.reduce((a, sec) => a + (sec.rows ? sec.rows.length : 0), 0);
       const frameX = sections.reduce((a, sec) => a + (sec.rows ? 2 * TP : sec.matches ? 2 * TP - 12 : sec.honor || sec.path ? 2 * TP : 0), 0);
       const nonRow = top + gapC + sections.length * (HEAD + 14) + (rowsH - nRows * ROW) + frameX + 90;
-      if (nRows) ROW = Math.max(66, Math.min(84, Math.floor((2150 - nonRow) / nRows)));
+      if (nRows) ROW = Math.max(66, Math.min(84, Math.floor((EXPORT_STORY_H - nonRow) / nRows)));
       const H = Math.ceil(nonRow + nRows * ROW);
       let scale = exportScale(); while (W * scale * H * scale > 16000000 && scale > 1) scale -= 0.25;
       const canvas = document.createElement('canvas'); canvas.width = Math.ceil(W * scale); canvas.height = Math.ceil(H * scale);
@@ -11264,7 +11270,7 @@ function buildLeagueStandingsCanvas() {
       const clH = clInfo ? CL.pad * 2 + clInfo.reduce((a, o, i) => a + (i ? CL.sub : CL.main), 0) : 0, clGap = clInfo ? 18 : 0;   // أول خبر في اليوم هو الرئيسي (اللقب، أو المركز إن حُسم وحده)
       const over = secs.reduce((a, s) => a + (s.heading ? HEAD : 0) + 2 * TP, 0) + SG * Math.max(0, secs.length - 1) + ubH + ubGap + clH + clGap;
       const totalRows = secs.reduce((a, s) => a + s.rows, 0);
-      const TARGET = window.__dayTarget || 2150, fixed = top + gapC + over + 90;
+      const TARGET = window.__dayTarget || EXPORT_STORY_H, fixed = top + gapC + over + 90;
       const rowH = Math.max(56, Math.min(100, Math.floor((TARGET - fixed) / Math.max(1, totalRows))));   // صفوف أعلى حين تسمح المساحة (الصور القصيرة)
       const H = Math.ceil(fixed + totalRows * rowH);
       let scale = exportScale(); while (W * scale * H * scale > 16000000 && scale > 1) scale -= 0.25;
@@ -11458,16 +11464,16 @@ function buildLeagueStandingsCanvas() {
       const SAME = { win: 'win', unb: 'unb', rise: 'jump' };
       R.forEach(x => { const c = council.find(r => r.k === SAME[x.k] && r.v === x.raw && x.who.every(n => r.holders.includes(n))); if (c) { x.council = true; council = council.filter(r => r !== c); } });
       // البطاقات ذات سطر المجلس تتجاور في صف واحد (أو تكون الوحيدة بعرض كامل في آخر صف) حتى لا تبقى بطاقة بفراغ تحت صاحبها
-      { const mk = R.filter(x => x.council), pl = R.filter(x => !x.council); R.length = 0; R.push(...(mk.length % 2 ? pl.concat(mk) : mk.concat(pl))); }
+      { const mk = R.filter(x => x.council), pl = R.filter(x => !x.council), Cn = R.length > 4 ? 3 : 2; R.length = 0; R.push(...(mk.length % Cn ? pl.concat(mk) : mk.concat(pl))); }
       // البطل: عند الاكتمال، أو الحسم المبكر
       let champ = null; const cl = done ? null : leagueClinch();
       if (done) { const c = st.find(r => !r.excluded && r.rank === 1); if (c) { const gd = leagueGoldenOf();
         const rec2 = [hvWins(c.wins), c.draws ? hvN(c.draws, 'تعادل واحد', 'تعادلان', 'تعادلات', 'تعادلًا') : '', c.losses ? hvN(c.losses, 'خسارة واحدة', 'خسارتان', 'خسارات', 'خسارة') : 'بلا خسارة'].filter(Boolean).join(' · ');
         champ = { title: champTitle('league', rec, !!gd), name: c.name, golden: !!gd, line: `${exportPointsLabel(c.points)} · ${rec2}`,
           // بطاقة البطل الموحدة بمحتوى مختصر (كلافتة صورة الترتيب): المراكز في «منصة التتويج» و«الترتيب»، والحصاد للأرقام
-          card: { title: champTitle('league', rec, !!gd), golden: !!gd, parts: [c.name], meta: exportPointsLabel(c.points), sub: gd ? goldenLine(gd) : '', rest: [] } }; } }
+          card: { title: champTitle('league', rec, !!gd), golden: !!gd, parts: [c.name], emK: 0.75, meta: exportPointsLabel(c.points), sub: gd ? goldenLine(gd) : `فوز ${c.wins} · تعادل ${c.draws} · خسارة ${c.losses}`, rest: [] } }; } }
       else if (cl) champ = { title: champTitle('league', null), name: cl.name, line: CLINCH_LINE,
-        card: { title: champTitle('league', null), golden: false, parts: [cl.name], meta: CLINCH_LINE, sub: '', rest: [] } };
+        card: { title: champTitle('league', null), golden: false, parts: [cl.name], emK: 0.75, meta: CLINCH_LINE, sub: '', rest: [] } };
       // لحظة حسم اللقب: يومها، فقط إن حُسم قبل آخر مباراة مسجلة (الحسم بآخر مباراة ليس حسمًا مبكرًا)
       let clinchDay = '';
       // نفس أسلوب leagueClinchAt (للعرض فقط): تُسحب أحدث المباريات الموقّتة من نسخة مؤقتة حتى يزول حسم البطل؛ المسحوبة آخرًا هي الحاسمة
@@ -11477,7 +11483,11 @@ function buildLeagueStandingsCanvas() {
             const c2 = leagueClinch(); if (!c2 || c2.name !== champ.name) { mo = at[m.id]; break; } } }
         catch (e) { mo = null; } finally { leagueMatches = saved; }
         if (mo && timedDesc.length && mo < at[timedDesc[0].id]) clinchDay = `حُسم اللقب يوم ${nightLabel(nightKeyOf(mo))}`; }
-      return { done, champ, num: champTitle('league', rec).replace(/^بطل /, ''),
+      // 5.1 — المركزان الثاني والثالث: عند الاكتمال بنقاطهما النهائية، وأثناء الدوري المحسوم منهما فقط («محسوم»)
+      let places = [];
+      if (done) places = st.filter(r => !r.excluded).slice(1, 3).map((r, i) => ({ rk: i + 2, name: r.name, sub: exportPointsLabel(r.points), wdl: `فوز ${r.wins} · تعادل ${r.draws} · خسارة ${r.losses}` }));
+      else if (champ) { try { const sp = leagueSecuredPlaces(); places = [1, 2].filter(i => sp[i]).map(i => ({ rk: i + 1, name: sp[i], sub: 'محسوم' })); } catch (e) {} }
+      return { done, champ, places, num: champTitle('league', rec).replace(/^بطل /, ''),
         numbers: [['المباريات', ms.length], ...(allTimed ? [['أيام اللعب', allKeys.length]] : []), ['الأشواط', sets], ['الانتصارات', clean], ['التعادلات', draws], ['الانسحابات', ff]],
         period: allTimed && allKeys.length > 1 ? `من ${nightLabel(allKeys[0])} إلى ${nightLabel(allKeys[allKeys.length - 1])}` : '',
         span: allTimed && allKeys.length > 1 ? hvSpan(allKeys[0], allKeys[allKeys.length - 1]) : '',
@@ -11503,6 +11513,21 @@ function buildLeagueStandingsCanvas() {
           drawChampCard(ctx, M, y, CW, D.champ.card, champImg);
           y += champCardLayout(D.champ.card).h + GAPS + 14;   // + مساحة ظل البطاقة
         }
+        // (1.5) المركزان الثاني والثالث: قسم بإطار وعنوان خشبي كبقية أقسام الصورة (أيقونة الميدالية الخطية في الشريط)، وبطاقتاه
+        //      بسطور «أبطال الأرقام» الثابتة: «المركز الثاني» بذهبي هادئ ← الاسم ← النقاط ← «فوز · تعادل · خسارة». بطاقة البطل وحدها بلا إطار.
+        if (show.places && D.places.length) {
+          const L = D.places, G = 10, one = L.length === 1, wdl = L.some(x => x.wdl), PT = 22, LT = one ? 0 : 32, G1 = one ? 0 : 8, LN = 46, G2 = 6, LP = 36, G3 = 4, LW = wdl ? 32 : 0, PB = 22;
+          const H = PT + LT + G1 + LN + G2 + LP + (wdl ? G3 + LW : 0) + PB, cw = (RW - G) / 2;
+          cuts.push(y - GAPS / 2); y += exportSectionBar(ctx, M, y, CW, one ? (L[0].rk === 2 ? 'المركز الثاني' : 'المركز الثالث') : 'المركزان الثاني والثالث', 'medal', null, H) + TP;   // مركز واحد محسوم: العنوان يسمّيه ولا يتكرر داخل البطاقة
+          L.forEach((x, i) => { const solo = L.length === 1, w = solo ? RW : cw, x0 = solo ? RX : RX + RW - (i + 1) * cw - i * G, cx = x0 + w / 2, mw = cw - 40;
+            drawRoundedRect(ctx, x0, y, w, H, 18); ctx.fillStyle = B.paper; ctx.fill(); ctx.strokeStyle = B.line; ctx.lineWidth = 1.2; ctx.stroke();
+            const yT = y + PT + LT / 2, yN = yT + LT / 2 + G1 + LN / 2, yP = yN + LN / 2 + G2 + LP / 2;
+            if (!one) T(ctx, x.rk === 2 ? 'المركز الثاني' : 'المركز الثالث', cx, yT, { size: 24, weight: 800, color: B.goldDeep, maxW: mw, min: 16 });
+            T(ctx, x.name, cx, yN, { size: 36, weight: 800, color: B.ink, maxW: mw, min: 20 });
+            T(ctx, x.sub, cx, yP, x.wdl ? { size: 28, weight: 800, color: B.text, maxW: mw, min: 18 } : { size: 26, weight: 800, color: B.muted, maxW: mw, min: 16 });   // «محسوم» كلمة هادئة
+            if (x.wdl) T(ctx, x.wdl, cx, yP + LP / 2 + G3 + LW / 2, { size: 22, weight: 700, color: B.muted, maxW: mw, min: 15 }); });
+          y += H + TP + GAPS;
+        }
         // (2) أرقام الدوري: شبكة بثلاثة أعمدة (الرقم بارزًا ← اسمه)، والفترة تحتها
         if (show.numbers) {
           const L = D.numbers, C = 3, G = 10, TH = 132, rows = Math.ceil(L.length / C), PH = (D.period ? 96 : 0) + (D.clinchDay ? (D.period ? 48 : 76) : 0), bodyH = rows * TH + (rows - 1) * G + PH;
@@ -11522,14 +11547,15 @@ function buildLeagueStandingsCanvas() {
         // (3) أبطال الأرقام: بطاقات «سطور ثابتة» (اسم الرقم ← القيمة ← صاحبه)، عمودان، والوحيدة في صفها بالعرض كاملًا
         if (show.records && D.records.length) {
           const L = D.records, PT = 22, LT = 32, GV = 12, LV = 58, GL = 10, LN = 40, LC = 38, PB = 22, RH0 = PT + LT + GV + LV + GL + LN + PB;
-          const rows = Math.ceil(L.length / 2), G = 10;
+          const C = L.length > 4 ? 3 : 2, rows = Math.ceil(L.length / C), G = 10;   // 5.1: ثلاثة أعمدة للخمس والست (صفان بدل ثلاثة، فيتسع الستوري)
           // ارتفاع كل صف: سطر «رقم قياسي جديد للمجلس» يزيد صفه وحده، فتبقى سطور الصف الواحد على خط واحد
-          const rowH = [...Array(rows)].map((_, r) => RH0 + (L.slice(r * 2, r * 2 + 2).some(x => x.council) ? LC : 0));
+          const rowH = [...Array(rows)].map((_, r) => RH0 + (L.slice(r * C, r * C + C).some(x => x.council) ? LC : 0));
           const rowY = rowH.map((_, r) => rowH.slice(0, r).reduce((a, h) => a + h + G, 0)), bodyH = rowH.reduce((a, h) => a + h, 0) + (rows - 1) * G;
           cuts.push(y - GAPS / 2); y += exportSectionBar(ctx, M, y, CW, 'أبطال الأرقام', 'star', null, bodyH) + TP;
-          const cw = (RW - G) / 2;
-          L.forEach((x, i) => { const r = Math.floor(i / 2), k = i % 2, solo = i === L.length - 1 && k === 0;
-            const w = solo ? RW : cw, x0 = solo ? RX : RX + RW - (k + 1) * cw - k * G, y0 = y + rowY[r], RH = rowH[r], cx = x0 + w / 2, mw = cw - 40;
+          const cw = (RW - (C - 1) * G) / C;
+          L.forEach((x, i) => { const r = Math.floor(i / C), k = i % C, inRow = Math.min(C, L.length - r * C), solo = inRow === 1;
+            const rowW = inRow * cw + (inRow - 1) * G, x0 = solo ? RX : RX + (RW - rowW) / 2 + rowW - (k + 1) * cw - k * G;   // الوحيدة بعرض كامل، والصف الناقص يتوسط
+            const w = solo ? RW : cw, y0 = y + rowY[r], RH = rowH[r], cx = x0 + w / 2, mw = cw - 40;
             if (k === 0 && r > 0) cuts.push(y0 - G / 2);
             drawRoundedRect(ctx, x0, y0, w, RH, 18); ctx.fillStyle = B.paper; ctx.fill(); ctx.strokeStyle = B.line; ctx.lineWidth = 1.2; ctx.stroke();
             const yT = y0 + PT + LT / 2, yV = yT + LT / 2 + GV + LV / 2, yN = yV + LV / 2 + GL + LN / 2;
@@ -11563,7 +11589,9 @@ function buildLeagueStandingsCanvas() {
       canvas.__cuts = cuts; canvas.__autoSplit = true;
       const fn = 'League-Harvest.png', lines = [];
       lines.push(D.done ? `حصاد ${D.num}` : `حصاد ${D.num} حتى الآن`);
+      const placesLine = () => D.places.forEach(x => lines.push(`${x.rk === 2 ? '🥈 المركز الثاني' : '🥉 المركز الثالث'}: ${x.name} (${x.sub})`));
       if (D.champ) lines.push(`🏆 ${D.champ.title}: ${D.champ.name}${D.done ? ` (${D.champ.line})` : ` · ${CLINCH_LINE}`}`);
+      placesLine();
       lines.push(D.numbers.map(([l, v]) => `${l} ${v}`).join(' · '));
       if (D.span) lines.push(`المدة: ${D.span} (${D.period})`);
       if (D.clinchDay) lines.push(D.clinchDay);
@@ -12745,7 +12773,7 @@ function buildLeagueStandingsCanvas() {
       const show = exportParts('rating');
       const gapC = ctxRes.shown ? 52 : 6, HEAD = 66, GAP = 0, LEG = show.legend ? 236 : 0, TP = EXPORT_TABLE_PAD;   // 1.8: الدليل بصفّين (3 + 2) لتبقى الكبسولات بمقاس مقروء
       const two = show.rating !== false && show.tier !== false;   // 6.4: التقييم وتحته المستوى في خانة واحدة (سطر رئيسي + سطر فرعي)
-      const ROW = Math.max(two ? 120 : 88, Math.min(two ? 128 : 112, Math.floor((2150 - (top + gapC + HEAD + 2 * TP + 12 + (LEG ? 24 + LEG : 0) + 80)) / Math.max(1, list.length))));   // 6.3: صفوف متصلة تملأ الستوري
+      const ROW = Math.max(two ? 120 : 88, Math.min(two ? 128 : 112, Math.floor((EXPORT_STORY_H - (top + gapC + HEAD + 2 * TP + 12 + (LEG ? 24 + LEG : 0) + 80)) / Math.max(1, list.length))));   // 6.3: صفوف متصلة تملأ الستوري
       const frameH = HEAD + TP + list.length * ROW + TP;
       const H = Math.ceil(top + gapC + frameH + 12 + (LEG ? 24 + LEG : 0) + 80);
       const { canvas, ctx } = exportNewCanvas(W, H);
@@ -13188,7 +13216,7 @@ function buildLeagueStandingsCanvas() {
     // 9.3: درع البطولة للصور بلا نصوص (الخط لا يُحمَّل داخل SVG مرسوم كصورة)؛ تُكتب «المجلس» و«المركز الأول» بخط Tajawal فوقه
     const trophyExportImage = golden => exportSvgImage(carromTrophySVG({ text: false, golden: !!golden }), Math.round(134 * CK * 2), Math.round(160 * CK * 2));
     function champCardLayout(c) {
-      const em = 160 * CK, emW = 134 * CK, emGap = 10 * CK;   // 9.4: الدرع للجميع (والذهبي بنسخته الذهبية)
+      const ek = c.emK || 1, em = 160 * CK * ek, emW = 134 * CK * ek, emGap = 10 * CK;   // 9.4: الدرع للجميع (والذهبي بنسخته الذهبية) · 5.1: emK درع أصغر حين تتسع الصورة لغيره (لافتة الترتيب، الحصاد)
       const L = { padT: 20 * CK, em, emW, emGap, tH: 13 * 1.5 * CK, nGap: 6 * CK, nH: 26 * 1.3 * CK, mGap: 6 * CK, mH: 13 * 1.5 * CK, sGap: 3 * CK, sH: 12 * 1.5 * CK,
         rTop: 16 * CK, rPad: 4 * CK, rowH: 40 * CK, padB: 16 * CK };
       L.h = L.padT + em + emGap + L.tH + L.nGap + L.nH + (c.meta ? L.mGap + L.mH : 0) + (c.sub ? L.sGap + L.sH : 0)
@@ -15469,7 +15497,7 @@ function buildLeagueStandingsCanvas() {
     // ===================================
     // 🧭 سلوك التطبيق: إعادة الوضع للأعلى، تعديل العنوان بالضغط المطوّل، تنبيه التحديث، رقم الإصدار
     // ===================================
-    const APP_VERSION = '5.0';   // ترقيم الاعتماد (من 4 نوفمبر 2026): 1.0 ثم 1.1 … 1.9 ثم 2.0 — ويُرفع معه رقم الإصدار في sw.js
+    const APP_VERSION = '5.1';   // ترقيم الاعتماد (من 4 نوفمبر 2026): 1.0 ثم 1.1 … 1.9 ثم 2.0 — ويُرفع معه رقم الإصدار في sw.js
     (function setupAppBehaviors() {
       const root = document.documentElement;
 
