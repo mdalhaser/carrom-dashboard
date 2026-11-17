@@ -6051,7 +6051,13 @@ return teamName.replace('غير محدد', replacement);
       const gems = Array.from({ length: 8 }, (_, i) => { const a = (22.5 + i * 45) * Math.PI / 180, x = (C + 45.6 * Math.cos(a)).toFixed(2), y = (C + 45.6 * Math.sin(a)).toFixed(2);
         return `<g class="gm" style="--i:${(i + 6) % 8}"><circle cx="${x}" cy="${+y + .7}" r="3.2" fill="rgba(60,30,4,.55)"/><circle cx="${x}" cy="${y}" r="3.1" fill="url(#${u}b)"/><circle cx="${x}" cy="${y}" r="2.25" fill="url(#${u}j)"/>`
           + `<circle cx="${(+x - .7).toFixed(2)}" cy="${(+y - .8).toFixed(2)}" r=".7" fill="#FFF3F5" opacity=".95"/><circle class="gl" cx="${x}" cy="${y}" r="3.4" fill="url(#${u}s)" opacity="0"/></g>`; }).join('');
-      const em = reliefOf(ic) ? reliefSVG(ic, 'g').replace('<svg class="rlf" ', '<svg class="rmi" x="22" y="21" width="56" height="56" ') : '';
+      // البطل الذهبي (5.6): كأسه المذهّب داخل إكليل الغار نفسه، بخصائص مكتوبة على العناصر (تُرسم كصورة في التصدير بلا CSS)
+      const laurel = () => `<svg x="17" y="18" width="66" height="66" viewBox="0 0 64 64" overflow="visible"><defs><linearGradient id="${u}l" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#FFF2C6"/><stop offset=".45" stop-color="#E2B456"/><stop offset="1" stop-color="#8A5B18"/></linearGradient></defs>`
+        + `<g transform="translate(0 .85)">${LAUREL.stems.map(d => `<path d="${d}" fill="none" stroke="rgba(30,0,6,.55)" stroke-width="1.05" stroke-linecap="round"/>`).join('')}${LAUREL.leaves.map(l => `<path d="${l.d}" fill="rgba(30,0,6,.55)"/>`).join('')}</g>`
+        + LAUREL.stems.map(d => `<path d="${d}" fill="none" stroke="#9C6A1E" stroke-width="1.05" stroke-linecap="round" stroke-linejoin="round"/>`).join('')
+        + LAUREL.leaves.map(l => `<path d="${l.d}" fill="url(#${u}l)" stroke="rgba(90,55,10,.55)" stroke-width=".3"/><path d="${l.shade}" fill="rgba(96,58,10,.32)"/><path d="${l.vein}" fill="none" stroke="rgba(90,55,10,.55)" stroke-width=".3" stroke-linecap="round"/>`).join('') + '</svg>';
+      const em = ic === 'cupx' ? laurel() + reliefSVG('trophy', 'g').replace('<svg class="rlf" ', '<svg class="rmi" x="31" y="29" width="38" height="38" ')
+        : reliefOf(ic) ? reliefSVG(ic, 'g').replace('<svg class="rlf" ', '<svg class="rmi" x="22" y="21" width="56" height="56" ') : '';
       return `<svg class="rmd-svg" xmlns="http://www.w3.org/2000/svg" viewBox="-2 -2 104 106" aria-hidden="true"><defs>`
         + `<linearGradient id="${u}f" x1="0" y1="0" x2=".32" y2="1"><stop offset="0" stop-color="#FFF6D6"/><stop offset=".18" stop-color="#F3D486"/><stop offset=".42" stop-color="#C9963B"/><stop offset=".6" stop-color="#8E601C"/><stop offset=".8" stop-color="#EBC872"/><stop offset="1" stop-color="#7A4F12"/></linearGradient>`
         + `<linearGradient id="${u}c" x1="0" y1="1" x2=".25" y2="0"><stop offset="0" stop-color="#FCE7A8"/><stop offset=".45" stop-color="#B8842F"/><stop offset="1" stop-color="#6E460E"/></linearGradient>`
@@ -12555,10 +12561,10 @@ function buildLeagueStandingsCanvas() {
     const HONOR_DEFS = [
       // 5.5 — الأوسمة النادرة (lv 'r'): ميدالية مثمّنة بمينا ياقوتية، وصف خاص أعلى الأوسمة. العتبات فوق أعلى ما بلغه أي لاعب في المجلس.
       { k: 'perfect', ic: 'star8', name: 'الدوري المثالي', how: 'الفوز بالدوري بكل مبارياته، دون أي خسارة أو تعادل.', lv: 'r', rare: true },
+      { k: 'golden', ic: 'cupx', name: 'البطل الذهبي', how: 'الفوز بالدوري دون أي خسارة طوال البطولة.', lv: 'r', rare: true },   // 5.6: نادر بنفس الميدالية الياقوتية
       { k: 'fort', ic: 'fort', name: 'الحصن', how: 'خوض 30 مباراة متتالية دون أي خسارة.', lv: 'r', rare: true },
       { k: 'reign', ic: 'crowncup', name: 'الهيمنة', how: 'تحقيق 8 ألقاب متتالية في بطولات المجلس.', lv: 'r', rare: true },
       { k: 'master', ic: 'crownpeak', name: 'سيد المجلس', how: 'الوصول إلى تقييم 1,300 في تصنيف لاعبي المجلس.', lv: 'r', rare: true },
-      { k: 'golden', ic: 'cupx', name: 'البطل الذهبي', how: 'الفوز بالدوري دون أي خسارة طوال البطولة.', lv: 'x' },
       { k: 'king', ic: 'crownk', name: 'الملك المتوّج', how: 'الفوز بلقب الدوري 5 مرات أو أكثر.', lv: 'k' },
       { k: 'club20', ic: 'trophy', num: '20', name: 'جامع العشرين', how: 'تحقيق 20 لقبًا في بطولات المجلس، سواء في الفردي أو الفرق أو الدوري.', lv: 'g' },
       { k: 'storm', ic: 'tornado', num: '20', name: 'الإعصار', how: 'تحقيق 20 انتصارًا متتاليًا دون أي خسارة أو تعادل.', lv: 'g' },
@@ -12579,11 +12585,11 @@ function buildLeagueStandingsCanvas() {
       // 5.5: النادرة أولًا
       const perfs = (C.titles || []).map(x => x.t && x.t.mode === 'league' ? leagueGoldenOf(x.t) : null).filter(g => g && !g.d);
       if (perfs.length) add('perfect', '', perfs.length === 1 ? `فوز ${perfs[0].w} من ${perfs[0].w}` : perfs.length === 2 ? 'مرتان' : `${perfs.length} مرات`);
+      const golds = (C.titles || []).filter(x => x.t && x.t.mode === 'league' && leagueGoldenOf(x.t)).length;
+      if (golds) add('golden', '', golds === 1 ? 'دوري بلا خسارة' : golds === 2 ? 'مرتان بلا خسارة' : `${golds} ${golds <= 10 ? 'مرات' : 'مرة'} بلا خسارة`);
       if ((C.unb || 0) >= 30) add('fort', '', `${C.unb} ${arMatchesW(C.unb)} بلا خسارة`);
       if ((C.titleRun || 0) >= 8) add('reign', '', `${C.titleRun} ${arTitlesW(C.titleRun)} متتالية`);
       if (C.peak && C.peak.r >= 1300) add('master', '', `أعلى تقييم ${C.peak.r.toLocaleString('en-US')}`);
-      const golds = (C.titles || []).filter(x => x.t && x.t.mode === 'league' && leagueGoldenOf(x.t)).length;
-      if (golds) add('golden', '', golds === 1 ? 'دوري بلا خسارة' : golds === 2 ? 'مرتان بلا خسارة' : `${golds} ${golds <= 10 ? 'مرات' : 'مرة'} بلا خسارة`);
       if ((by.league || 0) >= 5) add('king', '', `${by.league} ${by.league <= 10 ? 'ألقاب دوري' : 'لقب دوري'}`);
       if ((C.titles || []).length >= 20) add('club20');
       if ((p.bestWin || 0) >= 20) add('storm');
