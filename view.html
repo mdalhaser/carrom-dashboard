@@ -6439,6 +6439,11 @@ return teamName.replace('غير محدد', replacement);
       if (custom) return `بطل ${custom}`;
       return `${mode === 'league' ? 'بطل الدوري' : koChampLabel(mode)} ${num}`;
     }
+    // 5.3: اسم المنافسة الحالية بلا «بطل» («الدوري 1» · «البطولة الفردية 16» · الاسم الخاص) — للعناوين الفرعية في صور التصدير
+    function compName(mode) { mode = mode || currentMode; try { return champTitle(mode, liveChampRec(mode)).replace(/^بطل /, ''); } catch (e) { return ''; } }
+    const withComp = (label, mode) => { const c = compName(mode); return c ? `${label} · ${c}` : label; };
+    function leagueEndAt() { try { const at = leagueMatchTimes(), ts = leagueMatches.filter(m => isLeagueMatchCompleted(m) && at[m.id]).map(m => at[m.id]); return ts.length ? Math.max(...ts) : null; } catch (e) { return null; } }
+    function koEndAt() { try { const fm = Object.values(bracketState || {}).find(isFinalMatch); if (fm && fm.winner && fm.at) return fm.at; const r = liveChampRec(currentMode); return r && r.date ? new Date(r.date).getTime() : null; } catch (e) { return null; } }
     function koFinalLine(a, b) { a = Number(a); b = Number(b); return (isFinite(a) && isFinite(b)) ? `فوز في النهائي · ${Math.max(a, b)} - ${Math.min(a, b)}` : 'فوز في النهائي'; }
     function liveMatchesCount() { return liveTournamentRecords().reduce((n, t) => n + t.matches.length, 0); }
 
@@ -7797,7 +7802,7 @@ currentScoreWinnerName = null;
       if (!exportChipCtxKind) return null;
       if (exportChipCtxCache && exportChipCtxCache.kind === exportChipCtxKind) return exportChipCtxCache;
       const k = exportChipCtxKind, a = exportChipCtxArgs || {}, defs = {}, add = (id, name, icon, label) => { if (label != null && String(label).trim()) defs[id] = { name, icon, label: String(label).trim(), ctx: true }; };
-      let dflt = [];
+      let dflt = [], fill = true;
       const safe = f => { try { return f(); } catch (e) { return null; } };
       const lgP = safe(() => (leagueStarted && !leagueFixtureError) ? getLeagueProgress() : null);
       const lgSt = safe(() => (leagueStarted && !leagueFixtureError) ? calculateLeagueStandings() : []) || [];
@@ -7809,6 +7814,7 @@ currentScoreWinnerName = null;
         if (S) add('gap', 'الفارق بين الأول والثاني', 'chart', L.points === S.points ? 'تساوي الأول والثاني' : `الفارق عن الثاني: ${chipPts(L.points - S.points)}`); };
       const lgRoundChips = () => { if (!lgP) return; add('lround', 'الجولة الحالية', 'flag', lgP.completed ? arNum(lgP.totalRounds, 'جولة واحدة مكتملة', 'جولتان مكتملتان', 'جولات مكتملة', 'جولة مكتملة') : `الجولة ${getLeagueActiveRound()} من ${lgP.totalRounds}`);
         add('ldone', 'المباريات المكتملة', 'chart', `${lgP.done} من ${lgP.total} ${arMatchW(lgP.total)}`);
+        if (lgP.completed) { const e = leagueEndAt(); if (e) add('lend', 'يوم اكتمال الدوري', 'calendar', fmtDayDate(e)); }
         if (!lgP.completed) add('lleft', 'المتبقية', 'table', `متبقية: ${chipMatches(lgP.remaining)}`); };
       const lastNight = kind => safe(() => { const ns = nightsList(kind); return ns && ns.length ? ns.slice().sort((x, y) => x.key < y.key ? 1 : -1)[0] : null; });
       const playerElo = n => safe(() => computePlayerRatings().players[n]);
@@ -7835,7 +7841,7 @@ currentScoreWinnerName = null;
         if (p.streak && p.streak.type === 'w' && p.streak.len >= 2) add('pstreak', 'سلسلة الانتصارات', 'check', arNum(p.streak.len, 'انتصار واحد', 'انتصاران متتاليان', 'انتصارات متتالية', 'انتصارًا متتاليًا')); };
       switch (k) {
         case 'lg-standings': lgRoundChips(); leaderChips(); { const ln = lastNight('lg'); if (ln) add('lastDay', 'آخر يوم لعب', 'calendar', `آخر يوم لعب: ${safe(() => nightLabel(ln.key).split('،')[0])} ${chipShortDate(new Date(ln.key + 'T12:00:00'))}`); }
-          dflt = ['lround', 'ldone', 'date']; break;   // 1.8: المتصدر هو الصف الأول
+          dflt = lgP && lgP.completed ? ['date'] : ['ldone', 'date']; fill = false; break;   // 1.8: المتصدر هو الصف الأول · 5.3: الجولة في العنوان الفرعي، والنهائي بسطر «اكتمل الدوري»
         case 'lg-rounds': case 'lg-upcoming': { const rs = (a.rounds || []).slice().sort((x, y) => x - y); if (rs.length) add('rounds', 'الجولات المختارة', 'flag', rs.length === 1 ? `الجولة ${rs[0]}` : (rs[rs.length - 1] - rs[0] === rs.length - 1 ? `الجولات ${rs[0]}–${rs[rs.length - 1]}` : arRoundsN(rs.length)));
           const ms = rs.flatMap(r => safe(() => getLeagueRoundMatches(r)) || []), done = ms.filter(m => isLeagueMatchCompleted(m)).length, pend = ms.filter(m => !isLeagueMatchSettled(m)).length;
           if (k === 'lg-rounds') add('rdone', 'المكتمل منها', 'check', ms.length ? `اكتملت ${done} من ${ms.length}` : ''); else add('rpend', 'المباريات القادمة', 'users', pend ? `قادمة: ${chipMatches(pend)}` : '');
@@ -7847,17 +7853,19 @@ currentScoreWinnerName = null;
           const names = new Set(), wins = {}; list.forEach(e => { [e.a, e.b].forEach(n => names.add(n)); const w = e.w || (e.sa > e.sb ? e.a : e.sb > e.sa ? e.b : null); if (w) wins[w] = (wins[w] || 0) + 1; });
           add('nplayers', 'المشاركون اليوم', 'users', names.size ? (kind === 'lg' ? chipN(names.size, 'لاعب واحد', 'لاعبان', 'لاعبين', 'لاعبًا') : chipN(names.size, 'طرف واحد', 'طرفان', 'أطراف', 'طرفًا')) : '');
           // 1.8: «نجم اليوم» أُلغي (جُرّب ورُفض: يثير الجدل) — لا بطاقة له
-          dflt = ['nplayers']; break; }   // 1.8: اليوم وعدد المباريات في السطر تحت الهيدر
+          dflt = []; fill = false; break; }   // 5.3: اليوم والمباريات واللاعبون في السطر تحت الهيدر   // 1.8: اليوم وعدد المباريات في السطر تحت الهيدر
         case 'lg-versus': case 'ko-versus': { const v = safe(() => versusCandidates().find(x => x.id === a.id)); if (v) { const s = safe(() => versusStory(v));
             add('vround', 'الجولة / الدور', 'flag', v.label);
             if (s) { const pa = Math.round(s.pA * 100); add('vchance', 'فرص الفوز', 'chart', `فرص الفوز ${pa}% مقابل ${100 - pa}%`); add('vh2h', 'المواجهات السابقة', 'users', s.h.total ? `التقيا ${chipN(s.h.total, 'مرة واحدة', 'مرتين', 'مرات', 'مرة')}` : 'اللقاء الأول بينهما'); } }
           if (String(a.time || '').trim()) add('vtime', 'موعد المباراة', 'clock', String(a.time).trim());
           dflt = ['date']; break; }   // 1.7: الجولة والموعد في السطر تحت الهيدر، والمواجهات السابقة في قسمها — لا تكرار
         case 'lg-top3': case 'lg-top5': case 'lg-champion': case 'lg-runner': case 'lg-final3': case 'lg-final5': case 'lg-podium': lgRoundChips(); leaderChips();
-          if (lgP && lgP.completed) { add('lrounds', 'عدد الجولات', 'flag', `${arRoundsN(lgP.totalRounds)} · ${chipMatches(lgP.total)}`); add('lplayers', 'عدد اللاعبين', 'users', chipN(lgSt.length, 'لاعب واحد', 'لاعبان', 'لاعبين', 'لاعبًا')); }
-          dflt = lgP && lgP.completed ? ['lrounds', 'lplayers', 'date'] : (k === 'lg-champion' ? ['date'] : ['lround', 'ldone', 'gap']); break;   // 2.5: صورة بطل محسوم مبكرًا بلا أرقام متغيرة (الجولة، الفارق)
+          if (lgP && lgP.completed) { add('lrounds', 'عدد الجولات', 'flag', `${arRoundsN(lgP.totalRounds)} · ${chipMatches(lgP.total)}`); add('lplayers', 'عدد اللاعبين', 'users', chipN(lgSt.length, 'لاعب واحد', 'لاعبان', 'لاعبين', 'لاعبًا')); add('lsize', 'اللاعبون والمباريات', 'users', `${chipN(lgSt.length, 'لاعب واحد', 'لاعبان', 'لاعبين', 'لاعبًا')} · ${chipMatches(lgP.total)}`); }
+          else if (k === 'lg-champion') { const ca = safe(() => leagueClinchAt()); if (ca && isFinite(ca)) add('lclinch', 'يوم حسم اللقب', 'calendar', fmtDayDate(ca)); }
+          // 5.3: الصور النهائية بيوم اكتمال الدوري لا بتاريخ التصدير، والجارية بالمكتمل والفارق
+          dflt = lgP && lgP.completed ? (k === 'lg-final3' || k === 'lg-final5' ? ['lplayers', 'lend'] : ['lsize', 'lend']) : (k === 'lg-champion' ? ['lclinch'] : ['ldone', 'gap', 'date']); if (!dflt.includes('date') && !dflt.some(id => defs[id] && ['lend', 'lclinch'].includes(id))) dflt.push('date'); fill = false; break;   // 2.5: صورة بطل محسوم مبكرًا بلا أرقام متغيرة (الجولة، الفارق)
         case 'lg-card': case 'lg-log': { const r = safe(() => leagueRow(a.name)), hist = safe(() => getLeaguePlayerHistory(a.name)) || [];
-          if (r) { add('prank', 'المركز في الدوري', 'rank', `المركز ${r.rank} من ${lgSt.length}`); add('ppts', 'النقاط', 'chart', chipPts(r.points)); add('precord', 'فوز / تعادل / خسارة', 'table', `${r.wins} فوز · ${r.draws} تعادل · ${r.losses} خسارة`); add('pwin', 'نسبة الفوز', 'chart', r.played ? `نسبة الفوز ${Math.round(r.wins / r.played * 100)}%` : ''); }
+          if (r) { add('prank', 'المركز في الدوري', 'rank', `المركز ${r.rank} من ${lgSt.length}`); add('ppts', 'النقاط', 'chart', chipPts(r.points)); add('precord', 'فوز / تعادل / خسارة', 'table', `فوز ${r.wins} · تعادل ${r.draws} · خسارة ${r.losses}`); add('pwin', 'نسبة الفوز', 'chart', r.played ? `نسبة الفوز ${Math.round(r.wins / r.played * 100)}%` : ''); }
           const left = hist.filter(h => !h.bye && !h.completed && !h.annul).length; add('pleft', 'المتبقية له', 'table', left ? `متبقية له: ${chipMatches(left)}` : 'أنهى مبارياته');
           const p = playerElo(a.name); if (p && p.games) add('prating', 'تقييم المجلس', 'chart', `التقييم ${p.rating.toLocaleString('en-US')}`);
           dflt = k === 'lg-card' ? ['prating', 'date'] : ['prank', 'precord', 'pleft']; break; }   // 1.8: البطاقة فيها المركز والنقاط؛ التقييم وحده خارجها
@@ -7869,24 +7877,25 @@ currentScoreWinnerName = null;
         case 'lg-report': lgRoundChips(); leaderChips(); add('lplayers', 'عدد اللاعبين', 'users', lgSt.length ? chipN(lgSt.length, 'لاعب واحد', 'لاعبان', 'لاعبين', 'لاعبًا') : '');
           if (lgP) add('lpct', 'نسبة الإنجاز', 'chart', `إنجاز ${Math.round(lgP.done / Math.max(1, lgP.total) * 100)}%`); dflt = ['date']; break;   // 1.8: كل الأرقام في «ملخص الدوري» نفسه
         case 'lg-match': { const m = safe(() => leagueMatches.find(x => x.id === a.id)); if (m) { add('mround', 'الجولة', 'flag', `الجولة ${m.round}`); const at = safe(() => leagueMatchTimes()[m.id]); if (at) add('mwhen', 'وقت تسجيل النتيجة', 'clock', `${fmtDayDate(at)} · ${fmtTimeNum(at)}`); }
-          lgRoundChips(); leaderChips(); dflt = ['mround', 'mwhen', 'leader']; break; }
+          lgRoundChips(); leaderChips(); dflt = [defs.mwhen ? 'mwhen' : 'date', 'leader']; fill = false; break; }   // 5.3: الجولة في العنوان الفرعي
         case 'ko-bracket': case 'ko-summary': { const all = koAll(), done = all.filter(m => m.winner).length, fin = koFin(), cur = koCur();
           add('kcount', currentMode === 'single' ? 'عدد اللاعبين' : 'عدد الفرق', 'users', koCount()); add('kdone', 'المباريات المكتملة', 'chart', all.length ? `${done} من ${all.length} ${arMatchW(all.length)}` : '');
           if (fin) add('kchamp', 'البطل', 'trophy', `البطل: ${safe(() => getDisplayTeamName(fin.champion)) || fin.champion}`); else if (cur) add('kround', 'الدور الحالي', 'flag', `الدور الحالي: ${cur}`);
-          add('kkind', 'نوع المنافسة', currentMode === 'single' ? 'user' : 'users', koKind); dflt = fin ? ['kcount', 'kchamp', 'date'] : ['kcount', 'kdone', 'kround']; break; }
+          add('kkind', 'نوع المنافسة', currentMode === 'single' ? 'user' : 'users', koKind); dflt = fin ? ['kcount', 'kchamp', 'date'] : ['kcount', 'kround', 'date']; fill = false; break; }   // 5.3: المكتمل في السطر تحت الهيدر
         case 'ko-upcoming': { const up = safe(() => knockoutUpcomingMatches()) || [], cur = koCur(); if (cur) add('kround', 'الدور الحالي', 'flag', cur); add('kpend', 'الجاهزة للعب', 'users', up.length ? `جاهزة للعب: ${chipMatches(up.length)}` : '');
-          add('kcount', currentMode === 'single' ? 'عدد اللاعبين' : 'عدد الفرق', 'users', koCount()); dflt = ['kround', 'kpend', 'date']; break; }
+          add('kcount', currentMode === 'single' ? 'عدد اللاعبين' : 'عدد الفرق', 'users', koCount()); dflt = ['kpend', 'date']; fill = false; break; }   // 5.3: الدور في العنوان الفرعي
         case 'ko-round': { const r = safe(() => gatherExportData().roundsData.find(x => x.roundName === a.round)); if (r) { add('rname', 'الدور', 'flag', cleanRound(r.roundName)); add('rdone', 'المكتمل منه', 'check', `اكتملت ${r.matches.filter(m => m.winner).length} من ${r.matches.length}`); }
-          add('kcount', currentMode === 'single' ? 'عدد اللاعبين' : 'عدد الفرق', 'users', koCount()); dflt = ['rname', 'rdone', 'date']; break; }
+          add('kcount', currentMode === 'single' ? 'عدد اللاعبين' : 'عدد الفرق', 'users', koCount()); dflt = ['date']; fill = false; break; }   // 5.3: الدور في العنوان الفرعي والمكتمل في السطر تحته
         case 'ko-match': { const m = bracketState[a.id]; if (m) { add('mround', 'الدور والمباراة', 'flag', `${cleanRound(m.roundName)} · مباراة ${m.matchNumber}`);
             const e = safe(() => readMatchLog().filter(x => x.k === 'ko' && x.id === m.id && x.a === m.team1 && x.b === m.team2 && x.w === m.winner).pop()); if (e) add('mwhen', 'وقت تسجيل النتيجة', 'clock', `${fmtDayDate(e.at)} · ${fmtTimeNum(e.at)}`); }
-          add('kkind', 'نوع المنافسة', currentMode === 'single' ? 'user' : 'users', koKind); dflt = ['mround', 'mwhen', 'kkind']; break; }
-        case 'ko-card': case 'ko-log': { const r = safe(() => knockoutRecord(a.name)); if (r) { add('pstatus', 'الحالة', /بطل/.test(r.status) ? 'trophy' : 'rank', r.status !== '—' ? r.status : ''); add('precord', 'الفوز والخسارة', 'table', `${r.wins} فوز · ${r.losses} خسارة`); add('ppts', 'نقاط له / عليه', 'chart', r.played ? `له ${r.pf} · عليه ${r.pa}` : ''); }
+          add('kkind', 'نوع المنافسة', currentMode === 'single' ? 'user' : 'users', koKind); dflt = [defs.mwhen ? 'mwhen' : 'date']; fill = false; break; }   // 5.3: الدور في العنوان الفرعي
+        case 'ko-card': case 'ko-log': { const r = safe(() => knockoutRecord(a.name)); if (r) { add('pstatus', 'الحالة', /بطل/.test(r.status) ? 'trophy' : 'rank', r.status !== '—' ? r.status : ''); add('precord', 'الفوز والخسارة', 'table', `فوز ${r.wins} · خسارة ${r.losses}`); add('ppts', 'نقاط له / عليه', 'chart', r.played ? `له ${r.pf} · عليه ${r.pa}` : ''); }
           const mem = currentMode === 'single' ? [a.name] : String(a.name || '').split(' + ').map(x => x.trim()); if (mem.length === 1) { const p = playerElo(mem[0]); if (p && p.games) add('prating', 'تقييم المجلس', 'chart', `التقييم ${p.rating.toLocaleString('en-US')}`); }
-          add('kkind', 'نوع المنافسة', currentMode === 'single' ? 'user' : 'users', koKind); dflt = k === 'ko-card' ? ['pstatus', 'precord', 'kkind'] : ['pstatus', 'precord', 'date']; break; }
+          add('kkind', 'نوع المنافسة', currentMode === 'single' ? 'user' : 'users', koKind); dflt = ['pstatus', 'precord', 'date']; fill = false; break; }   // 5.3: نوع المنافسة في السطر تحت الهيدر
         case 'ko-champion': case 'ko-runner': case 'ko-both': case 'ko-podium': { const fin = koFin(); if (fin && fin.score) add('kfinal', 'نتيجة النهائي', 'trophy', `النهائي ${fin.score}`);
           add('kcount', currentMode === 'single' ? 'عدد اللاعبين' : 'عدد الفرق', 'users', koCount()); add('kkind', 'نوع المنافسة', currentMode === 'single' ? 'user' : 'users', koKind); const all = koAll(); add('kdone', 'مباريات البطولة', 'chart', all.length ? chipMatches(all.length) : '');
-          dflt = ['kkind', 'kcount', 'date']; break; }   // 1.8: نتيجة النهائي داخل بطاقة البطل/المنصة
+          { const e = koEndAt(); if (e && koFin()) add('kend', 'يوم النهائي', 'calendar', fmtDayDate(e)); }
+          dflt = defs.kend ? ['kcount', 'kend'] : ['kcount', 'date']; fill = false; break; }   // 5.3: يوم النهائي لا تاريخ التصدير، والنوع في العنوان الفرعي   // 1.8: نتيجة النهائي داخل بطاقة البطل/المنصة
         case 'history': histChips(); dflt = ['byType', 'date']; break;   // 1.8: العدد في السطر تحت الهيدر، وآخر بطل أول صف
         case 'honor': { const all = safe(() => honorPlayers()) || [], tot = all.reduce((s, p) => s + (p.titles || 0), 0); add('ntitles', 'مجموع الألقاب', 'trophy', tot ? chipN(tot, 'لقب واحد', 'لقبان', 'ألقاب', 'لقبًا') : '');
           add('nholders', 'أصحاب الألقاب', 'users', all.length ? `${all.length} ${all.length > 2 && all.length <= 10 ? 'لاعبين' : 'لاعبًا'} بألقاب` : ''); if (all[0] && (!all[1] || all[1].titles < all[0].titles)) add('topHonor', 'الأكثر ألقابًا', 'trophy', `الأكثر ألقابًا: ${all[0].name} · ${all[0].titles}`);
@@ -7898,7 +7907,7 @@ currentScoreWinnerName = null;
       }
       dflt = dflt.filter(id => defs[id] || ['date', 'count', 'time'].includes(id));
       // 1.7: الملف والمواجهة كل بطاقاتهما مكررة داخل الصورة (المركز، التقييم، الجولة، فرص الفوز …) فلا تُكمَّل؛ تبقى متاحة في «تخصيص»
-      if (!(k === 'lg-champion' && !(lgP && lgP.completed)) && !['profile', 'lg-versus', 'ko-versus', 'lg-rounds', 'lg-upcoming', 'lg-report', 'lg-harvest', 'lg-card', 'lg-compare', 'lg-today', 'ko-today', 'history', 'honor', 'rating', 'stats', 'lg-standings'].includes(k)) for (const id of Object.keys(defs)) { if (dflt.length >= 3) break; if (!dflt.includes(id)) dflt.push(id); }   // نقص بطاقة افتراضية (لا بيانات لها): تكمّلها بطاقة أخرى من بيانات الصورة
+      if (fill && !(k === 'lg-champion' && !(lgP && lgP.completed)) && !['profile', 'lg-versus', 'ko-versus', 'lg-rounds', 'lg-upcoming', 'lg-report', 'lg-harvest', 'lg-card', 'lg-compare', 'lg-today', 'ko-today', 'history', 'honor', 'rating', 'stats', 'lg-standings'].includes(k)) for (const id of Object.keys(defs)) { if (dflt.length >= 3) break; if (!dflt.includes(id)) dflt.push(id); }   // نقص بطاقة افتراضية (لا بيانات لها): تكمّلها بطاقة أخرى من بيانات الصورة
       exportChipCtxCache = { kind: k, defs, dflt };
       return exportChipCtxCache;
     }
@@ -8439,7 +8448,7 @@ currentScoreWinnerName = null;
       // العنوان الفرعي للصورة: ما كتبه المستخدم في «العنوان الفرعي»، أما عناوين الإدارة («إدارة القرعة»، «إدارة النظام» …) فلا تظهر للاعبين
       const subT = tournamentTitle.textContent.trim();
       const title =
-        `${tournamentName.textContent.trim() || 'بطولة المجلس للكيرم'}\n${subT && !/^إدارة\s/.test(subT) ? subT : 'جدول البطولة'}`;
+        `${tournamentName.textContent.trim() || 'بطولة المجلس للكيرم'}\n${subT && !/^إدارة\s/.test(subT) ? subT : (currentMode !== 'league' && compName() ? `جدول ${compName()}` : 'جدول البطولة')}`;   // 5.3
       const isDark = document.body.classList.contains('dark-mode');
 
       let teamsList = [];
@@ -10736,7 +10745,7 @@ function buildLeagueStandingsCanvas() {
   const bannerH = champRow ? champBlock.height : 0;
   const headH = 70, rowGap = 0; let rowH = 92;   // 6.3: صفوف متصلة بلا صناديق، وارتفاعها يملأ مقاس الستوري بإطار عريض
   // سطر الشرح تحت الهيدر (مثل بقية الصور): «اكتمل الدوري · 6 جولات · 12 مباراة» — يُعدَّل أو يُخفى من «تخصيص»
-  const ctxOrig = leagueCompleted ? `اكتمل الدوري · ${arRounds(progress.totalRounds)} · ${arMatchesN(progress.total)}`
+  const ctxOrig = leagueCompleted ? `اكتمل الدوري · ${arMatchesN(progress.total)}`
     : champRow ? CLINCH_LINE : '';
   const ctxRes = exportContextResolve(ctxOrig);
   let y = M + headerH + 34 + (ctxRes.shown ? 50 : 0);
@@ -10761,7 +10770,7 @@ function buildLeagueStandingsCanvas() {
   ctx.fillStyle = B.ivory;
   ctx.fillRect(0, 0, W, H);
 
-  exportBrandHeader(ctx, M, M, CW, title, 'ترتيب الدوري', meta);
+  exportBrandHeader(ctx, M, M, CW, title, leagueCompleted ? withComp('الترتيب النهائي', 'league') : (compName('league') ? `ترتيب ${compName('league')}` : 'ترتيب الدوري'), meta);   // 5.3
 
   if (ctxRes.shown) exportDrawContext(ctx, ctxRes.text, M + CW / 2, M + headerH + 34 + 4, CW, 27);
   if (champRow) champBlock.draw(ctx, M, bannerY, CW);
@@ -11353,7 +11362,7 @@ function buildLeagueStandingsCanvas() {
       });
       if (cols > 1) { const x = IX + IW - colW - GAP / 2; ctx.save(); ctx.strokeStyle = B.lineStrong; ctx.lineWidth = 2; ctx.beginPath(); ctx.moveTo(x, y0 + 6); ctx.lineTo(x, y0 + rows * rowH - 6); ctx.stroke(); ctx.restore(); }
     }
-    const leagueCtx = () => { const p = getLeagueProgress(); return (p.completed ? 'الترتيب النهائي' : 'الدوري الجاري — الترتيب الحالي') + ` · ${p.done} من ${p.total} ${arMatchW(p.total)} مكتملة`; };
+    const leagueCtx = () => { const p = getLeagueProgress(); return p.completed ? `اكتمل الدوري · ${chipMatches(p.total)}` : `الترتيب الحالي · ${p.done} من ${p.total} ${arMatchW(p.total)}`; };   // 5.3: اسم الدوري في العنوان الفرعي
     const safeName = n => String(n).replace(/\s*\+\s*/g, ' و ').replace(/[\\/:*?"<>|\s]+/g, '-');   // «فلان + فلان» ← «فلان-و-فلان» في اسم الملف
 
     async function exportLeaguePlayerCard(name) {
@@ -11369,7 +11378,7 @@ function buildLeagueStandingsCanvas() {
       if (show.last && last.length) secs.push({ heading: 'آخر النتائج', cols: ['النتيجة', 'الحالة'], rows: last });
       const ach = show.ach ? playerAchievementsSection(name) : null; if (ach) secs.push(ach);
       setCaption(`League-Player-${safeName(name)}.png`, `بطاقة ${name}: ${getLeagueProgress().completed ? 'المركز النهائي' : 'المركز الحالي'} ${r.rank}، ${arMatchesN(r.played)}، الفوز ${r.wins}، ${r.points} نقطة.`);
-      await renderLeagueSheet('بطاقة لاعب', leagueCtx(), 2, secs, `League-Player-${safeName(name)}.png`);
+      await renderLeagueSheet(withComp('بطاقة لاعب', 'league'), leagueCtx(), 2, secs, `League-Player-${safeName(name)}.png`);
     }
 
     async function exportLeagueCompare(a, b) {
@@ -11385,7 +11394,7 @@ function buildLeagueStandingsCanvas() {
       rows.push(['نسبة الفوز', pct(A.wins, A.played), pct(B.wins, B.played)]);
       const secs = [{ heading: 'مقارنة الإحصائيات', cols: [a, b], rows }];
       if (show.h2h) secs.push({ heading: 'المواجهات المباشرة', rows: h2h.length ? [[`فوز ${a}`, String(wa)], [`فوز ${b}`, String(wb)], ['تعادل', String(dr)]] : [['لم تُلعب مواجهة مكتملة بينهما بعد', '—']] });
-      await renderLeagueSheet('مقارنة لاعبين', leagueCtx(), 3, secs, `League-Compare-${safeName(a)}-vs-${safeName(b)}.png`);
+      await renderLeagueSheet(withComp('مقارنة لاعبين', 'league'), leagueCtx(), 3, secs, `League-Compare-${safeName(a)}-vs-${safeName(b)}.png`);
     }
 
     async function exportLeagueReport() {
@@ -11397,7 +11406,7 @@ function buildLeagueStandingsCanvas() {
         { heading: 'الأوائل', wide: true, rows: [best('wins', 'الأكثر فوزًا'), best('points', 'الأعلى نقاطًا'), best('setDifference', 'أفضل فارق أشواط')] }];
       const show = exportParts('lgReport');
       const picked = secs.filter((sec, i) => i === 0 ? show.summary : show.leaders);
-      await renderLeagueSheet('إحصائيات الدوري', leagueCtx(), 1, picked.length ? picked : secs.slice(0, 1), 'League-Report.png');
+      await renderLeagueSheet(compName('league') ? `إحصائيات ${compName('league')}` : 'إحصائيات الدوري', leagueCtx(), 1, picked.length ? picked : secs.slice(0, 1), 'League-Report.png');
     }
 
     // ===== 4.9 — «حصاد الدوري»: قصة الدوري في صورة واحدة (البطل · أرقام الدوري · أبطال الأرقام · أرقام المجلس الجديدة) =====
@@ -11709,7 +11718,7 @@ function buildLeagueStandingsCanvas() {
       const rows = hist.map(h => h.bye ? [`الجولة ${h.round}`, 'راحة', '—'] : h.annul ? [`ج${h.round}: ${h.opponent}`, '—', 'ملغاة'] : h.completed
         ? [`ج${h.round}: ${h.opponent}` + (h.ff ? (h.auto ? ' · استبعاد' : ' · انسحاب') : ''), `${h.own} - ${h.opp}`, h.outcome === 'win' ? 'فوز' : h.outcome === 'draw' ? 'تعادل' : 'خسارة']
         : [`ج${h.round}: ${h.opponent}`, '—', 'لم تُلعب']);
-      await renderLeagueSheet('سجل مباريات لاعب', leagueCtx(), 2, [{ heading: name, cols: ['النتيجة', 'الحالة'], rows }], `League-Log-${safeName(name)}.png`);
+      await renderLeagueSheet(withComp('سجل مباريات اللاعب', 'league'), leagueCtx(), 2, [{ heading: name, cols: ['النتيجة', 'الحالة'], rows }], `League-Log-${safeName(name)}.png`);
     }
 
     // ---------- البطولة الإقصائية: بطاقة وسجل مشارك (لاعب في الفردي، فريق في الفرق) ----------
@@ -11747,15 +11756,15 @@ function buildLeagueStandingsCanvas() {
       }
       if (r.rows.length) secs.push({ heading: withLog ? `${label} — سجل المباريات` : 'آخر النتائج', cols: ['النتيجة', 'الحالة'], rows: withLog ? r.rows : r.rows.slice(-5).reverse() });
       else if (withLog) { alert('لا توجد مباريات مكتملة لهذا المشارك بعد.'); return; }
-      const ctxLine = `${tournamentName.textContent.trim() || 'البطولة الحالية'} · ${(n => n === 1 ? 'مباراة واحدة مكتملة' : n === 2 ? 'مباراتان مكتملتان' : n + (n >= 3 && n <= 10 ? ' مباريات مكتملة' : ' مباراة مكتملة'))(Object.values(bracketState).filter(m => m.winner).length)}`;
-      await renderLeagueSheet(withLog ? 'سجل مباريات مشارك' : 'بطاقة مشارك', ctxLine, 2, secs, `${withLog ? 'Tournament-Log' : 'Tournament-Player'}-${safeName(name)}.png`);
+      const ctxLine = `${compName() || 'البطولة الحالية'} · ${(n => n === 1 ? 'مباراة واحدة مكتملة' : n === 2 ? 'مباراتان مكتملتان' : n + (n >= 3 && n <= 10 ? ' مباريات مكتملة' : ' مباراة مكتملة'))(Object.values(bracketState).filter(m => m.winner).length)}`;
+      await renderLeagueSheet(withLog ? (currentMode === 'single' ? 'سجل مباريات اللاعب' : 'سجل مباريات الفريق') : (currentMode === 'single' ? 'بطاقة لاعب' : 'بطاقة فريق'), ctxLine, 2, secs, `${withLog ? 'Tournament-Log' : 'Tournament-Player'}-${safeName(name)}.png`);
     }
     const exportKnockoutSel = { n: '' };
 
 
     // ---------- صور الإقصائيات: ملخص البطولة / نتائج جولة / نتيجة مباراة (قراءة فقط) ----------
     const cleanRound = n => String(n).replace(/\u{1F3C6}/gu, '').trim();
-    const koCtx = () => { const all = Object.values(bracketState || {}); return `${tournamentName.textContent.trim() || 'البطولة الحالية'} · ${all.filter(m => m.winner).length} من ${all.length} ${arMatchW(all.length)} مكتملة`; };
+    const koCtx = () => { const all = Object.values(bracketState || {}); return `${all.filter(m => m.winner).length} من ${all.length} ${arMatchW(all.length)} مكتملة`; };   // 5.3: اسم البطولة في العنوان الفرعي
 
     async function exportKnockoutSummary() {
       exportChipCtx('ko-summary');
@@ -11767,7 +11776,7 @@ function buildLeagueStandingsCanvas() {
       secs.push(v ? { heading: 'نتيجة النهائي (معتمدة)', wide: true, rows: [['البطل', getDisplayTeamName(v.champion)], ['الوصيف', getDisplayTeamName(v.runnerUp)], ['النتيجة', v.score]] }
                   : { heading: 'حالة النهائي', rows: [['لم يُحسم النهائي بعد', '—']] });
       setCaption('Tournament-Summary.png', `ملخص البطولة: ${done} من ${all.length} ${arMatchW(all.length)} مكتملة.` + (v ? `\nبطل البطولة: ${getDisplayTeamName(v.champion)}، والوصيف: ${getDisplayTeamName(v.runnerUp)}، بنتيجة ${v.score}.` : ''));
-      await renderLeagueSheet('ملخص البطولة', koCtx(), 1, secs, 'Tournament-Summary.png');
+      await renderLeagueSheet(compName() ? `ملخص ${compName()}` : 'ملخص البطولة', koCtx(), 1, secs, 'Tournament-Summary.png');
     }
 
     async function exportKnockoutRound(roundName) {
@@ -11775,7 +11784,7 @@ function buildLeagueStandingsCanvas() {
       const r = gatherExportData().roundsData.find(x => x.roundName === roundName); if (!r) { alert('الجولة غير موجودة.'); return; }
       const items = r.matches.map(koItem);
       setCaption(`Tournament-Round-${safeName(cleanRound(roundName))}.png`, `نتائج ${cleanRound(roundName)}:\n` + items.map(it => itemLine(it) + (!it.done ? ' (لم تُلعب)' : '')).join('\n'));
-      await renderMatchSheet('نتائج جولة', koCtx(), [{ heading: cleanRound(roundName), matches: items }], `Tournament-Round-${safeName(cleanRound(roundName))}.png`);
+      await renderMatchSheet(`نتائج ${cleanRound(roundName)}`, (n => `اكتملت ${n} من ${chipMatches(r.matches.length)}`)(r.matches.filter(m => m.winner).length), [{ heading: cleanRound(roundName), matches: items }], `Tournament-Round-${safeName(cleanRound(roundName))}.png`);
     }
 
     async function exportKnockoutMatch(matchId) {
@@ -11784,7 +11793,7 @@ function buildLeagueStandingsCanvas() {
       const it = koItem(m);
       const pA = getDisplayTeamName(m.team1), pB = getDisplayTeamName(m.team2), ps = exportPathSection(m.mp, pA, pB);   // 3.6
       setCaption(`Tournament-Match-${m.matchNumber}.png`, `نتيجة المباراة (${cleanRound(m.roundName)}): ${it.a} ${it.sa} - ${it.sb} ${it.b}. الفائز: ${getDisplayTeamName(m.winner)}.` + exportPathCaption(m.mp, pA, pB));
-      await renderLeagueSheet('نتيجة مباراة', koCtx(), 1, [{ heading: `${cleanRound(m.roundName)} — مباراة ${m.matchNumber}`, matches: [it] }, ...(ps ? [ps] : [])], `Tournament-Match-${m.matchNumber}.png`);
+      await renderLeagueSheet(`نتيجة مباراة · ${cleanRound(m.roundName)}`, compName(), 1, [{ heading: `${cleanRound(m.roundName)} — مباراة ${m.matchNumber}`, matches: [it] }, ...(ps ? [ps] : [])], `Tournament-Match-${m.matchNumber}.png`);
     }
 
     const exportKoSel = { round: '', match: '' };
@@ -11829,7 +11838,7 @@ function buildLeagueStandingsCanvas() {
       if (!secs.length) { alert('لا توجد مباريات في الجولات المحددة.'); return; }
       const used = secs.map(x => x.r), total = secs.reduce((a, x) => a + x.total, 0), done = secs.reduce((a, x) => a + x.done, 0), file = `League-Round-${roundsFile(used)}.png`;
       setCaption(file, secs.map(x => `نتائج ${x.heading}:\n` + x.matches.map(it => itemLine(it) + (!it.bye && !it.done && !it.annul ? ' (لم تُلعب)' : '')).join('\n')).join('\n\n'));
-      await renderMatchSheet('نتائج جولة', `${roundsLabel(used)} · اكتملت ${done} من ${total} ${arMatchW(total)}`, secs, file);
+      await renderMatchSheet(used.length === 1 ? `نتائج الجولة ${used[0]}` : `نتائج ${roundsLabel(used)}`, `اكتملت ${done} من ${chipMatches(total)}`, secs, file);
     }
 
     async function exportLeagueUpcoming(roundsIn) {
@@ -11838,7 +11847,7 @@ function buildLeagueStandingsCanvas() {
       if (!secs.length) { alert('الجولات المحددة مكتملة كلها، لا توجد مباريات قادمة.'); return; }
       const used = secs.map(x => x.r), count = secs.reduce((a, x) => a + x.count, 0), file = `League-Upcoming-Round-${roundsFile(used)}.png`;
       setCaption(file, secs.map(x => `${x.heading}:\n` + x.matches.map(itemLine).join('\n')).join('\n\n'));
-      await renderMatchSheet('المباريات القادمة', `${roundsLabel(used)} من ${leagueExpectedTotals(leaguePlayers.length).rounds} · بانتظار اللعب: ${count === 1 ? 'مباراة واحدة' : count === 2 ? 'مباراتان' : count + (count <= 10 ? ' مباريات' : ' مباراة')}`, secs, file);
+      await renderMatchSheet(`المباريات القادمة · ${roundsLabel(used)}`, `بانتظار اللعب: ${count === 1 ? 'مباراة واحدة' : count === 2 ? 'مباراتان' : count + (count <= 10 ? ' مباريات' : ' مباراة')}`, secs, file);
     }
 
     function knockoutUpcomingMatches() {
@@ -11851,7 +11860,7 @@ function buildLeagueStandingsCanvas() {
       const secs = gatherExportData().roundsData.map(r => ({ heading: cleanRound(r.roundName), matches: r.matches.filter(m => ids.has(m.id)).map(koItem) })).filter(sec => sec.matches.length);
       if (!secs.length) { alert('لا توجد مباريات جاهزة للعب حاليًا.'); return; }
       setCaption('Tournament-Upcoming.png', 'المباريات القادمة:\n' + secs.map(sec => `${sec.heading}:\n` + sec.matches.map(itemLine).join('\n')).join('\n'));
-      await renderMatchSheet('المباريات القادمة', koCtx(), secs, 'Tournament-Upcoming.png');
+      await renderMatchSheet((cur => cur ? `المباريات القادمة · ${cur}` : 'المباريات القادمة')(secs.length === 1 ? secs[0].heading : ''), compName(), secs, 'Tournament-Upcoming.png');
     }
 
     async function exportLeagueMatch(id) {
@@ -11860,7 +11869,7 @@ function buildLeagueStandingsCanvas() {
       const it = leagueItem(m);
       const ps = exportPathSection(m.mp, m.playerA, m.playerB);   // 3.6
       setCaption(`League-Match-${m.id}.png`, `نتيجة المباراة (الجولة ${m.round}): ${m.playerA} ${m.scoreA} - ${m.scoreB} ${m.playerB}. ${leagueResultText(m)}.` + exportPathCaption(m.mp, m.playerA, m.playerB));
-      await renderLeagueSheet('نتيجة مباراة', leagueCtx(), 1, [{ heading: `الجولة ${m.round} — مباراة ${m.id}`, matches: [it] }, ...(ps ? [ps] : [])], `League-Match-${m.id}.png`);
+      await renderLeagueSheet(`نتيجة مباراة · الجولة ${m.round}`, compName('league'), 1, [{ heading: `الجولة ${m.round} — مباراة ${m.id}`, matches: [it] }, ...(ps ? [ps] : [])], `League-Match-${m.id}.png`);
     }
 
     // التفاف يستدعي الدالة الأصلية كما هي ثم يعرض الزر (لا تغيير في تسجيل النتائج)
@@ -11938,7 +11947,8 @@ function buildLeagueStandingsCanvas() {
       const ubLabel = 'بلا خسارة';
       const cn = lg ? leagueClinchesOfDay(key) : [];   // 4.3: حسم اليوم: لوحة فوق «بلا خسارة» وسطر أول في النص
       setCaption(file, (cn.length ? cn.map(o => clinchNewsText(o) + ' ' + ['🏆', '🥈', '🥉'][o.place]).join('\n') + '\n\n' : '') + `نتائج يوم ${label} (${chipMatches(list.length)}):\n` + (ub.length ? `${ubLabel}: ${ub.join('، ')}\n` : '') + items.map(itemLine).join('\n'));
-      await renderMatchSheet('نتائج اليوم', `${label} · ${chipMatches(list.length)}`, [{ heading: null, matches: items, ub: ub.length ? { label: ubLabel, names: ub } : null, cl: cn.length ? cn : null }], file);
+      const nP = new Set(list.flatMap(e => [e.a, e.b])).size, pW = lg ? chipN(nP, 'لاعب واحد', 'لاعبان', 'لاعبين', 'لاعبًا') : chipN(nP, 'طرف واحد', 'طرفان', 'أطراف', 'طرفًا');
+      await renderMatchSheet(key === nightKeyOf(Date.now()) ? 'نتائج اليوم' : 'نتائج يوم اللعب', `${label} · ${chipMatches(list.length)} · ${pW}`, [{ heading: null, matches: items, ub: ub.length ? { label: ubLabel, names: ub } : null, cl: cn.length ? cn : null }], file);
     }
 
     function historyRecords() {
@@ -11966,7 +11976,7 @@ function buildLeagueStandingsCanvas() {
       const HEAD = 64, GAP = 10, frameH = HEAD + TP + recs.reduce((a, t) => a + rowH(t), 0) + Math.max(0, recs.length - 1) * GAP + TP;
       const H = Math.ceil(top + gapC + frameH + 90);
       const { canvas, ctx } = exportNewCanvas(W, H);
-      exportBrandHeader(ctx, M, M, CW, tournamentName.textContent.trim() || 'بطولة المجلس للكيرم', 'سجل البطولات السابقة', meta);
+      exportBrandHeader(ctx, M, M, CW, tournamentName.textContent.trim() || 'بطولة المجلس للكيرم', 'سجل البطولات', meta);
       if (ctxRes.shown) exportDrawContext(ctx, ctxRes.text, W / 2, top + 4, CW, 27);
       let y = top + gapC; const cuts = [];
       exportTableFrame(ctx, M, y, CW, frameH, HEAD, B.wood, 24);
@@ -12069,7 +12079,7 @@ function buildLeagueStandingsCanvas() {
       const st = Object.assign({}, versusStory(v)), B = EXPORT_BRAND, W = 1080, M = 56, CW = W - M * 2;
       exportLastTexts = { head: st.head, sub: st.sub }; st.head = exportTextOf('head', st.head); st.sub = exportTextOf('sub', st.sub);
       const meta = [{ icon: 'calendar', label: fmtDayDate(new Date()) }];
-      const ctxOrig = v.label + (when ? ` · ${when}` : ''), ctxRes = exportContextResolve(ctxOrig);
+      const ctxOrig = when || '', ctxRes = exportContextResolve(ctxOrig);
       const top = M + exportBrandHeaderHeight(meta) + 30, gapC = ctxRes.shown ? 50 : 8, G = 20;
       const teams = !st.A.single || !st.B.single;
       const storyH = show.story ? 96 : 0, nameH = teams ? 210 : 170, rateH = show.rating ? 120 : 0;
@@ -12087,7 +12097,7 @@ function buildLeagueStandingsCanvas() {
       const tapeH = show.tape ? 70 + TP + 48 + R.length * 70 - 8 + TP : 0, h2hH = show.h2h ? 70 + TP + 186 + TP : 0;
       const H = Math.ceil(top + gapC + mainH + (probH ? G + probH : 0) + (tapeH ? G + tapeH : 0) + (h2hH ? G + h2hH : 0) + 90);
       const { canvas, ctx } = exportNewCanvas(W, H);
-      exportBrandHeader(ctx, M, M, CW, tournamentName.textContent.trim() || 'بطولة المجلس للكيرم', 'مواجهة قادمة', meta);
+      exportBrandHeader(ctx, M, M, CW, tournamentName.textContent.trim() || 'بطولة المجلس للكيرم', withComp('مواجهة قادمة', v.mode), meta);
       if (ctxRes.shown) exportDrawContext(ctx, ctxRes.text, W / 2, top + 6, CW, 27);
       exportReadable = true;   // 1.7: جسم الصورة بالمقاس المقروء
       let y = top + gapC; const cuts = [];
@@ -12228,7 +12238,7 @@ function buildLeagueStandingsCanvas() {
       const canvas = document.createElement('canvas'); canvas.width = Math.ceil(W * scale); canvas.height = Math.ceil(H * scale);
       const ctx = canvas.getContext('2d'); if (!ctx) throw new Error('Canvas 2D context unavailable');
       ctx.scale(scale, scale); ctx.textRendering = 'optimizeLegibility'; ctx.fillStyle = B.ivory; ctx.fillRect(0, 0, W, H);
-      exportBrandHeader(ctx, M, M, CW, title, 'منصة التتويج', meta);
+      exportBrandHeader(ctx, M, M, CW, title, withComp('منصة التتويج'), meta);
       if (ctxRes.shown) exportDrawContext(ctx, ctxRes.text, W / 2, top + 8, CW, 27);
       // الترتيب من اليمين (اتجاه القراءة): الثاني يمينًا، الأول في الوسط، الثالث يسارًا
       const colW = 300, gap = 18, n = list.length;
@@ -12777,7 +12787,7 @@ function buildLeagueStandingsCanvas() {
       const frameH = HEAD + TP + list.length * ROW + TP;
       const H = Math.ceil(top + gapC + frameH + 12 + (LEG ? 24 + LEG : 0) + 80);
       const { canvas, ctx } = exportNewCanvas(W, H);
-      exportBrandHeader(ctx, M, M, CW, tournamentName.textContent.trim() || 'بطولة المجلس للكيرم', 'تقييم المجلس', meta);
+      exportBrandHeader(ctx, M, M, CW, tournamentName.textContent.trim() || 'بطولة المجلس للكيرم', 'ترتيب التقييم', meta);
       if (ctxRes.shown) exportDrawContext(ctx, ctxRes.text, M + CW / 2, top + 4, CW, 26);
       // الأعمدة من اليمين
       const hasR = show.rating !== false, hasT = show.tier !== false;
@@ -13148,7 +13158,7 @@ function buildLeagueStandingsCanvas() {
       if (kind === 'runnerUp') selected = rows.slice(1,2);
       if (!selected.length) { alert('لا يوجد مركز متاح للتصدير.'); return; }
       const title = tournamentName.textContent.trim() || 'بطولة المجلس للكيرم';
-      const subtitle = kind === 'champion' ? 'بطل الدوري' : kind === 'runnerUp' ? 'وصيف الدوري' : (kind === 'top5' ? 'أفضل 5 مراكز' : 'أفضل 3 مراكز');
+      const cN = compName('league') || 'الدوري', subtitle = kind === 'champion' ? 'بطل الدوري' : kind === 'runnerUp' ? `وصيف ${cN}` : (isFinal || getLeagueProgress().completed) ? `${kind === 'top5' ? 'المراكز الخمسة الأولى' : 'المراكز الثلاثة الأولى'} · ${cN}` : `${kind === 'top5' ? 'أفضل 5' : 'أفضل 3'} حتى الآن · ${cN}`;   // 5.3
       const leagueDone = !!(isFinal && (getExportCenterSnapshot().completed || clinched));
       const earlyLine = clinched && !clinched.final ? clinchWhy(clinched) : null;
       const gold = kind === 'champion' && leagueDone ? leagueGoldenOf() : null;
@@ -13160,7 +13170,7 @@ function buildLeagueStandingsCanvas() {
           rest: [] } }], 'الدوري', '', title, `League-${kind}-Final.png`);   // 5.2: صورة البطل للبطل وحده (المركزان في «منصة التتويج» و«حصاد الدوري»)
         return;
       }
-      await renderAchievementCanvas(selected.map(r => ({ rank:r.rank, name:r.name, detail:exportPointsLabel(r.points), points:exportPointsLabel(r.points), medal:r.rank, final: leagueDone, cup: leagueDone && r.rank === 1, golden: !!gold && r.rank === 1 })), gold ? 'البطل الذهبي' : subtitle, (gold ? `دوري كامل · فوز ${gold.w}${gold.d ? ` · تعادل ${gold.d}` : ''}` : null) || earlyLine || `${isFinal ? 'الترتيب النهائي' : 'الترتيب الحالي'} للدوري`, title,
+      await renderAchievementCanvas(selected.map(r => ({ rank:r.rank, name:r.name, detail:exportPointsLabel(r.points), points:exportPointsLabel(r.points), medal:r.rank, final: leagueDone, cup: leagueDone && r.rank === 1, golden: !!gold && r.rank === 1 })), gold ? 'البطل الذهبي' : subtitle, (gold ? `دوري كامل · فوز ${gold.w}${gold.d ? ` · تعادل ${gold.d}` : ''}` : null) || earlyLine || '', title,
         `League-${kind}-${isFinal ? 'Final' : 'Live'}.png`);
     }
 
@@ -13192,7 +13202,7 @@ function buildLeagueStandingsCanvas() {
           sub: fmtDayDate(fm && fm.at ? fm.at : Date.now()), rest: kind === 'both' ? [['2', runner.name, '']] : [] };
         items = [champ];
       }
-      const subtitle = kind === 'runnerUp' ? 'وصيف البطولة' : (currentMode === 'single' ? 'البطولة الفردية' : 'بطولة الفرق');   // 3.0: الرقم في عنوان البطاقة («بطل بطولة الفرق 16»)، والشريط يذكر النوع   // 8.5: البطاقة تقول «بطل البطولة»، فالشريط يذكر نوعها بلا تكرار
+      const subtitle = kind === 'runnerUp' ? (compName() ? `وصيف ${compName()}` : 'وصيف البطولة') : (currentMode === 'single' ? 'البطولة الفردية' : 'بطولة الفرق');   // 3.0: الرقم في عنوان البطاقة («بطل بطولة الفرق 16»)، والشريط يذكر النوع   // 8.5: البطاقة تقول «بطل البطولة»، فالشريط يذكر نوعها بلا تكرار
       const detail = kind === 'runnerUp' ? (finalData.score ? `نتيجة النهائي: ${finalData.score}` : 'النتيجة النهائية') : '';   // النتيجة داخل بطاقة البطل
       const extra = [];
       if (exportParts('koFinal').path) {
@@ -15497,7 +15507,7 @@ function buildLeagueStandingsCanvas() {
     // ===================================
     // 🧭 سلوك التطبيق: إعادة الوضع للأعلى، تعديل العنوان بالضغط المطوّل، تنبيه التحديث، رقم الإصدار
     // ===================================
-    const APP_VERSION = '5.2';   // ترقيم الاعتماد (من 4 نوفمبر 2026): 1.0 ثم 1.1 … 1.9 ثم 2.0 — ويُرفع معه رقم الإصدار في sw.js
+    const APP_VERSION = '5.3';   // ترقيم الاعتماد (من 4 نوفمبر 2026): 1.0 ثم 1.1 … 1.9 ثم 2.0 — ويُرفع معه رقم الإصدار في sw.js
     (function setupAppBehaviors() {
       const root = document.documentElement;
 
