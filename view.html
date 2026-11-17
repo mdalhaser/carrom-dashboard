@@ -6056,7 +6056,7 @@ return teamName.replace('غير محدد', replacement);
         + `<g transform="translate(0 .85)">${LAUREL.stems.map(d => `<path d="${d}" fill="none" stroke="rgba(30,0,6,.55)" stroke-width="1.05" stroke-linecap="round"/>`).join('')}${LAUREL.leaves.map(l => `<path d="${l.d}" fill="rgba(30,0,6,.55)"/>`).join('')}</g>`
         + LAUREL.stems.map(d => `<path d="${d}" fill="none" stroke="#9C6A1E" stroke-width="1.05" stroke-linecap="round" stroke-linejoin="round"/>`).join('')
         + LAUREL.leaves.map(l => `<path d="${l.d}" fill="url(#${u}l)" stroke="rgba(90,55,10,.55)" stroke-width=".3"/><path d="${l.shade}" fill="rgba(96,58,10,.32)"/><path d="${l.vein}" fill="none" stroke="rgba(90,55,10,.55)" stroke-width=".3" stroke-linecap="round"/>`).join('') + '</svg>';
-      const em = ic === 'cupx' ? laurel() + reliefSVG('trophy', 'g').replace('<svg class="rlf" ', '<svg class="rmi" x="31" y="29" width="38" height="38" ')
+      const em = ic === 'cupx' ? laurel() + reliefSVG('trophy', 'g').replace('<svg class="rlf" ', '<svg class="rmi" x="27" y="25" width="46" height="46" ')
         : reliefOf(ic) ? reliefSVG(ic, 'g').replace('<svg class="rlf" ', '<svg class="rmi" x="22" y="21" width="56" height="56" ') : '';
       return `<svg class="rmd-svg" xmlns="http://www.w3.org/2000/svg" viewBox="-2 -2 104 106" aria-hidden="true"><defs>`
         + `<linearGradient id="${u}f" x1="0" y1="0" x2=".32" y2="1"><stop offset="0" stop-color="#FFF6D6"/><stop offset=".18" stop-color="#F3D486"/><stop offset=".42" stop-color="#C9963B"/><stop offset=".6" stop-color="#8E601C"/><stop offset=".8" stop-color="#EBC872"/><stop offset="1" stop-color="#7A4F12"/></linearGradient>`
@@ -15611,7 +15611,7 @@ function buildLeagueStandingsCanvas() {
     // ===================================
     // 🧭 سلوك التطبيق: إعادة الوضع للأعلى، تعديل العنوان بالضغط المطوّل، تنبيه التحديث، رقم الإصدار
     // ===================================
-    const APP_VERSION = '5.5';   // ترقيم الاعتماد (من 4 نوفمبر 2026): 1.0 ثم 1.1 … 1.9 ثم 2.0 — ويُرفع معه رقم الإصدار في sw.js
+    const APP_VERSION = '5.6';   // ترقيم الاعتماد (من 4 نوفمبر 2026): 1.0 ثم 1.1 … 1.9 ثم 2.0 — ويُرفع معه رقم الإصدار في sw.js
     (function setupAppBehaviors() {
       const root = document.documentElement;
 
