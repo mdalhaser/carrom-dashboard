@@ -1025,6 +1025,8 @@
     #resultEditBtn[hidden] { display: none !important; }
     [data-ic="pencil"]::before { --ic: var(--ic-pencil); } [data-ic="share"]::before { --ic: var(--ic-share); }
     #profileModal .score-modal-actions .btn { flex: 1; white-space: nowrap; }
+    #profileModal .score-modal-actions:has(#histHarvestBtn:not([hidden])) { grid-template-columns: 1fr 1fr; }   /* 5.7: صورتا الدوري متساويتان و«تم» بعرض كامل تحتهما */
+    #profileModal .score-modal-actions:has(#histHarvestBtn:not([hidden])) > :last-child { grid-column: 1 / -1; }
     /* ===== ملف اللاعب ===== */
     #profileModal { z-index: 10002; }
     #profileModal .modal-content { max-width: 520px; }
@@ -6379,7 +6381,8 @@ return teamName.replace('غير محدد', replacement);
       return list.map((x, i) => { const t = Number(atOf(x)); const k = Number.isFinite(t) && t > 0 ? (carry = t) : carry; return { x, k, i }; })
         .sort((a, b) => a.k - b.k || a.i - b.i).map(o => o.x);
     }
-    function leagueMatchTimes() { const at = {}; try { readMatchLog().forEach(e => { if (e.k === 'lg' && matchLogStillValid(e)) at[e.id] = e.at; }); } catch (e) {} return at; }
+    let __lgAtOverride = null;   // 5.7: أوقات مباريات دوري من السجل أثناء بناء صوره (withHistoryLeague)
+    function leagueMatchTimes() { if (__lgAtOverride) return Object.assign({}, __lgAtOverride); const at = {}; try { readMatchLog().forEach(e => { if (e.k === 'lg' && matchLogStillValid(e)) at[e.id] = e.at; }); } catch (e) {} return at; }
     // آخر 5 نتائج للاعب في الدوري بتوقيت اللعب الفعلي (المؤجلة تُحسب حين لُعبت): 'w' · 'd' · 'l'. قراءة فقط — للنسختين (7.9)
     function leagueFormOf(name, times) {
       const at = times || leagueMatchTimes();
@@ -7945,7 +7948,8 @@ currentScoreWinnerName = null;
           const h2h = leagueMatches.filter(m => isLeagueMatchCompleted(m) && !isLeagueMatchAnnulled(m) && ((m.playerA === a.a && m.playerB === a.b) || (m.playerA === a.b && m.playerB === a.a)));
           add('ch2h', 'المواجهات المباشرة', 'users', h2h.length ? `تواجها ${chipN(h2h.length, 'مرة واحدة', 'مرتين', 'مرات', 'مرة')} هذا الدوري` : 'لم يتواجها بعد');
           dflt = ['date']; break; }   // 1.8: المركزان والنقاط والمواجهات كلها داخل المقارنة
-        case 'lg-harvest': lgRoundChips(); leaderChips(); dflt = ['date']; break;   // 4.9: البطل والأرقام كلها داخل الصورة
+        case 'lg-harvest': lgRoundChips(); leaderChips(); dflt = ['date']; break;
+        case 'hl-standings': case 'hl-harvest': lgRoundChips(); leaderChips(); dflt = [defs.lend ? 'lend' : 'date']; fill = false; break;   // 5.7: صور الدوري من السجل بيوم اكتماله   // 4.9: البطل والأرقام كلها داخل الصورة
         case 'lg-report': lgRoundChips(); leaderChips(); add('lplayers', 'عدد اللاعبين', 'users', lgSt.length ? chipN(lgSt.length, 'لاعب واحد', 'لاعبان', 'لاعبين', 'لاعبًا') : '');
           if (lgP) add('lpct', 'نسبة الإنجاز', 'chart', `إنجاز ${Math.round(lgP.done / Math.max(1, lgP.total) * 100)}%`); dflt = ['date']; break;   // 1.8: كل الأرقام في «ملخص الدوري» نفسه
         case 'lg-match': { const m = safe(() => leagueMatches.find(x => x.id === a.id)); if (m) { add('mround', 'الجولة', 'flag', `الجولة ${m.round}`); const at = safe(() => leagueMatchTimes()[m.id]); if (at) add('mwhen', 'وقت تسجيل النتيجة', 'clock', `${fmtDayDate(at)} · ${fmtTimeNum(at)}`); }
@@ -11574,9 +11578,32 @@ function buildLeagueStandingsCanvas() {
         span: allTimed && allKeys.length > 1 ? hvSpan(allKeys[0], allKeys[allKeys.length - 1]) : '',
         records: R, council, clinchDay };
     }
-    async function exportLeagueHarvest() {
-      exportChipCtx('lg-harvest');
-      const D = leagueHarvestData(); if (!D) { alert('لا توجد نتائج مكتملة بعد.'); return; }
+    // ===== 5.7 — صور الدوري المكتمل من «السجل» (قراءة فقط): يُركَّب الدوري المحفوظ مكان الحالي داخل نسخة مؤقتة متزامنة،
+    // تُحسب منها البيانات واللوحة بنفس دوال الدوري المعتمدة، ثم تُعاد الحالة كما هي قبل أي انتظار (لا حفظ ولا تخزين ولا نشر أثناءها).
+    function withHistoryLeague(t, fn) {
+      const S = { leagueMatches, leaguePlayers, leagueExcluded, leagueStarted, leagueCompleted, leagueTournamentId, leagueFixtureError, leagueCurrentRound }, at = {};
+      try {
+        leagueMatches = (t.matches || []).map(h => { if (h.at) at[h.id] = h.at;
+          return { id: h.id, round: Number(String(h.roundName || '').replace(/[^\d]/g, '')) || 1, playerA: h.team1, playerB: h.team2, scoreA: Number(h.scoreA), scoreB: Number(h.scoreB),
+            status: 'completed', result: h.result, ...(h.forfeit ? { forfeit: h.winner === h.team1 ? 'B' : 'A' } : {}), ...(h.mp ? { mp: h.mp } : {}) }; });
+        leagueExcluded = (t.excluded || []).slice(); leaguePlayers = (t.participants || []).concat(leagueExcluded);
+        leagueStarted = true; leagueCompleted = true; leagueFixtureError = null; leagueTournamentId = t.id; leagueCurrentRound = 1; __lgAtOverride = at;
+        return fn();
+      } finally {
+        ({ leagueMatches, leaguePlayers, leagueExcluded, leagueStarted, leagueCompleted, leagueTournamentId, leagueFixtureError, leagueCurrentRound } = S); __lgAtOverride = null;
+      }
+    }
+    async function exportHistoryLeagueStandings(t) {
+      await exportLoadFonts(); await champCupImgReady();
+      const file = `League-Final-${String(t.id).replace(/[^\w-]+/g, '')}.png`;
+      const canvas = withHistoryLeague(t, () => { exportChipCtx('hl-standings'); exportCtxChips(); const c = buildLeagueStandingsCanvas();
+        const st = calculateLeagueStandings(), top = st.slice(0, 3).map(r => `${r.rank}- ${r.name} (${exportPointsLabel(r.points)})`).join('، ');
+        setCaption(file, `بطل ${compName('league')}: ${(st.find(r => !r.excluded && r.rank === 1) || {}).name || '—'}\nالترتيب النهائي: ${top}`); return c; });
+      await downloadCanvasAsPng(canvas, file);
+    }
+    async function exportLeagueHarvest(t) {
+      exportChipCtx(t ? 'hl-harvest' : 'lg-harvest');
+      const D = t ? withHistoryLeague(t, () => { exportCtxChips(); return leagueHarvestData(); }) : leagueHarvestData(); if (!D) { alert('لا توجد نتائج مكتملة بعد.'); return; }
       await exportLoadFonts();
       const B = EXPORT_BRAND, W = 1080, M = 56, CW = W - M * 2, GAPS = 26, TP = EXPORT_TABLE_PAD, RX = M + TP, RW = CW - 2 * TP;
       const meta = [{ icon: 'calendar', label: exportTodayLabel() }], top = M + exportBrandHeaderHeight(meta) + 34;
@@ -11972,13 +11999,17 @@ function buildLeagueStandingsCanvas() {
     // (لا يمس بيانات البطولة/الدوري) ويشمل فقط المباريات المحفوظة بعد إضافة هذه الميزة.
     const MATCH_LOG_KEY = 'exportCenterMatchLog';
     function readMatchLog() { try { const v = JSON.parse(localStorage.getItem(MATCH_LOG_KEY) || '[]'); return Array.isArray(v) ? v : []; } catch (e) { return []; } }
+    // 5.7: كل مدخل جديد يحمل معرّف بطولته (t)، فلا يُقرأ مع بطولة أخرى تتكرر فيها أرقام المباريات والأسماء (الدوري 2 بنفس اللاعبين)
+    const logTidOf = k => k === 'lg' ? leagueTournamentId : currentTournamentId;
     function logPlayedMatch(entry) {
-      let log = readMatchLog().filter(e => !(e.k === entry.k && e.id === entry.id && e.a === entry.a && e.b === entry.b));
+      const t = logTidOf(entry.k); if (t) entry = Object.assign({ t }, entry);
+      let log = readMatchLog().filter(e => !(e.k === entry.k && e.id === entry.id && e.a === entry.a && e.b === entry.b && (e.t || null) === (entry.t || null)));
       log.push(Object.assign({ at: Date.now() }, entry)); log = log.slice(-300);
       try { localStorage.setItem(MATCH_LOG_KEY, JSON.stringify(log)); } catch (e) {}
     }
     function matchLogStillValid(e) {   // يتجاهل ما تغيّر أو أُعيد ضبطه أو ينتمي لبطولة أخرى
-      if (e.k === 'lg') { const m = leagueMatches.find(x => x.id === e.id); return !!m && isLeagueMatchCompleted(m) && m.playerA === e.a && m.playerB === e.b && Number(m.scoreA) === e.sa && Number(m.scoreB) === e.sb; }
+      if (e.t && e.t !== logTidOf(e.k)) return false;   // 5.7: لبطولة أخرى (المدخلات القديمة بلا معرّف تبقى كما كانت)
+      if (e.k === 'lg') { const m = leagueMatches.find(x => x.id === e.id); return !!m && !m.auto && isLeagueMatchCompleted(m) && m.playerA === e.a && m.playerB === e.b && Number(m.scoreA) === e.sa && Number(m.scoreB) === e.sb; }
       const m = bracketState[e.id]; if (!m || m.team1 !== e.a || m.team2 !== e.b || m.winner !== e.w) return false;
       const s1 = m.winner === m.team1 ? m.winnerScore : m.loserScore, s2 = m.winner === m.team1 ? m.loserScore : m.winnerScore;
       return Number(s1) === e.sa && Number(s2) === e.sb;
@@ -14871,9 +14902,11 @@ function buildLeagueStandingsCanvas() {
       const acts = modal && modal.querySelector('.score-modal-actions');
       if (!modal || !body || !statsContent) return;
       const VIEW = !!window.CARROM_VIEW, H = escHTML;
-      let xb = null, shownId = null;
-      if (!VIEW && acts) { xb = document.createElement('button'); xb.type = 'button'; xb.className = 'btn'; xb.id = 'histShareBtn'; xb.dataset.ic = 'share'; xb.textContent = 'صورة البطولة'; xb.hidden = true; acts.insertBefore(xb, acts.lastElementChild); }
-      new MutationObserver(() => { const ht = body.querySelector('.ht'); if (xb) xb.hidden = !ht || ht.classList.contains('lg'); if (!ht) shownId = null; }).observe(body, { childList: true });
+      let xb = null, xh = null, shownId = null;
+      if (!VIEW && acts) { xb = document.createElement('button'); xb.type = 'button'; xb.className = 'btn'; xb.id = 'histShareBtn'; xb.dataset.ic = 'share'; xb.textContent = 'صورة البطولة'; xb.hidden = true; acts.insertBefore(xb, acts.lastElementChild);
+        // 5.7: الدوري المكتمل: «صورة الترتيب» (الترتيب النهائي) و«حصاد الدوري» من السجل نفسه، فتبقيان متاحتين بعد بدء الدوري التالي
+        xh = document.createElement('button'); xh.type = 'button'; xh.className = 'btn'; xh.id = 'histHarvestBtn'; xh.dataset.ic = 'star'; xh.textContent = 'حصاد الدوري'; xh.hidden = true; acts.insertBefore(xh, xb); }
+      new MutationObserver(() => { const ht = body.querySelector('.ht'); if (xb) xb.hidden = !ht; if (xh) xh.hidden = !ht || !ht.classList.contains('lg'); if (!ht) shownId = null; }).observe(body, { childList: true });
       const clean = n => String(n || '').replace(/\u{1F3C6}/gu, '').trim();
       const members = (t, side) => { const ms = (t.teamMap && t.teamMap[side]) || (t.mode === 'single' || t.mode === 'league' ? [side] : String(side || '').split(' + ')); return ms.filter(Boolean); };
       const names = (t, side) => members(t, side).map(x => `<button type="button" class="ht-p" data-pn="${H(x)}">${H(x)}</button>`).join('<span class="pl" aria-hidden="true">+</span>') || '—';
@@ -14926,7 +14959,8 @@ function buildLeagueStandingsCanvas() {
         window.__pfBack = null; shownId = id;
         body.innerHTML = html(t); modal.style.display = 'flex';
         const mc = modal.querySelector('.modal-content'); if (mc) mc.scrollTop = 0;
-        if (xb) xb.hidden = t.mode === 'league';   // صورة الدوري المكتمل: لاحقًا بنفس هوية صورة ترتيب الدوري
+        if (xb) { xb.hidden = false; xb.textContent = t.mode === 'league' ? 'صورة الترتيب' : 'صورة البطولة'; xb.dataset.ic = t.mode === 'league' ? 'table' : 'share'; }   // 5.7: الدوري بهوية صورة ترتيب الدوري
+        if (xh) xh.hidden = t.mode !== 'league';
       }
       window.carromOpenTournament = open;
       const fire = e => { const it = e.target.closest('.ht-open[data-tid]'); if (!it || !statsContent.contains(it)) return; if (e.type === 'keydown' && e.key !== 'Enter' && e.key !== ' ') return; if (e.type === 'keydown') e.preventDefault(); open(it.dataset.tid); };
@@ -14934,7 +14968,10 @@ function buildLeagueStandingsCanvas() {
       // لمس اسم: ملف اللاعب، و«تم» يرجع إلى ورقة البطولة
       body.addEventListener('click', e => { const b = e.target.closest('.ht .ht-p'); if (!b || !shownId) return; const id = shownId;
         try { window.carromOpenProfile(b.dataset.pn); window.__pfBack = () => open(id); } catch (x) {} });
+      if (xh) xh.addEventListener('click', () => { const t = (tournamentHistory || []).find(x => x.id === shownId); if (!t || t.mode !== 'league') return;
+        exportGuardedRun(() => exportLeagueHarvest(t), xh, 'جارٍ الإنشاء…'); });
       if (xb) xb.addEventListener('click', () => { const t = (tournamentHistory || []).find(x => x.id === shownId); if (!t) return;
+        if (t.mode === 'league') { exportGuardedRun(() => exportHistoryLeagueStandings(t), xb, 'جارٍ الإنشاء…'); return; }
         exportGuardedRun(async () => {
           exportChipCtx('');
           const lg = t.mode === 'league', ctx = `${histTitle(t)} · ${fmtDayDate(t.date)}`, file = `Tournament-${String(t.id).replace(/[^\w-]+/g, '')}.png`;
