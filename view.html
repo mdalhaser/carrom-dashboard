@@ -8323,7 +8323,7 @@ currentScoreWinnerName = null;
     function exportFooterDivider(ctx, x, y, w) {
       const B = EXPORT_BRAND;
       const footerText = exportFooterHidden ? '' : (typeof exportFooterOverride === 'string' ? exportFooterOverride : exportSettings.footer);
-      if (String(footerText || '').trim()) exportText(ctx, String(footerText).trim(), x + w / 2, y + 24, { size: 21, weight: 700, color: B.muted, maxW: w - 40, min: 14 });
+      if (String(footerText || '').trim()) { exportText(ctx, String(footerText).trim(), x + w / 2, y + 24, { size: 21, weight: 700, color: B.muted, maxW: w - 40, min: 14 }); try { ctx.canvas.__footer = true; } catch (e) {} }   // 5.9: المقاسات لا تقص السطر السفلي
       ctx.save();
       ctx.strokeStyle = B.lineStrong;
       ctx.lineWidth = 2;
@@ -8696,7 +8696,7 @@ currentScoreWinnerName = null;
       const BZ = 10, PILL = 54;                                     // إطار البطاقة الأبيض، ومساحة كبسولة رقم الصفحة
       const lw = Number(src.__lw) > 0 ? Number(src.__lw) : 1080, cutK = 1080 / lw;
       const TR = F.trim || 0, SW = 1080 - 2 * TR;                                        // 5.1: الستوري يقص جزءًا من الهامش العاجي الجانبي (الإطار البيج يكفي هامشًا)
-      const VT = F.trimTop || 0, VB = F.trimBottom || 0;                                  // 5.1: والهامش العاجي العلوي والسفلي المكرر (الصفحة الواحدة)
+      const VT = F.trimTop || 0, VB = src.__footer ? 0 : (F.trimBottom || 0), PADB = src.__footer ? 22 : 0;   // 5.9: سطر التاريخ أسفل الصورة لا يُقص، ومساحة عاجية تحته                                  // 5.1: والهامش العاجي العلوي والسفلي المكرر (الصفحة الواحدة)
       const f = (F.W - F.pad * 2 - BZ * 2) / SW;                                         // مقياس ملاءمة العرض (نفسه في كل الصفحات)
       const availFor = paged => F.H - F.top - F.bottom - BZ * 2 - (paged ? PILL : 0);
       const frames = (src.__frames || []).map(r => ({ y: r.y * cutK, h: r.h * cutK, headH: r.headH * cutK, x: r.x * cutK, w: r.w * cutK, r: r.r * cutK }));
@@ -8748,7 +8748,7 @@ currentScoreWinnerName = null;
           const r = ctx.createRadialGradient(F.W / 2, F.H * 0.38, 0, F.W / 2, F.H * 0.38, Math.max(F.W, F.H) * 0.7);
           r.addColorStop(0, 'rgba(255,250,242,0.55)'); r.addColorStop(1, 'rgba(255,250,242,0)'); ctx.fillStyle = r; ctx.fillRect(0, 0, F.W, F.H); }
         const avail = availFor(!single);
-        let ff = f, contentH = (single ? (b - a) : pageCost(a, b)) * f;
+        let ff = f, contentH = (single ? (b - a + PADB) : pageCost(a, b) + (b >= srcH - 1 ? PADB : 0)) * f;
         if (contentH > avail) { ff = f * avail / contentH; contentH = avail; }        // صفحة واحدة بتصغير بسيط، أو صورة بلا حدود قطع
         if (!single) contentH = Math.max(contentH, uniH);
         const cardW = SW * ff, cardX = (F.W - cardW) / 2, cardY = F.top + BZ + (avail - contentH) / 2;
